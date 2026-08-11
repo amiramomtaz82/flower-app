@@ -1,18 +1,22 @@
 import 'package:dio/dio.dart';
 
-import '../../../../config/shared_prefrences/shared_prefs.dart';
+import '../../../../config/secure_storage/secure_storage.dart';
+
+
 
 class AuthInterceptor extends Interceptor {
-
   @override
-  void onRequest(RequestOptions options,
-      RequestInterceptorHandler handler) async {
+  Future<void> onRequest(
+      RequestOptions options,
+      RequestInterceptorHandler handler,
+      ) async {
+    final token = await SecureStorage.getToken();
 
-    final token= await SharedPrefsUtils().getToken();
-    options.headers.addAll({
+    if (token != null && token.isNotEmpty) {
+      options.headers['token'] = token;
+    }
 
-      "token": token
-    });
-    super.onRequest(options, handler);
+    handler.next(options);
   }
 }
+
