@@ -21,4 +21,17 @@ class AuthInterceptor extends Interceptor {
 
     handler.next(options);
   }
+
+  // If the backend returns a 401 Unauthorized error,
+  //we can delete the token from secure storage
+  @override
+  Future<void> onError(
+    DioException err,
+    ErrorInterceptorHandler handler,
+  ) async {
+    if (err.response?.statusCode == 401) {
+      await _secureStorage.deleteToken();
+    }
+    handler.next(err);
+  }
 }
