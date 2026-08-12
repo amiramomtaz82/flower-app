@@ -1,7 +1,7 @@
 enum ApiStatus { initial, loading, success, error }
 
 class Resource<E> {
-  E? data = null;
+  E? data;
   String? errorMessage;
   late ApiStatus status;
 
