@@ -1,3 +1,4 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flower_app/features/home/presentation/home_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -7,10 +8,14 @@ import 'core/app_theme/app_theme.dart';
 import 'package:easy_localization/easy_localization.dart';
 
 import 'core/go_routes/app_router.dart';
+import 'firebase_options.dart';
 
 void main() async {
   configureDependencies();
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   await EasyLocalization.ensureInitialized();
   runApp(
     EasyLocalization(
