@@ -10,13 +10,13 @@ class AuthInterceptor extends Interceptor {
 
   @override
   Future<void> onRequest(
-    RequestOptions options,
-    RequestInterceptorHandler handler,
-  ) async {
-    final token = await _secureStorage.getToken();
+      RequestOptions options,
+      RequestInterceptorHandler handler,
+      ) async {
+    final token = await _secureStorage.getAccessToken();
 
     if (token != null && token.isNotEmpty) {
-      options.headers['token'] = token;
+      options.headers['accessToken'] = token;
     }
 
     handler.next(options);
@@ -26,11 +26,11 @@ class AuthInterceptor extends Interceptor {
   //we can delete the token from secure storage
   @override
   Future<void> onError(
-    DioException err,
-    ErrorInterceptorHandler handler,
-  ) async {
+      DioException err,
+      ErrorInterceptorHandler handler,
+      ) async {
     if (err.response?.statusCode == 401) {
-      await _secureStorage.deleteToken();
+      await _secureStorage.deleteAccessToken();
     }
     handler.next(err);
   }
