@@ -1,7 +1,7 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:injectable/injectable.dart';
 
-import '../../features/auth/data/models/LoginResponse.dart';
+import '../../features/auth/data/models/login_response.dart';
 import 'dart:convert';
 @lazySingleton
 class SecureStorage {

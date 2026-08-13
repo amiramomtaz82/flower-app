@@ -1,4 +1,4 @@
-import '../../models/LoginResponse.dart';
+import '../../models/login_response.dart';
 
 abstract interface class AuthLocalDataSource {
 

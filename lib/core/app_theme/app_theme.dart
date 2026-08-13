@@ -60,7 +60,7 @@ class AppTheme {
         ),
         bodySmall: TextStyle(
           fontSize: 12,
-          color: colors.hint,
+          color: colors.textPrimary,
         ),
       ),
 

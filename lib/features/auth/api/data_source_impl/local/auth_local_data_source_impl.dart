@@ -1,6 +1,6 @@
 import 'package:flower_app/config/secure_storage/secure_storage.dart';
 import 'package:flower_app/features/auth/data/data_source/local/auth_local_data_source.dart';
-import 'package:flower_app/features/auth/data/models/LoginResponse.dart';
+import 'package:flower_app/features/auth/data/models/login_response.dart';
 import 'package:injectable/injectable.dart';
 
 @LazySingleton(as: AuthLocalDataSource)

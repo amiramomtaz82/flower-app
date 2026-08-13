@@ -4,7 +4,7 @@ import 'package:flower_app/features/auth/data/data_source/remote/auth_remote_dat
 import 'package:flower_app/features/auth/data/models/login_request.dart';
 import 'package:injectable/injectable.dart';
 
-import '../../../data/models/LoginResponse.dart';
+import '../../../data/models/login_response.dart';
 
 @Injectable(as: AuthRemoteDataSource)
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
