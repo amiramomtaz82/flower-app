@@ -3,6 +3,7 @@ import 'package:flower_app/features/auth/data/data_source/local/auth_local_data_
 import 'package:flower_app/features/auth/data/data_source/remote/auth_remote_data_source.dart';
 import 'package:flower_app/features/auth/data/models/login_request.dart';
 import 'package:flower_app/features/auth/data/models/login_response.dart';
+import 'package:flower_app/features/auth/domain/entities/login_entity.dart';
 import 'package:flower_app/features/auth/domain/repo/auth_repo.dart';
 import 'package:injectable/injectable.dart';
 
@@ -11,36 +12,54 @@ class AuthRepoImpl implements AuthRepo {
   final AuthRemoteDataSource _authRemoteDataSource;
   final AuthLocalDataSource _authLocalDataSource;
 
-  AuthRepoImpl(this._authRemoteDataSource, this._authLocalDataSource);
+  AuthRepoImpl(
+      this._authRemoteDataSource,
+      this._authLocalDataSource,
+      );
 
   @override
-  Future<BaseResponse<LoginResponse>> login(LoginRequest request) async {
-    final BaseResponse<LoginResponse> response = await _authRemoteDataSource
-        .login(request);
+  Future<BaseResponse<LoginEntity>> login(
+      LoginRequest request,
+      ) async {
+    final BaseResponse<LoginResponse> response =
+    await _authRemoteDataSource.login(request);
 
     switch (response) {
       case SuccessResponse<LoginResponse>():
-        if (response.data.accessToken != null) {
+        final loginResponse = response.data;
+
+        // Save access token
+        if (loginResponse.accessToken != null) {
           await _authLocalDataSource.saveToken(
-            response.data.accessToken!,
+            loginResponse.accessToken!,
           );
         }
 
-        if (response.data.refreshToken != null) {
+        // Save refresh token
+        if (loginResponse.refreshToken != null) {
           await _authLocalDataSource.saveRefreshToken(
-            response.data.refreshToken!,
+            loginResponse.refreshToken!,
           );
         }
 
-        if (response.data.user != null) {
+        // Save user
+        if (loginResponse.user != null) {
           await _authLocalDataSource.saveUser(
-            response.data.user!,
+            loginResponse.user!,
           );
         }
 
-        return SuccessResponse(response.data);
+        // Convert Data Model → Domain Entity
+        final loginEntity = loginResponse.toEntity();
+
+        return SuccessResponse<LoginEntity>(
+          loginEntity,
+        );
+
       case ErrorResponse<LoginResponse>():
-        return ErrorResponse<LoginResponse>(errMessage: response.errMessage);
+        return ErrorResponse<LoginEntity>(
+          errMessage: response.errMessage,
+        );
     }
   }
 }
