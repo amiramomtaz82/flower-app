@@ -9,5 +9,13 @@
   "home": "الرئيسية",
   "search": "بحث",
   "profile": "الملف الشخصي",
-  "enter your email": "ادخل بريدك الالكتروني"
+  "enter your email": "ادخل بريدك الالكتروني",
+  "login": "تسجيل الدخول",
+  "enterYourPassword": "ادخل كلمه السر",
+  "password": "كلمة السر",
+  "forgetPassword": "هل نسيت كلمة المرور؟",
+  "rememberMe": "تذكرني",
+  "continueAsGuest": "المتابعة كزائر",
+  "dontHaveAnAccount": "ليس لديك حساب؟",
+  "signUp": "إنشاء حساب"
 }

@@ -74,7 +74,7 @@ class AppTheme {
 
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 20,
-          vertical: 12,
+          vertical: 16,
         ),
 
         labelStyle: TextStyle(
@@ -87,7 +87,7 @@ class AppTheme {
         floatingLabelStyle: TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.w500,
-          color: colors.error,
+          color: colors.darkGrey,
         ),
 
         hintStyle: TextStyle(

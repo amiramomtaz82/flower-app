@@ -7,5 +7,14 @@
   "home": "Home",
   "search": "Search",
   "profile": "Profile",
-  "enter your email": "Enter your email"
+  "enter your email": "Enter your email",
+  "login": "Login",
+  "enterYourPassword": "Enter your password",
+  "password": "Password",
+  "forget password": "Forget password ?",
+  "rememberMe": "Remember me",
+  "continueAsGuest": "Continue as guest",
+  "dontHaveAnAccount": "Don't have an account ?",
+  "SignUp": "Sine up"
+
 }
