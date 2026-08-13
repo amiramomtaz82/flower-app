@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';
 import 'package:retrofit/retrofit.dart';
 
-import '../../data/models/LoginRequest.dart';
+import '../../data/models/login_request.dart';
 import '../../data/models/LoginResponse.dart';
 part 'auth_api_client.g.dart';
 
