@@ -1,9 +1,15 @@
+import 'package:flower_app/config/base_response/base_response.dart';
+import 'package:flower_app/features/auth/api/client/auth_api_client.dart';
+import 'package:flower_app/features/auth/data/models/LoginRequest.dart';
+import 'package:flower_app/features/auth/data/models/LoginResponse.dart';
+
 abstract interface class AuthRemoteDataSource {
-  // TODO: implement login
+  AuthApiClient _apiClient;
 
-  // TODO: implement register
+  AuthRemoteDataSource(this._apiClient);
 
-  // TODO: implement forgetPassword
 
-  // TODO: implement resetPassword
+  Future<BaseResponse<LoginResponse>> login(LoginRequest request);
+
+
 }

@@ -1,9 +1,7 @@
+import 'package:flower_app/config/base_response/base_response.dart';
+
+import '../../data/models/LoginRequest.dart';
+
 abstract interface class AuthRepo {
-  // TODO: implement register
-
-  // TODO: implement login
-
-  // TODO: implement forgetPassword
-
-  // TODO: implement resetPassword
+  Future<BaseResponse<void>> login(LoginRequest request);
 }

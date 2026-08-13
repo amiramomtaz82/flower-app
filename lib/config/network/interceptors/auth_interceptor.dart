@@ -13,7 +13,7 @@ class AuthInterceptor extends Interceptor {
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) async {
-    final token = await _secureStorage.getToken();
+    final token = await _secureStorage.getAccessToken();
 
     if (token != null && token.isNotEmpty) {
       options.headers['token'] = token;
@@ -30,7 +30,7 @@ class AuthInterceptor extends Interceptor {
     ErrorInterceptorHandler handler,
   ) async {
     if (err.response?.statusCode == 401) {
-      await _secureStorage.deleteToken();
+      await _secureStorage.deleteAccessToken();
     }
     handler.next(err);
   }
