@@ -16,7 +16,7 @@ class AuthInterceptor extends Interceptor {
     final token = await _secureStorage.getAccessToken();
 
     if (token != null && token.isNotEmpty) {
-      options.headers['token'] = token;
+      options.headers['accessToken'] = token;
     }
 
     handler.next(options);
