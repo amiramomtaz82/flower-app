@@ -9,11 +9,5 @@ abstract class AuthApiClient {
   @factoryMethod
   factory AuthApiClient(Dio dio) = _AuthApiClient;
 
-  // TODO: implement login
 
-  // TODO: implement register
-
-  // TODO: implement forgetPassword
-
-  // TODO: implement resetPassword
 }
