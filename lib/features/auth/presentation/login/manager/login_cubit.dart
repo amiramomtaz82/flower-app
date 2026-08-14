@@ -72,7 +72,10 @@ class LoginCubit extends Cubit<LoginState> {
       password: state.password,
     );
 
-    final result = await _loginUseCase(request);
+    final result = await _loginUseCase(
+      email: state.email,
+      password: state.password,
+    );
 
     switch (result) {
       case SuccessResponse<LoginEntity>():

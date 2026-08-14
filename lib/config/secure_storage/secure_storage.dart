@@ -66,4 +66,19 @@ class SecureStorage {
     await _storage.delete(key:"refreshToken");
     await _storage.delete(key: "user");
   }
+
+  static const String _deviceIdKey = 'device_id';
+
+  Future<void> saveDeviceId(String deviceId) async {
+    await _storage.write(
+      key: _deviceIdKey,
+      value: deviceId,
+    );
+  }
+
+  Future<String?> getDeviceId() async {
+    return await _storage.read(
+      key: _deviceIdKey,
+    );
+  }
 }
