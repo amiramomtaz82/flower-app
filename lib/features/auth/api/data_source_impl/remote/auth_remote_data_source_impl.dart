@@ -6,23 +6,48 @@ import 'package:injectable/injectable.dart';
 
 import '../../../data/models/login_response.dart';
 
-@Injectable(as: AuthRemoteDataSource)
+@LazySingleton(as: AuthRemoteDataSource)
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   final AuthApiClient _authApiClient;
+
   AuthRemoteDataSourceImpl(this._authApiClient);
 
-  @override
-  Future<BaseResponse<LoginResponse>> login (LoginRequest request) async{
+  bool useDummyLogin = true;
 
+  @override
+  Future<BaseResponse<LoginResponse>> login(LoginRequest request) async {
+    if (useDummyLogin) {
+      await Future.delayed(const Duration(seconds: 2));
+
+      if (request.email == "customer@example.com" &&
+          request.password == "Password123") {
+        return SuccessResponse(
+          LoginResponse(
+            accessToken: "dummy_access_token",
+            refreshToken: "dummy_refresh_token",
+            expiresIn: 900,
+            role: "Customer",
+            user: User(
+              id: "123",
+              email: request.email,
+              fullName: "Ahmed Hassan",
+              role: "Customer",
+              isActive: true,
+            ),
+          ),
+        );
+      }
+
+      return ErrorResponse(errMessage: "Invalid email or password");
+    }
+
+    // Real API
     try {
-      LoginResponse response = await _authApiClient.login(request);
+      final response = await _authApiClient.login(request);
+
       return SuccessResponse<LoginResponse>(response);
     } on Exception catch (e) {
-      return ErrorResponse<LoginResponse>(error:e);
+      return ErrorResponse<LoginResponse>(error: e);
     }
   }
-
-  }
-
-
-
+}

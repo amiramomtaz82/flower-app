@@ -17,5 +17,6 @@
   "rememberMe": "تذكرني",
   "continueAsGuest": "المتابعة كزائر",
   "dontHaveAnAccount": "ليس لديك حساب؟",
-  "signUp": "إنشاء حساب"
+  "signUp": "إنشاء حساب",
+  "someThingWentWrong": "حدث خطأ ما، يرجى المحاولة مرة أخرى لاحقًا"
 }
