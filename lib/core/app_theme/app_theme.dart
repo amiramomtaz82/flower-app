@@ -97,7 +97,7 @@ class AppTheme {
 
         errorStyle: TextStyle(
           fontSize: 12,
-          color: colors.error,
+          color: colors.darkGrey,
         ),
 
         border: OutlineInputBorder(
