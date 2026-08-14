@@ -17,7 +17,7 @@ class LoginCubit extends Cubit<LoginState> {
   LoginCubit(this._loginUseCase)
       : super(LoginState.initial());
 
-  void doEvents(LoginEvent event) {
+  Future<void> doEvents(LoginEvent event)async {
     switch (event) {
       case EmailChanged():
         _onEmailChanged(event.email);

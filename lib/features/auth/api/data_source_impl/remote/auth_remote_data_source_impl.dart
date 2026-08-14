@@ -12,7 +12,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
   AuthRemoteDataSourceImpl(this._authApiClient);
 
-  bool useDummyLogin = true;
+  bool useDummyLogin = false;
 
   @override
   Future<BaseResponse<LoginResponse>> login(LoginRequest request) async {

@@ -13,10 +13,7 @@ import 'package:flower_app/features/auth/domain/entities/login_entity.dart';
 
 import 'auth_repo_impl_test.mocks.dart';
 
-@GenerateMocks([
-  AuthRemoteDataSource,
-  AuthLocalDataSource,
-])
+@GenerateMocks([AuthRemoteDataSource, AuthLocalDataSource])
 void main() {
   provideDummy<BaseResponse<LoginResponse>>(
     SuccessResponse<LoginResponse>(
@@ -37,10 +34,7 @@ void main() {
     mockRemoteDataSource = MockAuthRemoteDataSource();
     mockLocalDataSource = MockAuthLocalDataSource();
 
-    repo = AuthRepoImpl(
-      mockRemoteDataSource,
-      mockLocalDataSource,
-    );
+    repo = AuthRepoImpl(mockRemoteDataSource, mockLocalDataSource);
   });
 
   group('AuthRepoImpl login', () {
@@ -65,13 +59,10 @@ void main() {
 
     test(
       'should save tokens and user and return SuccessResponse when remote login succeeds',
-          () async {
+      () async {
         // Arrange
-        when(mockRemoteDataSource.login(request))
-            .thenAnswer(
-              (_) async => SuccessResponse<LoginResponse>(
-            loginResponse,
-          ),
+        when(mockRemoteDataSource.login(request)).thenAnswer(
+          (_) async => SuccessResponse<LoginResponse>(loginResponse),
         );
 
         when(
@@ -90,48 +81,32 @@ void main() {
         final result = await repo.login(request);
 
         // Assert
-        expect(
-          result,
-          isA<SuccessResponse<LoginEntity>>(),
-        );
+        expect(result, isA<SuccessResponse<LoginEntity>>());
 
-        final success =
-        result as SuccessResponse<LoginEntity>;
+        final success = result as SuccessResponse<LoginEntity>;
 
-        expect(
-          success.data.accessToken,
-          'access_token',
-        );
+        expect(success.data.accessToken, 'access_token');
 
         // Verify remote data source was called
-        verify(
-          mockRemoteDataSource.login(request),
-        ).called(1);
+        verify(mockRemoteDataSource.login(request)).called(1);
 
         // Verify access token was saved
-        verify(
-          mockLocalDataSource.saveToken('access_token'),
-        ).called(1);
+        verify(mockLocalDataSource.saveToken('access_token')).called(1);
 
         // Verify refresh token was saved
-        verify(
-          mockLocalDataSource.saveRefreshToken('refresh_token'),
-        ).called(1);
+        verify(mockLocalDataSource.saveRefreshToken('refresh_token')).called(1);
 
         // Verify user was saved
-        verify(
-          mockLocalDataSource.saveUser(loginResponse.user!),
-        ).called(1);
+        verify(mockLocalDataSource.saveUser(loginResponse.user!)).called(1);
       },
     );
 
     test(
       'should return ErrorResponse and not save anything when remote login fails',
-          () async {
+      () async {
         // Arrange
-        when(mockRemoteDataSource.login(request))
-            .thenAnswer(
-              (_) async => ErrorResponse<LoginResponse>(
+        when(mockRemoteDataSource.login(request)).thenAnswer(
+          (_) async => ErrorResponse<LoginResponse>(
             errMessage: 'Invalid email or password',
           ),
         );
@@ -140,42 +115,27 @@ void main() {
         final result = await repo.login(request);
 
         // Assert
-        expect(
-          result,
-          isA<ErrorResponse<LoginEntity>>(),
-        );
+        expect(result, isA<ErrorResponse<LoginEntity>>());
 
-        final error =
-        result as ErrorResponse<LoginEntity>;
+        final error = result as ErrorResponse<LoginEntity>;
 
-        expect(
-          error.errMessage,
-          'Invalid email or password',
-        );
+        expect(error.errMessage, 'Invalid email or password');
 
         // Remote should be called
-        verify(
-          mockRemoteDataSource.login(request),
-        ).called(1);
+        verify(mockRemoteDataSource.login(request)).called(1);
 
         // Nothing should be saved
-        verifyNever(
-          mockLocalDataSource.saveToken(any),
-        );
+        verifyNever(mockLocalDataSource.saveToken(any));
 
-        verifyNever(
-          mockLocalDataSource.saveRefreshToken(any),
-        );
+        verifyNever(mockLocalDataSource.saveRefreshToken(any));
 
-        verifyNever(
-          mockLocalDataSource.saveUser(any),
-        );
+        verifyNever(mockLocalDataSource.saveUser(any));
       },
     );
 
     test(
       'should save only available data when access token, refresh token or user is null',
-          () async {
+      () async {
         // Arrange
         final responseWithNulls = LoginResponse(
           accessToken: null,
@@ -185,37 +145,23 @@ void main() {
           user: null,
         );
 
-        when(mockRemoteDataSource.login(request))
-            .thenAnswer(
-              (_) async => SuccessResponse<LoginResponse>(
-            responseWithNulls,
-          ),
+        when(mockRemoteDataSource.login(request)).thenAnswer(
+          (_) async => SuccessResponse<LoginResponse>(responseWithNulls),
         );
 
         // Act
         final result = await repo.login(request);
 
         // Assert
-        expect(
-          result,
-          isA<SuccessResponse<LoginEntity>>(),
-        );
+        expect(result, isA<SuccessResponse<LoginEntity>>());
 
-        verify(
-          mockRemoteDataSource.login(request),
-        ).called(1);
+        verify(mockRemoteDataSource.login(request)).called(1);
 
-        verifyNever(
-          mockLocalDataSource.saveToken(any),
-        );
+        verifyNever(mockLocalDataSource.saveToken(any));
 
-        verifyNever(
-          mockLocalDataSource.saveRefreshToken(any),
-        );
+        verifyNever(mockLocalDataSource.saveRefreshToken(any));
 
-        verifyNever(
-          mockLocalDataSource.saveUser(any),
-        );
+        verifyNever(mockLocalDataSource.saveUser(any));
       },
     );
   });
