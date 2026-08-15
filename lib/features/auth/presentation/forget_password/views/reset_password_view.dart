@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import '../bloc/forget_password_bloc.dart';
 import '../bloc/forget_password_event.dart';
 import '../bloc/forget_password_state.dart';
+import '../widgets/auth_app_bar.dart';
 import '../widgets/auth_header_text.dart';
 import '../widgets/auth_submit_button.dart';
 
@@ -65,21 +66,8 @@ class _ResetPasswordViewState extends State<ResetPasswordView> {
 
   @override
   Widget build(BuildContext context) {
-    final appTheme = Theme.of(context);
     return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
-          onPressed: () {
-            context.pop();
-          },
-        ),
-        titleSpacing: 0,
-        title: Text(
-          AppStrings.password.tr(),
-          style: appTheme.textTheme.titleLarge,
-        ),
-      ),
+      appBar: const AuthAppBar(title: AppStrings.password),
       body: BlocListener<ForgetPasswordBloc, ForgetPasswordState>(
         listenWhen: (previous, current) =>
             previous.uiAction != current.uiAction,
