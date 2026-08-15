@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
 import 'config/di/di.dart';
+import 'config/locale/locale_service.dart';
 import 'core/app_theme/app_theme.dart';
 
 import 'package:easy_localization/easy_localization.dart';
@@ -31,6 +32,8 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    getIt<LocaleService>().languageCode = context.locale.languageCode;
+
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,

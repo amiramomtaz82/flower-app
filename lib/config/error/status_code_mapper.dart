@@ -1,26 +1,28 @@
+import '../../core/app_constants/app_strings.dart';
+
 class StatusCodeMapper {
   StatusCodeMapper._();
 
   static String toMessage(int? statusCode) {
     switch (statusCode) {
       case 400:
-        return 'Invalid request, please check your input.';
+        return AppStrings.invalidRequest;
       case 401:
-        return 'Your session has expired, please log in again.';
+        return AppStrings.sessionExpired;
       case 403:
-        return 'You don\'t have permission to do this.';
+        return AppStrings.noPermission;
       case 404:
-        return 'The requested data was not found.';
+        return AppStrings.dataNotFound;
       case 409:
-        return 'Conflict occurred, the data might already exist.';
+        return AppStrings.conflictOccurred;
       case 422:
-        return 'Some fields are invalid, please check your input.';
+        return AppStrings.invalidFields;
       case 500:
       case 502:
       case 503:
-        return 'Internal server error, please try again later.';
+        return AppStrings.internalServerError;
       default:
-        return 'Something went wrong, please try again.';
+        return AppStrings.somethingWentWrong;
     }
   }
 }
