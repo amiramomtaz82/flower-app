@@ -10,7 +10,6 @@ import '../../config/di/di.dart';
 import '../../features/auth/presentation/login/views/login_view.dart';
 import '../../features/home/presentation/views/home_view.dart';
 
-import '../../features/home/presentation/home_view.dart';
 
 class AppRouter {
   AppRouter._();
@@ -27,8 +26,7 @@ class AppRouter {
 
         ),
 
-        builder: (context, state) => const LoginView(),
-      ),
+
       GoRoute(
         path: AppRoutes.register,
         builder: (context, state) => const RegisterView(),
@@ -38,8 +36,7 @@ class AppRouter {
         builder: (context, state) => const ForgetPasswordView(),
       ),
 
-      GoRoute
-        (
+
       GoRoute(
         path: AppRoutes.home,
         builder: (context, state) => const HomeView(),

@@ -20,10 +20,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Future<BaseResponse<LoginResponse>> login(LoginRequest request) async {
     if (useDummyLogin) {
       await Future.delayed(const Duration(seconds: 2));
-  @override
-  Future<AuthResponse> signUp(SignUpRequest request) {
-    return _authApiClient.register(request, 'en');
-  }
+
 
   // TODO: implement login
 
@@ -57,5 +54,10 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     } on Exception catch (e) {
       return ErrorResponse<LoginResponse>(error: e);
     }
+  }
+
+  @override
+  Future<AuthResponse> signUp(SignUpRequest request) {
+    return _authApiClient.register(request, 'en');
   }
 }

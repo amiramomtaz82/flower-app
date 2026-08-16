@@ -41,29 +41,11 @@ class AuthRepoImpl implements AuthRepo {
       fcmToken: fcmToken,
     );
 
-  AuthRepoImpl(this._authRemoteDataSource, this._authLocalDataSource);
 
     final BaseResponse<LoginResponse> response =
     await _authRemoteDataSource.login(request);
-  @override
-  Future<BaseResponse<RegisterEntity>> signUp(SignUpRequest request) async {
-    try {
-      await _authRemoteDataSource.signUp(request);
-      return SuccessResponse(
-        RegisterEntity(
-          firstName: request.firstName,
-          lastName: request.lastName,
-          email: request.email,
-          phoneNumber: request.phoneNumber,
-          gender: request.gender,
-          password: request.password,
-          confirmPassword: request.confirmPassword,
-        ),
-      );
-    } catch (e) {
-      return ErrorResponse(error: e);
-    }
-  }
+
+
 
     switch (response) {
       case SuccessResponse<LoginResponse>():
@@ -97,6 +79,25 @@ class AuthRepoImpl implements AuthRepo {
         return ErrorResponse<LoginEntity>(
           errMessage: response.errMessage,
         );
+    }
+  }
+@override
+  Future<BaseResponse<RegisterEntity>> signUp(SignUpRequest request) async {
+    try {
+      await _authRemoteDataSource.signUp(request);
+      return SuccessResponse(
+        RegisterEntity(
+          firstName: request.firstName,
+          lastName: request.lastName,
+          email: request.email,
+          phoneNumber: request.phoneNumber,
+          gender: request.gender,
+          password: request.password,
+          confirmPassword: request.confirmPassword,
+        ),
+      );
+    } catch (e) {
+      return ErrorResponse(error: e);
     }
   }
 }
