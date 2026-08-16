@@ -7,20 +7,38 @@ import 'package:flower_app/features/auth/domain/entities/login_entity.dart';
 import 'package:flower_app/features/auth/domain/repo/auth_repo.dart';
 import 'package:injectable/injectable.dart';
 
+import '../../../../config/device/device_id_service.dart';
+import '../../../../config/notificaions/fcm.dart';
+
 @LazySingleton(as: AuthRepo)
 class AuthRepoImpl implements AuthRepo {
   final AuthRemoteDataSource _authRemoteDataSource;
   final AuthLocalDataSource _authLocalDataSource;
+  final DeviceIdService _deviceIdService;
+  final Fcm _fcm;
 
   AuthRepoImpl(
       this._authRemoteDataSource,
       this._authLocalDataSource,
+      this._deviceIdService,
+      this._fcm,
       );
 
   @override
-  Future<BaseResponse<LoginEntity>> login(
-      LoginRequest request,
-      ) async {
+  Future<BaseResponse<LoginEntity>> login({
+    required String email,
+    required String password,
+  }) async {
+    final deviceId = await _deviceIdService.getDeviceId();
+    final fcmToken = await _fcm.getToken();
+
+    final request = LoginRequest(
+      email: email,
+      password: password,
+      deviceId: deviceId,
+      fcmToken: fcmToken,
+    );
+
     final BaseResponse<LoginResponse> response =
     await _authRemoteDataSource.login(request);
 
@@ -28,28 +46,24 @@ class AuthRepoImpl implements AuthRepo {
       case SuccessResponse<LoginResponse>():
         final loginResponse = response.data;
 
-        // Save access token
         if (loginResponse.accessToken != null) {
           await _authLocalDataSource.saveToken(
             loginResponse.accessToken!,
           );
         }
 
-        // Save refresh token
         if (loginResponse.refreshToken != null) {
           await _authLocalDataSource.saveRefreshToken(
             loginResponse.refreshToken!,
           );
         }
 
-        // Save user
         if (loginResponse.user != null) {
           await _authLocalDataSource.saveUser(
             loginResponse.user!,
           );
         }
 
-        // Convert Data Model → Domain Entity
         final loginEntity = loginResponse.toEntity();
 
         return SuccessResponse<LoginEntity>(

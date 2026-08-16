@@ -4,7 +4,7 @@ import 'package:injectable/injectable.dart';
 import '../../../../../../config/base_response/base_response.dart';
 
 import '../../../../../config/resource/rsource.dart';
-import '../../../data/models/login_request.dart';
+import '../../../../../core/validation/validation.dart';
 import '../../../domain/entities/login_entity.dart';
 import '../../../domain/use_cases/login_use_case.dart';
 import 'login_events.dart';
@@ -27,9 +27,18 @@ class LoginCubit extends Cubit<LoginState> {
 
       case LoginSubmitted():
         _login();
+
+      case PasswordVisibilityChanged():
+        _onPasswordVisibilityChanged();
     }
   }
-
+  void _onPasswordVisibilityChanged() {
+    emit(
+      state.copyWith(
+        obscurePassword: !state.obscurePassword,
+      ),
+    );
+  }
   void _onEmailChanged(String email) {
     emit(
       state.copyWith(
@@ -55,7 +64,10 @@ class LoginCubit extends Cubit<LoginState> {
   }
 
   bool _isFormValid(String email, String password) {
-    return email.isNotEmpty && password.isNotEmpty;
+    final emailError = Validation.validateEmail(email);
+    final passwordError = Validation.validatePassword(password);
+
+    return emailError == null && passwordError == null;
   }
 
   Future<void> _login() async {
@@ -67,10 +79,7 @@ class LoginCubit extends Cubit<LoginState> {
       ),
     );
 
-    final request = LoginRequest(
-      email: state.email,
-      password: state.password,
-    );
+
 
     final result = await _loginUseCase(
       email: state.email,

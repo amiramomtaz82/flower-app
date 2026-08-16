@@ -1,4 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flower_app/core/app_constants/app_strings.dart';
 import 'package:flower_app/core/app_theme/app_colors.dart';
 import 'package:flower_app/core/go_routes/routes_name.dart';
 import 'package:flower_app/core/validation/validation.dart';
@@ -18,18 +19,19 @@ class LoginView extends StatefulWidget {
 
 class _LoginViewState extends State<LoginView> {
   GlobalKey<FormState> formKey = GlobalKey();
-  TextEditingController emailController = TextEditingController();
-  TextEditingController passwordController = TextEditingController();
-  bool obscurePassword = true;
+ final TextEditingController emailController = TextEditingController();
+ final TextEditingController passwordController = TextEditingController();
+
 
   @override
   void dispose() {
     // TODO: implement dispose
-    super.dispose();
+
     emailController.dispose();
     passwordController.dispose();
+    super.dispose();
   }
-@override
+
 @override
 void initState() {
   super.initState();
@@ -41,24 +43,26 @@ void initState() {
   @override
   Widget build(BuildContext context) {
     AppColors colors = LightColors();
-
     LoginCubit cubit=context.read<LoginCubit>();
-    return BlocConsumer<LoginCubit,LoginState>(
+
+
+    return BlocListener<LoginCubit,LoginState>(listener: (context,state){
+
+      if(state.loginResource.isError){
+        ScaffoldMessenger.of(context).showSnackBar
+          (SnackBar(content:Text(state.loginResource.errorMessage??"")));
+      }
+
+      if(state.loginResource.isSuccess){
+
+        context.pushReplacement(AppRoutes.home);
+      }
+    },
         
-         listener: (context,state){
-           if(state.loginResource.isError){
-             ScaffoldMessenger.of(context).showSnackBar
-               (SnackBar(content:Text(state.loginResource.errorMessage??"")));
-           }
-           
-           if(state.loginResource.isSuccess){
 
-             context.pushReplacement(AppRoutes.home);
-           }
-         },
-        builder:(context,state) {
 
-            return Scaffold(
+
+            child: Scaffold(
               appBar: AppBar(
                 leading: IconButton(
                   onPressed: () {
@@ -67,7 +71,7 @@ void initState() {
                   icon: const Icon(Icons.arrow_back_ios),
                 ),
                 titleSpacing: 0,
-                title: Text("login".tr()),
+                title: Text(AppStrings.login.tr()),
               ),
 
               body: Form(
@@ -84,8 +88,8 @@ void initState() {
                           child: TextFormField(
 
                             decoration: InputDecoration(
-                              hintText: "enter your email".tr(),
-                              labelText: "email".tr(),
+                              hintText: AppStrings.enterYourEmail.tr(),
+                              labelText: AppStrings.email.tr(),
                             ),
                             onChanged: (value){
                               cubit.doEvents(EmailChanged(value));
@@ -98,17 +102,17 @@ void initState() {
                         Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: TextFormField(
-                            obscureText: obscurePassword,
+                            obscureText: cubit.state.obscurePassword,
                             decoration: InputDecoration(
-                              hintText: "enterYourPassword".tr(),
-                              labelText: "password".tr(),suffixIcon: IconButton(
+                              hintText: AppStrings.enterYourPassword.tr(),
+                              labelText: AppStrings.password.tr(),suffixIcon: IconButton(
                               onPressed: () {
                                 setState(() {
-                                  obscurePassword = !obscurePassword;
+                                  cubit.state.obscurePassword = !cubit.state.obscurePassword;
                                 });
                               },
                               icon: Icon(
-                                obscurePassword
+                                cubit.state.obscurePassword
                                     ? Icons.visibility_off
                                     : Icons.visibility,
                               ),
@@ -129,7 +133,7 @@ void initState() {
                             SizedBox(width: 15),
                             Icon(Icons.check_box_outline_blank_rounded),
                             SizedBox(width: 10),
-                            Text("rememberMe".tr()),
+                            Text(AppStrings.rememberMe.tr()),
                             Spacer(),
                             Padding(
                               padding: const EdgeInsets.all(8.0),
@@ -138,7 +142,7 @@ void initState() {
                                 context.push(AppRoutes.forgotPassword);
                               },
                                 child: Text(
-                                  "forget password".tr(),
+                                  AppStrings.forgetPassword.tr(),
                                   style: Theme
                                       .of(context)
                                       .textTheme
@@ -154,26 +158,30 @@ void initState() {
                         SizedBox(height: 70),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: ElevatedButton(
+                          child: BlocBuilder<LoginCubit,LoginState>(
+                            builder: (context,state) {
+                              return ElevatedButton(
 
-                              onPressed: state.loginResource.isLoading
-                              ? null
-                              : () {
-                        if (formKey.currentState!.validate()) {
-                        cubit.doEvents(LoginSubmitted());
-                        }
-                        },
-                          child: state.loginResource.isLoading
-                              ? const SizedBox(
-                            height: 22,
-                            width: 22,
-                            child: CircularProgressIndicator(
-                              color: Colors.white,
-                              strokeWidth: 2,
-                            ),
-                          )
-                              : Text("login".tr()),
-                        ),
+                                  onPressed: state.loginResource.isLoading
+                                  ? null
+                                  : () {
+                                                      if (formKey.currentState!.validate()) {
+                                                      cubit.doEvents(LoginSubmitted());
+                                                      }
+                                                      },
+                              child: state.loginResource.isLoading
+                                  ? const SizedBox(
+                                height: 22,
+                                width: 22,
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                  strokeWidth: 2,
+                                ),
+                              )
+                                  : Text(AppStrings.login.tr()),
+                                                      );
+                            }
+                          ),
 
 
 
@@ -187,7 +195,7 @@ void initState() {
                             onPressed: () {
                             context.push(AppRoutes.home);
                             },
-                            child: Text("continueAsGuest".tr(), style: Theme
+                            child: Text(AppStrings.continueAsGuest.tr(), style: Theme
                                 .of(context)
                                 .textTheme
                                 .bodyLarge,),
@@ -199,7 +207,7 @@ void initState() {
                               .center,
                             children: [
                               Text(
-                                "dontHaveAnAccount".tr(),
+                                AppStrings.dontHaveAnAccount.tr(),
                                 style: Theme
                                     .of(context)
                                     .textTheme
@@ -209,7 +217,7 @@ void initState() {
                                 context.push(AppRoutes.register);
                               },
                                 child: Text(
-                                  "signUp".tr(),
+                                  AppStrings.signUp.tr(),
                                   style: Theme
                                       .of(context)
                                       .textTheme
@@ -229,10 +237,10 @@ void initState() {
                   ),
                 ),
               ),
+            )
             );
           }
 
-      );
+
     
   }
-}

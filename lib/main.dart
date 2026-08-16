@@ -1,4 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flower_app/core/app_constants/app_assets.dart';
+import 'package:flower_app/core/app_constants/app_strings.dart';
 import 'package:flutter/material.dart';
 
 import 'config/di/di.dart';
@@ -36,9 +38,9 @@ void main() async {
         Locale('en'),
         Locale('ar'),
       ],
-      path: 'assets/translations',
-      fallbackLocale: const Locale('en'),
-      startLocale: const Locale('en'),
+      path: AppAssets.assetsTranslations,
+      fallbackLocale:  Locale(AppStrings.en),
+      startLocale:  Locale(AppStrings.en),
       child: const MyApp(),
     ),
   );

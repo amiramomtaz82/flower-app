@@ -17,6 +17,7 @@ void main() {
 
   setUp(() {
     mockAuthApiClient = MockAuthApiClient();
+
     remoteDataSource = AuthRemoteDataSourceImpl(
       mockAuthApiClient,
     );
@@ -31,6 +32,8 @@ void main() {
         final request = LoginRequest(
           email: 'customer@example.com',
           password: 'Password123',
+          deviceId: 'device_123',
+          fcmToken: 'fcm_token_123',
         );
 
         final response = LoginResponse(
@@ -115,6 +118,8 @@ void main() {
         final request = LoginRequest(
           email: 'customer@example.com',
           password: 'Password123',
+          deviceId: 'device_123',
+          fcmToken: 'fcm_token_123',
         );
 
         final exception = Exception('Server error');

@@ -1,26 +1,22 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:injectable/injectable.dart';
 
-
-import '../../firebase_options.dart';
-
-
-
-Future<void> _firebaseMessagingBackgroundHandler(
-    RemoteMessage message) async {
-
-
+Future<void> firebaseMessagingBackgroundHandler(
+    RemoteMessage message,
+    ) async {
   print('Handling a background message: ${message.messageId}');
 }
+
 @singleton
 class Fcm {
-  static final FirebaseMessaging messaging = FirebaseMessaging.instance;
+  final FirebaseMessaging _messaging;
+  final FlutterLocalNotificationsPlugin _localNotificationsPlugin;
 
-  static final FlutterLocalNotificationsPlugin
-  flutterLocalNotificationsPlugin =
-  FlutterLocalNotificationsPlugin();
+  Fcm(
+      this._messaging,
+      this._localNotificationsPlugin,
+      );
 
   static const AndroidNotificationChannel channel =
   AndroidNotificationChannel(
@@ -31,29 +27,14 @@ class Fcm {
   );
 
   Future<void> initialize() async {
-
-
     await requestPermission();
-
-
-
     await initLocalNotification();
-
-
-
     await onForegroundMessage();
-
-
-
     await getToken();
-
-
   }
 
-  static Future<String?> getToken() async {
-
-
-    final token = await messaging.getToken();
+  Future<String?> getToken() async {
+    final token = await _messaging.getToken();
 
     print('========== FCM TOKEN ==========');
     print(token);
@@ -61,8 +42,8 @@ class Fcm {
     return token;
   }
 
-  static Future<void> requestPermission() async {
-    final settings = await messaging.requestPermission(
+  Future<void> requestPermission() async {
+    final settings = await _messaging.requestPermission(
       alert: true,
       announcement: false,
       badge: true,
@@ -77,7 +58,7 @@ class Fcm {
     );
   }
 
-  static Future<void> initLocalNotification() async {
+  Future<void> initLocalNotification() async {
     const androidSettings =
     AndroidInitializationSettings('@drawable/ic_notification');
 
@@ -85,17 +66,17 @@ class Fcm {
       android: androidSettings,
     );
 
-    await flutterLocalNotificationsPlugin.initialize(
+    await _localNotificationsPlugin.initialize(
       settings: initializationSettings,
     );
 
-    await flutterLocalNotificationsPlugin
+    await _localNotificationsPlugin
         .resolvePlatformSpecificImplementation<
         AndroidFlutterLocalNotificationsPlugin>()
         ?.createNotificationChannel(channel);
   }
 
-  static Future<void> onForegroundMessage() async {
+  Future<void> onForegroundMessage() async {
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       print('====== FOREGROUND MESSAGE ======');
       print('Notification: ${message.notification}');
@@ -107,7 +88,7 @@ class Fcm {
       final android = message.notification?.android;
 
       if (notification != null && android != null) {
-        flutterLocalNotificationsPlugin.show(
+        _localNotificationsPlugin.show(
           id: notification.hashCode,
           title: notification.title,
           body: notification.body,

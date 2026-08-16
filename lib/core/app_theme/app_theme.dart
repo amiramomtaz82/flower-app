@@ -84,10 +84,22 @@ class AppTheme {
         ),
 
         // Label when the field has an error
-        floatingLabelStyle: TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.w500,
-          color: colors.darkGrey,
+        floatingLabelStyle: WidgetStateTextStyle.resolveWith(
+              (states) {
+            if (states.contains(WidgetState.error)) {
+              return TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: colors.error,
+              );
+            }
+
+            return TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              color: colors.darkGrey,
+            );
+          },
         ),
 
         hintStyle: TextStyle(
@@ -97,7 +109,7 @@ class AppTheme {
 
         errorStyle: TextStyle(
           fontSize: 12,
-          color: colors.darkGrey,
+          color: colors.error,
         ),
 
         border: OutlineInputBorder(

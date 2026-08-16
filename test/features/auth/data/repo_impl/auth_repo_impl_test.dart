@@ -1,19 +1,27 @@
-import 'package:flower_app/features/auth/data/repo_impl/auth_repo_impl.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
 import 'package:flower_app/config/base_response/base_response.dart';
+import 'package:flower_app/config/device/device_id_service.dart';
+import 'package:flower_app/config/notificaions/fcm.dart';
+
 import 'package:flower_app/features/auth/data/data_source/local/auth_local_data_source.dart';
 import 'package:flower_app/features/auth/data/data_source/remote/auth_remote_data_source.dart';
 import 'package:flower_app/features/auth/data/models/login_request.dart';
 import 'package:flower_app/features/auth/data/models/login_response.dart';
+import 'package:flower_app/features/auth/data/repo_impl/auth_repo_impl.dart';
 
 import 'package:flower_app/features/auth/domain/entities/login_entity.dart';
 
 import 'auth_repo_impl_test.mocks.dart';
 
-@GenerateMocks([AuthRemoteDataSource, AuthLocalDataSource])
+@GenerateMocks([
+  AuthRemoteDataSource,
+  AuthLocalDataSource,
+  DeviceIdService,
+  Fcm,
+])
 void main() {
   provideDummy<BaseResponse<LoginResponse>>(
     SuccessResponse<LoginResponse>(
@@ -26,22 +34,34 @@ void main() {
       ),
     ),
   );
+
   late MockAuthRemoteDataSource mockRemoteDataSource;
   late MockAuthLocalDataSource mockLocalDataSource;
+  late MockDeviceIdService mockDeviceIdService;
+  late MockFcm mockFcm;
+
   late AuthRepoImpl repo;
 
   setUp(() {
     mockRemoteDataSource = MockAuthRemoteDataSource();
     mockLocalDataSource = MockAuthLocalDataSource();
+    mockDeviceIdService = MockDeviceIdService();
+    mockFcm = MockFcm();
 
-    repo = AuthRepoImpl(mockRemoteDataSource, mockLocalDataSource);
+    repo = AuthRepoImpl(
+      mockRemoteDataSource,
+      mockLocalDataSource,
+      mockDeviceIdService,
+      mockFcm,
+    );
   });
 
   group('AuthRepoImpl login', () {
-    final request = LoginRequest(
-      email: 'customer@example.com',
-      password: 'Password123',
-    );
+    const email = 'customer@example.com';
+    const password = 'Password123';
+
+    const deviceId = 'device_123';
+    const fcmToken = 'fcm_token_123';
 
     final loginResponse = LoginResponse(
       accessToken: 'access_token',
@@ -50,7 +70,7 @@ void main() {
       role: 'Customer',
       user: User(
         id: '123',
-        email: 'customer@example.com',
+        email: email,
         fullName: 'Ahmed Hassan',
         role: 'Customer',
         isActive: true,
@@ -58,11 +78,30 @@ void main() {
     );
 
     test(
-      'should save tokens and user and return SuccessResponse when remote login succeeds',
-      () async {
+      'should get device ID and FCM token, call remote login, save tokens and user, and return success',
+          () async {
         // Arrange
-        when(mockRemoteDataSource.login(request)).thenAnswer(
-          (_) async => SuccessResponse<LoginResponse>(loginResponse),
+        when(
+          mockDeviceIdService.getDeviceId(),
+        ).thenAnswer((_) async => deviceId);
+
+        when(
+          mockFcm.getToken(),
+        ).thenAnswer((_) async => fcmToken);
+
+        final expectedRequest = LoginRequest(
+          email: email,
+          password: password,
+          deviceId: deviceId,
+          fcmToken: fcmToken,
+        );
+
+        when(
+          mockRemoteDataSource.login(expectedRequest),
+        ).thenAnswer(
+              (_) async => SuccessResponse<LoginResponse>(
+            loginResponse,
+          ),
         );
 
         when(
@@ -78,65 +117,141 @@ void main() {
         ).thenAnswer((_) async {});
 
         // Act
-        final result = await repo.login(request);
+        final result = await repo.login(
+          email: email,
+          password: password,
+        );
 
         // Assert
-        expect(result, isA<SuccessResponse<LoginEntity>>());
+        expect(
+          result,
+          isA<SuccessResponse<LoginEntity>>(),
+        );
 
         final success = result as SuccessResponse<LoginEntity>;
 
-        expect(success.data.accessToken, 'access_token');
+        expect(
+          success.data.accessToken,
+          'access_token',
+        );
 
-        // Verify remote data source was called
-        verify(mockRemoteDataSource.login(request)).called(1);
+        verify(
+          mockDeviceIdService.getDeviceId(),
+        ).called(1);
 
-        // Verify access token was saved
-        verify(mockLocalDataSource.saveToken('access_token')).called(1);
+        verify(
+          mockFcm.getToken(),
+        ).called(1);
 
-        // Verify refresh token was saved
-        verify(mockLocalDataSource.saveRefreshToken('refresh_token')).called(1);
+        verify(
+          mockRemoteDataSource.login(expectedRequest),
+        ).called(1);
 
-        // Verify user was saved
-        verify(mockLocalDataSource.saveUser(loginResponse.user!)).called(1);
+        verify(
+          mockLocalDataSource.saveToken('access_token'),
+        ).called(1);
+
+        verify(
+          mockLocalDataSource.saveRefreshToken('refresh_token'),
+        ).called(1);
+
+        verify(
+          mockLocalDataSource.saveUser(loginResponse.user!),
+        ).called(1);
       },
     );
 
     test(
       'should return ErrorResponse and not save anything when remote login fails',
-      () async {
+          () async {
         // Arrange
-        when(mockRemoteDataSource.login(request)).thenAnswer(
-          (_) async => ErrorResponse<LoginResponse>(
+        when(
+          mockDeviceIdService.getDeviceId(),
+        ).thenAnswer((_) async => deviceId);
+
+        when(
+          mockFcm.getToken(),
+        ).thenAnswer((_) async => fcmToken);
+
+        final expectedRequest = LoginRequest(
+          email: email,
+          password: password,
+          deviceId: deviceId,
+          fcmToken: fcmToken,
+        );
+
+        when(
+          mockRemoteDataSource.login(expectedRequest),
+        ).thenAnswer(
+              (_) async => ErrorResponse<LoginResponse>(
             errMessage: 'Invalid email or password',
           ),
         );
 
         // Act
-        final result = await repo.login(request);
+        final result = await repo.login(
+          email: email,
+          password: password,
+        );
 
         // Assert
-        expect(result, isA<ErrorResponse<LoginEntity>>());
+        expect(
+          result,
+          isA<ErrorResponse<LoginEntity>>(),
+        );
 
         final error = result as ErrorResponse<LoginEntity>;
 
-        expect(error.errMessage, 'Invalid email or password');
+        expect(
+          error.errMessage,
+          'Invalid email or password',
+        );
 
-        // Remote should be called
-        verify(mockRemoteDataSource.login(request)).called(1);
+        verify(
+          mockDeviceIdService.getDeviceId(),
+        ).called(1);
 
-        // Nothing should be saved
-        verifyNever(mockLocalDataSource.saveToken(any));
+        verify(
+          mockFcm.getToken(),
+        ).called(1);
 
-        verifyNever(mockLocalDataSource.saveRefreshToken(any));
+        verify(
+          mockRemoteDataSource.login(expectedRequest),
+        ).called(1);
 
-        verifyNever(mockLocalDataSource.saveUser(any));
+        verifyNever(
+          mockLocalDataSource.saveToken(any),
+        );
+
+        verifyNever(
+          mockLocalDataSource.saveRefreshToken(any),
+        );
+
+        verifyNever(
+          mockLocalDataSource.saveUser(any),
+        );
       },
     );
 
     test(
-      'should save only available data when access token, refresh token or user is null',
-      () async {
+      'should not save tokens or user when response data is null',
+          () async {
         // Arrange
+        when(
+          mockDeviceIdService.getDeviceId(),
+        ).thenAnswer((_) async => deviceId);
+
+        when(
+          mockFcm.getToken(),
+        ).thenAnswer((_) async => fcmToken);
+
+        final expectedRequest = LoginRequest(
+          email: email,
+          password: password,
+          deviceId: deviceId,
+          fcmToken: fcmToken,
+        );
+
         final responseWithNulls = LoginResponse(
           accessToken: null,
           refreshToken: null,
@@ -145,23 +260,49 @@ void main() {
           user: null,
         );
 
-        when(mockRemoteDataSource.login(request)).thenAnswer(
-          (_) async => SuccessResponse<LoginResponse>(responseWithNulls),
+        when(
+          mockRemoteDataSource.login(expectedRequest),
+        ).thenAnswer(
+              (_) async => SuccessResponse<LoginResponse>(
+            responseWithNulls,
+          ),
         );
 
         // Act
-        final result = await repo.login(request);
+        final result = await repo.login(
+          email: email,
+          password: password,
+        );
 
         // Assert
-        expect(result, isA<SuccessResponse<LoginEntity>>());
+        expect(
+          result,
+          isA<SuccessResponse<LoginEntity>>(),
+        );
 
-        verify(mockRemoteDataSource.login(request)).called(1);
+        verify(
+          mockDeviceIdService.getDeviceId(),
+        ).called(1);
 
-        verifyNever(mockLocalDataSource.saveToken(any));
+        verify(
+          mockFcm.getToken(),
+        ).called(1);
 
-        verifyNever(mockLocalDataSource.saveRefreshToken(any));
+        verify(
+          mockRemoteDataSource.login(expectedRequest),
+        ).called(1);
 
-        verifyNever(mockLocalDataSource.saveUser(any));
+        verifyNever(
+          mockLocalDataSource.saveToken(any),
+        );
+
+        verifyNever(
+          mockLocalDataSource.saveRefreshToken(any),
+        );
+
+        verifyNever(
+          mockLocalDataSource.saveUser(any),
+        );
       },
     );
   });

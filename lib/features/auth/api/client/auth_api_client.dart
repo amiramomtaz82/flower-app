@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flower_app/core/app_constants/endpoints.dart';
 import 'package:injectable/injectable.dart';
 import 'package:retrofit/retrofit.dart';
 
@@ -12,7 +13,7 @@ abstract class AuthApiClient {
   @factoryMethod
   factory AuthApiClient(Dio dio) = _AuthApiClient;
 
-  @POST('/auth/login')
+  @POST(Endpoints.loginEndPoint)
   Future<LoginResponse> login(
       @Body() LoginRequest request,
       );

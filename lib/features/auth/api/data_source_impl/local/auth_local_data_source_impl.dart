@@ -5,7 +5,7 @@ import 'package:injectable/injectable.dart';
 
 import '../../../data/models/login_response.dart';
 
-@LazySingleton(as: AuthLocalDataSource)
+@Injectable(as: AuthLocalDataSource)
 class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   final SecureStorage _secureStorage;
 

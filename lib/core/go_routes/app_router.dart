@@ -20,7 +20,7 @@ class AppRouter {
         path: AppRoutes.login,
         builder: (context, state) => BlocProvider(
           create: (_)=>getIt<LoginCubit>(),
-           child: LoginView())
+           child:const LoginView())
 
         ),
 

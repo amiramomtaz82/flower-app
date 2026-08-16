@@ -5,10 +5,10 @@
 
 class LoginRequest {
   LoginRequest({
-    this.email,
-    this.password,
-    this.deviceId,
-    this.fcmToken,});
+   required this.email,
+    required this.password,
+    required this.deviceId,
+    required this.fcmToken,});
 
   LoginRequest.fromJson(dynamic json) {
     email = json['email'];

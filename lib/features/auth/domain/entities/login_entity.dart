@@ -1,4 +1,6 @@
-class LoginEntity {
+import 'package:equatable/equatable.dart';
+
+class LoginEntity extends Equatable{
   final String? accessToken;
   final String? refreshToken;
   final num? expiresIn;
@@ -14,9 +16,13 @@ class LoginEntity {
     this.driverStatus,
     this.user,
   });
+
+  @override
+  // TODO: implement props
+  List<Object?> get props =>["accessToken","refreshToken","expiresIn","role","driverStatus","user"];
 }
 
-class UserEntity {
+class UserEntity extends Equatable{
   final String? id;
   final String? email;
   final String? fullName;
@@ -32,4 +38,8 @@ class UserEntity {
     this.isActive,
     this.driverStatus,
   });
+
+  @override
+  // TODO: implement props
+  List<Object?> get props =>  ["id","email","fullName","role","isActive","driverStatus"];
 }

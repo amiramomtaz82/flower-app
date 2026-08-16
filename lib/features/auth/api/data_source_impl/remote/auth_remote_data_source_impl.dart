@@ -6,7 +6,7 @@ import 'package:injectable/injectable.dart';
 
 import '../../../data/models/login_response.dart';
 
-@LazySingleton(as: AuthRemoteDataSource)
+@Injectable(as: AuthRemoteDataSource)
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   final AuthApiClient _authApiClient;
 
