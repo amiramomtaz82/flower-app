@@ -6,6 +6,9 @@ import 'package:flower_app/features/auth/data/models/login_response.dart';
 import '../../models/register_request.dart';
 import '../../models/register_response.dart';
 
+import 'package:flower_app/features/auth/data/models/message_response_model.dart';
+import 'package:flower_app/features/auth/data/models/verify_otp_response_model.dart';
+
 abstract interface class AuthRemoteDataSource {
   Future<AuthResponse> signUp(SignUpRequest request);
 
@@ -13,5 +16,16 @@ abstract interface class AuthRemoteDataSource {
 
   Future<BaseResponse<LoginResponse>> login(LoginRequest request);
 
+  Future<MessageResponseModel> forgetPassword({required String email});
 
+  Future<VerifyOtpResponseVm> verifyOtp({
+    required String email,
+    required String otpCode,
+  });
+
+  Future<MessageResponseModel> resetPassword({
+    required String resetToken,
+    required String newPassword,
+    required String confirmNewPassword,
+  });
 }

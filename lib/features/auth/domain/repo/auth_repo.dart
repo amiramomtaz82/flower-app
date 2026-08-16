@@ -8,6 +8,10 @@ import '../../../../config/base_response/base_response.dart';
 import '../../data/models/register_request.dart';
 import '../entities/auth_entity.dart';
 
+import 'package:flower_app/config/base_response/base_response.dart';
+import 'package:flower_app/features/auth/domain/entities/auth_message_entity.dart';
+import 'package:flower_app/features/auth/domain/entities/reset_token_entity.dart';
+
 abstract interface class AuthRepo {
   Future<BaseResponse<LoginEntity>> login({
     required String email,
@@ -17,7 +21,18 @@ abstract interface class AuthRepo {
 
   // TODO: implement login
 
-  // TODO: implement forgetPassword
+  Future<BaseResponse<AuthMessageEntity>> forgetPassword({
+    required String email,
+  });
 
-  // TODO: implement resetPassword
+  Future<BaseResponse<ResetToken>> verifyOtp({
+    required String email,
+    required String otpCode,
+  });
+
+  Future<BaseResponse<AuthMessageEntity>> resetPassword({
+    required String resetToken,
+    required String newPassword,
+    required String confirmNewPassword,
+  });
 }

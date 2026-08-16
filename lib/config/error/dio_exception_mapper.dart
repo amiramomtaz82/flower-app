@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import '../../core/app_constants/app_strings.dart';
 import 'status_code_mapper.dart';
 
 class DioExceptionMapper {
@@ -10,19 +11,19 @@ class DioExceptionMapper {
       case DioExceptionType.sendTimeout:
       case DioExceptionType.receiveTimeout:
       case DioExceptionType.transformTimeout:
-        return 'Connection timeout, please try again.';
+        return AppStrings.connectionTimeout;
       case DioExceptionType.connectionError:
-        return 'No internet connection, please check your network.';
+        return AppStrings.noInternetConnection;
       case DioExceptionType.badCertificate:
-        return 'Invalid certificate, please try again later.';
+        return AppStrings.invalidCertificate;
       case DioExceptionType.cancel:
-        return 'Request was cancelled.';
+        return AppStrings.requestCancelled;
       // The backend returned an error response,
       //we can map the status code to a user-friendly message
       case DioExceptionType.badResponse:
         return StatusCodeMapper.toMessage(error.response?.statusCode);
       default:
-        return 'Something went wrong, please check your connection.';
+        return AppStrings.checkYourConnection;
     }
   }
 }
