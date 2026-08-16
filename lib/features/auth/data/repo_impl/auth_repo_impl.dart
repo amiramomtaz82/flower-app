@@ -14,7 +14,7 @@ import 'package:injectable/injectable.dart';
 import '../../../../config/device/device_id_service.dart';
 import '../../../../config/notificaions/fcm.dart';
 
-@LazySingleton(as: AuthRepo)
+@Injectable(as: AuthRepo)
 class AuthRepoImpl implements AuthRepo {
   final AuthRemoteDataSource _authRemoteDataSource;
   final AuthLocalDataSource _authLocalDataSource;

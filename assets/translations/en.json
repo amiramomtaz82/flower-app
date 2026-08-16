@@ -2,23 +2,22 @@
 
   "email": "Email",
   "submit": "Submit",
-  "enter your email": "Enter your email",
+  "enterYourEmail": "Enter your email",
   "login": "Login",
   "enterYourPassword": "Enter your password",
   "password": "Password",
-  "forget password": "Forget password ?",
+  "forgetPassword": "Forget password ?",
   "rememberMe": "Remember me",
   "continueAsGuest": "Continue as guest",
   "dontHaveAnAccount": "Don't have an account ?",
   "SignUp": "Sine up",
-  "someThingWentWrong": "Something went wrong , please try again later"
+  "someThingWentWrong": "Something went wrong , please try again later",
 
-  "success": "Success",
   "home": "Home",
   "search": "Search",
   "profile": "Profile",
   "enter your email": "Enter your email",
-  "password": "Password",
+
   "forget password": "Forget Password",
   "Please enter your email associated to your account": "Please enter your email associated to\nyour account",
   "enter your new email": "Enter your new email",
