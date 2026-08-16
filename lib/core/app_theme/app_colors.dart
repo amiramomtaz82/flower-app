@@ -9,8 +9,6 @@ abstract class AppColors {
 
   Color get success;
 
-
-
   Color get black;
 
   Color get white;
@@ -30,16 +28,11 @@ abstract class AppColors {
   Color get border;
 
   Color get hint;
-
-
-
-
-
 }
+
 class LightColors implements AppColors {
   @override
-  get background => const Color(0xffF2F2F7
-  );
+  get background => const Color(0xffF2F2F7);
 
   @override
   get black => const Color(0xff0C1015);

@@ -2,6 +2,8 @@ import 'package:flower_app/config/base_response/base_response.dart';
 import 'package:flower_app/features/auth/api/client/auth_api_client.dart';
 import 'package:flower_app/features/auth/data/data_source/remote/auth_remote_data_source.dart';
 import 'package:flower_app/features/auth/data/models/login_request.dart';
+import 'package:flower_app/features/auth/data/models/register_request.dart';
+import 'package:flower_app/features/auth/data/models/register_response.dart';
 import 'package:injectable/injectable.dart';
 
 import '../../../data/models/login_response.dart';
@@ -18,6 +20,12 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Future<BaseResponse<LoginResponse>> login(LoginRequest request) async {
     if (useDummyLogin) {
       await Future.delayed(const Duration(seconds: 2));
+  @override
+  Future<AuthResponse> signUp(SignUpRequest request) {
+    return _authApiClient.register(request, 'en');
+  }
+
+  // TODO: implement login
 
       if (request.email == "customer@example.com" &&
           request.password == "Password123") {

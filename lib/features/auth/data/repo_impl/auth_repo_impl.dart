@@ -4,6 +4,8 @@ import 'package:flower_app/features/auth/data/data_source/remote/auth_remote_dat
 import 'package:flower_app/features/auth/data/models/login_request.dart';
 import 'package:flower_app/features/auth/data/models/login_response.dart';
 import 'package:flower_app/features/auth/domain/entities/login_entity.dart';
+import 'package:flower_app/features/auth/data/models/register_request.dart';
+import 'package:flower_app/features/auth/domain/entities/auth_entity.dart';
 import 'package:flower_app/features/auth/domain/repo/auth_repo.dart';
 import 'package:injectable/injectable.dart';
 
@@ -39,8 +41,29 @@ class AuthRepoImpl implements AuthRepo {
       fcmToken: fcmToken,
     );
 
+  AuthRepoImpl(this._authRemoteDataSource, this._authLocalDataSource);
+
     final BaseResponse<LoginResponse> response =
     await _authRemoteDataSource.login(request);
+  @override
+  Future<BaseResponse<RegisterEntity>> signUp(SignUpRequest request) async {
+    try {
+      await _authRemoteDataSource.signUp(request);
+      return SuccessResponse(
+        RegisterEntity(
+          firstName: request.firstName,
+          lastName: request.lastName,
+          email: request.email,
+          phoneNumber: request.phoneNumber,
+          gender: request.gender,
+          password: request.password,
+          confirmPassword: request.confirmPassword,
+        ),
+      );
+    } catch (e) {
+      return ErrorResponse(error: e);
+    }
+  }
 
     switch (response) {
       case SuccessResponse<LoginResponse>():

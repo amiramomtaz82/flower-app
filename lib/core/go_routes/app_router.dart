@@ -3,17 +3,20 @@ import 'package:flower_app/features/auth/presentation/forget_password/views/forg
 import 'package:flower_app/features/auth/presentation/login/manager/login_cubit.dart';
 import 'package:flutter/src/widgets/basic.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flower_app/features/auth/presentation/register/views/register_view.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../config/di/di.dart';
 import '../../features/auth/presentation/login/views/login_view.dart';
 import '../../features/home/presentation/views/home_view.dart';
 
+import '../../features/home/presentation/home_view.dart';
+
 class AppRouter {
   AppRouter._();
 
   static final GoRouter router = GoRouter(
-    initialLocation: AppRoutes.login,
+    initialLocation: AppRoutes.register,
 
     routes: [
       GoRoute(
@@ -24,6 +27,12 @@ class AppRouter {
 
         ),
 
+        builder: (context, state) => const LoginView(),
+      ),
+      GoRoute(
+        path: AppRoutes.register,
+        builder: (context, state) => const RegisterView(),
+      ),
       GoRoute(
         path: AppRoutes.forgotPassword,
         builder: (context, state) => const ForgetPasswordView(),
@@ -31,6 +40,7 @@ class AppRouter {
 
       GoRoute
         (
+      GoRoute(
         path: AppRoutes.home,
         builder: (context, state) => const HomeView(),
       ),
