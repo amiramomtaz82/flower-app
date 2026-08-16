@@ -1,7 +1,10 @@
-abstract interface class AuthRemoteDataSource {
-  // TODO: implement login
+import '../../models/register_request.dart';
+import '../../models/register_response.dart';
 
-  // TODO: implement register
+abstract interface class AuthRemoteDataSource {
+  Future<AuthResponse> signUp(SignUpRequest request);
+
+  // TODO: implement login
 
   // TODO: implement forgetPassword
 
