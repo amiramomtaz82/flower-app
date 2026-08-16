@@ -15,18 +15,17 @@ abstract class AppStrings {
   static const String en="en";
   static const String ar="ar";
 
-class AppStrings {
-  AppStrings._();
+
   static const String test = 'test';
-  static const String email = 'email';
-  static const String submit = 'submit';
+
+
   static const String success = 'success';
   static const String home = 'home';
   static const String search = 'search';
   static const String profile = 'profile';
-  static const String enterYourEmail = 'enter your email';
-  static const String password = 'password';
-  static const String forgetPassword = 'forget password';
+
+
+
   static const String enterEmailAssociatedToAccount =
       'Please enter your email associated to your account';
   static const String enterYourNewEmail = 'enter your new email';
@@ -44,7 +43,7 @@ class AppStrings {
   static const String codeSent = 'code sent successfully';
   static const String passwordsDoNotMatch = 'passwords do not match';
   static const String newPassword = 'new password';
-  static const String enterYourPassword = 'enter your password';
+
   static const String confirmPassword = 'confirm password';
   static const String resetSessionExpired =
       'your reset code expired, please request a new one';

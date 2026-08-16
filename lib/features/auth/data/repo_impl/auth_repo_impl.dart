@@ -64,23 +64,26 @@ class AuthRepoImpl implements AuthRepo {
             loginResponse.refreshToken!,
           );
         }
-  @override
-  Future<BaseResponse<AuthMessageEntity>> forgetPassword({
-    required String email,
-  }) async {
-    try {
-      final response = await _authRemoteDataSource.forgetPassword(email: email);
-      return SuccessResponse(response.toEntity());
-    } on Exception catch (e) {
-      return ErrorResponse(error: e);
-    }
-  }
+
 
         if (loginResponse.user != null) {
           await _authLocalDataSource.saveUser(
             loginResponse.user!,
           );
         }
+
+        final loginEntity = loginResponse.toEntity();
+
+        return SuccessResponse<LoginEntity>(
+          loginEntity,
+        );
+
+      case ErrorResponse<LoginResponse>():
+        return ErrorResponse<LoginEntity>(
+          errMessage: response.errMessage,
+        );
+    }
+  }
   @override
   Future<BaseResponse<ResetToken>> verifyOtp({
     required String email,
@@ -116,37 +119,37 @@ class AuthRepoImpl implements AuthRepo {
       return ErrorResponse(error: e);
     }
   }
+
+        @override
+        Future<BaseResponse<RegisterEntity>> signUp(SignUpRequest request) async {
+          try {
+            await _authRemoteDataSource.signUp(request);
+            return SuccessResponse(
+              RegisterEntity(
+                firstName: request.firstName,
+                lastName: request.lastName,
+                email: request.email,
+                phoneNumber: request.phoneNumber,
+                gender: request.gender,
+                password: request.password,
+                confirmPassword: request.confirmPassword,
+              ),
+            );
+          } catch (e) {
+            return ErrorResponse(error: e);
+          }
+        }
+        @override
+        Future<BaseResponse<AuthMessageEntity>> forgetPassword({
+          required String email,
+        }) async {
+          try {
+            final response = await _authRemoteDataSource.forgetPassword(email: email);
+            return SuccessResponse(response.toEntity());
+          } on Exception catch (e) {
+            return ErrorResponse(error: e);
+          }
+        }
 }
 
-        final loginEntity = loginResponse.toEntity();
 
-        return SuccessResponse<LoginEntity>(
-          loginEntity,
-        );
-
-      case ErrorResponse<LoginResponse>():
-        return ErrorResponse<LoginEntity>(
-          errMessage: response.errMessage,
-        );
-    }
-  }
-@override
-  Future<BaseResponse<RegisterEntity>> signUp(SignUpRequest request) async {
-    try {
-      await _authRemoteDataSource.signUp(request);
-      return SuccessResponse(
-        RegisterEntity(
-          firstName: request.firstName,
-          lastName: request.lastName,
-          email: request.email,
-          phoneNumber: request.phoneNumber,
-          gender: request.gender,
-          password: request.password,
-          confirmPassword: request.confirmPassword,
-        ),
-      );
-    } catch (e) {
-      return ErrorResponse(error: e);
-    }
-  }
-}

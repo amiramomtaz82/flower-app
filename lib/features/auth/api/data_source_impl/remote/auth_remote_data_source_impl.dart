@@ -19,7 +19,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
   AuthRemoteDataSourceImpl(this._authApiClient);
 
-  bool useDummyLogin = false;
+  bool useDummyLogin = true;
 
   @override
   Future<BaseResponse<LoginResponse>> login(LoginRequest request) async {
@@ -51,13 +51,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       return ErrorResponse(errMessage: "Invalid email or password");
     }
 
-  @override
-  Future<MessageResponseModel> forgetPassword({required String email}) async {
-    final response = await _authApiClient.forgetPassword(
-      ForgotPasswordRequestModel(email: email),
-    );
-    return response;
-  }
+
     // Real API
     try {
       final response = await _authApiClient.login(request);
@@ -71,6 +65,15 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<AuthResponse> signUp(SignUpRequest request) {
     return _authApiClient.register(request, 'en');
+  }
+
+
+  @override
+  Future<MessageResponseModel> forgetPassword({required String email}) async {
+    final response = await _authApiClient.forgetPassword(
+      ForgotPasswordRequestModel(email: email),
+    );
+    return response;
   }
   @override
   Future<VerifyOtpResponseVm> verifyOtp({

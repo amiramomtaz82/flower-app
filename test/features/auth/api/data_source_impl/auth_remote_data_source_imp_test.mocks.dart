@@ -3,17 +3,27 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:async' as _i5;
+import 'dart:async' as _i7;
 
 import 'package:flower_app/features/auth/api/client/auth_api_client.dart'
-    as _i4;
-import 'package:flower_app/features/auth/data/models/login_request.dart' as _i6;
+    as _i6;
+import 'package:flower_app/features/auth/data/models/forgot_password_request_model.dart'
+    as _i10;
+import 'package:flower_app/features/auth/data/models/login_request.dart' as _i8;
 import 'package:flower_app/features/auth/data/models/login_response.dart'
     as _i2;
+import 'package:flower_app/features/auth/data/models/message_response_model.dart'
+    as _i4;
 import 'package:flower_app/features/auth/data/models/register_request.dart'
-    as _i7;
+    as _i9;
 import 'package:flower_app/features/auth/data/models/register_response.dart'
     as _i3;
+import 'package:flower_app/features/auth/data/models/reset_password_request_model.dart'
+    as _i12;
+import 'package:flower_app/features/auth/data/models/verify_otp_request_model.dart'
+    as _i11;
+import 'package:flower_app/features/auth/data/models/verify_otp_response_model.dart'
+    as _i5;
 import 'package:mockito/mockito.dart' as _i1;
 
 // ignore_for_file: type=lint
@@ -41,37 +51,94 @@ class _FakeAuthResponse_1 extends _i1.SmartFake implements _i3.AuthResponse {
     : super(parent, parentInvocation);
 }
 
+class _FakeMessageResponseModel_2 extends _i1.SmartFake
+    implements _i4.MessageResponseModel {
+  _FakeMessageResponseModel_2(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _FakeVerifyOtpResponseModel_3 extends _i1.SmartFake
+    implements _i5.VerifyOtpResponseModel {
+  _FakeVerifyOtpResponseModel_3(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
 /// A class which mocks [AuthApiClient].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockAuthApiClient extends _i1.Mock implements _i4.AuthApiClient {
+class MockAuthApiClient extends _i1.Mock implements _i6.AuthApiClient {
   MockAuthApiClient() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i5.Future<_i2.LoginResponse> login(_i6.LoginRequest? request) =>
+  _i7.Future<_i2.LoginResponse> login(_i8.LoginRequest? request) =>
       (super.noSuchMethod(
             Invocation.method(#login, [request]),
-            returnValue: _i5.Future<_i2.LoginResponse>.value(
+            returnValue: _i7.Future<_i2.LoginResponse>.value(
               _FakeLoginResponse_0(this, Invocation.method(#login, [request])),
             ),
           )
-          as _i5.Future<_i2.LoginResponse>);
+          as _i7.Future<_i2.LoginResponse>);
 
   @override
-  _i5.Future<_i3.AuthResponse> register(
-    _i7.SignUpRequest? request,
+  _i7.Future<_i3.AuthResponse> register(
+    _i9.SignUpRequest? request,
     String? language,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#register, [request, language]),
-            returnValue: _i5.Future<_i3.AuthResponse>.value(
+            returnValue: _i7.Future<_i3.AuthResponse>.value(
               _FakeAuthResponse_1(
                 this,
                 Invocation.method(#register, [request, language]),
               ),
             ),
           )
-          as _i5.Future<_i3.AuthResponse>);
+          as _i7.Future<_i3.AuthResponse>);
+
+  @override
+  _i7.Future<_i4.MessageResponseModel> forgetPassword(
+    _i10.ForgotPasswordRequestModel? body,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#forgetPassword, [body]),
+            returnValue: _i7.Future<_i4.MessageResponseModel>.value(
+              _FakeMessageResponseModel_2(
+                this,
+                Invocation.method(#forgetPassword, [body]),
+              ),
+            ),
+          )
+          as _i7.Future<_i4.MessageResponseModel>);
+
+  @override
+  _i7.Future<_i5.VerifyOtpResponseModel> verifyOtp(
+    _i11.VerifyOtpRequestModel? body,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#verifyOtp, [body]),
+            returnValue: _i7.Future<_i5.VerifyOtpResponseModel>.value(
+              _FakeVerifyOtpResponseModel_3(
+                this,
+                Invocation.method(#verifyOtp, [body]),
+              ),
+            ),
+          )
+          as _i7.Future<_i5.VerifyOtpResponseModel>);
+
+  @override
+  _i7.Future<_i4.MessageResponseModel> resetPassword(
+    _i12.ResetPasswordRequestModel? body,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#resetPassword, [body]),
+            returnValue: _i7.Future<_i4.MessageResponseModel>.value(
+              _FakeMessageResponseModel_2(
+                this,
+                Invocation.method(#resetPassword, [body]),
+              ),
+            ),
+          )
+          as _i7.Future<_i4.MessageResponseModel>);
 }
