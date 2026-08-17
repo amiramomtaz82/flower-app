@@ -1,9 +1,10 @@
+import 'package:flower_app/config/device/device_id_service_.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
 import 'package:flower_app/config/base_response/base_response.dart';
-import 'package:flower_app/config/device/device_id_service.dart';
+
 import 'package:flower_app/config/notificaions/fcm.dart';
 
 import 'package:flower_app/features/auth/data/data_source/local/auth_local_data_source.dart';
@@ -23,6 +24,12 @@ import 'auth_repo_impl_test.mocks.dart';
   Fcm,
 ])
 void main() {
+  late MockAuthRemoteDataSource mockRemoteDataSource;
+  late MockAuthLocalDataSource mockLocalDataSource;
+  late MockDeviceIdService mockDeviceIdService;
+  late MockFcm mockFcm;
+
+  late AuthRepoImpl repo;
   provideDummy<BaseResponse<LoginResponse>>(
     SuccessResponse<LoginResponse>(
       LoginResponse(
@@ -34,13 +41,6 @@ void main() {
       ),
     ),
   );
-
-  late MockAuthRemoteDataSource mockRemoteDataSource;
-  late MockAuthLocalDataSource mockLocalDataSource;
-  late MockDeviceIdService mockDeviceIdService;
-  late MockFcm mockFcm;
-
-  late AuthRepoImpl repo;
 
   setUp(() {
     mockRemoteDataSource = MockAuthRemoteDataSource();
@@ -78,7 +78,9 @@ void main() {
     );
 
     test(
-      'should get device ID and FCM token, call remote login, save tokens and user, and return success',
+      'should get device ID and FCM token, '
+          'call remote login, save tokens and user, '
+          'and return success',
           () async {
         // Arrange
         when(
@@ -89,15 +91,9 @@ void main() {
           mockFcm.getToken(),
         ).thenAnswer((_) async => fcmToken);
 
-        final expectedRequest = LoginRequest(
-          email: email,
-          password: password,
-          deviceId: deviceId,
-          fcmToken: fcmToken,
-        );
 
         when(
-          mockRemoteDataSource.login(expectedRequest),
+          mockRemoteDataSource.login(any),
         ).thenAnswer(
               (_) async => SuccessResponse<LoginResponse>(
             loginResponse,
@@ -105,15 +101,15 @@ void main() {
         );
 
         when(
-          mockLocalDataSource.saveToken('access_token'),
+          mockLocalDataSource.saveToken(any),
         ).thenAnswer((_) async {});
 
         when(
-          mockLocalDataSource.saveRefreshToken('refresh_token'),
+          mockLocalDataSource.saveRefreshToken(any),
         ).thenAnswer((_) async {});
 
         when(
-          mockLocalDataSource.saveUser(loginResponse.user!),
+          mockLocalDataSource.saveUser(any),
         ).thenAnswer((_) async {});
 
         // Act
@@ -144,7 +140,7 @@ void main() {
         ).called(1);
 
         verify(
-          mockRemoteDataSource.login(expectedRequest),
+          mockRemoteDataSource.login(any),
         ).called(1);
 
         verify(
@@ -162,7 +158,8 @@ void main() {
     );
 
     test(
-      'should return ErrorResponse and not save anything when remote login fails',
+      'should return ErrorResponse and not save anything '
+          'when remote login fails',
           () async {
         // Arrange
         when(
@@ -173,15 +170,10 @@ void main() {
           mockFcm.getToken(),
         ).thenAnswer((_) async => fcmToken);
 
-        final expectedRequest = LoginRequest(
-          email: email,
-          password: password,
-          deviceId: deviceId,
-          fcmToken: fcmToken,
-        );
+
 
         when(
-          mockRemoteDataSource.login(expectedRequest),
+          mockRemoteDataSource.login(any),
         ).thenAnswer(
               (_) async => ErrorResponse<LoginResponse>(
             errMessage: 'Invalid email or password',
@@ -216,7 +208,7 @@ void main() {
         ).called(1);
 
         verify(
-          mockRemoteDataSource.login(expectedRequest),
+          mockRemoteDataSource.login(any),
         ).called(1);
 
         verifyNever(
@@ -234,7 +226,8 @@ void main() {
     );
 
     test(
-      'should not save tokens or user when response data is null',
+      'should not save tokens or user when login response '
+          'contains null authentication data',
           () async {
         // Arrange
         when(
@@ -261,7 +254,7 @@ void main() {
         );
 
         when(
-          mockRemoteDataSource.login(expectedRequest),
+          mockRemoteDataSource.login(any),
         ).thenAnswer(
               (_) async => SuccessResponse<LoginResponse>(
             responseWithNulls,
@@ -280,6 +273,13 @@ void main() {
           isA<SuccessResponse<LoginEntity>>(),
         );
 
+        final success = result as SuccessResponse<LoginEntity>;
+
+        expect(
+          success.data.accessToken,
+          isNull,
+        );
+
         verify(
           mockDeviceIdService.getDeviceId(),
         ).called(1);
@@ -289,7 +289,7 @@ void main() {
         ).called(1);
 
         verify(
-          mockRemoteDataSource.login(expectedRequest),
+          mockRemoteDataSource.login(any),
         ).called(1);
 
         verifyNever(

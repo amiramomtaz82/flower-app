@@ -7,7 +7,8 @@ import 'package:flower_app/features/auth/domain/entities/login_entity.dart';
 import 'package:flower_app/features/auth/domain/repo/auth_repo.dart';
 import 'package:injectable/injectable.dart';
 
-import '../../../../config/device/device_id_service.dart';
+import '../../../../config/device/device_id_service_.dart';
+
 import '../../../../config/notificaions/fcm.dart';
 
 @LazySingleton(as: AuthRepo)

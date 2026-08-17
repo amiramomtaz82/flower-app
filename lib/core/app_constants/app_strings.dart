@@ -14,5 +14,9 @@ abstract class AppStrings {
   static const String someThingWentWrong = 'someThingWentWrong';
   static const String en="en";
   static const String ar="ar";
-
+  static const String deviceId= 'device_id' ;
+  static const String accessToken='accessToken';
+  static const String refreshToken='refreshToken';
+  static const String user='user';
+  static const String pleaseFill='Please fill in all fields correctly';
 }

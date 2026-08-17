@@ -1,3 +1,4 @@
+import 'package:flower_app/core/app_constants/app_strings.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 
@@ -17,7 +18,7 @@ class LoginCubit extends Cubit<LoginState> {
   LoginCubit(this._loginUseCase)
       : super(LoginState.initial());
 
-  Future<void> doEvents(LoginEvent event)async {
+  Future<void> doEvents(LoginEvent event) async {
     switch (event) {
       case EmailChanged():
         _onEmailChanged(event.email);
@@ -26,12 +27,13 @@ class LoginCubit extends Cubit<LoginState> {
         _onPasswordChanged(event.password);
 
       case LoginSubmitted():
-        _login();
+        await _login();
 
       case PasswordVisibilityChanged():
         _onPasswordVisibilityChanged();
     }
   }
+
   void _onPasswordVisibilityChanged() {
     emit(
       state.copyWith(
@@ -39,6 +41,7 @@ class LoginCubit extends Cubit<LoginState> {
       ),
     );
   }
+
   void _onEmailChanged(String email) {
     emit(
       state.copyWith(
@@ -71,15 +74,22 @@ class LoginCubit extends Cubit<LoginState> {
   }
 
   Future<void> _login() async {
-    if (!state.isValid) return;
+    if (!state.isValid) {
+      emit(
+        state.copyWith(
+          loginResource: Resource.error(
+            AppStrings.pleaseFill,
+          ),
+        ),
+      );
+      return;
+    }
 
     emit(
       state.copyWith(
         loginResource: Resource.loading(),
       ),
     );
-
-
 
     final result = await _loginUseCase(
       email: state.email,

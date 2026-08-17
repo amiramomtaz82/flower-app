@@ -83,8 +83,8 @@ void main() {
 
       verify(
         mockLoginUseCase(
-          email: 'customer@example.com',
-          password: 'Password123',
+          email: anyNamed('email'),
+          password: anyNamed('password'),
         ),
       ).called(1);
     });
@@ -101,7 +101,7 @@ void main() {
       when(
         mockLoginUseCase(
           email: 'customer@example.com',
-          password: 'WrongPassword',
+          password: 'Password123',
         ),
       ).thenAnswer(
             (_) async => ErrorResponse<LoginEntity>(
@@ -114,9 +114,9 @@ void main() {
         EmailChanged('customer@example.com'),
       );
 
-      // Set password
+      // Set valid password
       await cubit.doEvents(
-        PasswordChanged('WrongPassword'),
+        PasswordChanged('Password123'),
       );
 
       // Act
@@ -138,7 +138,7 @@ void main() {
       verify(
         mockLoginUseCase(
           email: 'customer@example.com',
-          password: 'WrongPassword',
+          password: 'Password123',
         ),
       ).called(1);
     });

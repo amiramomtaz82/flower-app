@@ -19,7 +19,7 @@ class LoginEntity extends Equatable{
 
   @override
   // TODO: implement props
-  List<Object?> get props =>["accessToken","refreshToken","expiresIn","role","driverStatus","user"];
+  List<Object?> get props =>[accessToken,refreshToken,expiresIn,role,driverStatus,user];
 }
 
 class UserEntity extends Equatable{
@@ -41,5 +41,5 @@ class UserEntity extends Equatable{
 
   @override
   // TODO: implement props
-  List<Object?> get props =>  ["id","email","fullName","role","isActive","driverStatus"];
+  List<Object?> get props =>  [id,email,fullName,isActive,driverStatus];
 }

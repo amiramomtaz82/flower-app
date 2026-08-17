@@ -1,84 +1,105 @@
+
+
+
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:injectable/injectable.dart';
 
-import '../../features/auth/data/models/login_response.dart';
-import 'dart:convert';
 @lazySingleton
 class SecureStorage {
-  static const FlutterSecureStorage _storage = FlutterSecureStorage();
+  static const FlutterSecureStorage _storage =
+  FlutterSecureStorage();
 
-  Future<void> saveAccessToken(String token) async {
-    await _storage.write(key: 'accessToken', value: token);
+  Future<void> write({
+    required String key,
+    required String value,
+  }) async {
+    await _storage.write(
+      key: key,
+      value: value,
+    );
   }
 
-  Future<String?> getAccessToken() async {
-    return await _storage.read(key: 'accessToken');
+  Future<String?> read({
+    required String key,
+  }) async {
+    return _storage.read(key: key);
   }
 
-  Future<void> deleteAccessToken() async {
-    await _storage.delete(key: 'accessToken');
+  Future<void> delete({
+    required String key,
+  }) async {
+    await _storage.delete(key: key);
   }
 
-  Future<void> clear() async {
+  Future<void> deleteAll() async {
     await _storage.deleteAll();
   }
-
-
-  Future<void> saveRefreshToken(String token) async {
-    await _storage.write(
-      key: "refreshToken",
-      value: token,
-    );
-  }
-    Future<void> saveUser(User user) async {
-      await _storage.write(
-        key: "user",
-        value: jsonEncode(user.toJson()),
-      );
-    }
-
-
-
-
-
-  Future<String?> getRefreshToken() async {
-    return await _storage.read(
-      key: "refreshToken",
-    );
-  }
-
-
-  Future<User?> getUser() async {
-    final userJson = await _storage.read(
-      key:"user",
-    );
-
-    if (userJson == null) {
-      return null;
-    }
-
-    return User.fromJson(jsonDecode(userJson));
-  }
-
-
-  Future<void> clearAuthData() async {
-    await _storage.delete(key: "accessToken");
-    await _storage.delete(key:"refreshToken");
-    await _storage.delete(key: "user");
-  }
-
-  static const String _deviceIdKey = 'device_id';
-
-  Future<void> saveDeviceId(String deviceId) async {
-    await _storage.write(
-      key: _deviceIdKey,
-      value: deviceId,
-    );
-  }
-
-  Future<String?> getDeviceId() async {
-    return await _storage.read(
-      key: _deviceIdKey,
-    );
-  }
 }
+
+
+
+
+
+
+
+// import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+// import 'package:injectable/injectable.dart';
+//
+//
+// @lazySingleton
+// class SecureStorage {
+//   static const FlutterSecureStorage _storage = FlutterSecureStorage();
+//
+//   Future<void> saveAccessToken(String token) async {
+//     await _storage.write(key: 'accessToken', value: token);
+//   }
+//
+//   Future<String?> getAccessToken() async {
+//     return await _storage.read(key: 'accessToken');
+//   }
+//
+//   Future<void> deleteAccessToken() async {
+//     await _storage.delete(key: 'accessToken');
+//   }
+//
+//   Future<void> clear() async {
+//     await _storage.deleteAll();
+//   }
+//
+//
+//   Future<void> saveRefreshToken(String token) async {
+//     await _storage.write(
+//       key: "refreshToken",
+//       value: token,
+//     );
+//   }
+//
+//
+//
+//
+//
+//   Future<String?> getRefreshToken() async {
+//     return await _storage.read(
+//       key: "refreshToken",
+//     );
+//   }
+//
+//
+//
+//
+//
+//   static const String _deviceIdKey = 'device_id';
+//
+//   Future<void> saveDeviceId(String deviceId) async {
+//     await _storage.write(
+//       key: _deviceIdKey,
+//       value: deviceId,
+//     );
+//   }
+//
+//   Future<String?> getDeviceId() async {
+//     return await _storage.read(
+//       key: _deviceIdKey,
+//     );
+//   }
+// }

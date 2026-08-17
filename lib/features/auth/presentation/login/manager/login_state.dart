@@ -8,7 +8,7 @@ class LoginState extends Equatable {
   final String email;
   final String password;
   final bool isValid;
-  bool obscurePassword;
+ final bool obscurePassword;
   final Resource<LoginEntity> loginResource;
 
   LoginState({

@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:injectable/injectable.dart';
+
+import 'local_notification_service.dart';
 
 Future<void> firebaseMessagingBackgroundHandler(
     RemoteMessage message,
@@ -11,25 +14,25 @@ Future<void> firebaseMessagingBackgroundHandler(
 @singleton
 class Fcm {
   final FirebaseMessaging _messaging;
-  final FlutterLocalNotificationsPlugin _localNotificationsPlugin;
+  final LocalNotificationService _localNotificationService;
+
+  StreamSubscription<RemoteMessage>? _foregroundSubscription;
+  StreamSubscription<String>? _tokenRefreshSubscription;
 
   Fcm(
       this._messaging,
-      this._localNotificationsPlugin,
+      this._localNotificationService,
       );
-
-  static const AndroidNotificationChannel channel =
-  AndroidNotificationChannel(
-    'high_importance_channel',
-    'High Importance Notifications',
-    description: 'This channel is used for important notifications.',
-    importance: Importance.max,
-  );
 
   Future<void> initialize() async {
     await requestPermission();
-    await initLocalNotification();
+
+    await _localNotificationService.initialize();
+
     await onForegroundMessage();
+
+    await onTokenRefresh();
+
     await getToken();
   }
 
@@ -58,53 +61,49 @@ class Fcm {
     );
   }
 
-  Future<void> initLocalNotification() async {
-    const androidSettings =
-    AndroidInitializationSettings('@drawable/ic_notification');
+  Future<void> onForegroundMessage() async {
+    await _foregroundSubscription?.cancel();
 
-    const initializationSettings = InitializationSettings(
-      android: androidSettings,
+    _foregroundSubscription = FirebaseMessaging.onMessage.listen(
+          (RemoteMessage message) async {
+        print('====== FOREGROUND MESSAGE ======');
+        print('Notification: ${message.notification}');
+        print('Title: ${message.notification?.title}');
+        print('Body: ${message.notification?.body}');
+        print('Data: ${message.data}');
+        final notification = message.notification;
+        final android = notification?.android;
+
+        if (notification != null && android != null) {
+          await _localNotificationService.showNotification(
+            id: notification.hashCode,
+            title: notification.title,
+            body: notification.body,
+          );
+        }
+      },
     );
-
-    await _localNotificationsPlugin.initialize(
-      settings: initializationSettings,
-    );
-
-    await _localNotificationsPlugin
-        .resolvePlatformSpecificImplementation<
-        AndroidFlutterLocalNotificationsPlugin>()
-        ?.createNotificationChannel(channel);
   }
 
-  Future<void> onForegroundMessage() async {
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      print('====== FOREGROUND MESSAGE ======');
-      print('Notification: ${message.notification}');
-      print('Title: ${message.notification?.title}');
-      print('Body: ${message.notification?.body}');
-      print('Data: ${message.data}');
+  Future<void> onTokenRefresh() async {
+    await _tokenRefreshSubscription?.cancel();
 
-      final notification = message.notification;
-      final android = message.notification?.android;
+    _tokenRefreshSubscription = _messaging.onTokenRefresh.listen(
+          (newToken) {
+        print('========== FCM TOKEN REFRESHED ==========');
+        print(newToken);
 
-      if (notification != null && android != null) {
-        _localNotificationsPlugin.show(
-          id: notification.hashCode,
-          title: notification.title,
-          body: notification.body,
-          notificationDetails: const NotificationDetails(
-            android: AndroidNotificationDetails(
-              'high_importance_channel',
-              'High Importance Notifications',
-              channelDescription:
-              'This channel is used for important notifications.',
-              importance: Importance.max,
-              priority: Priority.high,
-              icon: '@drawable/ic_notification',
-            ),
-          ),
-        );
-      }
-    });
+        // Save/update token here if you have local storage for it.
+        // Notify backend if required.
+      },
+    );
+  }
+
+  Future<void> dispose() async {
+    await _foregroundSubscription?.cancel();
+    await _tokenRefreshSubscription?.cancel();
+
+    _foregroundSubscription = null;
+    _tokenRefreshSubscription = null;
   }
 }
