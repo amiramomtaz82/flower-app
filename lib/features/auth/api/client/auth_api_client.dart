@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flower_app/core/app_constants/endpoints.dart';
 import 'package:flower_app/features/auth/data/models/register_request.dart';
 import 'package:flower_app/features/auth/data/models/register_response.dart';
 import 'package:injectable/injectable.dart';
@@ -14,10 +15,9 @@ abstract class AuthApiClient {
 
   // TODO: implement login
 
-  @POST('/auth/register')
+  @POST(Endpoints.register)
   Future<AuthResponse> register(
     @Body() SignUpRequest request,
-    @Header('Accept-Language') String language,
   );
 
   // TODO: implement forgetPassword

@@ -1,9 +1,9 @@
-import 'package:flower_app/features/auth/data/models/register_request.dart';
+import 'package:flower_app/features/auth/domain/entities/register_params.dart';
 
 sealed class RegisterEvent {}
 
 class DoRegister extends RegisterEvent {
-  final SignUpRequest request;
+  final RegisterParams params;
 
-  DoRegister(this.request);
+  DoRegister(this.params);
 }

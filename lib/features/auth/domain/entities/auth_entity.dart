@@ -1,19 +1,14 @@
-class RegisterEntity {
-  final String firstName;
-  final String lastName;
-  final String email;
-  final String phoneNumber;
-  final String gender;
-  final String password;
-  final String confirmPassword;
+import 'package:equatable/equatable.dart';
 
-  RegisterEntity({
-    required this.firstName,
-    required this.lastName,
-    required this.email,
-    required this.phoneNumber,
-    required this.gender,
-    required this.password,
-    required this.confirmPassword,
+class RegisterEntity extends Equatable {
+  final String? message;
+  final String? messageLocalized;
+
+  const RegisterEntity({
+    this.message,
+    this.messageLocalized,
   });
+
+  @override
+  List<Object?> get props => [message, messageLocalized];
 }

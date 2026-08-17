@@ -1,13 +1,14 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flower_app/config/di/di.dart';
-import 'package:flower_app/features/auth/data/models/register_request.dart';
+import 'package:flower_app/core/go_routes/routes_name.dart';
+import 'package:flower_app/features/auth/domain/entities/gender.dart';
+import 'package:flower_app/features/auth/domain/entities/register_params.dart';
 import 'package:flower_app/features/auth/presentation/register/view_model/register_event.dart';
 import 'package:flower_app/features/auth/presentation/register/view_model/register_state.dart';
 import 'package:flower_app/features/auth/presentation/register/view_model/register_view_model.dart';
-import 'package:flower_app/core/go_routes/routes_name.dart';
-import 'package:flower_app/core/validation/validation.dart';
-import 'package:flower_app/core/widgets/custom_text_field.dart';
-import 'package:flower_app/core/widgets/gender_option_widget.dart';
-import 'package:flutter/gestures.dart';
+import 'package:flower_app/features/auth/presentation/register/widgets/register_form_fields.dart';
+import 'package:flower_app/features/auth/presentation/register/widgets/register_gender_section.dart';
+import 'package:flower_app/features/auth/presentation/register/widgets/register_terms_section.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -40,7 +41,7 @@ class _RegisterBodyState extends State<_RegisterBody> {
   late final TextEditingController confirmPasswordController;
   late final TextEditingController phoneNumberController;
 
-  String selectedGender = 'Female';
+  Gender selectedGender = Gender.female;
 
   @override
   void initState() {
@@ -68,7 +69,7 @@ class _RegisterBodyState extends State<_RegisterBody> {
     if (_formKey.currentState!.validate()) {
       vm.doEvent(
         DoRegister(
-          SignUpRequest(
+          RegisterParams(
             firstName: firstNameController.text.trim(),
             lastName: lastNameController.text.trim(),
             email: emailController.text.trim(),
@@ -90,196 +91,78 @@ class _RegisterBodyState extends State<_RegisterBody> {
     return Scaffold(
       appBar: AppBar(
         leading: BackButton(color: colorScheme.onSurface),
-        title: Text('Sign up', style: textTheme.titleLarge),
+        title: Text('sign_up'.tr(), style: textTheme.titleLarge),
         centerTitle: false,
       ),
-      body: BlocConsumer<RegisterViewModel, RegisterState>(
+      body: BlocListener<RegisterViewModel, RegisterState>(
         listener: (context, state) {
-          if (state.data != null) {
+          if (state.isSuccess) {
             context.go(AppRoutes.login);
-          } else if (state.errMessage.isNotEmpty) {
+          } else if (state.isError) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text(state.errMessage),
+                content: Text(state.errorMessage ?? 'registration_failed'.tr()),
                 backgroundColor: colorScheme.error,
               ),
             );
           }
         },
-        builder: (context, state) {
-          final vm = context.read<RegisterViewModel>();
-          return SafeArea(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: CustomTextField(
-                            label: 'First name',
-                            hint: 'Enter first name',
-                            controller: firstNameController,
-                            validator: Validation.validateName,
+        child: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  RegisterFormFields(
+                    firstNameController: firstNameController,
+                    lastNameController: lastNameController,
+                    emailController: emailController,
+                    passwordController: passwordController,
+                    confirmPasswordController: confirmPasswordController,
+                    phoneNumberController: phoneNumberController,
+                  ),
+                  const SizedBox(height: 20),
+                  RegisterGenderSection(
+                    selectedGender: selectedGender,
+                    onChanged: (gender) {
+                      setState(() {
+                        selectedGender = gender;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  const RegisterTermsSection(),
+                  const SizedBox(height: 24),
+                  BlocBuilder<RegisterViewModel, RegisterState>(
+                    buildWhen: (previous, current) =>
+                        previous.isLoading != current.isLoading,
+                    builder: (context, state) {
+                      if (state.isLoading) {
+                        return Center(
+                          child: CircularProgressIndicator(
+                            color: colorScheme.primary,
                           ),
+                        );
+                      }
+                      return SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: () =>
+                              onSignUpPressed(context.read<RegisterViewModel>()),
+                          child: Text('sign_up'.tr()),
                         ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: CustomTextField(
-                            label: 'Last name',
-                            hint: 'Enter last name',
-                            controller: lastNameController,
-                            validator: Validation.validateName,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 16),
 
-                    CustomTextField(
-                      label: 'Email',
-                      hint: 'Enter your email',
-                      controller: emailController,
-                      validator: Validation.validateEmail,
-                      keyboardType: TextInputType.emailAddress,
-                    ),
-                    const SizedBox(height: 16),
-
-                    Row(
-                      children: [
-                        Expanded(
-                          child: CustomTextField(
-                            label: 'Password',
-                            hint: 'Enter password',
-                            controller: passwordController,
-                            validator: Validation.validatePassword,
-                            obscureText: true,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: CustomTextField(
-                            label: 'Confirm password',
-                            hint: 'Confirm password',
-                            controller: confirmPasswordController,
-                            validator: (value) =>
-                                Validation.validateConfirmPassword(
-                                  value,
-                                  passwordController.text,
-                                ),
-                            obscureText: true,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-
-                    CustomTextField(
-                      label: 'Phone number',
-                      hint: 'Enter phone number',
-                      controller: phoneNumberController,
-                      validator: Validation.validatePhoneNumber,
-                      keyboardType: TextInputType.phone,
-                    ),
-                    const SizedBox(height: 20),
-
-                    Row(
-                      children: [
-                        Text(
-                          'Gender',
-                          style: textTheme.bodyLarge?.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        const SizedBox(width: 24),
-                        GenderOptionWidget(
-                          label: 'Female',
-                          selected: selectedGender == 'Female',
-                          onTap: () =>
-                              setState(() => selectedGender = 'Female'),
-                          color: colorScheme.primary,
-                        ),
-                        const SizedBox(width: 16),
-                        GenderOptionWidget(
-                          label: 'Male',
-                          selected: selectedGender == 'Male',
-                          onTap: () => setState(() => selectedGender = 'Male'),
-                          color: colorScheme.primary,
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-
-                    RichText(
-                      text: TextSpan(
-                        style: textTheme.bodyMedium?.copyWith(
-                          color: colorScheme.onSurface,
-                        ),
-                        children: [
-                          const TextSpan(
-                            text: 'Creating an account, you agree to our ',
-                          ),
-                          TextSpan(
-                            text: 'Terms&Conditions',
-                            style: TextStyle(
-                              color: colorScheme.onSurface,
-                              decoration: TextDecoration.underline,
-                              decorationColor: colorScheme.onSurface,
-                              fontWeight: FontWeight.w600,
-                            ),
-                            recognizer: TapGestureRecognizer()..onTap = () {},
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-
-                    state.isLoading
-                        ? Center(
-                            child: CircularProgressIndicator(
-                              color: colorScheme.primary,
-                            ),
-                          )
-                        : SizedBox(
-                            width: double.infinity,
-                            child: ElevatedButton(
-                              onPressed: () => onSignUpPressed(vm),
-                              child: const Text('Sign up'),
-                            ),
-                          ),
-                    const SizedBox(height: 16),
-
-                    Center(
-                      child: RichText(
-                        text: TextSpan(
-                          style: textTheme.bodyMedium,
-                          children: [
-                            const TextSpan(text: 'Already have an account? '),
-                            TextSpan(
-                              text: 'Login',
-                              style: TextStyle(
-                                color: colorScheme.primary,
-                                decoration: TextDecoration.underline,
-                                fontWeight: FontWeight.w600,
-                              ),
-                              recognizer: TapGestureRecognizer()
-                                ..onTap = () {
-                                  context.go(AppRoutes.login);
-                                },
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+                ],
               ),
             ),
-          );
-        },
+          ),
+        ),
       ),
     );
   }

@@ -12,7 +12,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
   @override
   Future<AuthResponse> signUp(SignUpRequest request) {
-    return _authApiClient.register(request, 'en');
+    return _authApiClient.register(request);
   }
 
   // TODO: implement login
