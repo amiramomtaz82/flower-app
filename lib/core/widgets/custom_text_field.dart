@@ -23,6 +23,18 @@ class CustomTextField extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).extension<AppColors>() ?? LightColors();
     
+    final errorStyle = TextStyle(
+      fontSize: 12,
+      fontWeight: FontWeight.w500,
+      color: colors.error,
+    );
+
+    final normalStyle = TextStyle(
+      fontSize: 12,
+      fontWeight: FontWeight.w500,
+      color: colors.darkGrey,
+    );
+
     return TextFormField(
       controller: controller,
       keyboardType: keyboardType,
@@ -33,17 +45,9 @@ class CustomTextField extends StatelessWidget {
         hintText: hint,
         floatingLabelStyle: WidgetStateTextStyle.resolveWith((states) {
           if (states.contains(WidgetState.error)) {
-            return TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-              color: colors.error,
-            );
+            return errorStyle;
           }
-          return TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w500,
-            color: colors.darkGrey,
-          );
+          return normalStyle;
         }),
       ),
     );

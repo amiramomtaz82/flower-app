@@ -1,7 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flower_app/config/di/di.dart';
 import 'package:flower_app/core/go_routes/routes_name.dart';
-import 'package:flower_app/features/auth/domain/entities/gender.dart';
 import 'package:flower_app/features/auth/domain/entities/register_params.dart';
 import 'package:flower_app/features/auth/presentation/register/view_model/register_event.dart';
 import 'package:flower_app/features/auth/presentation/register/view_model/register_state.dart';
@@ -13,26 +11,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-class RegisterView extends StatelessWidget {
+class RegisterView extends StatefulWidget {
   const RegisterView({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => getIt<RegisterViewModel>(),
-      child: const _RegisterBody(),
-    );
-  }
+  State<RegisterView> createState() => _RegisterViewState();
 }
 
-class _RegisterBody extends StatefulWidget {
-  const _RegisterBody();
-
-  @override
-  State<_RegisterBody> createState() => _RegisterBodyState();
-}
-
-class _RegisterBodyState extends State<_RegisterBody> {
+class _RegisterViewState extends State<RegisterView> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController firstNameController;
   late final TextEditingController lastNameController;
@@ -40,8 +26,6 @@ class _RegisterBodyState extends State<_RegisterBody> {
   late final TextEditingController passwordController;
   late final TextEditingController confirmPasswordController;
   late final TextEditingController phoneNumberController;
-
-  Gender selectedGender = Gender.female;
 
   @override
   void initState() {
@@ -65,7 +49,7 @@ class _RegisterBodyState extends State<_RegisterBody> {
     super.dispose();
   }
 
-  void onSignUpPressed(RegisterViewModel vm) {
+  void onSignUpPressed(RegisterViewModel vm, RegisterState state) {
     if (_formKey.currentState!.validate()) {
       vm.doEvent(
         DoRegister(
@@ -76,7 +60,7 @@ class _RegisterBodyState extends State<_RegisterBody> {
             password: passwordController.text,
             confirmPassword: confirmPasswordController.text,
             phoneNumber: phoneNumberController.text.trim(),
-            gender: selectedGender,
+            gender: state.selectedGender,
           ),
         ),
       );
@@ -95,13 +79,14 @@ class _RegisterBodyState extends State<_RegisterBody> {
         centerTitle: false,
       ),
       body: BlocListener<RegisterViewModel, RegisterState>(
+        listenWhen: (previous, current) => previous.status != current.status,
         listener: (context, state) {
-          if (state.isSuccess) {
-            context.go(AppRoutes.login);
-          } else if (state.isError) {
+          if (state.status.isSuccess) {
+            context.go(AppRoutes.home);
+          } else if (state.status.isError) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text(state.errorMessage ?? 'registration_failed'.tr()),
+                content: Text(state.status.errorMessage ?? 'registration_failed'.tr()),
                 backgroundColor: colorScheme.error,
               ),
             );
@@ -124,12 +109,16 @@ class _RegisterBodyState extends State<_RegisterBody> {
                     phoneNumberController: phoneNumberController,
                   ),
                   const SizedBox(height: 20),
-                  RegisterGenderSection(
-                    selectedGender: selectedGender,
-                    onChanged: (gender) {
-                      setState(() {
-                        selectedGender = gender;
-                      });
+                  BlocBuilder<RegisterViewModel, RegisterState>(
+                    buildWhen: (previous, current) =>
+                        previous.selectedGender != current.selectedGender,
+                    builder: (context, state) {
+                      return RegisterGenderSection(
+                        selectedGender: state.selectedGender,
+                        onChanged: (gender) {
+                          context.read<RegisterViewModel>().doEvent(SelectGender(gender));
+                        },
+                      );
                     },
                   ),
                   const SizedBox(height: 16),
@@ -137,9 +126,9 @@ class _RegisterBodyState extends State<_RegisterBody> {
                   const SizedBox(height: 24),
                   BlocBuilder<RegisterViewModel, RegisterState>(
                     buildWhen: (previous, current) =>
-                        previous.isLoading != current.isLoading,
+                        previous.status.isLoading != current.status.isLoading,
                     builder: (context, state) {
-                      if (state.isLoading) {
+                      if (state.status.isLoading) {
                         return Center(
                           child: CircularProgressIndicator(
                             color: colorScheme.primary,
@@ -149,15 +138,14 @@ class _RegisterBodyState extends State<_RegisterBody> {
                       return SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
-                          onPressed: () =>
-                              onSignUpPressed(context.read<RegisterViewModel>()),
+                          onPressed: () => onSignUpPressed(
+                              context.read<RegisterViewModel>(), state),
                           child: Text('sign_up'.tr()),
                         ),
                       );
                     },
                   ),
                   const SizedBox(height: 16),
-
                 ],
               ),
             ),

@@ -11,25 +11,28 @@ import 'package:injectable/injectable.dart';
 class RegisterViewModel extends Cubit<RegisterState> {
   final RegisterUseCase _registerUseCase;
 
-  RegisterViewModel(this._registerUseCase) : super(Resource.initial());
+  RegisterViewModel(this._registerUseCase)
+      : super(RegisterState(status: Resource.initial()));
 
   void doEvent(RegisterEvent event) {
     switch (event) {
       case DoRegister():
         _register(event);
+      case SelectGender():
+        emit(state.copyWith(selectedGender: event.gender));
     }
   }
 
   Future<void> _register(DoRegister event) async {
-    emit(Resource.loading());
+    emit(state.copyWith(status: Resource.loading()));
 
     final response = await _registerUseCase(event.params);
 
     switch (response) {
       case SuccessResponse<RegisterEntity>():
-        emit(Resource.success(response.data));
+        emit(state.copyWith(status: Resource.success(response.data)));
       case ErrorResponse<RegisterEntity>():
-        emit(Resource.error(response.errMessage));
+        emit(state.copyWith(status: Resource.error(response.errMessage)));
     }
   }
 }

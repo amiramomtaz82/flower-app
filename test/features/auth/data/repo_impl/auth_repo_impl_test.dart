@@ -15,7 +15,7 @@ void main() {
   late MockAuthLocalDataSource mockLocalDataSource;
   late AuthRepoImpl authRepoImpl;
 
-  final tParams = RegisterParams(
+  final params = RegisterParams(
     firstName: 'Amgad',
     lastName: 'Eid',
     email: 'amgad@gmail.com',
@@ -25,7 +25,7 @@ void main() {
     gender: Gender.male,
   );
 
-  final tRequest = SignUpRequest(
+  final request = SignUpRequest(
     firstName: 'Amgad',
     lastName: 'Eid',
     email: 'amgad@gmail.com',
@@ -35,7 +35,7 @@ void main() {
     gender: 'Male',
   );
 
-  final tAuthResponse = AuthResponse(
+  final authResponse = AuthResponse(
     data: AuthResponseData(id: '123', isSuccess: true),
     isSuccess: true,
     message: 'Success',
@@ -51,9 +51,9 @@ void main() {
   group('AuthRepoImpl', () {
     test('signUp should return SuccessResponse when remote call succeeds', () async {
       when(mockRemoteDataSource.signUp(any))
-          .thenAnswer((_) async => tAuthResponse);
+          .thenAnswer((_) async => authResponse);
 
-      final result = await authRepoImpl.signUp(tParams);
+      final result = await authRepoImpl.signUp(params);
 
       expect(result, isA<SuccessResponse<RegisterEntity>>());
       final success = result as SuccessResponse<RegisterEntity>;
@@ -65,7 +65,7 @@ void main() {
       when(mockRemoteDataSource.signUp(any))
           .thenThrow(Exception('Network error'));
 
-      final result = await authRepoImpl.signUp(tParams);
+      final result = await authRepoImpl.signUp(params);
 
       expect(result, isA<ErrorResponse<RegisterEntity>>());
       final error = result as ErrorResponse<RegisterEntity>;

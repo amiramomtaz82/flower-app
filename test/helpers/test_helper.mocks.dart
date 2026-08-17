@@ -18,6 +18,7 @@ import 'package:flower_app/features/auth/domain/entities/auth_entity.dart'
     as _i6;
 import 'package:flower_app/features/auth/domain/entities/register_params.dart'
     as _i7;
+import 'package:flower_app/features/auth/domain/repo/auth_repo.dart' as _i12;
 import 'package:flower_app/features/auth/domain/use_cases/register_use_case.dart'
     as _i3;
 import 'package:mockito/mockito.dart' as _i1;
@@ -121,4 +122,28 @@ class MockAuthLocalDataSource extends _i1.Mock
             returnValueForMissingStub: _i4.Future<void>.value(),
           )
           as _i4.Future<void>);
+}
+
+/// A class which mocks [AuthRepo].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockAuthRepo extends _i1.Mock implements _i12.AuthRepo {
+  MockAuthRepo() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i4.Future<_i5.BaseResponse<_i6.RegisterEntity>> signUp(
+    _i7.RegisterParams? params,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#signUp, [params]),
+            returnValue: _i4.Future<_i5.BaseResponse<_i6.RegisterEntity>>.value(
+              _i8.dummyValue<_i5.BaseResponse<_i6.RegisterEntity>>(
+                this,
+                Invocation.method(#signUp, [params]),
+              ),
+            ),
+          )
+          as _i4.Future<_i5.BaseResponse<_i6.RegisterEntity>>);
 }

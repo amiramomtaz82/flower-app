@@ -18,7 +18,11 @@ class _RegisterTermsSectionState extends State<RegisterTermsSection> {
   @override
   void initState() {
     super.initState();
-    _termsRecognizer = TapGestureRecognizer()..onTap = () {};
+    _termsRecognizer = TapGestureRecognizer()
+      ..onTap = () {
+        // TODO: Navigate to Terms and Conditions
+        debugPrint('Navigate to Terms and Conditions');
+      };
     _loginRecognizer = TapGestureRecognizer()
       ..onTap = () {
         context.go(AppRoutes.login);
