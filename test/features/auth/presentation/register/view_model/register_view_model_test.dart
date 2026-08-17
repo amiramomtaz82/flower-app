@@ -16,7 +16,7 @@ void main() {
   late MockRegisterUseCase mockRegisterUseCase;
   late RegisterViewModel viewModel;
 
-  final params = RegisterParams(
+  const params = RegisterParams(
     firstName: 'Amgad',
     lastName: 'Eid',
     email: 'amgad@gmail.com',
@@ -26,7 +26,7 @@ void main() {
     gender: Gender.male,
   );
 
-  final entity = RegisterEntity(
+  const entity = RegisterEntity(
     message: 'Success',
   );
 

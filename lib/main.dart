@@ -6,7 +6,8 @@ import 'core/app_theme/app_theme.dart';
 
 import 'package:easy_localization/easy_localization.dart';
 
-import 'core/go_routes/app_router.dart';
+
+import 'package:go_router/go_router.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -34,7 +35,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
-      routerConfig: AppRouter.router,
+      routerConfig: getIt<GoRouter>(),
       localizationsDelegates: context.localizationDelegates,
       supportedLocales: context.supportedLocales,
       locale: context.locale,

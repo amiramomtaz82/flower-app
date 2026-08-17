@@ -15,7 +15,7 @@ void main() {
   late MockAuthLocalDataSource mockLocalDataSource;
   late AuthRepoImpl authRepoImpl;
 
-  final params = RegisterParams(
+  const params = RegisterParams(
     firstName: 'Amgad',
     lastName: 'Eid',
     email: 'amgad@gmail.com',
@@ -25,17 +25,9 @@ void main() {
     gender: Gender.male,
   );
 
-  final request = SignUpRequest(
-    firstName: 'Amgad',
-    lastName: 'Eid',
-    email: 'amgad@gmail.com',
-    password: '*Aa123456#',
-    confirmPassword: '*Aa123456#',
-    phoneNumber: '01013239659',
-    gender: 'Male',
-  );
 
-  final authResponse = AuthResponse(
+
+  const authResponse = AuthResponse(
     data: AuthResponseData(id: '123', isSuccess: true),
     isSuccess: true,
     message: 'Success',

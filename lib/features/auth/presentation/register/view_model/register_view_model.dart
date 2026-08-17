@@ -1,5 +1,5 @@
-import 'package:flower_app/config/base_response/base_response.dart';
 import 'package:flower_app/config/resource/rsource.dart';
+import 'package:flower_app/core/network/base_response.dart';
 import 'package:flower_app/features/auth/domain/entities/auth_entity.dart';
 import 'package:flower_app/features/auth/domain/use_cases/register_use_case.dart';
 import 'package:flower_app/features/auth/presentation/register/view_model/register_event.dart';
@@ -20,6 +20,15 @@ class RegisterViewModel extends Cubit<RegisterState> {
         _register(event);
       case SelectGender():
         emit(state.copyWith(selectedGender: event.gender));
+      case UpdateField():
+        emit(state.copyWith(
+          firstName: event.firstName,
+          lastName: event.lastName,
+          email: event.email,
+          password: event.password,
+          confirmPassword: event.confirmPassword,
+          phoneNumber: event.phoneNumber,
+        ));
     }
   }
 

@@ -14,3 +14,21 @@ class SelectGender extends RegisterEvent {
 
   SelectGender(this.gender);
 }
+
+class UpdateField extends RegisterEvent {
+  final String? firstName;
+  final String? lastName;
+  final String? email;
+  final String? password;
+  final String? confirmPassword;
+  final String? phoneNumber;
+
+  UpdateField({
+    this.firstName,
+    this.lastName,
+    this.email,
+    this.password,
+    this.confirmPassword,
+    this.phoneNumber,
+  });
+}

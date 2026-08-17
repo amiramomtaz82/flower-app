@@ -12,7 +12,7 @@ void main() {
   late MockAuthRepo mockAuthRepo;
   late RegisterUseCase registerUseCase;
 
-  final params = RegisterParams(
+  const params = RegisterParams(
     firstName: 'Amgad',
     lastName: 'Eid',
     email: 'amgad@gmail.com',
@@ -22,7 +22,7 @@ void main() {
     gender: Gender.male,
   );
 
-  final authResponse = SuccessResponse(
+  const authResponse = SuccessResponse(
     RegisterEntity(
       message: 'Success',
       messageLocalized: 'نجاح',

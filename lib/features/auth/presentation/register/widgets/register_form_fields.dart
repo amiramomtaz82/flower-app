@@ -10,6 +10,12 @@ class RegisterFormFields extends StatelessWidget {
   final TextEditingController passwordController;
   final TextEditingController confirmPasswordController;
   final TextEditingController phoneNumberController;
+  final ValueChanged<String> onFirstNameChanged;
+  final ValueChanged<String> onLastNameChanged;
+  final ValueChanged<String> onEmailChanged;
+  final ValueChanged<String> onPasswordChanged;
+  final ValueChanged<String> onConfirmPasswordChanged;
+  final ValueChanged<String> onPhoneNumberChanged;
 
   const RegisterFormFields({
     super.key,
@@ -19,6 +25,12 @@ class RegisterFormFields extends StatelessWidget {
     required this.passwordController,
     required this.confirmPasswordController,
     required this.phoneNumberController,
+    required this.onFirstNameChanged,
+    required this.onLastNameChanged,
+    required this.onEmailChanged,
+    required this.onPasswordChanged,
+    required this.onConfirmPasswordChanged,
+    required this.onPhoneNumberChanged,
   });
 
   @override
@@ -33,6 +45,7 @@ class RegisterFormFields extends StatelessWidget {
                 hint: 'enter_first_name'.tr(),
                 controller: firstNameController,
                 validator: Validation.validateName,
+                onChanged: onFirstNameChanged,
               ),
             ),
             const SizedBox(width: 12),
@@ -42,6 +55,7 @@ class RegisterFormFields extends StatelessWidget {
                 hint: 'enter_last_name'.tr(),
                 controller: lastNameController,
                 validator: Validation.validateName,
+                onChanged: onLastNameChanged,
               ),
             ),
           ],
@@ -53,6 +67,7 @@ class RegisterFormFields extends StatelessWidget {
           controller: emailController,
           validator: Validation.validateEmail,
           keyboardType: TextInputType.emailAddress,
+          onChanged: onEmailChanged,
         ),
         const SizedBox(height: 16),
         Row(
@@ -64,6 +79,7 @@ class RegisterFormFields extends StatelessWidget {
                 controller: passwordController,
                 validator: Validation.validatePassword,
                 obscureText: true,
+                onChanged: onPasswordChanged,
               ),
             ),
             const SizedBox(width: 12),
@@ -77,6 +93,7 @@ class RegisterFormFields extends StatelessWidget {
                   passwordController.text,
                 ),
                 obscureText: true,
+                onChanged: onConfirmPasswordChanged,
               ),
             ),
           ],
@@ -88,6 +105,7 @@ class RegisterFormFields extends StatelessWidget {
           controller: phoneNumberController,
           validator: Validation.validatePhoneNumber,
           keyboardType: TextInputType.phone,
+          onChanged: onPhoneNumberChanged,
         ),
       ],
     );

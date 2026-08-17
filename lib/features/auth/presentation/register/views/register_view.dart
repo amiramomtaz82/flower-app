@@ -1,3 +1,4 @@
+import 'package:flower_app/config/resource/rsource.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flower_app/core/go_routes/routes_name.dart';
 import 'package:flower_app/features/auth/domain/entities/register_params.dart';
@@ -36,6 +37,10 @@ class _RegisterViewState extends State<RegisterView> {
     passwordController = TextEditingController();
     confirmPasswordController = TextEditingController();
     phoneNumberController = TextEditingController();
+
+    passwordController.addListener(() {
+      _formKey.currentState?.validate();
+    });
   }
 
   @override
@@ -54,12 +59,12 @@ class _RegisterViewState extends State<RegisterView> {
       vm.doEvent(
         DoRegister(
           RegisterParams(
-            firstName: firstNameController.text.trim(),
-            lastName: lastNameController.text.trim(),
-            email: emailController.text.trim(),
-            password: passwordController.text,
-            confirmPassword: confirmPasswordController.text,
-            phoneNumber: phoneNumberController.text.trim(),
+            firstName: state.firstName,
+            lastName: state.lastName,
+            email: state.email,
+            password: state.password,
+            confirmPassword: state.confirmPassword,
+            phoneNumber: state.phoneNumber,
             gender: state.selectedGender,
           ),
         ),
@@ -71,6 +76,7 @@ class _RegisterViewState extends State<RegisterView> {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
+    final vm = context.read<RegisterViewModel>();
 
     return Scaffold(
       appBar: AppBar(
@@ -79,14 +85,16 @@ class _RegisterViewState extends State<RegisterView> {
         centerTitle: false,
       ),
       body: BlocListener<RegisterViewModel, RegisterState>(
-        listenWhen: (previous, current) => previous.status != current.status,
+        listenWhen: (previous, current) =>
+            previous.status.status != current.status.status,
         listener: (context, state) {
-          if (state.status.isSuccess) {
+          if (state.status.status == ApiStatus.success) {
             context.go(AppRoutes.home);
-          } else if (state.status.isError) {
+          } else if (state.status.status == ApiStatus.error) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text(state.status.errorMessage ?? 'registration_failed'.tr()),
+                content: Text(
+                    state.status.errorMessage ?? 'registration_failed'.tr()),
                 backgroundColor: colorScheme.error,
               ),
             );
@@ -107,6 +115,17 @@ class _RegisterViewState extends State<RegisterView> {
                     passwordController: passwordController,
                     confirmPasswordController: confirmPasswordController,
                     phoneNumberController: phoneNumberController,
+                    onFirstNameChanged: (v) =>
+                        vm.doEvent(UpdateField(firstName: v)),
+                    onLastNameChanged: (v) =>
+                        vm.doEvent(UpdateField(lastName: v)),
+                    onEmailChanged: (v) => vm.doEvent(UpdateField(email: v)),
+                    onPasswordChanged: (v) =>
+                        vm.doEvent(UpdateField(password: v)),
+                    onConfirmPasswordChanged: (v) =>
+                        vm.doEvent(UpdateField(confirmPassword: v)),
+                    onPhoneNumberChanged: (v) =>
+                        vm.doEvent(UpdateField(phoneNumber: v)),
                   ),
                   const SizedBox(height: 20),
                   BlocBuilder<RegisterViewModel, RegisterState>(
@@ -115,9 +134,8 @@ class _RegisterViewState extends State<RegisterView> {
                     builder: (context, state) {
                       return RegisterGenderSection(
                         selectedGender: state.selectedGender,
-                        onChanged: (gender) {
-                          context.read<RegisterViewModel>().doEvent(SelectGender(gender));
-                        },
+                        onChanged: (gender) =>
+                            vm.doEvent(SelectGender(gender)),
                       );
                     },
                   ),
@@ -138,8 +156,7 @@ class _RegisterViewState extends State<RegisterView> {
                       return SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
-                          onPressed: () => onSignUpPressed(
-                              context.read<RegisterViewModel>(), state),
+                          onPressed: () => onSignUpPressed(vm, state),
                           child: Text('sign_up'.tr()),
                         ),
                       );

@@ -1,4 +1,4 @@
-import '../../../../config/base_response/base_response.dart';
+import 'package:flower_app/core/network/base_response.dart';
 import '../entities/auth_entity.dart';
 import '../entities/register_params.dart';
 
