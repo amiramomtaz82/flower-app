@@ -6,35 +6,39 @@ import 'core/app_theme/app_theme.dart';
 
 import 'package:easy_localization/easy_localization.dart';
 
-import 'core/go_routes/app_router.dart';
+import 'package:go_router/go_router.dart';
 import 'firebase_options.dart';
 
 void main() async {
-  configureDependencies();
   WidgetsFlutterBinding.ensureInitialized();
+  configureDependencies();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await EasyLocalization.ensureInitialized();
+  
+  final goRouter = getIt<GoRouter>();
+  
   runApp(
     EasyLocalization(
       supportedLocales: const [Locale('en'), Locale('ar')],
       path: 'assets/translations',
       fallbackLocale: const Locale('en'),
       startLocale: const Locale('en'),
-      child: const MyApp(),
+      child: MyApp(goRouter: goRouter),
     ),
   );
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final GoRouter goRouter;
+  
+  const MyApp({super.key, required this.goRouter});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
-      routerConfig: AppRouter.router,
+      routerConfig: goRouter,
       localizationsDelegates: context.localizationDelegates,
       supportedLocales: context.supportedLocales,
       locale: context.locale,
