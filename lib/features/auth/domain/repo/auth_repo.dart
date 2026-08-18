@@ -21,4 +21,6 @@ abstract interface class AuthRepo {
     required String newPassword,
     required String confirmNewPassword,
   });
+
+  Future<void> clearAuthData();
 }
