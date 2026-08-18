@@ -7,7 +7,7 @@ import 'package:flower_app/features/auth/domain/entities/reset_token_entity.dart
 import 'package:flower_app/features/auth/domain/repo/auth_repo.dart';
 import 'package:injectable/injectable.dart';
 
-@LazySingleton(as: AuthRepo)
+@Injectable(as: AuthRepo)
 class AuthRepoImpl implements AuthRepo {
   final AuthRemoteDataSource _authRemoteDataSource;
   final AuthLocalDataSource _authLocalDataSource;
