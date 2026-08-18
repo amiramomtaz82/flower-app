@@ -21,19 +21,30 @@ void main() async {
       path: 'assets/translations',
       fallbackLocale: const Locale('en'),
       startLocale: const Locale('en'),
-      child: const MyApp(),
+      child: MyApp(localeService: getIt<LocaleService>()),
     ),
   );
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class MyApp extends StatefulWidget {
+  const MyApp({super.key, required this.localeService});
 
-  // This widget is the root of your application.
+  final LocaleService localeService;
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // بتتنفذ أول مرة، وبعد كده بس لما locale الـ EasyLocalization يتغير.
+    widget.localeService.languageCode = context.locale.languageCode;
+  }
+
   @override
   Widget build(BuildContext context) {
-    getIt<LocaleService>().languageCode = context.locale.languageCode;
-
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
