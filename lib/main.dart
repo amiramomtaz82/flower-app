@@ -11,8 +11,8 @@ import 'core/go_routes/app_router.dart';
 import 'firebase_options.dart';
 
 void main() async {
-  configureDependencies();
   WidgetsFlutterBinding.ensureInitialized();
+  configureDependencies();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await EasyLocalization.ensureInitialized();
   runApp(
@@ -39,8 +39,9 @@ class _MyAppState extends State<MyApp> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // بتتنفذ أول مرة، وبعد كده بس لما locale الـ EasyLocalization يتغير.
-    widget.localeService.languageCode = context.locale.languageCode;
+    // Runs on the first build and again only when EasyLocalization's locale
+    // actually changes, since context.locale registers an inherited dependency.
+    widget.localeService.setLanguageCode(context.locale.languageCode);
   }
 
   @override
