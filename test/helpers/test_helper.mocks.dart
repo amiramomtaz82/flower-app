@@ -5,7 +5,6 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:async' as _i4;
 
-import 'package:flower_app/config/base_response/base_response.dart' as _i5;
 import 'package:flower_app/features/auth/data/data_source/local/auth_local_data_source.dart'
     as _i11;
 import 'package:flower_app/features/auth/data/data_source/remote/auth_remote_data_source.dart'
@@ -14,6 +13,7 @@ import 'package:flower_app/features/auth/data/models/register_request.dart'
     as _i10;
 import 'package:flower_app/features/auth/data/models/register_response.dart'
     as _i2;
+import 'package:flower_app/features/auth/domain/core/result.dart' as _i5;
 import 'package:flower_app/features/auth/domain/entities/auth_entity.dart'
     as _i6;
 import 'package:flower_app/features/auth/domain/entities/register_params.dart'
@@ -53,19 +53,17 @@ class MockRegisterUseCase extends _i1.Mock implements _i3.RegisterUseCase {
   }
 
   @override
-  _i4.Future<_i5.BaseResponse<_i6.RegisterEntity>> call(
-    _i7.RegisterParams? params,
-  ) =>
+  _i4.Future<_i5.Result<_i6.RegisterEntity>> call(_i7.RegisterParams? params) =>
       (super.noSuchMethod(
             Invocation.method(#call, [params]),
-            returnValue: _i4.Future<_i5.BaseResponse<_i6.RegisterEntity>>.value(
-              _i8.dummyValue<_i5.BaseResponse<_i6.RegisterEntity>>(
+            returnValue: _i4.Future<_i5.Result<_i6.RegisterEntity>>.value(
+              _i8.dummyValue<_i5.Result<_i6.RegisterEntity>>(
                 this,
                 Invocation.method(#call, [params]),
               ),
             ),
           )
-          as _i4.Future<_i5.BaseResponse<_i6.RegisterEntity>>);
+          as _i4.Future<_i5.Result<_i6.RegisterEntity>>);
 }
 
 /// A class which mocks [AuthRemoteDataSource].
@@ -133,17 +131,17 @@ class MockAuthRepo extends _i1.Mock implements _i12.AuthRepo {
   }
 
   @override
-  _i4.Future<_i5.BaseResponse<_i6.RegisterEntity>> signUp(
+  _i4.Future<_i5.Result<_i6.RegisterEntity>> signUp(
     _i7.RegisterParams? params,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#signUp, [params]),
-            returnValue: _i4.Future<_i5.BaseResponse<_i6.RegisterEntity>>.value(
-              _i8.dummyValue<_i5.BaseResponse<_i6.RegisterEntity>>(
+            returnValue: _i4.Future<_i5.Result<_i6.RegisterEntity>>.value(
+              _i8.dummyValue<_i5.Result<_i6.RegisterEntity>>(
                 this,
                 Invocation.method(#signUp, [params]),
               ),
             ),
           )
-          as _i4.Future<_i5.BaseResponse<_i6.RegisterEntity>>);
+          as _i4.Future<_i5.Result<_i6.RegisterEntity>>);
 }

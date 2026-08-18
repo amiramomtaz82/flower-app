@@ -1,40 +1,46 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flower_app/core/validation/validation.dart';
 import 'package:flower_app/core/widgets/custom_text_field.dart';
+import 'package:flower_app/features/auth/presentation/register/view_model/register_state.dart';
+import 'package:flower_app/features/auth/presentation/register/view_model/register_view_model.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-class RegisterFormFields extends StatelessWidget {
-  final TextEditingController firstNameController;
-  final TextEditingController lastNameController;
-  final TextEditingController emailController;
-  final TextEditingController passwordController;
-  final TextEditingController confirmPasswordController;
-  final TextEditingController phoneNumberController;
+class RegisterFormFields extends StatefulWidget {
   final ValueChanged<String> onFirstNameChanged;
   final ValueChanged<String> onLastNameChanged;
   final ValueChanged<String> onEmailChanged;
   final ValueChanged<String> onPasswordChanged;
   final ValueChanged<String> onConfirmPasswordChanged;
   final ValueChanged<String> onPhoneNumberChanged;
+  final VoidCallback onPasswordValidated;
 
   const RegisterFormFields({
     super.key,
-    required this.firstNameController,
-    required this.lastNameController,
-    required this.emailController,
-    required this.passwordController,
-    required this.confirmPasswordController,
-    required this.phoneNumberController,
     required this.onFirstNameChanged,
     required this.onLastNameChanged,
     required this.onEmailChanged,
     required this.onPasswordChanged,
     required this.onConfirmPasswordChanged,
     required this.onPhoneNumberChanged,
+    required this.onPasswordValidated,
   });
 
   @override
+  State<RegisterFormFields> createState() => _RegisterFormFieldsState();
+}
+
+class _RegisterFormFieldsState extends State<RegisterFormFields> {
+  // We need to keep a reference to the password for the confirm password validator
+  String _currentPassword = '';
+
+  @override
   Widget build(BuildContext context) {
+    // Initial values are taken from state once, then managed internally by TextFormField
+    // But MVI still holds because onChanged updates the state.
+    final vm = context.read<RegisterViewModel>();
+    final state = vm.state;
+    
     return Column(
       children: [
         Row(
@@ -43,9 +49,9 @@ class RegisterFormFields extends StatelessWidget {
               child: CustomTextField(
                 label: 'first_name'.tr(),
                 hint: 'enter_first_name'.tr(),
-                controller: firstNameController,
                 validator: Validation.validateName,
-                onChanged: onFirstNameChanged,
+                onChanged: widget.onFirstNameChanged,
+                initialValue: state.firstName,
               ),
             ),
             const SizedBox(width: 12),
@@ -53,9 +59,9 @@ class RegisterFormFields extends StatelessWidget {
               child: CustomTextField(
                 label: 'last_name'.tr(),
                 hint: 'enter_last_name'.tr(),
-                controller: lastNameController,
                 validator: Validation.validateName,
-                onChanged: onLastNameChanged,
+                onChanged: widget.onLastNameChanged,
+                initialValue: state.lastName,
               ),
             ),
           ],
@@ -64,10 +70,10 @@ class RegisterFormFields extends StatelessWidget {
         CustomTextField(
           label: 'email'.tr(),
           hint: 'enter_email'.tr(),
-          controller: emailController,
           validator: Validation.validateEmail,
           keyboardType: TextInputType.emailAddress,
-          onChanged: onEmailChanged,
+          onChanged: widget.onEmailChanged,
+          initialValue: state.email,
         ),
         const SizedBox(height: 16),
         Row(
@@ -76,10 +82,14 @@ class RegisterFormFields extends StatelessWidget {
               child: CustomTextField(
                 label: 'password'.tr(),
                 hint: 'enter_password'.tr(),
-                controller: passwordController,
                 validator: Validation.validatePassword,
                 obscureText: true,
-                onChanged: onPasswordChanged,
+                onChanged: (val) {
+                  _currentPassword = val;
+                  widget.onPasswordChanged(val);
+                  widget.onPasswordValidated();
+                },
+                initialValue: state.password,
               ),
             ),
             const SizedBox(width: 12),
@@ -87,13 +97,13 @@ class RegisterFormFields extends StatelessWidget {
               child: CustomTextField(
                 label: 'confirm_password'.tr(),
                 hint: 'confirm_password'.tr(),
-                controller: confirmPasswordController,
                 validator: (value) => Validation.validateConfirmPassword(
                   value,
-                  passwordController.text,
+                  _currentPassword,
                 ),
                 obscureText: true,
-                onChanged: onConfirmPasswordChanged,
+                onChanged: widget.onConfirmPasswordChanged,
+                initialValue: state.confirmPassword,
               ),
             ),
           ],
@@ -102,10 +112,10 @@ class RegisterFormFields extends StatelessWidget {
         CustomTextField(
           label: 'phone_number'.tr(),
           hint: 'enter_phone_number'.tr(),
-          controller: phoneNumberController,
           validator: Validation.validatePhoneNumber,
           keyboardType: TextInputType.phone,
-          onChanged: onPhoneNumberChanged,
+          onChanged: widget.onPhoneNumberChanged,
+          initialValue: state.phoneNumber,
         ),
       ],
     );

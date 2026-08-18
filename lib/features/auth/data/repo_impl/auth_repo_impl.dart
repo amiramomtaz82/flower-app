@@ -1,7 +1,8 @@
-import 'package:flower_app/config/base_response/base_response.dart';
+import 'package:flower_app/config/error/error_handler.dart';
 import 'package:flower_app/features/auth/data/data_source/local/auth_local_data_source.dart';
 import 'package:flower_app/features/auth/data/data_source/remote/auth_remote_data_source.dart';
 import 'package:flower_app/features/auth/data/models/register_request.dart';
+import 'package:flower_app/features/auth/domain/core/result.dart';
 import 'package:flower_app/features/auth/domain/entities/auth_entity.dart';
 import 'package:flower_app/features/auth/domain/entities/register_params.dart';
 import 'package:flower_app/features/auth/domain/repo/auth_repo.dart';
@@ -16,7 +17,7 @@ class AuthRepoImpl implements AuthRepo {
   AuthRepoImpl(this._authRemoteDataSource, this._authLocalDataSource);
 
   @override
-  Future<BaseResponse<RegisterEntity>> signUp(RegisterParams params) async {
+  Future<Result<RegisterEntity>> signUp(RegisterParams params) async {
     try {
       final request = SignUpRequest(
         firstName: params.firstName,
@@ -30,14 +31,15 @@ class AuthRepoImpl implements AuthRepo {
 
       final response = await _authRemoteDataSource.signUp(request);
 
-      return SuccessResponse(
+      return Success(
         RegisterEntity(
           message: response.message,
           messageLocalized: response.messageLocalized,
         ),
       );
     } catch (e) {
-      return ErrorResponse(error: e);
+      final errMessage = ErrorHandler.extractErrorMessage(e);
+      return Failure(errMessage);
     }
   }
 

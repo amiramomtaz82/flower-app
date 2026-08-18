@@ -1,5 +1,5 @@
 import 'package:flower_app/config/resource/rsource.dart';
-import 'package:flower_app/core/network/base_response.dart';
+import 'package:flower_app/features/auth/domain/core/result.dart';
 import 'package:flower_app/features/auth/domain/entities/auth_entity.dart';
 import 'package:flower_app/features/auth/domain/use_cases/register_use_case.dart';
 import 'package:flower_app/features/auth/presentation/register/view_model/register_event.dart';
@@ -38,10 +38,10 @@ class RegisterViewModel extends Cubit<RegisterState> {
     final response = await _registerUseCase(event.params);
 
     switch (response) {
-      case SuccessResponse<RegisterEntity>():
+      case Success<RegisterEntity>():
         emit(state.copyWith(status: Resource.success(response.data)));
-      case ErrorResponse<RegisterEntity>():
-        emit(state.copyWith(status: Resource.error(response.errMessage)));
+      case Failure<RegisterEntity>():
+        emit(state.copyWith(status: Resource.error(response.message)));
     }
   }
 }

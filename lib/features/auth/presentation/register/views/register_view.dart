@@ -21,38 +21,6 @@ class RegisterView extends StatefulWidget {
 
 class _RegisterViewState extends State<RegisterView> {
   final _formKey = GlobalKey<FormState>();
-  late final TextEditingController firstNameController;
-  late final TextEditingController lastNameController;
-  late final TextEditingController emailController;
-  late final TextEditingController passwordController;
-  late final TextEditingController confirmPasswordController;
-  late final TextEditingController phoneNumberController;
-
-  @override
-  void initState() {
-    super.initState();
-    firstNameController = TextEditingController();
-    lastNameController = TextEditingController();
-    emailController = TextEditingController();
-    passwordController = TextEditingController();
-    confirmPasswordController = TextEditingController();
-    phoneNumberController = TextEditingController();
-
-    passwordController.addListener(() {
-      _formKey.currentState?.validate();
-    });
-  }
-
-  @override
-  void dispose() {
-    firstNameController.dispose();
-    lastNameController.dispose();
-    emailController.dispose();
-    passwordController.dispose();
-    confirmPasswordController.dispose();
-    phoneNumberController.dispose();
-    super.dispose();
-  }
 
   void onSignUpPressed(RegisterViewModel vm, RegisterState state) {
     if (_formKey.currentState!.validate()) {
@@ -109,12 +77,6 @@ class _RegisterViewState extends State<RegisterView> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   RegisterFormFields(
-                    firstNameController: firstNameController,
-                    lastNameController: lastNameController,
-                    emailController: emailController,
-                    passwordController: passwordController,
-                    confirmPasswordController: confirmPasswordController,
-                    phoneNumberController: phoneNumberController,
                     onFirstNameChanged: (v) =>
                         vm.doEvent(UpdateField(firstName: v)),
                     onLastNameChanged: (v) =>
@@ -126,6 +88,7 @@ class _RegisterViewState extends State<RegisterView> {
                         vm.doEvent(UpdateField(confirmPassword: v)),
                     onPhoneNumberChanged: (v) =>
                         vm.doEvent(UpdateField(phoneNumber: v)),
+                    onPasswordValidated: () => _formKey.currentState?.validate(),
                   ),
                   const SizedBox(height: 20),
                   BlocBuilder<RegisterViewModel, RegisterState>(

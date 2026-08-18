@@ -1,6 +1,6 @@
 import 'package:bloc_test/bloc_test.dart';
-import 'package:flower_app/config/base_response/base_response.dart';
 import 'package:flower_app/config/resource/rsource.dart';
+import 'package:flower_app/features/auth/domain/core/result.dart';
 import 'package:flower_app/features/auth/domain/entities/auth_entity.dart';
 import 'package:flower_app/features/auth/domain/entities/gender.dart';
 import 'package:flower_app/features/auth/domain/entities/register_params.dart';
@@ -31,7 +31,7 @@ void main() {
   );
 
   setUpAll(() {
-    provideDummy<BaseResponse<RegisterEntity>>(SuccessResponse<RegisterEntity>(entity));
+    provideDummy<Result<RegisterEntity>>(Success<RegisterEntity>(entity));
   });
 
   setUp(() {
@@ -57,10 +57,21 @@ void main() {
     );
 
     blocTest<RegisterViewModel, RegisterState>(
+      'should emit new field values on UpdateField event',
+      build: () => viewModel,
+      act: (vm) => vm.doEvent(UpdateField(firstName: 'John', email: 'j@j.com')),
+      expect: () => [
+        isA<RegisterState>()
+            .having((s) => s.firstName, 'firstName', 'John')
+            .having((s) => s.email, 'email', 'j@j.com'),
+      ],
+    );
+
+    blocTest<RegisterViewModel, RegisterState>(
       'should emit [loading, success] when register succeeds',
       build: () {
         when(mockRegisterUseCase.call(params))
-            .thenAnswer((_) async => SuccessResponse(entity));
+            .thenAnswer((_) async => Success(entity));
         return viewModel;
       },
       act: (vm) => vm.doEvent(DoRegister(params)),
@@ -79,7 +90,7 @@ void main() {
       'should emit [loading, error] when register fails',
       build: () {
         when(mockRegisterUseCase.call(params))
-            .thenAnswer((_) async => ErrorResponse(errMessage: 'Server error'));
+            .thenAnswer((_) async => Failure('Server error'));
         return viewModel;
       },
       act: (vm) => vm.doEvent(DoRegister(params)),

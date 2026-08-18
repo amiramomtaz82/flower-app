@@ -1,4 +1,4 @@
-import 'package:flower_app/config/base_response/base_response.dart';
+import 'package:flower_app/features/auth/domain/core/result.dart';
 import 'package:flower_app/features/auth/domain/entities/auth_entity.dart';
 import 'package:flower_app/features/auth/domain/entities/gender.dart';
 import 'package:flower_app/features/auth/domain/entities/register_params.dart';
@@ -22,7 +22,7 @@ void main() {
     gender: Gender.male,
   );
 
-  const authResponse = SuccessResponse(
+  const authResponse = Success(
     RegisterEntity(
       message: 'Success',
       messageLocalized: 'نجاح',
@@ -30,8 +30,8 @@ void main() {
   );
 
   setUpAll(() {
-    provideDummy<BaseResponse<RegisterEntity>>(
-      SuccessResponse<RegisterEntity>(RegisterEntity(message: 'dummy')),
+    provideDummy<Result<RegisterEntity>>(
+      Success<RegisterEntity>(RegisterEntity(message: 'dummy')),
     );
   });
 
