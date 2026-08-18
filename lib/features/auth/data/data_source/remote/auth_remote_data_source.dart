@@ -8,7 +8,7 @@ abstract interface class AuthRemoteDataSource {
 
   Future<MessageResponseModel> forgetPassword({required String email});
 
-  Future<VerifyOtpResponseVm> verifyOtp({
+  Future<VerifyOtpResponseData> verifyOtp({
     required String email,
     required String otpCode,
   });

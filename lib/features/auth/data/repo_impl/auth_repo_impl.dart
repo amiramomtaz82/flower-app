@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flower_app/config/base_response/base_response.dart';
 import 'package:flower_app/features/auth/data/data_source/local/auth_local_data_source.dart';
 import 'package:flower_app/features/auth/data/data_source/remote/auth_remote_data_source.dart';
@@ -23,7 +24,7 @@ class AuthRepoImpl implements AuthRepo {
     try {
       final response = await _authRemoteDataSource.forgetPassword(email: email);
       return SuccessResponse(response.toEntity());
-    } on Exception catch (e) {
+    } on DioException catch (e) {
       return ErrorResponse(error: e);
     }
   }
@@ -39,7 +40,7 @@ class AuthRepoImpl implements AuthRepo {
         otpCode: otpCode,
       );
       return SuccessResponse(response.toEntity());
-    } on Exception catch (e) {
+    } on DioException catch (e) {
       return ErrorResponse(error: e);
     }
   }
@@ -56,11 +57,12 @@ class AuthRepoImpl implements AuthRepo {
         newPassword: newPassword,
         confirmNewPassword: confirmNewPassword,
       );
-      // clear auth data when reset password success to avoid user relogin
-      await _authLocalDataSource.clearAuthData();
       return SuccessResponse(response.toEntity());
-    } on Exception catch (e) {
+    } on DioException catch (e) {
       return ErrorResponse(error: e);
     }
   }
+
+  @override
+  Future<void> clearAuthData() => _authLocalDataSource.clearAuthData();
 }
