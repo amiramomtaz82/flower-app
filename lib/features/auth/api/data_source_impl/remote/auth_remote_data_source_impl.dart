@@ -25,7 +25,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   @override
-  Future<VerifyOtpResponseVm> verifyOtp({
+  Future<VerifyOtpResponseData> verifyOtp({
     required String email,
     required String otpCode,
   }) async {
