@@ -7,6 +7,6 @@ class ResetToken extends Equatable {
   const ResetToken({required this.token, required this.expiresAt});
   @override
   List<Object?> get props => [token, expiresAt];
-  // Check if the token is expired
-  bool get isExpired => DateTime.now().isAfter(expiresAt);
+  // Check if the token is expired as of the given time
+  bool isExpired(DateTime now) => now.isAfter(expiresAt);
 }
