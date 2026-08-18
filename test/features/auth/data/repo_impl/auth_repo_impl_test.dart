@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flower_app/config/base_response/base_response.dart';
 import 'package:flower_app/features/auth/data/data_source/local/auth_local_data_source.dart';
 import 'package:flower_app/features/auth/data/data_source/remote/auth_remote_data_source.dart';
@@ -55,7 +56,7 @@ void main() {
       // Arrange
       when(
         mockAuthRemoteDataSource.forgetPassword(email: anyNamed('email')),
-      ).thenThrow(Exception());
+      ).thenThrow(DioException(requestOptions: RequestOptions(path: '')));
 
       // Act
       final result = await authRepoImpl.forgetPassword(email: 'email');
@@ -75,7 +76,7 @@ void main() {
           otpCode: anyNamed('otpCode'),
         ),
       ).thenAnswer(
-        (_) async => VerifyOtpResponseVm(
+        (_) async => VerifyOtpResponseData(
           resetToken: 'token123',
           expiresAt: DateTime(2026, 1, 1),
         ),
@@ -100,7 +101,12 @@ void main() {
           email: anyNamed('email'),
           otpCode: anyNamed('otpCode'),
         ),
-      ).thenThrow(Exception('invalid otp'));
+      ).thenThrow(
+        DioException(
+          requestOptions: RequestOptions(path: ''),
+          message: 'invalid otp',
+        ),
+      );
 
       final result = await authRepoImpl.verifyOtp(
         email: 'email',
@@ -113,7 +119,7 @@ void main() {
 
   // reset password functions (success/failure)
   group('Reset Password Function Test', () {
-    test('clears auth data and returns SuccessResponse on success', () async {
+    test('returns SuccessResponse on success', () async {
       // Arrange
       when(
         mockAuthRemoteDataSource.resetPassword(
@@ -125,7 +131,6 @@ void main() {
         (_) async =>
             const MessageResponseModel(message: 'ok', messageLocalized: 'ok'),
       );
-      when(mockAuthLocalDataSource.clearAuthData()).thenAnswer((_) async {});
 
       // Act
       final result = await authRepoImpl.resetPassword(
@@ -140,10 +145,10 @@ void main() {
         (result as SuccessResponse<AuthMessageEntity>).data,
         const AuthMessageEntity(message: 'ok', messageLocalized: 'ok'),
       );
-      verify(mockAuthLocalDataSource.clearAuthData()).called(1);
+      verifyNever(mockAuthLocalDataSource.clearAuthData());
     });
 
-    test('does not clear auth data when reset fails', () async {
+    test('returns ErrorResponse when reset fails', () async {
       // Arrange
       when(
         mockAuthRemoteDataSource.resetPassword(
@@ -151,7 +156,12 @@ void main() {
           newPassword: anyNamed('newPassword'),
           confirmNewPassword: anyNamed('confirmNewPassword'),
         ),
-      ).thenThrow(Exception('token expired'));
+      ).thenThrow(
+        DioException(
+          requestOptions: RequestOptions(path: ''),
+          message: 'token expired',
+        ),
+      );
 
       // Act
       final result = await authRepoImpl.resetPassword(
@@ -163,6 +173,20 @@ void main() {
       // Assert
       expect(result, isA<ErrorResponse<AuthMessageEntity>>());
       verifyNever(mockAuthLocalDataSource.clearAuthData());
+    });
+  });
+
+  // clearAuthData delegates to the local data source
+  group('Clear Auth Data Function Test', () {
+    test('delegates to AuthLocalDataSource.clearAuthData', () async {
+      // Arrange
+      when(mockAuthLocalDataSource.clearAuthData()).thenAnswer((_) async {});
+
+      // Act
+      await authRepoImpl.clearAuthData();
+
+      // Assert
+      verify(mockAuthLocalDataSource.clearAuthData()).called(1);
     });
   });
 }

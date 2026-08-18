@@ -49,7 +49,7 @@ void main() {
   group('verifyOtp', () {
     test('builds the request and unwraps the data from the envelope', () async {
       // Arrange
-      final fakeVm = VerifyOtpResponseVm(
+      final fakeVm = VerifyOtpResponseData(
         resetToken: 'reset-token-123',
         expiresAt: DateTime(2026, 1, 1),
       );
