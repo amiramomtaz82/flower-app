@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'config/di/di.dart';
 import 'config/notificaions/fcm.dart';
 import 'core/app_theme/app_theme.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import 'package:easy_localization/easy_localization.dart';
 
@@ -14,6 +15,7 @@ import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: ".env");
 
 
 
