@@ -1,5 +1,10 @@
+import 'dart:async';
+
 import 'package:flower_app/config/base_response/base_response.dart';
 import 'package:flower_app/core/app_constants/app_strings.dart';
+import 'package:flower_app/core/go_routes/routes_name.dart';
+import 'package:flower_app/core/ui_action/ui_action.dart';
+import 'package:flower_app/core/ui_action/ui_action_dispatcher.dart';
 import 'package:flower_app/features/auth/domain/entities/auth_message_entity.dart';
 import 'package:flower_app/features/auth/domain/use_cases/forget_password_use_case.dart';
 import 'package:flower_app/features/auth/domain/use_cases/reset_password_use_case.dart';
@@ -15,24 +20,32 @@ class ForgetPasswordBloc
   final ForgetPasswordUseCase _forgetPasswordUseCase;
   final VerifyOtpUseCase _verifyOtpUseCase;
   final ResetPasswordUseCase _resetPasswordUseCase;
+  final UiActionDispatcher _uiActionDispatcher;
 
   ForgetPasswordBloc(
     this._forgetPasswordUseCase,
     this._verifyOtpUseCase,
     this._resetPasswordUseCase,
+    this._uiActionDispatcher,
   ) : super(ForgetPasswordState.initial()) {
     on<SendResetCodeEvent>(_sendResetCode);
     on<VerifyResetCodeEvent>(_verifyResetCode);
     on<OtpChangedEvent>(_otpChanged);
     on<ResetPasswordEvent>(_resetPassword);
-    on<ClearUiActionEvent>(_clearUiAction);
+    on<ResendCooldownTicked>(_resendCooldownTicked);
+    on<BackToPreviousStepEvent>(_backToPreviousStep);
   }
+
+  static const int resendCooldownSeconds = 30;
+
+  Timer? _resendTimer;
 
   Future<void> _sendResetCode(
     SendResetCodeEvent event,
     Emitter<ForgetPasswordState> emit,
   ) async {
     if (state.isSendingCode) return;
+    if (event.isResend && state.resendCooldown > 0) return;
 
     emit(
       state.copyWith(
@@ -51,22 +64,26 @@ class ForgetPasswordBloc
         emit(
           state.copyWith(
             sendCodeStatus: ForgetPasswordStatus.success,
-            uiAction: event.isResend
-                ? ForgetPasswordUiAction.success(
-                    _backendMessage(data, AppStrings.codeSent),
-                  )
-                : const ForgetPasswordUiAction.goToOtp(),
+            resendCooldown: resendCooldownSeconds,
+            step: event.isResend ? null : ForgetPasswordStep.otp,
           ),
         );
+        if (event.isResend) {
+          _uiActionDispatcher.dispatch(
+            ShowSnackBarAction.success(
+              _backendMessage(data, AppStrings.codeSent),
+            ),
+          );
+        }
+        _startResendCooldown();
       case ErrorResponse(errMessage: final errMessage):
-        // final err = result.errMessage;
         emit(
           state.copyWith(
             sendCodeStatus: ForgetPasswordStatus.error,
             errorMessage: errMessage,
-            uiAction: ForgetPasswordUiAction.error(errMessage),
           ),
         );
+        _uiActionDispatcher.dispatch(ShowSnackBarAction.error(errMessage));
     }
   }
 
@@ -94,7 +111,7 @@ class ForgetPasswordBloc
           state.copyWith(
             verifyCodeStatus: ForgetPasswordStatus.success,
             resetToken: data,
-            uiAction: const ForgetPasswordUiAction.goToResetPassword(),
+            step: ForgetPasswordStep.resetPassword,
           ),
         );
       case ErrorResponse(errMessage: final errMessage):
@@ -133,7 +150,7 @@ class ForgetPasswordBloc
           verifyCodeStatus: ForgetPasswordStatus.error,
           errorMessage: AppStrings.resetSessionExpired,
           clearResetToken: true,
-          uiAction: const ForgetPasswordUiAction.goToOtp(),
+          step: ForgetPasswordStep.otp,
         ),
       );
       return;
@@ -158,25 +175,52 @@ class ForgetPasswordBloc
           state.copyWith(
             resetStatus: ForgetPasswordStatus.success,
             clearResetToken: true,
-            uiAction: const ForgetPasswordUiAction.goToLogin(),
           ),
+        );
+        _uiActionDispatcher.dispatch(
+          const NavigateAction(AppRoutes.login, replace: true),
         );
       case ErrorResponse(:final errMessage):
         emit(
           state.copyWith(
             resetStatus: ForgetPasswordStatus.error,
             errorMessage: errMessage,
-            uiAction: ForgetPasswordUiAction.error(errMessage),
           ),
         );
+        _uiActionDispatcher.dispatch(ShowSnackBarAction.error(errMessage));
     }
   }
 
-  void _clearUiAction(
-    ClearUiActionEvent event,
+  void _backToPreviousStep(
+    BackToPreviousStepEvent event,
     Emitter<ForgetPasswordState> emit,
   ) {
-    emit(state.copyWith(uiAction: const ForgetPasswordUiAction.none()));
+    if (state.step == ForgetPasswordStep.email) return;
+    emit(
+      state.copyWith(step: ForgetPasswordStep.values[state.step.index - 1]),
+    );
+  }
+
+  void _resendCooldownTicked(
+    ResendCooldownTicked event,
+    Emitter<ForgetPasswordState> emit,
+  ) {
+    emit(state.copyWith(resendCooldown: event.secondsLeft));
+  }
+
+  void _startResendCooldown() {
+    _resendTimer?.cancel();
+    _resendTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      final secondsLeft = state.resendCooldown - 1;
+      add(ResendCooldownTicked(secondsLeft));
+      if (secondsLeft <= 0) timer.cancel();
+    });
+  }
+
+  @override
+  Future<void> close() {
+    _resendTimer?.cancel();
+    return super.close();
   }
 
   String _backendMessage(AuthMessageEntity message, String fallbackKey) =>

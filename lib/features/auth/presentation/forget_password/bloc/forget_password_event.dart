@@ -13,10 +13,16 @@ class VerifyResetCodeEvent extends ForgetPasswordEvent {
 
 class OtpChangedEvent extends ForgetPasswordEvent {}
 
+class BackToPreviousStepEvent extends ForgetPasswordEvent {}
+
+class ResendCooldownTicked extends ForgetPasswordEvent {
+  final int secondsLeft;
+  ResendCooldownTicked(this.secondsLeft);
+}
+
 class ResetPasswordEvent extends ForgetPasswordEvent {
   final String newPassword;
   final String confirmNewPassword;
   ResetPasswordEvent(this.newPassword, this.confirmNewPassword);
 }
 
-class ClearUiActionEvent extends ForgetPasswordEvent {}
