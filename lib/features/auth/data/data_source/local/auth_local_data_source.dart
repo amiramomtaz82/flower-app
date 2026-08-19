@@ -1,32 +1,17 @@
+import 'package:flower_app/features/auth/data/models/login_response.dart';
 
-import '../../models/login_response.dart';
-
-abstract interface class AuthLocalDataSource {
-
-
+abstract class AuthLocalDataSource {
   Future<void> saveToken(String token);
-
-  Future<void> saveRefreshToken(String token);
-
-  Future<void> saveUser(User user);
 
   Future<String?> getToken();
 
-
+  Future<void> saveRefreshToken(String token);
 
   Future<String?> getRefreshToken();
 
-
+  Future<void> saveUser(User user);
 
   Future<User?> getUser();
 
-
-  Future<void> clearToken();
-
   Future<void> clearAuthData();
-
-
-
 }
-
-

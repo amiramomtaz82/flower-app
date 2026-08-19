@@ -1,3 +1,5 @@
+import '../../domain/entities/login_entity.dart';
+
 /// accessToken : "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 /// refreshToken : "d9a8f7c6b5a4..."
 /// expiresIn : 900
@@ -7,12 +9,12 @@
 
 class LoginResponse {
   LoginResponse({
-    this.accessToken,
-    this.refreshToken,
-    this.expiresIn,
-    this.role,
-    this.driverStatus,
-    this.user,});
+      this.accessToken, 
+      this.refreshToken, 
+      this.expiresIn, 
+      this.role, 
+      this.driverStatus, 
+      this.user,});
 
   LoginResponse.fromJson(dynamic json) {
     accessToken = json['accessToken'];
@@ -42,6 +44,17 @@ class LoginResponse {
     return map;
   }
 
+  LoginEntity toEntity() {
+    return LoginEntity(
+      accessToken: accessToken,
+      refreshToken: refreshToken,
+      expiresIn: expiresIn,
+      role: role,
+      driverStatus: driverStatus,
+      user: user?.toEntity(),
+    );
+  }
+
 }
 
 /// id : "018f23a4-1234-7000-8000-000000000001"
@@ -53,12 +66,12 @@ class LoginResponse {
 
 class User {
   User({
-    this.id,
-    this.email,
-    this.fullName,
-    this.role,
-    this.isActive,
-    this.driverStatus,});
+      this.id, 
+      this.email, 
+      this.fullName, 
+      this.role, 
+      this.isActive, 
+      this.driverStatus,});
 
   User.fromJson(dynamic json) {
     id = json['id'];
@@ -84,6 +97,16 @@ class User {
     map['isActive'] = isActive;
     map['driverStatus'] = driverStatus;
     return map;
+  }
+  UserEntity toEntity() {
+    return UserEntity(
+      id: id,
+      email: email,
+      fullName: fullName,
+      role: role,
+      isActive: isActive,
+      driverStatus: driverStatus,
+    );
   }
 
 }

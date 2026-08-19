@@ -1,5 +1,5 @@
 {
-  "test": "Test",
+
   "email": "Email",
   "submit": "Submit",
   "success": "Success",
@@ -26,4 +26,15 @@
   "already_have_account": "Already have an account? ",
   "login": "Login",
   "registration_failed": "Registration failed"
+  "enter your email": "Enter your email",
+  "login": "Login",
+  "enterYourPassword": "Enter your password",
+  "password": "Password",
+  "forget password": "Forget password ?",
+  "rememberMe": "Remember me",
+  "continueAsGuest": "Continue as guest",
+  "dontHaveAnAccount": "Don't have an account ?",
+  "SignUp": "Sine up",
+  "someThingWentWrong": "Something went wrong , please try again later"
+
 }

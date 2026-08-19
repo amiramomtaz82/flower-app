@@ -1,5 +1,10 @@
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 class Endpoints {
   Endpoints._();
-  static const String baseUrl = 'http://127.0.0.1:4010';
+
+  static String get baseUrl => dotenv.env['BASE_URL']!;
+  static const String loginEndPoint='/auth/login';
+
   static const String register = '/auth/register';
 }

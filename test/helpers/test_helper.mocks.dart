@@ -5,10 +5,15 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:async' as _i4;
 
+import 'package:flower_app/config/base_response/base_response.dart' as _i11;
 import 'package:flower_app/features/auth/data/data_source/local/auth_local_data_source.dart'
-    as _i11;
+    as _i14;
 import 'package:flower_app/features/auth/data/data_source/remote/auth_remote_data_source.dart'
     as _i9;
+import 'package:flower_app/features/auth/data/models/login_request.dart'
+    as _i13;
+import 'package:flower_app/features/auth/data/models/login_response.dart'
+    as _i12;
 import 'package:flower_app/features/auth/data/models/register_request.dart'
     as _i10;
 import 'package:flower_app/features/auth/data/models/register_response.dart'
@@ -16,9 +21,11 @@ import 'package:flower_app/features/auth/data/models/register_response.dart'
 import 'package:flower_app/features/auth/domain/core/result.dart' as _i5;
 import 'package:flower_app/features/auth/domain/entities/auth_entity.dart'
     as _i6;
+import 'package:flower_app/features/auth/domain/entities/login_entity.dart'
+    as _i16;
 import 'package:flower_app/features/auth/domain/entities/register_params.dart'
     as _i7;
-import 'package:flower_app/features/auth/domain/repo/auth_repo.dart' as _i12;
+import 'package:flower_app/features/auth/domain/repo/auth_repo.dart' as _i15;
 import 'package:flower_app/features/auth/domain/use_cases/register_use_case.dart'
     as _i3;
 import 'package:mockito/mockito.dart' as _i1;
@@ -84,13 +91,29 @@ class MockAuthRemoteDataSource extends _i1.Mock
             ),
           )
           as _i4.Future<_i2.AuthResponse>);
+
+  @override
+  _i4.Future<_i11.BaseResponse<_i12.LoginResponse>> login(
+    _i13.LoginRequest? request,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#login, [request]),
+            returnValue:
+                _i4.Future<_i11.BaseResponse<_i12.LoginResponse>>.value(
+                  _i8.dummyValue<_i11.BaseResponse<_i12.LoginResponse>>(
+                    this,
+                    Invocation.method(#login, [request]),
+                  ),
+                ),
+          )
+          as _i4.Future<_i11.BaseResponse<_i12.LoginResponse>>);
 }
 
 /// A class which mocks [AuthLocalDataSource].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockAuthLocalDataSource extends _i1.Mock
-    implements _i11.AuthLocalDataSource {
+    implements _i14.AuthLocalDataSource {
   MockAuthLocalDataSource() {
     _i1.throwOnMissingStub(this);
   }
@@ -113,9 +136,43 @@ class MockAuthLocalDataSource extends _i1.Mock
           as _i4.Future<String?>);
 
   @override
-  _i4.Future<void> clearToken() =>
+  _i4.Future<void> saveRefreshToken(String? token) =>
       (super.noSuchMethod(
-            Invocation.method(#clearToken, []),
+            Invocation.method(#saveRefreshToken, [token]),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
+  _i4.Future<String?> getRefreshToken() =>
+      (super.noSuchMethod(
+            Invocation.method(#getRefreshToken, []),
+            returnValue: _i4.Future<String?>.value(),
+          )
+          as _i4.Future<String?>);
+
+  @override
+  _i4.Future<void> saveUser(_i12.User? user) =>
+      (super.noSuchMethod(
+            Invocation.method(#saveUser, [user]),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
+  _i4.Future<_i12.User?> getUser() =>
+      (super.noSuchMethod(
+            Invocation.method(#getUser, []),
+            returnValue: _i4.Future<_i12.User?>.value(),
+          )
+          as _i4.Future<_i12.User?>);
+
+  @override
+  _i4.Future<void> clearAuthData() =>
+      (super.noSuchMethod(
+            Invocation.method(#clearAuthData, []),
             returnValue: _i4.Future<void>.value(),
             returnValueForMissingStub: _i4.Future<void>.value(),
           )
@@ -125,10 +182,29 @@ class MockAuthLocalDataSource extends _i1.Mock
 /// A class which mocks [AuthRepo].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockAuthRepo extends _i1.Mock implements _i12.AuthRepo {
+class MockAuthRepo extends _i1.Mock implements _i15.AuthRepo {
   MockAuthRepo() {
     _i1.throwOnMissingStub(this);
   }
+
+  @override
+  _i4.Future<_i11.BaseResponse<_i16.LoginEntity>> login({
+    required String? email,
+    required String? password,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(#login, [], {#email: email, #password: password}),
+            returnValue: _i4.Future<_i11.BaseResponse<_i16.LoginEntity>>.value(
+              _i8.dummyValue<_i11.BaseResponse<_i16.LoginEntity>>(
+                this,
+                Invocation.method(#login, [], {
+                  #email: email,
+                  #password: password,
+                }),
+              ),
+            ),
+          )
+          as _i4.Future<_i11.BaseResponse<_i16.LoginEntity>>);
 
   @override
   _i4.Future<_i5.Result<_i6.RegisterEntity>> signUp(

@@ -2,12 +2,20 @@
 
 
 {
-  "test": "اختبار",
+
   "email": "البريد الإلكتروني",
   "submit": "إرسال",
-  "success": "تم بنجاح",
-  "home": "الرئيسية",
-  "search": "بحث",
-  "profile": "الملف الشخصي",
-  "enter your email": "ادخل بريدك الالكتروني"
+
+
+
+  "enterYourEmail": "ادخل بريدك الالكتروني",
+  "login": "تسجيل الدخول",
+  "enterYourPassword": "ادخل كلمه السر",
+  "password": "كلمة السر",
+  "forgetPassword": "هل نسيت كلمة المرور؟",
+  "rememberMe": "تذكرني",
+  "continueAsGuest": "المتابعة كزائر",
+  "dontHaveAnAccount": "ليس لديك حساب؟",
+  "signUp": "إنشاء حساب",
+  "someThingWentWrong": "حدث خطأ ما، يرجى المحاولة مرة أخرى لاحقًا"
 }
