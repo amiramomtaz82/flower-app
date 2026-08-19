@@ -3,9 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 class AuthAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const AuthAppBar({super.key, required this.title});
+  const AuthAppBar({super.key, required this.title, this.onBack});
 
   final String title;
+
+  /// Overrides the default pop, for screens that step backwards inside
+  /// themselves before leaving the route.
+  final VoidCallback? onBack;
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
@@ -15,7 +19,7 @@ class AuthAppBar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       leading: IconButton(
         icon: const Icon(Icons.arrow_back_ios_new_rounded),
-        onPressed: () => context.pop(),
+        onPressed: onBack ?? () => context.pop(),
       ),
       titleSpacing: 0,
       title: Text(title.tr(), style: Theme.of(context).textTheme.titleLarge),

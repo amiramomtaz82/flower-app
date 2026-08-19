@@ -1,17 +1,16 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flower_app/core/app_constants/app_strings.dart';
 import 'package:flower_app/core/app_theme/app_colors.dart';
-import 'package:flower_app/core/go_routes/routes_name.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import '../bloc/forget_password_bloc.dart';
 import '../bloc/forget_password_event.dart';
 import '../bloc/forget_password_state.dart';
-import '../widgets/auth_app_bar.dart';
 import '../widgets/auth_header_text.dart';
 import '../widgets/otp_holder.dart';
 
+/// Second step of [ForgetPasswordFlowView]. The scaffold, app bar and ui action
+/// handling belong to the flow, not to the individual step.
 class OtpVerificationView extends StatefulWidget {
   const OtpVerificationView({super.key});
 
@@ -19,8 +18,12 @@ class OtpVerificationView extends StatefulWidget {
   State<OtpVerificationView> createState() => _OtpVerificationViewState();
 }
 
-class _OtpVerificationViewState extends State<OtpVerificationView> {
+class _OtpVerificationViewState extends State<OtpVerificationView>
+    with AutomaticKeepAliveClientMixin {
   final _otpController = TextEditingController();
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void dispose() {
@@ -37,93 +40,78 @@ class _OtpVerificationViewState extends State<OtpVerificationView> {
     bloc.add(SendResetCodeEvent(bloc.state.email, isResend: true));
   }
 
-  void _handleUiAction(BuildContext context, ForgetPasswordState state) {
-    // The three screens share one bloc and stay on the stack, so only the
-    // visible one may act on a ui action.
-    if (ModalRoute.of(context)?.isCurrent != true) return;
-
-    switch (state.uiAction.type) {
-      case ForgetPasswordUiActionType.goToResetPassword:
-        context.push(AppRoutes.resetPassword);
-      case ForgetPasswordUiActionType.showSuccess:
-      case ForgetPasswordUiActionType.showError:
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(state.uiAction.message?.tr() ?? '')),
-        );
-      default:
-        return;
-    }
-    context.read<ForgetPasswordBloc>().add(ClearUiActionEvent());
-  }
-
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final appTheme = Theme.of(context);
-    return Scaffold(
-      appBar: const AuthAppBar(title: AppStrings.password),
-      body: BlocListener<ForgetPasswordBloc, ForgetPasswordState>(
-        listenWhen: (previous, current) =>
-            previous.uiAction != current.uiAction,
-        listener: _handleUiAction,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const AuthHeaderText(
-                title: AppStrings.emailVerification,
-                subtitle: AppStrings.enterCodeSentToEmail,
-              ),
-              const SizedBox(height: 20),
-              BlocBuilder<ForgetPasswordBloc, ForgetPasswordState>(
-                buildWhen: (previous, current) =>
-                    previous.otpErrorMessage != current.otpErrorMessage ||
-                    previous.isVerifyingCode != current.isVerifyingCode,
-                builder: (context, state) => Column(
-                  children: [
-                    OtpHolder(
-                      controller: _otpController,
-                      errorText: state.otpErrorMessage?.tr(),
-                      onChanged: (_) => context.read<ForgetPasswordBloc>().add(
-                        OtpChangedEvent(),
-                      ),
-                      onCompleted: _onCompleted,
-                    ),
-                    if (state.isVerifyingCode)
-                      const Padding(
-                        padding: EdgeInsets.only(top: 16),
-                        child: CircularProgressIndicator(),
-                      ),
-                  ],
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          const AuthHeaderText(
+            title: AppStrings.emailVerification,
+            subtitle: AppStrings.enterCodeSentToEmail,
+          ),
+          const SizedBox(height: 20),
+          BlocBuilder<ForgetPasswordBloc, ForgetPasswordState>(
+            buildWhen: (previous, current) =>
+                previous.otpErrorMessage != current.otpErrorMessage ||
+                previous.isVerifyingCode != current.isVerifyingCode,
+            builder: (context, state) => Column(
+              children: [
+                OtpHolder(
+                  controller: _otpController,
+                  errorText: state.otpErrorMessage?.tr(),
+                  onChanged: (_) =>
+                      context.read<ForgetPasswordBloc>().add(OtpChangedEvent()),
+                  onCompleted: _onCompleted,
                 ),
-              ),
-              const SizedBox(height: 24),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    AppStrings.dontReceiveCode.tr(),
-                    style: appTheme.textTheme.bodyMedium,
+                if (state.isVerifyingCode)
+                  const Padding(
+                    padding: EdgeInsets.only(top: 16),
+                    child: CircularProgressIndicator(),
                   ),
-                  BlocSelector<ForgetPasswordBloc, ForgetPasswordState, bool>(
-                    selector: (state) => state.isSendingCode,
-                    builder: (context, isSendingCode) => TextButton(
-                      onPressed: isSendingCode ? null : _onResend,
-                      child: Text(
-                        AppStrings.resend.tr(),
-                        style: appTheme.textTheme.bodyMedium?.copyWith(
-                          color: LightColors().primary,
-                          decoration: TextDecoration.underline,
-                          decorationColor: LightColors().primary,
-                        ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                AppStrings.dontReceiveCode.tr(),
+                style: appTheme.textTheme.bodyMedium,
+              ),
+              BlocSelector<
+                ForgetPasswordBloc,
+                ForgetPasswordState,
+                (bool, int)
+              >(
+                selector: (state) => (state.canResend, state.resendCooldown),
+                builder: (context, selected) {
+                  final (canResend, cooldown) = selected;
+                  final color = canResend
+                      ? LightColors().primary
+                      : appTheme.disabledColor;
+                  return TextButton(
+                    onPressed: canResend ? _onResend : null,
+                    child: Text(
+                      cooldown > 0
+                          ? '${AppStrings.resend.tr()} ($cooldown)'
+                          : AppStrings.resend.tr(),
+                      style: appTheme.textTheme.bodyMedium?.copyWith(
+                        color: color,
+                        decoration: TextDecoration.underline,
+                        decorationColor: color,
                       ),
                     ),
-                  ),
-                ],
+                  );
+                },
               ),
             ],
           ),
-        ),
+        ],
       ),
     );
   }

@@ -3,34 +3,7 @@ import 'package:flower_app/features/auth/domain/entities/reset_token_entity.dart
 
 enum ForgetPasswordStatus { initial, loading, success, error }
 
-enum ForgetPasswordUiActionType {
-  none,
-  showError,
-  showSuccess,
-  goToOtp,
-  goToResetPassword,
-  goToLogin,
-}
-
-class ForgetPasswordUiAction {
-  final ForgetPasswordUiActionType type;
-
-  final String? message;
-
-  const ForgetPasswordUiAction._(this.type, {this.message});
-
-  const ForgetPasswordUiAction.none() : this._(ForgetPasswordUiActionType.none);
-  const ForgetPasswordUiAction.error(String message)
-    : this._(ForgetPasswordUiActionType.showError, message: message);
-  const ForgetPasswordUiAction.success(String message)
-    : this._(ForgetPasswordUiActionType.showSuccess, message: message);
-  const ForgetPasswordUiAction.goToOtp()
-    : this._(ForgetPasswordUiActionType.goToOtp);
-  const ForgetPasswordUiAction.goToResetPassword()
-    : this._(ForgetPasswordUiActionType.goToResetPassword);
-  const ForgetPasswordUiAction.goToLogin()
-    : this._(ForgetPasswordUiActionType.goToLogin);
-}
+enum ForgetPasswordStep { email, otp, resetPassword }
 
 class ForgetPasswordState extends Equatable {
   final ForgetPasswordStatus sendCodeStatus;
@@ -42,7 +15,9 @@ class ForgetPasswordState extends Equatable {
   final ResetToken? resetToken;
 
   final String? errorMessage;
-  final ForgetPasswordUiAction uiAction;
+  final ForgetPasswordStep step;
+
+  final int resendCooldown;
 
   const ForgetPasswordState({
     required this.sendCodeStatus,
@@ -51,7 +26,8 @@ class ForgetPasswordState extends Equatable {
     required this.email,
     required this.resetToken,
     required this.errorMessage,
-    required this.uiAction,
+    required this.step,
+    required this.resendCooldown,
   });
 
   factory ForgetPasswordState.initial() => const ForgetPasswordState(
@@ -61,12 +37,15 @@ class ForgetPasswordState extends Equatable {
     email: '',
     resetToken: null,
     errorMessage: null,
-    uiAction: ForgetPasswordUiAction.none(),
+    step: ForgetPasswordStep.email,
+    resendCooldown: 0,
   );
 
   bool get isSendingCode => sendCodeStatus == ForgetPasswordStatus.loading;
   bool get isVerifyingCode => verifyCodeStatus == ForgetPasswordStatus.loading;
   bool get isResettingPassword => resetStatus == ForgetPasswordStatus.loading;
+
+  bool get canResend => resendCooldown == 0 && !isSendingCode;
 
   /// The inline error under the OTP boxes — only while the verify step failed.
   String? get otpErrorMessage =>
@@ -81,7 +60,8 @@ class ForgetPasswordState extends Equatable {
     bool clearResetToken = false,
     String? errorMessage,
     bool clearErrorMessage = false,
-    ForgetPasswordUiAction? uiAction,
+    ForgetPasswordStep? step,
+    int? resendCooldown,
   }) => ForgetPasswordState(
     sendCodeStatus: sendCodeStatus ?? this.sendCodeStatus,
     verifyCodeStatus: verifyCodeStatus ?? this.verifyCodeStatus,
@@ -91,7 +71,8 @@ class ForgetPasswordState extends Equatable {
     errorMessage: clearErrorMessage
         ? null
         : (errorMessage ?? this.errorMessage),
-    uiAction: uiAction ?? this.uiAction,
+    step: step ?? this.step,
+    resendCooldown: resendCooldown ?? this.resendCooldown,
   );
 
   @override
@@ -102,6 +83,7 @@ class ForgetPasswordState extends Equatable {
     email,
     resetToken,
     errorMessage,
-    uiAction,
+    step,
+    resendCooldown,
   ];
 }
