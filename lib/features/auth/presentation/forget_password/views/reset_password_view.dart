@@ -9,8 +9,6 @@ import '../bloc/forget_password_state.dart';
 import '../widgets/auth_header_text.dart';
 import '../widgets/auth_submit_button.dart';
 
-/// Third step of [ForgetPasswordFlowView]. The scaffold, app bar and ui action
-/// handling belong to the flow, not to the individual step.
 class ResetPasswordView extends StatefulWidget {
   const ResetPasswordView({super.key});
 

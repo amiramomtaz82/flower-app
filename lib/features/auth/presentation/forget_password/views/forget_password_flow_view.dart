@@ -34,8 +34,6 @@ class _ForgetPasswordFlowViewState extends State<ForgetPasswordFlowView> {
     );
   }
 
-  /// Back walks the flow one page at a time and only leaves the route from the
-  /// first page.
   void _onBack(ForgetPasswordStep step) {
     if (step == ForgetPasswordStep.email) {
       context.pop();

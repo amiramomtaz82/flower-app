@@ -1,6 +1,9 @@
 import 'package:dio/dio.dart';
 import 'package:flower_app/config/base_response/base_response.dart';
 import 'package:flower_app/core/app_constants/app_strings.dart';
+import 'package:flower_app/core/go_routes/routes_name.dart';
+import 'package:flower_app/core/ui_action/ui_action.dart';
+import 'package:flower_app/core/ui_action/ui_action_dispatcher.dart';
 import 'package:flower_app/features/auth/domain/entities/auth_message_entity.dart';
 import 'package:flower_app/features/auth/domain/entities/reset_token_entity.dart';
 import 'package:flower_app/features/auth/domain/use_cases/forget_password_use_case.dart';
@@ -14,13 +17,19 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'forget_password_bloc_test.mocks.dart';
 
-// Mocking the three use cases the bloc depends on
-@GenerateMocks([ForgetPasswordUseCase, VerifyOtpUseCase, ResetPasswordUseCase])
+// Mocking the three use cases and the ui action dispatcher the bloc depends on
+@GenerateMocks([
+  ForgetPasswordUseCase,
+  VerifyOtpUseCase,
+  ResetPasswordUseCase,
+  UiActionDispatcher,
+])
 void main() {
   late ForgetPasswordBloc forgetPasswordBloc;
   late MockForgetPasswordUseCase mockForgetPasswordUseCase;
   late MockVerifyOtpUseCase mockVerifyOtpUseCase;
   late MockResetPasswordUseCase mockResetPasswordUseCase;
+  late MockUiActionDispatcher mockUiActionDispatcher;
 
   // mockito cannot build a value of a sealed type on its own
   setUpAll(() {
@@ -39,17 +48,17 @@ void main() {
     mockForgetPasswordUseCase = MockForgetPasswordUseCase();
     mockVerifyOtpUseCase = MockVerifyOtpUseCase();
     mockResetPasswordUseCase = MockResetPasswordUseCase();
+    mockUiActionDispatcher = MockUiActionDispatcher();
     forgetPasswordBloc = ForgetPasswordBloc(
       mockForgetPasswordUseCase,
       mockVerifyOtpUseCase,
       mockResetPasswordUseCase,
+      mockUiActionDispatcher,
     );
   });
 
   tearDown(() => forgetPasswordBloc.close());
 
-  // The reset password tests need a token in state first, which only the
-  // verify step can put there.
   Future<void> obtainResetToken({required DateTime expiresAt}) async {
     when(
       mockVerifyOtpUseCase(
@@ -66,8 +75,6 @@ void main() {
     );
   }
 
-  // States are matched field by field rather than compared whole, because
-  // ForgetPasswordUiAction has no `==` and is part of the state's props.
 
   // send reset code function (success case)
   group('Send Reset Code Function Test', () {
@@ -98,11 +105,7 @@ void main() {
                   'sendCodeStatus',
                   ForgetPasswordStatus.success,
                 )
-                .having(
-                  (state) => state.uiAction.type,
-                  'uiAction.type',
-                  ForgetPasswordUiActionType.goToOtp,
-                ),
+                .having((state) => state.step, 'step', ForgetPasswordStep.otp),
           ]),
         );
         forgetPasswordBloc.add(SendResetCodeEvent('email@example.com'));
@@ -110,8 +113,56 @@ void main() {
 
         // Assert
         verify(mockForgetPasswordUseCase(email: 'email@example.com')).called(1);
+        verifyNever(mockUiActionDispatcher.dispatch(any));
       },
     );
+  });
+
+  // resend cooldown, so each tap cannot burn another backend email
+  group('Resend Cooldown Test', () {
+    test('starts a 30 second cooldown once the code is sent', () async {
+      // Arrange
+      when(mockForgetPasswordUseCase(email: anyNamed('email'))).thenAnswer(
+        (_) async => const SuccessResponse(
+          AuthMessageEntity(message: 'ok', messageLocalized: 'ok'),
+        ),
+      );
+
+      // Act
+      forgetPasswordBloc.add(SendResetCodeEvent('email@example.com'));
+      await forgetPasswordBloc.stream.firstWhere(
+        (state) => state.sendCodeStatus == ForgetPasswordStatus.success,
+      );
+
+      // Assert
+      expect(
+        forgetPasswordBloc.state.resendCooldown,
+        ForgetPasswordBloc.resendCooldownSeconds,
+      );
+      expect(forgetPasswordBloc.state.canResend, isFalse);
+    });
+
+    test('ignores a resend while the cooldown is still running', () async {
+      // Arrange
+      when(mockForgetPasswordUseCase(email: anyNamed('email'))).thenAnswer(
+        (_) async => const SuccessResponse(
+          AuthMessageEntity(message: 'ok', messageLocalized: 'ok'),
+        ),
+      );
+      forgetPasswordBloc.add(SendResetCodeEvent('email@example.com'));
+      await forgetPasswordBloc.stream.firstWhere(
+        (state) => state.sendCodeStatus == ForgetPasswordStatus.success,
+      );
+
+      // Act
+      forgetPasswordBloc.add(
+        SendResetCodeEvent('email@example.com', isResend: true),
+      );
+      await pumpEventQueue();
+
+      // Assert
+      verify(mockForgetPasswordUseCase(email: 'email@example.com')).called(1);
+    });
   });
 
   // verify reset code function (failure case)
@@ -151,11 +202,7 @@ void main() {
                 isNotNull,
               )
               .having((state) => state.resetToken, 'resetToken', isNull)
-              .having(
-                (state) => state.uiAction.type,
-                'uiAction.type',
-                ForgetPasswordUiActionType.none,
-              ),
+              .having((state) => state.step, 'step', ForgetPasswordStep.email),
         ]),
       );
       forgetPasswordBloc.add(VerifyResetCodeEvent('wrong'));
@@ -165,6 +212,7 @@ void main() {
       verify(
         mockVerifyOtpUseCase(email: anyNamed('email'), otpCode: 'wrong'),
       ).called(1);
+      verifyNever(mockUiActionDispatcher.dispatch(any));
     });
   });
 
@@ -198,11 +246,7 @@ void main() {
                   AppStrings.resetSessionExpired,
                 )
                 .having((state) => state.resetToken, 'resetToken', isNull)
-                .having(
-                  (state) => state.uiAction.type,
-                  'uiAction.type',
-                  ForgetPasswordUiActionType.goToOtp,
-                ),
+                .having((state) => state.step, 'step', ForgetPasswordStep.otp),
           ]),
         );
         forgetPasswordBloc.add(ResetPasswordEvent('newPass1', 'newPass1'));
@@ -251,12 +295,7 @@ void main() {
                   'resetStatus',
                   ForgetPasswordStatus.success,
                 )
-                .having((state) => state.resetToken, 'resetToken', isNull)
-                .having(
-                  (state) => state.uiAction.type,
-                  'uiAction.type',
-                  ForgetPasswordUiActionType.goToLogin,
-                ),
+                .having((state) => state.resetToken, 'resetToken', isNull),
           ]),
         );
         forgetPasswordBloc.add(ResetPasswordEvent('newPass1', 'newPass1'));
@@ -270,6 +309,12 @@ void main() {
             confirmNewPassword: 'newPass1',
           ),
         ).called(1);
+        final dispatched = verify(
+          mockUiActionDispatcher.dispatch(captureAny),
+        ).captured.single;
+        expect(dispatched, isA<NavigateAction>());
+        expect((dispatched as NavigateAction).routeName, AppRoutes.login);
+        expect(dispatched.replace, isTrue);
       },
     );
   });

@@ -9,8 +9,6 @@ import '../bloc/forget_password_state.dart';
 import '../widgets/auth_header_text.dart';
 import '../widgets/otp_holder.dart';
 
-/// Second step of [ForgetPasswordFlowView]. The scaffold, app bar and ui action
-/// handling belong to the flow, not to the individual step.
 class OtpVerificationView extends StatefulWidget {
   const OtpVerificationView({super.key});
 

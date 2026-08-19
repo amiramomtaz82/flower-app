@@ -6,6 +6,8 @@
 import 'dart:async' as _i3;
 
 import 'package:flower_app/config/base_response/base_response.dart' as _i4;
+import 'package:flower_app/core/ui_action/ui_action.dart' as _i11;
+import 'package:flower_app/core/ui_action/ui_action_dispatcher.dart' as _i10;
 import 'package:flower_app/features/auth/domain/entities/auth_message_entity.dart'
     as _i5;
 import 'package:flower_app/features/auth/domain/entities/reset_token_entity.dart'
@@ -122,4 +124,34 @@ class MockResetPasswordUseCase extends _i1.Mock
                 ),
           )
           as _i3.Future<_i4.BaseResponse<_i5.AuthMessageEntity>>);
+}
+
+/// A class which mocks [UiActionDispatcher].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockUiActionDispatcher extends _i1.Mock
+    implements _i10.UiActionDispatcher {
+  MockUiActionDispatcher() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i3.Stream<_i11.UiAction> get stream =>
+      (super.noSuchMethod(
+            Invocation.getter(#stream),
+            returnValue: _i3.Stream<_i11.UiAction>.empty(),
+          )
+          as _i3.Stream<_i11.UiAction>);
+
+  @override
+  void dispatch(_i11.UiAction? action) => super.noSuchMethod(
+    Invocation.method(#dispatch, [action]),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  void dispose() => super.noSuchMethod(
+    Invocation.method(#dispose, []),
+    returnValueForMissingStub: null,
+  );
 }

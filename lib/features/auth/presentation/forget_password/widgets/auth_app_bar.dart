@@ -6,9 +6,6 @@ class AuthAppBar extends StatelessWidget implements PreferredSizeWidget {
   const AuthAppBar({super.key, required this.title, this.onBack});
 
   final String title;
-
-  /// Overrides the default pop, for screens that step backwards inside
-  /// themselves before leaving the route.
   final VoidCallback? onBack;
 
   @override
