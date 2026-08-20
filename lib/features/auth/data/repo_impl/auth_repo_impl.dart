@@ -1,23 +1,24 @@
+import 'package:dio/dio.dart';
 import 'package:flower_app/config/base_response/base_response.dart';
 import 'package:flower_app/config/error/error_handler.dart';
 import 'package:flower_app/features/auth/data/data_source/local/auth_local_data_source.dart';
 import 'package:flower_app/features/auth/data/data_source/remote/auth_remote_data_source.dart';
 import 'package:flower_app/features/auth/data/models/login_request.dart';
 import 'package:flower_app/features/auth/data/models/login_response.dart';
-import 'package:flower_app/features/auth/domain/entities/login_entity.dart';
 import 'package:flower_app/features/auth/data/models/register_request.dart';
 import 'package:flower_app/features/auth/domain/core/result.dart';
 import 'package:flower_app/features/auth/domain/entities/auth_entity.dart';
+import 'package:flower_app/features/auth/domain/entities/auth_message_entity.dart';
+import 'package:flower_app/features/auth/domain/entities/login_entity.dart';
 import 'package:flower_app/features/auth/domain/entities/register_params.dart';
+import 'package:flower_app/features/auth/domain/entities/reset_token_entity.dart';
 import 'package:flower_app/features/auth/domain/repo/auth_repo.dart';
 import 'package:injectable/injectable.dart';
 
-@Injectable(as: AuthRepo)
 import '../../../../config/device/device_id_service_.dart';
-
 import '../../../../config/notificaions/fcm.dart';
 
-@LazySingleton(as: AuthRepo)
+@Injectable(as: AuthRepo)
 class AuthRepoImpl implements AuthRepo {
   final AuthRemoteDataSource _authRemoteDataSource;
   final AuthLocalDataSource _authLocalDataSource;
@@ -25,11 +26,11 @@ class AuthRepoImpl implements AuthRepo {
   final Fcm _fcm;
 
   AuthRepoImpl(
-      this._authRemoteDataSource,
-      this._authLocalDataSource,
-      this._deviceIdService,
-      this._fcm,
-      );
+    this._authRemoteDataSource,
+    this._authLocalDataSource,
+    this._deviceIdService,
+    this._fcm,
+  );
 
   @override
   Future<BaseResponse<LoginEntity>> login({
@@ -46,20 +47,15 @@ class AuthRepoImpl implements AuthRepo {
       fcmToken: fcmToken,
     );
 
-  AuthRepoImpl(this._authRemoteDataSource, this._authLocalDataSource,
-  this._deviceIdService,this._fcm);
-
-    final BaseResponse<LoginResponse> response =
-    await _authRemoteDataSource.login(request);
+    final BaseResponse<LoginResponse> response = await _authRemoteDataSource
+        .login(request);
 
     switch (response) {
       case SuccessResponse<LoginResponse>():
         final loginResponse = response.data;
 
         if (loginResponse.accessToken != null) {
-          await _authLocalDataSource.saveToken(
-            loginResponse.accessToken!,
-          );
+          await _authLocalDataSource.saveToken(loginResponse.accessToken!);
         }
 
         if (loginResponse.refreshToken != null) {
@@ -69,24 +65,17 @@ class AuthRepoImpl implements AuthRepo {
         }
 
         if (loginResponse.user != null) {
-          await _authLocalDataSource.saveUser(
-            loginResponse.user!,
-          );
+          await _authLocalDataSource.saveUser(loginResponse.user!);
         }
 
         final loginEntity = loginResponse.toEntity();
 
-        return SuccessResponse<LoginEntity>(
-          loginEntity,
-        );
+        return SuccessResponse<LoginEntity>(loginEntity);
 
       case ErrorResponse<LoginResponse>():
-        return ErrorResponse<LoginEntity>(
-          errMessage: response.errMessage,
-        );
+        return ErrorResponse<LoginEntity>(errMessage: response.errMessage);
     }
   }
-
 
   @override
   Future<Result<RegisterEntity>> signUp(RegisterParams params) async {
@@ -115,4 +104,54 @@ class AuthRepoImpl implements AuthRepo {
     }
   }
 
+  @override
+  Future<BaseResponse<AuthMessageEntity>> forgetPassword({
+    required String email,
+  }) async {
+    try {
+      final response = await _authRemoteDataSource.forgetPassword(
+        email: email,
+      );
+      return SuccessResponse(response.toEntity());
+    } on DioException catch (e) {
+      return ErrorResponse(error: e);
+    }
+  }
+
+  @override
+  Future<BaseResponse<ResetToken>> verifyOtp({
+    required String email,
+    required String otpCode,
+  }) async {
+    try {
+      final response = await _authRemoteDataSource.verifyOtp(
+        email: email,
+        otpCode: otpCode,
+      );
+      return SuccessResponse(response.toEntity());
+    } on DioException catch (e) {
+      return ErrorResponse(error: e);
+    }
+  }
+
+  @override
+  Future<BaseResponse<AuthMessageEntity>> resetPassword({
+    required String resetToken,
+    required String newPassword,
+    required String confirmNewPassword,
+  }) async {
+    try {
+      final response = await _authRemoteDataSource.resetPassword(
+        resetToken: resetToken,
+        newPassword: newPassword,
+        confirmNewPassword: confirmNewPassword,
+      );
+      return SuccessResponse(response.toEntity());
+    } on DioException catch (e) {
+      return ErrorResponse(error: e);
+    }
+  }
+
+  @override
+  Future<void> clearAuthData() => _authLocalDataSource.clearAuthData();
 }
