@@ -60,7 +60,7 @@ class AppTheme {
         ),
         bodySmall: TextStyle(
           fontSize: 12,
-          color: colors.hint,
+          color: colors.textPrimary,
         ),
       ),
 
@@ -74,7 +74,7 @@ class AppTheme {
 
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 20,
-          vertical: 12,
+          vertical: 16,
         ),
 
         labelStyle: TextStyle(
@@ -84,10 +84,22 @@ class AppTheme {
         ),
 
         // Label when the field has an error
-        floatingLabelStyle: TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.w500,
-          color: colors.error,
+        floatingLabelStyle: WidgetStateTextStyle.resolveWith(
+              (states) {
+            if (states.contains(WidgetState.error)) {
+              return TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: colors.error,
+              );
+            }
+
+            return TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              color: colors.darkGrey,
+            );
+          },
         ),
 
         hintStyle: TextStyle(
