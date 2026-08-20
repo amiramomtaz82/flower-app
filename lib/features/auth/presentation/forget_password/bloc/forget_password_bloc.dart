@@ -143,7 +143,7 @@ class ForgetPasswordBloc
 
     final resetToken = state.resetToken;
 
-    if (resetToken == null || resetToken.isExpired) {
+    if (resetToken == null || resetToken.isExpired(DateTime.now())) {
       emit(
         state.copyWith(
           resetStatus: ForgetPasswordStatus.initial,
