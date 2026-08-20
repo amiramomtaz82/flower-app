@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import '../../core/app_constants/app_strings.dart';
 import 'backend_message_extractor.dart';
 import 'dio_exception_mapper.dart';
 
@@ -13,7 +12,7 @@ class ErrorHandler {
 
       return DioExceptionMapper.toMessage(error);
     } else {
-      return AppStrings.somethingWentWrong;
+      return 'Something went wrong, please try again';
     }
   }
 
