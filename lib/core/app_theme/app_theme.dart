@@ -60,7 +60,7 @@ class AppTheme {
         ),
         bodySmall: TextStyle(
           fontSize: 12,
-          color: colors.hint,
+          color: colors.textPrimary,
         ),
       ),
 
@@ -74,7 +74,7 @@ class AppTheme {
 
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 20,
-          vertical: 12,
+          vertical: 16,
         ),
 
         labelStyle: TextStyle(
@@ -97,7 +97,7 @@ class AppTheme {
 
         errorStyle: TextStyle(
           fontSize: 12,
-          color: colors.error,
+          color: colors.darkGrey,
         ),
 
         border: OutlineInputBorder(

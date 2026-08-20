@@ -1,23 +1,71 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:injectable/injectable.dart';
 
+
+import 'dart:convert';
+
+import '../../features/auth/data/models/login_response.dart';
 @lazySingleton
 class SecureStorage {
   static const FlutterSecureStorage _storage = FlutterSecureStorage();
 
-  Future<void> saveToken(String token) async {
-    await _storage.write(key: 'token', value: token);
+  Future<void> saveAccessToken(String token) async {
+    await _storage.write(key: 'accessToken', value: token);
   }
 
-  Future<String?> getToken() async {
-    return await _storage.read(key: 'token');
+  Future<String?> getAccessToken() async {
+    return await _storage.read(key: 'accessToken');
   }
 
-  Future<void> deleteToken() async {
-    await _storage.delete(key: 'token');
+  Future<void> deleteAccessToken() async {
+    await _storage.delete(key: 'accessToken');
   }
 
   Future<void> clear() async {
     await _storage.deleteAll();
+  }
+
+
+  Future<void> saveRefreshToken(String token) async {
+    await _storage.write(
+      key: "refreshToken",
+      value: token,
+    );
+  }
+  Future<void> saveUser(User user) async {
+    await _storage.write(
+      key: "user",
+      value: jsonEncode(user.toJson()),
+    );
+  }
+
+
+
+
+
+  Future<String?> getRefreshToken() async {
+    return await _storage.read(
+      key: "refreshToken",
+    );
+  }
+
+
+  Future<User?> getUser() async {
+    final userJson = await _storage.read(
+      key:"user",
+    );
+
+    if (userJson == null) {
+      return null;
+    }
+
+    return User.fromJson(jsonDecode(userJson));
+  }
+
+
+  Future<void> clearAuthData() async {
+    await _storage.delete(key: "accessToken");
+    await _storage.delete(key:"refreshToken");
+    await _storage.delete(key: "user");
   }
 }
