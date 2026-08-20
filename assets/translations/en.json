@@ -6,7 +6,7 @@
   "home": "Home",
   "search": "Search",
   "profile": "Profile",
-  "enter your email": "Enter your email",
+  "enterYourEmail": "Enter your email",
   "sign_up": "Sign up",
   "first_name": "First name",
   "last_name": "Last name",
@@ -24,12 +24,11 @@
   "terms_agreement": "Creating an account, you agree to our ",
   "terms_conditions": "Terms&Conditions",
   "already_have_account": "Already have an account? ",
-  "login": "Login",
-  "registration_failed": "Registration failed"
+   "registration_failed": "Registration failed",
   "enter your email": "Enter your email",
   "login": "Login",
   "enterYourPassword": "Enter your password",
-  "password": "Password",
+
   "forget password": "Forget password ?",
   "rememberMe": "Remember me",
   "continueAsGuest": "Continue as guest",

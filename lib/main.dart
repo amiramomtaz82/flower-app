@@ -14,7 +14,7 @@ import 'core/go_routes/app_router.dart';
 import 'firebase_options.dart';
 
 void main() async {
-  configureDependencies();
+
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: ".env");
 
