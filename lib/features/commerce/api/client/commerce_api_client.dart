@@ -12,7 +12,10 @@ abstract class CommerceApiClient {
   factory CommerceApiClient(Dio dio) = _CommerceApiClient;
 
   @GET("/products")
-  Future<ProductResponse> getProducts();
+  Future<ProductResponse> getProducts(
+      @Query('page') int? page,
+      @Query('pageSize') int? pageSize,
+      );
 
 
 
