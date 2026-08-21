@@ -1,10 +1,89 @@
+
 import 'package:flutter/material.dart';
+import 'package:flower_app/core/app_constants/app_assets.dart';
+
+import '../../domain/entities/product_entity.dart';
 
 class CustomProductCard extends StatelessWidget {
-  const CustomProductCard({Key? key}) : super(key: key);
+  final ProductEntity product;
+
+  const CustomProductCard({super.key, required this.product});
 
   @override
   Widget build(BuildContext context) {
-    return Container();
+
+    return Container(
+      height: 280,
+      width: 170,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.surface,
+          width: 1,
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [SizedBox(height: 8,),
+            Image.network(
+              product.imageUrl ?? '',
+              height: 120,
+              width: double.infinity,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                return Image.asset(
+                  AppAssets.image,
+                  height: 120,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                );
+              },
+            ),
+            SizedBox(height: 5),
+            Padding(
+              padding: const EdgeInsets.only(left: 8.0),
+              child: Text(
+                product.name ?? "",
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ),
+            SizedBox(height:5,),
+            Row(
+              children: [SizedBox(width: 8,),
+                Text(
+                  product.currency ?? "",
+                  style: Theme.of(context).textTheme.bodyLarge,
+                ),SizedBox(width: 2,),
+                Text("${product.price}", style:
+                Theme.of(context).textTheme.bodyLarge),
+                SizedBox(width: 8),
+                Text("${product.originalPrice}", style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    decoration: TextDecoration.lineThrough
+                )),SizedBox(width: 3,),
+
+                Text("${product.discountPercentage??""} %",style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.secondaryFixedDim
+                ),)
+              ],
+            ),
+
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: SizedBox(height:30 ,
+                child: ElevatedButton(onPressed: (){}, child:Row(
+                  children: [
+                    Icon(Icons.shopping_cart_outlined),
+                    SizedBox(width: 4,),
+                    Text("Add to cart")
+                  ],
+                )),
+              ),
+            )
+          ],
+        ),
+      ),
+    );
   }
 }
