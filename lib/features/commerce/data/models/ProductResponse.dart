@@ -1,5 +1,7 @@
 import 'package:flower_app/features/commerce/data/models/product_dto.dart';
 
+import '../../../../core/pagination/pagination_model.dart';
+
 
 
 class ProductResponse {
@@ -52,10 +54,10 @@ class Data {
         items?.add(ProductDTO.fromJson(v));
       });
     }
-    pagination = json['pagination'] != null ? Pagination.fromJson(json['pagination']) : null;
+    pagination = json['pagination'] != null ? PaginationModel.fromJson(json['pagination']) : null;
   }
   List<ProductDTO>? items;
-  Pagination? pagination;
+  PaginationModel? pagination;
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
@@ -77,49 +79,6 @@ class Data {
 /// hasNextPage : true
 /// hasPreviousPage : true
 
-class Pagination {
-  Pagination({
-      this.page, 
-      this.pageSize, 
-      this.totalCount, 
-      this.totalPages, 
-      this.hasNextPage, 
-      this.hasPreviousPage,});
 
-  Pagination.fromJson(dynamic json) {
-    page = json['page'];
-    pageSize = json['pageSize'];
-    totalCount = json['totalCount'];
-    totalPages = json['totalPages'];
-    hasNextPage = json['hasNextPage'];
-    hasPreviousPage = json['hasPreviousPage'];
-  }
-  num? page;
-  num? pageSize;
-  num? totalCount;
-  num? totalPages;
-  bool? hasNextPage;
-  bool? hasPreviousPage;
 
-  Map<String, dynamic> toJson() {
-    final map = <String, dynamic>{};
-    map['page'] = page;
-    map['pageSize'] = pageSize;
-    map['totalCount'] = totalCount;
-    map['totalPages'] = totalPages;
-    map['hasNextPage'] = hasNextPage;
-    map['hasPreviousPage'] = hasPreviousPage;
-    return map;
-  }
-
-}
-
-/// id : 0
-/// name : "string"
-/// imageUrl : "string"
-/// currency : "string"
-/// price : 0
-/// originalPrice : 0
-/// discountPercentage : 0
-/// status : "InStock"
 
