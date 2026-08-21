@@ -1,10 +1,6 @@
 import 'package:flower_app/features/commerce/data/models/product_dto.dart';
 
-/// data : {"items":[{"id":0,"name":"string","imageUrl":"string","currency":"string","price":0,"originalPrice":0,"discountPercentage":0,"status":"InStock"}],"pagination":{"page":0,"pageSize":0,"totalCount":0,"totalPages":0,"hasNextPage":true,"hasPreviousPage":true}}
-/// isSuccess : true
-/// message : "string"
-/// messageLocalized : "string"
-/// statusCode : "Success"
+
 
 class ProductResponse {
   ProductResponse({
