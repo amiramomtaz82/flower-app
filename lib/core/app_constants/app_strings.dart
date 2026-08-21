@@ -3,7 +3,7 @@ class AppStrings {
   static const String email = 'email';
   static const String submit = 'submit';
   static const String success = 'success';
-  static const String home = 'home';
+  static const String home = 'commerce';
   static const String search = 'search';
   static const String profile = 'profile';
   static const String enterYourEmail = 'enter your email';

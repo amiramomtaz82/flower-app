@@ -10,7 +10,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/auth/presentation/login/views/login_view.dart';
-import '../../features/home/presentation/home_view.dart';
+import '../../features/commerce/presentation/home/view/home_view.dart';
+
 
 class AppRouter {
   AppRouter._();
