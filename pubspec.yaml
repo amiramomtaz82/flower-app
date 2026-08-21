@@ -73,6 +73,7 @@ flutter:
   assets:
     - assets/translations/
     - .env
+    - assets/images/
 
 
   #   - images/a_dot_burr.jpeg
