@@ -5,6 +5,7 @@ import 'package:flower_app/features/auth/presentation/forget_password/views/forg
 import 'package:flower_app/features/auth/presentation/login/manager/login_cubit.dart';
 import 'package:flower_app/features/auth/presentation/register/view_model/register_view_model.dart';
 import 'package:flower_app/features/auth/presentation/register/views/register_view.dart';
+import 'package:flower_app/features/commerce/presentation/widgets/test_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -21,7 +22,7 @@ class AppRouter {
 
   static final GoRouter router = GoRouter(
     navigatorKey: navigatorKey,
-    initialLocation: AppRoutes.login,
+    initialLocation: AppRoutes.test,
 
     routes: [
       GoRoute(
@@ -50,6 +51,12 @@ class AppRouter {
           child: const RegisterView(),
         ),
       ),
+
+      GoRoute(
+        path: AppRoutes.test,
+        builder: (context, state) =>  const TestView(),
+        ),
+
     ],
   );
 
