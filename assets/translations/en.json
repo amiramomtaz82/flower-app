@@ -58,5 +58,9 @@
   "the requested data was not found": "The requested data was not found",
   "conflict occurred, the data might already exist": "Conflict occurred, the data might already exist",
   "some fields are invalid, please check your input": "Some fields are invalid, please check your input",
-  "internal server error, please try again later": "Internal server error, please try again later"
+  "internal server error, please try again later": "Internal server error, please try again later",
+
+  "PleaseLoginOrRegisterToContinue": "Please login or register to continue",
+  "Login required": "Login required",
+  "register": "Register"
 }

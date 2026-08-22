@@ -1,5 +1,7 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
+import '../app_constants/app_strings.dart';
 
 class AuthRequiredBottomSheet extends StatelessWidget {
   const AuthRequiredBottomSheet({
@@ -19,18 +21,16 @@ class AuthRequiredBottomSheet extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text(
-              'Login required',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
+             Text(
+              AppStrings.loginRequired.tr(),
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
 
             const SizedBox(height: 12),
 
-            const Text(
-              'Please login or register to continue.',
+            Text(
+              AppStrings.pleaseLoginOrRegisterToContinue.tr(),
+
               textAlign: TextAlign.center,
             ),
 
@@ -40,7 +40,7 @@ class AuthRequiredBottomSheet extends StatelessWidget {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: onLogin,
-                child: const Text('Login'),
+                child:  Text(AppStrings.login.tr()),
               ),
             ),
 
@@ -50,7 +50,7 @@ class AuthRequiredBottomSheet extends StatelessWidget {
               width: double.infinity,
               child: OutlinedButton(
                 onPressed: onRegister,
-                child: const Text('Register'),
+                child:  Text(AppStrings.register.tr()),
               ),
             ),
           ],

@@ -66,4 +66,7 @@ class AppStrings {
       'some fields are invalid, please check your input';
   static const String internalServerError =
       'internal server error, please try again later';
+  static const String pleaseLoginOrRegisterToContinue="PleaseLoginOrRegisterToContinue";
+  static const String loginRequired='Login required';
+  static const String register="Register";
 }
