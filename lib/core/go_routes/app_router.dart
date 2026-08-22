@@ -5,6 +5,7 @@ import 'package:flower_app/features/auth/presentation/forget_password/views/forg
 import 'package:flower_app/features/auth/presentation/login/manager/login_cubit.dart';
 import 'package:flower_app/features/auth/presentation/register/view_model/register_view_model.dart';
 import 'package:flower_app/features/auth/presentation/register/views/register_view.dart';
+import 'package:flower_app/features/commerce/presentation/product_details/view/product_details_view.dart';
 import 'package:flower_app/features/commerce/presentation/widgets/test_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -56,7 +57,10 @@ class AppRouter {
         path: AppRoutes.test,
         builder: (context, state) =>  const TestView(),
         ),
-
+      GoRoute(
+        path: AppRoutes.productDetails,
+        builder: (context, state) =>  const ProductDetailsView(),
+      ),
     ],
   );
 
