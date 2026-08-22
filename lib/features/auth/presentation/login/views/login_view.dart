@@ -10,6 +10,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../../config/di/di.dart';
+import '../../../../../core/guest_browsing/guest_browsing_provider.dart';
+
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
 
@@ -37,15 +40,22 @@ class _LoginViewState extends State<LoginView> {
     LoginCubit cubit = context.read<LoginCubit>();
 
     return BlocListener<LoginCubit, LoginState>(
-      listener: (context, state) {
+      listener: (context, state) async{
         if (state.loginResource.isError) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(state.loginResource.errorMessage ?? "")),
           );
         }
 
-        if (state.loginResource.isSuccess) {
-          context.pushReplacement(AppRoutes.home);
+        if (state.loginResource.isSuccess){
+          final guestBrowsingProvider =
+          getIt<GuestBrowsingProvider>();
+
+          if (guestBrowsingProvider.hasPendingAction) {
+            await guestBrowsingProvider.executePendingAction();
+          } else {
+            context.go(AppRoutes.home);
+          }
         }
       },
 
