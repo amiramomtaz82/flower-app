@@ -197,9 +197,13 @@ services:
     image: ${DOCKER_USERNAME:-hossammokhtar}/flower-address-service:latest
     container_name: flower_address_service
     restart: unless-stopped
+    depends_on:
+      sqlserver:
+        condition: service_healthy
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_HTTP_PORTS: 8080
+      ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=${MSSQL_ADDRESS_DB:-FlowersAddressStoreCoverageDb};User Id=sa;Password=${MSSQL_SA_PASSWORD:-Password123!};TrustServerCertificate=True;MultipleActiveResultSets=true;"
     ports:
       - "5272:8080"
     networks:
