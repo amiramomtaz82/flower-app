@@ -62,5 +62,6 @@
 
   "PleaseLoginOrRegisterToContinue": "Please login or register to continue",
   "Login required": "Login required",
-  "register": "Register"
+  "register": "Register",
+  "forget_password": "forget password ?"
 }
