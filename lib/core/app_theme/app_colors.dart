@@ -27,6 +27,8 @@ abstract class AppColors {
 
   Color get border;
 
+  Color get divider;
+
   Color get hint;
 }
 
@@ -42,6 +44,9 @@ class LightColors implements AppColors {
 
   @override
   Color get darkGrey => const Color(0xff535353);
+
+  @override
+  Color get divider => const Color(0xffF9F9F9);
 
   @override
   Color get error => const Color(0xffCC1010);
