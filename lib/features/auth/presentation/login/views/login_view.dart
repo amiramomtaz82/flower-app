@@ -134,10 +134,14 @@ class _LoginViewState extends State<LoginView> {
                       const SizedBox(width: 4),
                       Text(AppStrings.rememberMe.tr()),
                     Spacer(),
-                      Text(
-                        AppStrings.forget_password.tr(),
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          decoration: TextDecoration.underline,
+                      InkWell(onTap: (){
+                        context.push(AppRoutes.forgotPassword);
+                      },
+                        child: Text(
+                          AppStrings.forget_password.tr(),
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            decoration: TextDecoration.underline,
+                          ),
                         ),
                       ),
                       const SizedBox(width: 8,)
