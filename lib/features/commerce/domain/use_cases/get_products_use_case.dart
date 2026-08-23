@@ -1,0 +1,24 @@
+import 'package:flower_app/config/base_response/base_response.dart';
+import 'package:flower_app/core/pagination/paginated_response.dart';
+import 'package:injectable/injectable.dart';
+
+import '../entities/product_entity.dart';
+import '../repo/commerce_repo.dart';
+
+@injectable
+class GetProductsUseCase {
+  final CommerceRepo _commerceRepo;
+  GetProductsUseCase(this._commerceRepo);
+
+  Future<BaseResponse<PaginatedResponse<ProductEntity>>> call({
+    String? occasionId,
+    required int pageNumber,
+    required int pageSize,
+  }) {
+    return _commerceRepo.getProducts(
+      occasionId: occasionId,
+      pageNumber: pageNumber,
+      pageSize: pageSize,
+    );
+  }
+}
