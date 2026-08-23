@@ -5,6 +5,7 @@ import 'package:flower_app/features/auth/presentation/forget_password/views/forg
 import 'package:flower_app/features/auth/presentation/login/manager/login_cubit.dart';
 import 'package:flower_app/features/auth/presentation/register/view_model/register_view_model.dart';
 import 'package:flower_app/features/auth/presentation/register/views/register_view.dart';
+import 'package:flower_app/core/widgets/coming_soon_view.dart';
 import 'package:flower_app/features/commerce/presentation/product_details/view/product_details_view.dart';
 import 'package:flower_app/features/commerce/presentation/widgets/test_screen.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +14,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../features/auth/presentation/login/views/login_view.dart';
 import '../../features/commerce/presentation/home/view/home_view.dart';
+import 'main_shell_view.dart';
 
 
 class AppRouter {
@@ -23,7 +25,7 @@ class AppRouter {
 
   static final GoRouter router = GoRouter(
     navigatorKey: navigatorKey,
-    initialLocation: AppRoutes.test,
+    initialLocation: AppRoutes.home,
 
     routes: [
       GoRoute(
@@ -41,9 +43,46 @@ class AppRouter {
           child: const ForgetPasswordFlowView(),
         ),
       ),
-      GoRoute(
-        path: AppRoutes.home,
-        builder: (context, state) => const HomeView(),
+      StatefulShellRoute.indexedStack(
+        builder: (context, state, navigationShell) =>
+            MainShellView(navigationShell: navigationShell),
+        branches: [
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.home,
+                builder: (context, state) => const HomeView(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.categories,
+                builder: (context, state) =>
+                    const ComingSoonView(title: 'Categories'),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.cart,
+                builder: (context, state) =>
+                    const ComingSoonView(title: 'Cart'),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.profile,
+                builder: (context, state) =>
+                    const ComingSoonView(title: 'Profile'),
+              ),
+            ],
+          ),
+        ],
       ),
       GoRoute(
         path: AppRoutes.register,
