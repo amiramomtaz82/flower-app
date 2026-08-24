@@ -2,32 +2,29 @@ import 'package:equatable/equatable.dart';
 import 'package:flower_app/features/auth/domain/entities/login_entity.dart';
 
 import '../../../../../config/resource/rsource.dart';
-import '../../../data/models/login_response.dart';
 
 class LoginState extends Equatable {
   final String email;
   final String password;
   final bool isValid;
- final bool obscurePassword;
+  final bool obscurePassword;
   final Resource<LoginEntity> loginResource;
 
   LoginState({
-    this.obscurePassword=true,
+    this.obscurePassword = true,
     this.email = '',
     this.password = '',
     this.isValid = false,
     Resource<LoginEntity>? loginResource,
   }) : loginResource = loginResource ?? Resource.initial();
   factory LoginState.initial() {
-    return LoginState(
-      loginResource: Resource.initial(),
-    );
+    return LoginState(loginResource: Resource.initial());
   }
   LoginState copyWith({
     String? email,
     String? password,
     bool? isValid,
-    bool? obscurePassword ,
+    bool? obscurePassword,
     Resource<LoginEntity>? loginResource,
   }) {
     return LoginState(
@@ -35,7 +32,7 @@ class LoginState extends Equatable {
       password: password ?? this.password,
       isValid: isValid ?? this.isValid,
       loginResource: loginResource ?? this.loginResource,
-      obscurePassword:  obscurePassword?? this.obscurePassword
+      obscurePassword: obscurePassword ?? this.obscurePassword,
     );
   }
 
@@ -45,6 +42,6 @@ class LoginState extends Equatable {
     password,
     isValid,
     loginResource,
-    obscurePassword
+    obscurePassword,
   ];
 }

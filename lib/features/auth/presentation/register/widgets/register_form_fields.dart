@@ -1,7 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flower_app/core/validation/validation.dart';
 import 'package:flower_app/core/widgets/custom_text_field.dart';
-import 'package:flower_app/features/auth/presentation/register/view_model/register_state.dart';
 import 'package:flower_app/features/auth/presentation/register/view_model/register_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -40,7 +39,7 @@ class _RegisterFormFieldsState extends State<RegisterFormFields> {
     // But MVI still holds because onChanged updates the state.
     final vm = context.read<RegisterViewModel>();
     final state = vm.state;
-    
+
     return Column(
       children: [
         Row(
@@ -97,10 +96,8 @@ class _RegisterFormFieldsState extends State<RegisterFormFields> {
               child: CustomTextField(
                 label: 'confirm_password'.tr(),
                 hint: 'confirm_password'.tr(),
-                validator: (value) => Validation.validateConfirmPassword(
-                  value,
-                  _currentPassword,
-                ),
+                validator: (value) =>
+                    Validation.validateConfirmPassword(value, _currentPassword),
                 obscureText: true,
                 onChanged: widget.onConfirmPasswordChanged,
                 initialValue: state.confirmPassword,
