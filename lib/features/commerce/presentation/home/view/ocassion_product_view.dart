@@ -48,7 +48,7 @@ class _OccasionProductsViewState extends State<OccasionProductsView> {
 
   @override
   Widget build(BuildContext context) {
-    final AppColors colors = LightColors();
+    
 
     return Scaffold(
       body: SafeArea(
@@ -85,16 +85,114 @@ class _OccasionProductsViewState extends State<OccasionProductsView> {
   }
 }
 
-final Map<String, List<ProductEntity>> dummyProductsByOccasion = {
-  '1': dummyList.where((product) => product.occasionId == '1').toList(),
-  '2': dummyList.where((product) => product.occasionId == '2').toList(),
-  '3': dummyList.where((product) => product.occasionId == '3').toList(),
-  '4': dummyList.where((product) => product.occasionId == '4').toList(),
-};
-
 final dummyList = [
-  ProductEntity(id: '1', name: 'Birthday Flower', price: 500, occasionId: '1'),
-  ProductEntity(id: '2', name: 'Birthday Rose', price: 600, occasionId: '1'),
-  ProductEntity(id: '3', name: 'Wedding Flower', price: 700, occasionId: '2'),
-  ProductEntity(id: '4', name: 'Wedding Rose', price: 800, occasionId: '2'),
+  // Wedding
+  ProductEntity(
+    id: '1',
+    name: 'Wedding White Roses',
+    price: 500,
+    occasionId: '1',
+  ),
+  ProductEntity(
+    id: '2',
+    name: 'Elegant Wedding Bouquet',
+    price: 650,
+    occasionId: '1',
+  ),
+  ProductEntity(
+    id: '3',
+    name: 'Wedding Pink Flowers',
+    price: 750,
+    occasionId: '1',
+  ),
+  ProductEntity(
+    id: '4',
+    name: 'Luxury Wedding Bouquet',
+    price: 900,
+    occasionId: '1',
+  ),
+  ProductEntity(
+    id: '5',
+    name: 'White Lily Wedding',
+    price: 850,
+    occasionId: '1',
+  ),
+
+  // Birthday
+  ProductEntity(
+    id: '6',
+    name: 'Birthday Roses',
+    price: 600,
+    occasionId: '2',
+  ),
+  ProductEntity(
+    id: '7',
+    name: 'Birthday Colorful Bouquet',
+    price: 550,
+    occasionId: '2',
+  ),
+  ProductEntity(
+    id: '8',
+    name: 'Birthday Pink Bouquet',
+    price: 700,
+    occasionId: '2',
+  ),
+  ProductEntity(
+    id: '9',
+    name: 'Birthday Gift Flowers',
+    price: 800,
+    occasionId: '2',
+  ),
+  ProductEntity(
+    id: '10',
+    name: 'Happy Birthday Bouquet',
+    price: 950,
+    occasionId: '2',
+  ),
+
+  // Graduation
+  ProductEntity(
+    id: '11',
+    name: 'Graduation Flowers',
+    price: 500,
+    occasionId: '3',
+  ),
+  ProductEntity(
+    id: '12',
+    name: 'Graduation Rose Bouquet',
+    price: 650,
+    occasionId: '3',
+  ),
+  ProductEntity(
+    id: '13',
+    name: 'Graduation Gift Bouquet',
+    price: 700,
+    occasionId: '3',
+  ),
+  ProductEntity(
+    id: '14',
+    name: 'Graduation Pink Flowers',
+    price: 750,
+    occasionId: '3',
+  ),
+  ProductEntity(
+    id: '15',
+    name: 'Congratulations Bouquet',
+    price: 850,
+    occasionId: '3',
+  ),
 ];
+
+final Map<String, List<ProductEntity>> dummyProductsByOccasion = {
+  '1': dummyList
+      .where((product) => product.occasionId == '1')
+      .toList(),
+
+  '2': dummyList
+      .where((product) => product.occasionId == '2')
+      .toList(),
+
+  '3': dummyList
+      .where((product) => product.occasionId == '3')
+      .toList(),
+};
