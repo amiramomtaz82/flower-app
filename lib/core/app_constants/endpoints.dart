@@ -11,4 +11,8 @@ class Endpoints {
   static const String forgetPassword = '/auth/forgot-password';
   static const String verifyOtp = '/auth/verify-otp';
   static const String resetPassword = '/auth/reset-password';
+
+  // Products
+  static const String products = '/catalog/products';
+  static String productDetails(String id) => '/catalog/products/$id';
 }

@@ -1,7 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flower_app/core/validation/validation.dart';
 import 'package:flower_app/core/widgets/custom_text_field.dart';
-import 'package:flower_app/features/auth/presentation/register/view_model/register_state.dart';
 import 'package:flower_app/features/auth/presentation/register/view_model/register_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

@@ -31,6 +31,14 @@ class PaginationController<T> {
     );
 
     try {
+      _state = _state.copyWith(
+        resource: Resource.loading(),
+        currentPage: 0,
+        hasNextPage: true,
+        isLoadingMore: false,
+        clearLoadMoreError: true,
+      );
+
       final result = await fetchPage(1);
 
       switch (result) {
@@ -52,6 +60,12 @@ class PaginationController<T> {
           );
       }
 
+      return _state;
+    } catch (e) {
+      _state = _state.copyWith(
+        resource: Resource.error(e.toString()),
+        isLoadingMore: false,
+      );
       return _state;
     } finally {
       _isRequestInProgress = false;
