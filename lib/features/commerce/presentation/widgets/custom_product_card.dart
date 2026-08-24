@@ -1,4 +1,3 @@
-
 import 'package:flower_app/core/go_routes/routes_name.dart';
 import 'package:flutter/material.dart';
 import 'package:flower_app/core/app_constants/app_assets.dart';
@@ -9,14 +8,20 @@ import '../../domain/entities/product_entity.dart';
 class CustomProductCard extends StatelessWidget {
   final ProductEntity product;
 
-  const CustomProductCard({super.key, required this.product});
+  const CustomProductCard({
+    super.key,
+    required this.product,
+  });
 
   @override
   Widget build(BuildContext context) {
-
-    return InkWell(onTap: (){
-      context.push(AppRoutes.productDetails,extra: product);
-    },
+    return InkWell(
+      onTap: () {
+        context.push(
+          AppRoutes.productDetails,
+          extra: product,
+        );
+      },
       child: Container(
         height: 280,
         width: 170,
@@ -28,64 +33,127 @@ class CustomProductCard extends StatelessWidget {
           ),
         ),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          padding: const EdgeInsets.symmetric(horizontal: 8),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [SizedBox(height: 8,),
-              Image.network(
-                product.imageUrl ?? '',
-                height: 120,
-                width: double.infinity,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return Image.asset(
-                    AppAssets.image,
-                    height: 120,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                  );
-                },
+            children: [
+              const SizedBox(height: 8),
+
+              // Image
+              ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: Image.network(
+                  product.imageUrl ?? '',
+                  height: 120,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Image.asset(
+                      AppAssets.image,
+                      height: 120,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                    );
+                  },
+                ),
               ),
-              SizedBox(height: 5),
+
+              const SizedBox(height: 5),
+
+              // Product name
               Padding(
-                padding: const EdgeInsets.only(left: 8.0),
+                padding: const EdgeInsets.only(left: 8),
                 child: Text(
-                  product.name ?? "",
+                  product.name ?? '',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
               ),
-              SizedBox(height:5,),
-              Row(
-                children: [SizedBox(width: 8,),
-                  Text(
-                    product.currency ?? "",
-                    style: Theme.of(context).textTheme.bodyLarge,
-                  ),SizedBox(width: 2,),
-                  Text("${product.price}", style:
-                  Theme.of(context).textTheme.bodyLarge),
-                  SizedBox(width: 8),
-                  Text("${product.originalPrice}", style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      decoration: TextDecoration.lineThrough
-                  )),SizedBox(width: 3,),
 
-                  Text("${product.discountPercentage??""} %",style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).colorScheme.secondaryFixedDim
-                  ),)
+              const SizedBox(height: 5),
+
+              // Prices
+              Row(
+                children: [
+                  Text(
+                    product.currency ?? '',
+                    style: Theme.of(context).textTheme.bodyLarge,
+                  ),
+                  const SizedBox(width: 2),
+
+                  Flexible(
+                    child: Text(
+                      '${product.price ?? ''}',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.bodyLarge,
+                    ),
+                  ),
+
+                  const SizedBox(width: 4),
+
+                  Flexible(
+                    child: Text(
+                      '${product.originalPrice ?? ''}',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodySmall
+                          ?.copyWith(
+                            decoration: TextDecoration.lineThrough,
+                          ),
+                    ),
+                  ),
+
+                  const SizedBox(width: 3),
+
+                  Text(
+                    product.discountPercentage == null
+                        ? ''
+                        : '${product.discountPercentage}%',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodySmall
+                        ?.copyWith(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .secondaryFixedDim,
+                        ),
+                  ),
                 ],
               ),
 
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: SizedBox(height:30 ,
-                  child: ElevatedButton(onPressed: (){}, child:Row(
-                    children: [
-                      Icon(Icons.shopping_cart_outlined),
-                      SizedBox(width: 4,),
-                      Text("Add to cart")
-                    ],
-                  )),
-                ),
-              )
+              const Spacer(),
+
+              // Add to cart
+          Padding(
+  padding: const EdgeInsets.only(
+    bottom: 8,
+  ),
+  child: SizedBox(
+    width: double.infinity,
+    height: 30,
+    child: ElevatedButton.icon(
+      onPressed: () {},
+      style: ElevatedButton.styleFrom(
+        padding: EdgeInsets.zero,
+      ),
+      icon: const Icon(
+        Icons.shopping_cart_outlined,
+        size: 16,
+      ),
+      label: const Text(
+        'Add to cart',
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      ),
+    ),
+  ),
+)
             ],
           ),
         ),

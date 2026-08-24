@@ -11,6 +11,7 @@ class ProductEntity extends Equatable {
     this.discountPercentage,
     this.status,
     this.isBestSeller,
+    this.occasionId,
   });
 
   final String? id;
@@ -22,17 +23,19 @@ class ProductEntity extends Equatable {
   final num? discountPercentage;
   final String? status;
   final bool? isBestSeller;
+  final String? occasionId;
 
   @override
   List<Object?> get props => [
-    id,
-    name,
-    imageUrl,
-    currency,
-    price,
-    originalPrice,
-    discountPercentage,
-    status,
-    isBestSeller,
-  ];
+        id,
+        name,
+        imageUrl,
+        currency,
+        price,
+        originalPrice,
+        discountPercentage,
+        status,
+        isBestSeller,
+        occasionId,
+      ];
 }

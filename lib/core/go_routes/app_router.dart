@@ -5,7 +5,12 @@ import 'package:flower_app/features/auth/presentation/forget_password/views/forg
 import 'package:flower_app/features/auth/presentation/login/manager/login_cubit.dart';
 import 'package:flower_app/features/auth/presentation/register/view_model/register_view_model.dart';
 import 'package:flower_app/features/auth/presentation/register/views/register_view.dart';
-import 'package:flower_app/core/widgets/coming_soon_view.dart';
+import 'package:flower_app/features/commerce/domain/entities/occasion_entity.dart';
+import 'package:flower_app/features/commerce/presentation/home/view/cart_view.dart';
+import 'package:flower_app/features/commerce/presentation/home/view/category_view.dart';
+import 'package:flower_app/features/commerce/presentation/home/view/ocassion_product_view.dart';
+import 'package:flower_app/features/commerce/presentation/home/view/profile_view.dart';
+import 'package:flower_app/features/commerce/presentation/category/view/category_products_view.dart';
 import 'package:flower_app/features/commerce/presentation/product_details/view/product_details_view.dart';
 import 'package:flower_app/features/commerce/presentation/widgets/test_screen.dart';
 import 'package:flutter/material.dart';
@@ -35,7 +40,17 @@ class AppRouter {
           child: const LoginView(),
         ),
       ),
+    GoRoute(
+  path: AppRoutes.occasionProducts,
+  builder: (context, state) {
+    final occasionId =
+        state.uri.queryParameters['occasionId'];
 
+    return OccasionProductsView(
+      selectedOccasionId: occasionId,
+    );
+  },
+),
       GoRoute(
         path: AppRoutes.forgotPassword,
         builder: (context, state) => BlocProvider(
@@ -52,16 +67,31 @@ class AppRouter {
               GoRoute(
                 path: AppRoutes.home,
                 builder: (context, state) => const HomeView(),
+                routes: [
+                  GoRoute(
+                    path: AppRoutes.categoryProducts,
+                    builder: (context, state) => CategoryProductsView(
+                      categoryId: state.pathParameters['categoryId']!,
+                      categoryName: state.extra as String?,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
           StatefulShellBranch(
             routes: [
-              GoRoute(
-                path: AppRoutes.categories,
-                builder: (context, state) =>
-                    const ComingSoonView(title: 'Categories'),
-              ),
+             GoRoute(
+  path: AppRoutes.categories,
+  builder: (context, state) {
+    final categoryId = state.uri.queryParameters['categoryId'];
+
+    return CategoryView(
+      key: ValueKey(categoryId),
+      selectedCategoryId: categoryId,
+    );
+  },
+),
             ],
           ),
           StatefulShellBranch(
@@ -69,7 +99,7 @@ class AppRouter {
               GoRoute(
                 path: AppRoutes.cart,
                 builder: (context, state) =>
-                    const ComingSoonView(title: 'Cart'),
+                     CartView(),
               ),
             ],
           ),
@@ -78,7 +108,7 @@ class AppRouter {
               GoRoute(
                 path: AppRoutes.profile,
                 builder: (context, state) =>
-                    const ComingSoonView(title: 'Profile'),
+                    const ProfileView(),
               ),
             ],
           ),

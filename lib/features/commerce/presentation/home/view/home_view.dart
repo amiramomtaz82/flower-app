@@ -1,6 +1,7 @@
 import 'package:flower_app/core/app_constants/app_assets.dart';
+import 'package:flower_app/core/go_routes/routes_name.dart';
 import 'package:flutter/material.dart';
-
+import 'package:go_router/go_router.dart';
 import '../../../api/data_source_impl/local/dummy_categories.dart';
 import '../../../api/data_source_impl/local/dummy_data.dart';
 import '../../../api/data_source_impl/local/dummy_occasions.dart';
@@ -39,7 +40,12 @@ class HomeView extends StatelessWidget {
                   const SizedBox(height: 24),
 
                   // ---------- categories ------------------
-                  SectionHeader(title: 'Categories', onViewAll: () {}),
+                  SectionHeader(
+                    title: 'Categories',
+                    onViewAll: () {
+                      context.go(AppRoutes.categories, extra: '1');
+                    },
+                  ),
                   const SizedBox(height: 12),
                   SizedBox(
                     height: 96,
@@ -47,8 +53,17 @@ class HomeView extends StatelessWidget {
                       scrollDirection: Axis.horizontal,
                       itemCount: dummyCategories.length,
                       separatorBuilder: (_, _) => const SizedBox(width: 16),
-                      itemBuilder: (context, index) =>
-                          CategoryChip(category: dummyCategories[index]),
+                      itemBuilder: (context, index) {
+                        final category = dummyCategories[index];
+                        return CategoryChip(
+                          category: category,
+                          onTap: () {
+                            context.go(
+                              '${AppRoutes.categories}?categoryId=${category.id}',
+                            );
+                          },
+                        );
+                      },
                     ),
                   ),
                   const SizedBox(height: 24),
@@ -78,10 +93,17 @@ class HomeView extends StatelessWidget {
                       itemCount: dummyOccasions.length,
                       separatorBuilder: (_, _) => const SizedBox(width: 12),
                       itemBuilder: (context, index) =>
-                          OccasionCard(occasion: dummyOccasions[index]),
+                          OccasionCard(
+                            occasion: dummyOccasions[index],
+                             onTap: () {
+    context.push(
+  '${AppRoutes.occasionProducts}?occasionId=${dummyOccasions[index].id}',
+);
+  },
+                            ),
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  // const SizedBox(height: 10),
                 ]),
               ),
             ),

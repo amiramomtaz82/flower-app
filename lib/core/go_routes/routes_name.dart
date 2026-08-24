@@ -10,4 +10,16 @@ class AppRoutes {
   static const String test = '/test';
 
   static const String productDetails = '/productDetails';
+
+  /// Relative sub-route, registered under both the home and categories
+  /// branches so the bottom bar stays visible whichever tab you came from.
+  static const String categoryProducts = 'category/:categoryId';
+static const String occasionProducts = '/occasion-products';
+  /// Full location when opening a category from the home tab.
+  static String homeCategoryProducts(String categoryId) =>
+      '$home/category/$categoryId';
+
+  /// Full location when opening a category from the categories tab.
+  static String tabCategoryProducts(String categoryId) =>
+      '$categories/category/$categoryId';
 }
