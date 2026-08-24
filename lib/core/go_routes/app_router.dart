@@ -23,7 +23,7 @@ class AppRouter {
 
   static final GoRouter router = GoRouter(
     navigatorKey: navigatorKey,
-    initialLocation: AppRoutes.test,
+    initialLocation: AppRoutes.login,
 
     routes: [
       GoRoute(
