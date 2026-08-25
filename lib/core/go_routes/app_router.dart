@@ -6,6 +6,8 @@ import 'package:flower_app/features/auth/presentation/login/manager/login_cubit.
 import 'package:flower_app/features/auth/presentation/register/view_model/register_view_model.dart';
 import 'package:flower_app/features/auth/presentation/register/views/register_view.dart';
 import 'package:flower_app/core/widgets/coming_soon_view.dart';
+import 'package:flower_app/features/commerce/presentation/home/manager/home_cubit.dart';
+import 'package:flower_app/features/commerce/presentation/home/manager/home_events.dart';
 import 'package:flower_app/features/commerce/presentation/product_details/view/product_details_view.dart';
 import 'package:flower_app/features/commerce/presentation/widgets/test_screen.dart';
 import 'package:flutter/material.dart';
@@ -51,7 +53,10 @@ class AppRouter {
             routes: [
               GoRoute(
                 path: AppRoutes.home,
-                builder: (context, state) => const HomeView(),
+                builder: (context, state) => BlocProvider(
+                  create: (_) => getIt<HomeCubit>()..doEvents(HomeStarted()),
+                  child: const HomeView(),
+                ),
               ),
             ],
           ),
