@@ -36,6 +36,8 @@ class BestSellerCard extends StatelessWidget {
                 children: [
                   Text(
                     product.name ?? '',
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
                   const SizedBox(height: 4),
