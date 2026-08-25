@@ -6,6 +6,7 @@ import 'package:flower_app/features/commerce/data/data_sorce/remote/commerce_rem
 import 'package:injectable/injectable.dart';
 
 import '../../domain/entities/category_entity.dart';
+import '../../domain/entities/home_section_entity.dart';
 import '../../domain/entities/occasion_entity.dart';
 import '../../domain/entities/product_entity.dart';
 import '../../domain/repo/commerce_repo.dart';
@@ -14,6 +15,16 @@ import '../../domain/repo/commerce_repo.dart';
 class CommerceRepImpl implements CommerceRepo {
   final CommerceRemoteDataSource _commerceRemoteDataSource;
   CommerceRepImpl(this._commerceRemoteDataSource);
+
+  @override
+  Future<BaseResponse<List<HomeSectionEntity>>> getHomeSections() async {
+    try {
+      final sections = await _commerceRemoteDataSource.getHomeSections();
+      return SuccessResponse(sections.map((s) => s.toEntity()).toList());
+    } on DioException catch (e) {
+      return ErrorResponse(error: e);
+    }
+  }
 
   @override
   Future<BaseResponse<List<CategoryEntity>>> getCategories() async {
