@@ -4,6 +4,7 @@ import 'package:injectable/injectable.dart';
 import 'package:retrofit/retrofit.dart';
 
 import '../../data/models/categories_response_model.dart';
+import '../../data/models/home_sections_response_model.dart';
 import '../../data/models/occasions_response_model.dart';
 import '../../data/models/product_response_model.dart';
 import '../../data/models/products_by_category_response_model.dart';
@@ -15,6 +16,9 @@ part 'commerce_api_client.g.dart';
 abstract class CommerceApiClient {
   @factoryMethod
   factory CommerceApiClient(Dio dio) = _CommerceApiClient;
+
+  @GET(Endpoints.homeSections)
+  Future<HomeSectionsResponseModel> getHomeSections();
 
   @GET(Endpoints.categories)
   Future<CategoriesResponseModel> getCategories();
