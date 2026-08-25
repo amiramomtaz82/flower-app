@@ -1,9 +1,12 @@
 import '../../models/category_dto.dart';
+import '../../models/home_section_dto.dart';
 import '../../models/occasions_data_model.dart';
 import '../../models/product_dto.dart';
 import '../../models/products_data_model.dart';
 
 abstract interface class CommerceRemoteDataSource {
+  Future<List<HomeSectionDTO>> getHomeSections();
+
   Future<List<CategoryDTO>> getCategories();
 
   Future<OccasionsDataModel> getOccasions({
