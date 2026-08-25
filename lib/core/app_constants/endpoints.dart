@@ -12,10 +12,11 @@ class Endpoints {
   static const String verifyOtp = '/auth/verify-otp';
   static const String resetPassword = '/auth/reset-password';
 
-  // Commerce
-  static const String categories = '/categories';
-  static const String occasions = '/occasions';
-  static const String products = '/products';
-  static const String productsByCategory = '/products/by-category';
-  static const String productById = '/products/{productId}';
+  // Commerce (routed through the API Gateway's /catalog prefix)
+  static const String homeSections = '/catalog/home/sections';
+  static const String categories = '/catalog/categories';
+  static const String occasions = '/catalog/occasions';
+  static const String products = '/catalog/products';
+  static const String productsByCategory = '/catalog/products/by-category';
+  static const String productById = '/catalog/products/{productId}';
 }
