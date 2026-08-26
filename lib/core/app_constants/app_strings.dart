@@ -9,7 +9,8 @@ class AppStrings {
   static const String enterYourEmail = 'enter your email';
   static const String login = 'login';
   static const String password = 'password';
-  static const String forgetPassword = 'forget password';
+  static const String forgetPassword = 'forget password ';
+  static const String forget_password = 'forget password ?';
   static const String continueAsGuest = 'continueAsGuest';
   static const String dontHaveAnAccount = 'dontHaveAnAccount';
   static const String signUp = 'signUp';
@@ -76,4 +77,8 @@ class AppStrings {
       'no products for this occasion yet';
   static const String bloomWithBestSellers =
       'bloom with our exquisite best sellers';
+  static const String pleaseLoginOrRegisterToContinue="PleaseLoginOrRegisterToContinue";
+  static const String loginRequired='Login required';
+  static const String register="Register";
+  static const String rememberMe="Remember me";
 }

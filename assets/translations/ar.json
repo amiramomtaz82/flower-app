@@ -46,5 +46,8 @@
   "the requested data was not found": "لم يتم العثور على البيانات المطلوبة",
   "conflict occurred, the data might already exist": "حدث تعارض، قد تكون البيانات موجودة بالفعل",
   "some fields are invalid, please check your input": "بعض الحقول غير صالحة، من فضلك تحقق من البيانات المدخلة",
-  "internal server error, please try again later": "خطأ في الخادم، من فضلك حاول لاحقًا"
+  "internal server error, please try again later": "خطأ في الخادم، من فضلك حاول لاحقًا",
+  "PleaseLoginOrRegisterToContinue": "يرجى تسجيل الدخول أو إنشاء حساب للمتابعة.",
+ " Login required": "التسجيل مطلوب",
+  "register": "التسجيل"
 }
