@@ -1,7 +1,9 @@
 import 'package:flower_app/config/resource/rsource.dart';
 import 'package:flower_app/core/app_constants/app_assets.dart';
+import 'package:flower_app/core/go_routes/routes_name.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import '../../../domain/entities/home_section_entity.dart';
 import '../../../domain/entities/home_section_type.dart';
 import '../manager/home_cubit.dart';
@@ -82,12 +84,12 @@ class _HomeSections extends StatelessWidget {
     return Column(
       children: [
         for (final section in sections.data ?? const <HomeSectionEntity>[])
-          _buildSection(section),
+          _buildSection(context, section),
       ],
     );
   }
 
-  Widget _buildSection(HomeSectionEntity section) {
+  Widget _buildSection(BuildContext context, HomeSectionEntity section) {
     switch (section.type) {
       case HomeSectionType.categories:
         final resource = state.categoriesResource;
@@ -97,8 +99,16 @@ class _HomeSections extends StatelessWidget {
           isLoading: resource.isLoading || resource.status == ApiStatus.initial,
           errorMessage: resource.isError ? resource.errorMessage : null,
           itemCount: resource.data?.length ?? 0,
-          itemBuilder: (context, index) =>
-              CategoryChip(category: resource.data![index]),
+          onViewAll: () => context.go(AppRoutes.categories),
+          itemBuilder: (context, index) {
+            final category = resource.data![index];
+            // opens the categories tab with this category already selected
+            return CategoryChip(
+              category: category,
+              onTap: () =>
+                  context.go(AppRoutes.categoriesForCategory(category.id)),
+            );
+          },
         );
 
       case HomeSectionType.occasions:
@@ -109,8 +119,16 @@ class _HomeSections extends StatelessWidget {
           isLoading: resource.isLoading || resource.status == ApiStatus.initial,
           errorMessage: resource.isError ? resource.errorMessage : null,
           itemCount: resource.data?.length ?? 0,
-          itemBuilder: (context, index) =>
-              OccasionCard(occasion: resource.data![index]),
+          onViewAll: () => context.push(AppRoutes.occasions),
+          itemBuilder: (context, index) {
+            final occasion = resource.data![index];
+            // pushes the occasion page with this occasion already selected
+            return OccasionCard(
+              occasion: occasion,
+              onTap: () =>
+                  context.push(AppRoutes.occasionsForOccasion(occasion.id)),
+            );
+          },
         );
 
       case HomeSectionType.productsCarousel:

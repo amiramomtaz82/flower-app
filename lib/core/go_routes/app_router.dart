@@ -6,8 +6,14 @@ import 'package:flower_app/features/auth/presentation/login/manager/login_cubit.
 import 'package:flower_app/features/auth/presentation/register/view_model/register_view_model.dart';
 import 'package:flower_app/features/auth/presentation/register/views/register_view.dart';
 import 'package:flower_app/core/widgets/coming_soon_view.dart';
+import 'package:flower_app/features/commerce/presentation/categories/manager/categories_cubit.dart';
+import 'package:flower_app/features/commerce/presentation/categories/manager/categories_events.dart';
+import 'package:flower_app/features/commerce/presentation/categories/view/categories_view.dart';
 import 'package:flower_app/features/commerce/presentation/home/manager/home_cubit.dart';
 import 'package:flower_app/features/commerce/presentation/home/manager/home_events.dart';
+import 'package:flower_app/features/commerce/presentation/occasions/manager/occasions_cubit.dart';
+import 'package:flower_app/features/commerce/presentation/occasions/manager/occasions_events.dart';
+import 'package:flower_app/features/commerce/presentation/occasions/view/occasions_view.dart';
 import 'package:flower_app/features/commerce/presentation/product_details/view/product_details_view.dart';
 import 'package:flower_app/features/commerce/presentation/widgets/test_screen.dart';
 import 'package:flutter/material.dart';
@@ -64,8 +70,20 @@ class AppRouter {
             routes: [
               GoRoute(
                 path: AppRoutes.categories,
-                builder: (context, state) =>
-                    const ComingSoonView(title: 'Categories'),
+                builder: (context, state) {
+                  final categoryId =
+                      state.uri.queryParameters[AppRoutes.categoryIdParam];
+                  return BlocProvider(
+                    // the path never changes, so keying on the category is
+                    // what makes a tap on Home rebuild the cubit for it
+                    key: ValueKey(categoryId),
+                    create: (_) => getIt<CategoriesCubit>()
+                      ..doEvents(
+                        CategoriesStarted(initialCategoryId: categoryId),
+                      ),
+                    child: const CategoriesView(),
+                  );
+                },
               ),
             ],
           ),
@@ -104,6 +122,21 @@ class AppRouter {
       GoRoute(
         path: AppRoutes.productDetails,
         builder: (context, state) =>  const ProductDetailsView(),
+      ),
+
+      // outside the shell on purpose: pushed over Home with a back arrow
+      // instead of living in the bottom nav
+      GoRoute(
+        path: AppRoutes.occasions,
+        builder: (context, state) {
+          final occasionId =
+              state.uri.queryParameters[AppRoutes.occasionIdParam];
+          return BlocProvider(
+            create: (_) => getIt<OccasionsCubit>()
+              ..doEvents(OccasionsStarted(initialOccasionId: occasionId)),
+            child: const OccasionsView(),
+          );
+        },
       ),
     ],
   );
