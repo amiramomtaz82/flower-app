@@ -34,7 +34,7 @@ class ProductDetailsResponse {
 
 class ProductDetailsDTO extends ProductDTO {
   ProductDetailsDTO({
-    super.id,
+    String? id,
     super.name,
     super.imageUrl,
     super.currency,
@@ -47,7 +47,7 @@ class ProductDetailsDTO extends ProductDTO {
     this.includes,
     this.categoryId,
     this.occasionIds,
-  });
+  }) : super(id: id);
 
   ProductDetailsDTO.fromJson(dynamic json) : super.fromJson(json) {
     images = json['images'] != null ? json['images'].cast<String>() : [];

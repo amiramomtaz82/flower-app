@@ -1,8 +1,8 @@
 import 'package:flower_app/config/base_response/base_response.dart';
 import 'package:flower_app/core/pagination/paginated_response.dart';
 import 'package:flower_app/core/pagination/pagination_model.dart';
+import 'package:flower_app/core/app_constants/endpoints.dart';
 import 'package:flower_app/features/commerce/api/client/commerce_api_client.dart';
-import 'package:flower_app/features/commerce/api/data_source_impl/local/commerce_dummy_data.dart';
 import 'package:flower_app/features/commerce/data/data_sorce/remote/commerce_remote_data_source.dart';
 import 'package:flower_app/features/commerce/data/models/product_dto.dart';
 import 'package:flower_app/features/commerce/data/models/product_details_response.dart';
@@ -21,14 +21,18 @@ class CommerceRemoteDataSourceImpl implements CommerceRemoteDataSource {
     required String sort,
   }) async {
     try {
-      final response = await _apiClient.getBestSellers(page, pageSize, sort);
+      final response = await _apiClient.getBestSellers(
+        Endpoints.bestSellersOccasionId,
+        page,
+        pageSize,
+      );
       final items = response.data?.items ?? [];
       final pagination = response.data?.pagination ?? PaginationModel();
       return SuccessResponse(
         PaginatedResponse(data: items, pagination: pagination),
       );
     } catch (e) {
-      return SuccessResponse(CommerceDummyData.getDummyBestSellers());
+      return ErrorResponse(errMessage: e.toString());
     }
   }
 
@@ -39,10 +43,10 @@ class CommerceRemoteDataSourceImpl implements CommerceRemoteDataSource {
       if (response.data != null) {
         return SuccessResponse(response.data!);
       } else {
-        return SuccessResponse(CommerceDummyData.getDummyProductDetails(id));
+        return ErrorResponse(errMessage: response.message ?? 'Product not found');
       }
     } catch (e) {
-      return SuccessResponse(CommerceDummyData.getDummyProductDetails(id));
+      return ErrorResponse(errMessage: e.toString());
     }
   }
 }

@@ -15,15 +15,15 @@ abstract class CommerceApiClient {
 
   @GET(Endpoints.products)
   Future<ProductResponse> getProducts(
-    @Query('page') int? page,
+    @Query('pageNumber') int? pageNumber,
     @Query('pageSize') int? pageSize,
   );
 
   @GET(Endpoints.products)
   Future<ProductResponse> getBestSellers(
-    @Query('page') int? page,
+    @Query('occasionId') String occasionId,
+    @Query('pageNumber') int? pageNumber,
     @Query('pageSize') int? pageSize,
-    @Query('sort') String? sort,
   );
 
   @GET('/catalog/products/{id}')

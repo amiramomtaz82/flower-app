@@ -1,3 +1,4 @@
+import 'package:flower_app/core/domain/result.dart';
 import 'package:flower_app/config/base_response/base_response.dart';
 import 'package:flower_app/core/pagination/paginated_response.dart';
 import 'package:flower_app/features/commerce/data/data_sorce/remote/commerce_remote_data_source.dart';
@@ -13,7 +14,7 @@ class CommerceRepImpl implements CommerceRepo {
   CommerceRepImpl(this._remoteDataSource);
 
   @override
-  Future<BaseResponse<PaginatedResponse<ProductEntity>>> getBestSellers({
+  Future<Result<PaginatedResponse<ProductEntity>>> getBestSellers({
     required int page,
     required int pageSize,
     required String sort,
@@ -27,7 +28,7 @@ class CommerceRepImpl implements CommerceRepo {
     switch (result) {
       case SuccessResponse():
         final entities = result.data.data.map((dto) => ProductEntity(
-              id: dto.id?.toString(),
+              id: dto.id,
               name: dto.name,
               imageUrl: dto.imageUrl,
               currency: dto.currency,
@@ -36,25 +37,25 @@ class CommerceRepImpl implements CommerceRepo {
               discountPercentage: dto.discountPercentage,
               status: dto.status,
             )).toList();
-        return SuccessResponse(
+        return Success(
           PaginatedResponse(
             data: entities,
             pagination: result.data.pagination,
           ),
         );
       case ErrorResponse():
-        return ErrorResponse(error: result.error, errMessage: result.errMessage);
+        return Failure(result.errMessage ?? 'Unknown error');
     }
   }
 
   @override
-  Future<BaseResponse<ProductDetailsEntity>> getProductDetails(String id) async {
+  Future<Result<ProductDetailsEntity>> getProductDetails(String id) async {
     final result = await _remoteDataSource.getProductDetails(id);
 
     switch (result) {
       case SuccessResponse():
         final dto = result.data;
-        return SuccessResponse(
+        return Success(
           ProductDetailsEntity(
             id: dto.id?.toString(),
             name: dto.name,
@@ -72,7 +73,7 @@ class CommerceRepImpl implements CommerceRepo {
           ),
         );
       case ErrorResponse():
-        return ErrorResponse(error: result.error, errMessage: result.errMessage);
+        return Failure(result.errMessage ?? 'Unknown error');
     }
   }
 }

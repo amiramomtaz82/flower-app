@@ -1,11 +1,11 @@
-import 'package:flower_app/config/base_response/base_response.dart';
+import 'package:flower_app/core/domain/result.dart';
 import 'package:flower_app/config/resource/rsource.dart';
 
 import 'paginated_response.dart';
 import 'pagination_state.dart';
 
 class PaginationController<T> {
-  final Future<BaseResponse<PaginatedResponse<T>>> Function(int page) fetchPage;
+  final Future<Result<PaginatedResponse<T>>> Function(int page) fetchPage;
 
   PaginationState<T> _state = PaginationState<T>.initial();
 
@@ -42,7 +42,7 @@ class PaginationController<T> {
       final result = await fetchPage(1);
 
       switch (result) {
-        case SuccessResponse<PaginatedResponse<T>>():
+        case Success<PaginatedResponse<T>>():
           final data = result.data;
 
           _state = _state.copyWith(
@@ -53,9 +53,9 @@ class PaginationController<T> {
             clearLoadMoreError: true,
           );
 
-        case ErrorResponse<PaginatedResponse<T>>():
+        case Failure<PaginatedResponse<T>>():
           _state = _state.copyWith(
-            resource: Resource.error(result.errMessage),
+            resource: Resource.error(result.message),
             isLoadingMore: false,
           );
       }
@@ -90,7 +90,7 @@ class PaginationController<T> {
       final result = await fetchPage(nextPage);
 
       switch (result) {
-        case SuccessResponse<PaginatedResponse<T>>():
+        case Success<PaginatedResponse<T>>():
           final data = result.data;
 
           final updatedItems = [
@@ -106,10 +106,10 @@ class PaginationController<T> {
             clearLoadMoreError: true,
           );
 
-        case ErrorResponse<PaginatedResponse<T>>():
+        case Failure<PaginatedResponse<T>>():
           _state = _state.copyWith(
             isLoadingMore: false,
-            loadMoreError: result.errMessage,
+            loadMoreError: result.message,
           );
       }
 

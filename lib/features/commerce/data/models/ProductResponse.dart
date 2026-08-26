@@ -1,51 +1,43 @@
+import 'package:flower_app/core/pagination/pagination_model.dart';
 import 'package:flower_app/features/commerce/data/models/product_dto.dart';
-
-import '../../../../core/pagination/pagination_model.dart';
-
-
 
 class ProductResponse {
   ProductResponse({
-      this.data, 
-      this.isSuccess, 
-      this.message, 
-      this.messageLocalized, 
-      this.statusCode,});
+    this.data,
+    this.success,
+    this.message,
+    this.error,
+  });
 
   ProductResponse.fromJson(dynamic json) {
     data = json['data'] != null ? Data.fromJson(json['data']) : null;
-    isSuccess = json['isSuccess'];
+    success = json['success'];
     message = json['message'];
-    messageLocalized = json['messageLocalized'];
-    statusCode = json['statusCode'];
+    error = json['error'];
   }
+
   Data? data;
-  bool? isSuccess;
+  bool? success;
   String? message;
-  String? messageLocalized;
-  String? statusCode;
+  dynamic error;
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
     if (data != null) {
       map['data'] = data?.toJson();
     }
-    map['isSuccess'] = isSuccess;
+    map['success'] = success;
     map['message'] = message;
-    map['messageLocalized'] = messageLocalized;
-    map['statusCode'] = statusCode;
+    map['error'] = error;
     return map;
   }
-
 }
-
-/// items : [{"id":0,"name":"string","imageUrl":"string","currency":"string","price":0,"originalPrice":0,"discountPercentage":0,"status":"InStock"}]
-/// pagination : {"page":0,"pageSize":0,"totalCount":0,"totalPages":0,"hasNextPage":true,"hasPreviousPage":true}
 
 class Data {
   Data({
-      this.items, 
-      this.pagination,});
+    this.items,
+    this.pagination,
+  });
 
   Data.fromJson(dynamic json) {
     if (json['items'] != null) {
@@ -54,8 +46,17 @@ class Data {
         items?.add(ProductDTO.fromJson(v));
       });
     }
-    pagination = json['pagination'] != null ? PaginationModel.fromJson(json['pagination']) : null;
+    // API returns pagination fields flat inside data (not nested)
+    pagination = PaginationModel(
+      page: json['pageNumber'],
+      pageSize: json['pageSize'],
+      totalCount: json['totalCount'],
+      totalPages: json['totalPages'],
+      hasNextPage: json['hasNextPage'],
+      hasPreviousPage: json['hasPreviousPage'],
+    );
   }
+
   List<ProductDTO>? items;
   PaginationModel? pagination;
 
@@ -69,16 +70,4 @@ class Data {
     }
     return map;
   }
-
 }
-
-/// page : 0
-/// pageSize : 0
-/// totalCount : 0
-/// totalPages : 0
-/// hasNextPage : true
-/// hasPreviousPage : true
-
-
-
-

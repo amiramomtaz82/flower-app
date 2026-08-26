@@ -1,31 +1,36 @@
-import 'package:flower_app/config/base_response/base_response.dart';
+import 'package:flower_app/core/domain/result.dart';
 import 'package:flower_app/config/resource/rsource.dart';
 import 'package:flower_app/features/commerce/domain/entities/product_details_entity.dart';
 import 'package:flower_app/features/commerce/domain/use_cases/get_product_details_use_case.dart';
+import 'package:flower_app/features/commerce/presentation/product_details/view_model/product_details_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 
 @injectable
-class ProductDetailsViewModel extends Cubit<Resource<ProductDetailsEntity>> {
+class ProductDetailsViewModel extends Cubit<ProductDetailsState> {
   final GetProductDetailsUseCase _getProductDetailsUseCase;
 
   ProductDetailsViewModel(this._getProductDetailsUseCase)
-      : super(Resource.initial());
+      : super(ProductDetailsState(resource: Resource.initial()));
 
   Future<void> loadDetails(String id) async {
-    emit(Resource.loading());
+    emit(state.copyWith(resource: Resource.loading()));
 
     try {
       final result = await _getProductDetailsUseCase(id);
 
       switch (result) {
-        case SuccessResponse<ProductDetailsEntity>():
-          emit(Resource.success(result.data));
-        case ErrorResponse<ProductDetailsEntity>():
-          emit(Resource.error(result.errMessage));
+        case Success<ProductDetailsEntity>():
+          emit(state.copyWith(resource: Resource.success(result.data)));
+        case Failure<ProductDetailsEntity>():
+          emit(state.copyWith(resource: Resource.error(result.message)));
       }
     } catch (e) {
-      emit(Resource.error(e.toString()));
+      emit(state.copyWith(resource: Resource.error(e.toString())));
     }
+  }
+
+  void updateImageIndex(int index) {
+    emit(state.copyWith(currentImageIndex: index));
   }
 }

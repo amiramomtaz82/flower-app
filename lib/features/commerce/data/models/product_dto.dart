@@ -7,10 +7,12 @@ class ProductDTO {
     this.price,
     this.originalPrice,
     this.discountPercentage,
-    this.status,});
+    this.status,
+    this.isBestSeller,
+  });
 
   ProductDTO.fromJson(dynamic json) {
-    id = json['id'];
+    id = json['id']?.toString();
     name = json['name'];
     imageUrl = json['imageUrl'];
     currency = json['currency'];
@@ -18,8 +20,10 @@ class ProductDTO {
     originalPrice = json['originalPrice'];
     discountPercentage = json['discountPercentage'];
     status = json['status'];
+    isBestSeller = json['isBestSeller'];
   }
-  num? id;
+
+  String? id;
   String? name;
   String? imageUrl;
   String? currency;
@@ -27,6 +31,7 @@ class ProductDTO {
   num? originalPrice;
   num? discountPercentage;
   String? status;
+  bool? isBestSeller;
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
@@ -38,7 +43,7 @@ class ProductDTO {
     map['originalPrice'] = originalPrice;
     map['discountPercentage'] = discountPercentage;
     map['status'] = status;
+    map['isBestSeller'] = isBestSeller;
     return map;
   }
-
 }

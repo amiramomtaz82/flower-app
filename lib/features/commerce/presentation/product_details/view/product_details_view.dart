@@ -1,7 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flower_app/config/resource/rsource.dart';
 import 'package:flower_app/features/commerce/domain/entities/product_entity.dart';
-import 'package:flower_app/features/commerce/domain/entities/product_details_entity.dart';
+import 'package:flower_app/features/commerce/presentation/product_details/view_model/product_details_state.dart';
 import 'package:flower_app/features/commerce/presentation/product_details/view_model/product_details_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -16,8 +16,6 @@ class ProductDetailsView extends StatefulWidget {
 }
 
 class _ProductDetailsViewState extends State<ProductDetailsView> {
-  int _currentImageIndex = 0;
-
   @override
   void initState() {
     super.initState();
@@ -38,18 +36,19 @@ class _ProductDetailsViewState extends State<ProductDetailsView> {
         elevation: 0,
       ),
       extendBodyBehindAppBar: true,
-      body: BlocBuilder<ProductDetailsViewModel, Resource<ProductDetailsEntity>>(
+      body: BlocBuilder<ProductDetailsViewModel, ProductDetailsState>(
         builder: (context, state) {
-          if (state.isLoading || state.status == ApiStatus.initial) {
+          final resource = state.resource;
+          if (resource.isLoading || resource.status == ApiStatus.initial) {
             return const Center(child: CircularProgressIndicator());
           }
 
-          if (state.status == ApiStatus.error) {
+          if (resource.status == ApiStatus.error) {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(state.errorMessage ?? 'error'.tr()),
+                  Text(resource.errorMessage ?? 'error'.tr()),
                   const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: () {
@@ -66,7 +65,7 @@ class _ProductDetailsViewState extends State<ProductDetailsView> {
             );
           }
 
-          final details = state.data;
+          final details = resource.data;
           if (details == null) {
             return const SizedBox.shrink();
           }
@@ -86,9 +85,7 @@ class _ProductDetailsViewState extends State<ProductDetailsView> {
                       child: PageView.builder(
                         itemCount: images.length,
                         onPageChanged: (index) {
-                          setState(() {
-                            _currentImageIndex = index;
-                          });
+                          context.read<ProductDetailsViewModel>().updateImageIndex(index);
                         },
                         itemBuilder: (context, index) {
                           return Image.network(
@@ -114,7 +111,7 @@ class _ProductDetailsViewState extends State<ProductDetailsView> {
                               height: 8,
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                color: _currentImageIndex == index
+                                color: state.currentImageIndex == index
                                     ? colorScheme.primary
                                     : colorScheme.onSurface.withValues(alpha: 0.3),
                               ),
@@ -133,23 +130,24 @@ class _ProductDetailsViewState extends State<ProductDetailsView> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                '${details.currency ?? ""} ${details.price}',
-                                style: textTheme.headlineSmall?.copyWith(
-                                  fontWeight: FontWeight.bold,
+                          if (details.price != null)
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '${details.currency ?? ""} ${details.price}',
+                                  style: textTheme.headlineSmall?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
-                              ),
-                              Text(
-                                'All prices include tax',
-                                style: textTheme.bodySmall?.copyWith(
-                                  color: colorScheme.onSurfaceVariant,
+                                Text(
+                                  'All prices include tax',
+                                  style: textTheme.bodySmall?.copyWith(
+                                    color: colorScheme.onSurfaceVariant,
+                                  ),
                                 ),
-                              ),
-                            ],
-                          ),
+                              ],
+                            ),
                           Row(
                             children: [
                               Text(
