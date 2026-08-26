@@ -1,4 +1,6 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flower_app/config/resource/rsource.dart';
+import 'package:flower_app/core/app_constants/app_strings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../domain/entities/category_entity.dart';
@@ -31,7 +33,7 @@ class CategoriesView extends StatelessWidget {
 
             final data = categories.data ?? const <CategoryEntity>[];
             if (data.isEmpty) {
-              return const CenteredMessage(text: 'No categories yet');
+              return CenteredMessage(text: AppStrings.noCategoriesYet.tr());
             }
 
             return Column(
@@ -53,7 +55,7 @@ class CategoriesView extends StatelessWidget {
                 Expanded(
                   child: ProductsResourceGrid(
                     resource: state.productsResource,
-                    emptyMessage: 'No products in this category yet',
+                    emptyMessage: AppStrings.noProductsInThisCategory.tr(),
                   ),
                 ),
               ],

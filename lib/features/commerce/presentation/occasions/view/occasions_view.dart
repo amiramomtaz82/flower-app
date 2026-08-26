@@ -1,4 +1,6 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flower_app/config/resource/rsource.dart';
+import 'package:flower_app/core/app_constants/app_strings.dart';
 import 'package:flower_app/core/go_routes/routes_name.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -43,7 +45,7 @@ class OccasionsView extends StatelessWidget {
 
             final data = occasions.data ?? const <OccasionEntity>[];
             if (data.isEmpty) {
-              return const CenteredMessage(text: 'No occasions yet');
+              return CenteredMessage(text: AppStrings.noOccasionsYet.tr());
             }
 
             return Column(
@@ -52,7 +54,7 @@ class OccasionsView extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                   child: Text(
-                    'Bloom with our exquisite best sellers',
+                    AppStrings.bloomWithBestSellers.tr(),
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
                 ),
@@ -72,7 +74,7 @@ class OccasionsView extends StatelessWidget {
                 Expanded(
                   child: ProductsResourceGrid(
                     resource: state.productsResource,
-                    emptyMessage: 'No products for this occasion yet',
+                    emptyMessage: AppStrings.noProductsForThisOccasion.tr(),
                   ),
                 ),
               ],

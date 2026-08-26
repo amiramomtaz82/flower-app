@@ -66,4 +66,14 @@ class AppStrings {
       'some fields are invalid, please check your input';
   static const String internalServerError =
       'internal server error, please try again later';
+
+  // Empty states on the categories and occasions pages.
+  static const String noCategoriesYet = 'no categories yet';
+  static const String noOccasionsYet = 'no occasions yet';
+  static const String noProductsInThisCategory =
+      'no products in this category yet';
+  static const String noProductsForThisOccasion =
+      'no products for this occasion yet';
+  static const String bloomWithBestSellers =
+      'bloom with our exquisite best sellers';
 }
