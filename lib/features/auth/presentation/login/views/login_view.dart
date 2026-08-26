@@ -10,6 +10,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../../config/di/di.dart';
+import '../../../../../core/guest_browsing/guest_browsing_provider.dart';
+
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
 
@@ -20,24 +23,20 @@ class LoginView extends StatefulWidget {
 class _LoginViewState extends State<LoginView> {
   final GlobalKey<FormState> formKey = GlobalKey();
 
-
   @override
   void dispose() {
     // TODO: implement dispose
 
-
     super.dispose();
   }
 
-
-
   @override
   Widget build(BuildContext context) {
-    final AppColors colors=LightColors();
+    final AppColors colors = LightColors();
     LoginCubit cubit = context.read<LoginCubit>();
 
     return BlocListener<LoginCubit, LoginState>(
-      listener: (context, state) {
+      listener: (context, state) async {
         if (state.loginResource.isError) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(state.loginResource.errorMessage ?? "")),
@@ -45,7 +44,13 @@ class _LoginViewState extends State<LoginView> {
         }
 
         if (state.loginResource.isSuccess) {
-          context.pushReplacement(AppRoutes.home);
+          final guestBrowsingProvider = getIt<GuestBrowsingProvider>();
+
+          if (guestBrowsingProvider.hasPendingAction) {
+            await guestBrowsingProvider.executePendingAction();
+          } else {
+            context.go(AppRoutes.home);
+          }
         }
       },
 
@@ -81,7 +86,6 @@ class _LoginViewState extends State<LoginView> {
                         cubit.doEvents(EmailChanged(value));
                       },
                       validator: Validation.validateEmail,
-
                     ),
                   ),
                   SizedBox(height: 10),
@@ -120,12 +124,36 @@ class _LoginViewState extends State<LoginView> {
                       },
                     ),
                   ),
+                  Row(
+                    children: [
+                      SizedBox(width: 8),
+                      IconButton(
+                        onPressed: () {},
+                        icon: Icon(Icons.check_box_outline_blank_rounded),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(AppStrings.rememberMe.tr()),
+                    Spacer(),
+                      InkWell(onTap: (){
+                        context.push(AppRoutes.forgotPassword);
+                      },
+                        child: Text(
+                          AppStrings.forget_password.tr(),
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            decoration: TextDecoration.underline,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8,)
+                    ],
+                  ),
                   SizedBox(height: 70),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 8.0),
                     child: BlocBuilder<LoginCubit, LoginState>(
                       buildWhen: (previous, current) =>
-                      previous.loginResource.status != current.loginResource.status,
+                          previous.loginResource.status !=
+                          current.loginResource.status,
                       builder: (context, state) {
                         return ElevatedButton(
                           onPressed: state.loginResource.isLoading
