@@ -8,6 +8,8 @@ import 'package:flower_app/features/commerce/data/models/product_dto.dart';
 import 'package:flower_app/features/commerce/data/models/product_details_response.dart';
 import 'package:injectable/injectable.dart';
 
+import 'package:flower_app/config/error/error_handler.dart';
+
 @Injectable(as: CommerceRemoteDataSource)
 class CommerceRemoteDataSourceImpl implements CommerceRemoteDataSource {
   final CommerceApiClient _apiClient;
@@ -32,7 +34,7 @@ class CommerceRemoteDataSourceImpl implements CommerceRemoteDataSource {
         PaginatedResponse(data: items, pagination: pagination),
       );
     } catch (e) {
-      return ErrorResponse(errMessage: e.toString());
+      return ErrorResponse(errMessage: ErrorHandler.extractErrorMessage(e));
     }
   }
 
@@ -46,7 +48,7 @@ class CommerceRemoteDataSourceImpl implements CommerceRemoteDataSource {
         return ErrorResponse(errMessage: response.message ?? 'Product not found');
       }
     } catch (e) {
-      return ErrorResponse(errMessage: e.toString());
+      return ErrorResponse(errMessage: ErrorHandler.extractErrorMessage(e));
     }
   }
 }
