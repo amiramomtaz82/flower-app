@@ -59,7 +59,10 @@
   "conflict occurred, the data might already exist": "Conflict occurred, the data might already exist",
   "some fields are invalid, please check your input": "Some fields are invalid, please check your input",
   "internal server error, please try again later": "Internal server error, please try again later",
-
+  "best_seller": "Best Seller",
+  "bloom_best_sellers": "Bloom's Best Sellers",
+  "retry": "Retry",
+  "error": "Something went wrong",
   "PleaseLoginOrRegisterToContinue": "Please login or register to continue",
   "Login required": "Login required",
   "register": "Register",

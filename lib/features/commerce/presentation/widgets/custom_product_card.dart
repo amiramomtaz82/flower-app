@@ -18,8 +18,8 @@ class CustomProductCard extends StatelessWidget {
       context.push(AppRoutes.productDetails,extra: product);
     },
       child: Container(
-        height: 280,
-        width: 170,
+        height: 230,
+        width: 163,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
@@ -52,25 +52,40 @@ class CustomProductCard extends StatelessWidget {
                 child: Text(
                   product.name ?? "",
                   style: Theme.of(context).textTheme.bodySmall,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
               SizedBox(height:5,),
               Row(
-                children: [SizedBox(width: 8,),
-                  Text(
-                    product.currency ?? "",
-                    style: Theme.of(context).textTheme.bodyLarge,
-                  ),SizedBox(width: 2,),
-                  Text("${product.price}", style:
-                  Theme.of(context).textTheme.bodyLarge),
-                  SizedBox(width: 8),
-                  Text("${product.originalPrice}", style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      decoration: TextDecoration.lineThrough
-                  )),SizedBox(width: 3,),
-
-                  Text("${product.discountPercentage??""} %",style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).colorScheme.secondaryFixedDim
-                  ),)
+                children: [
+                  const SizedBox(width: 8),
+                  Flexible(
+                    child: Text(
+                      "${product.currency ?? ''} ${product.price ?? ''}",
+                      style: Theme.of(context).textTheme.bodyLarge,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  if (product.originalPrice != null) ...[
+                    const SizedBox(width: 6),
+                    Flexible(
+                      child: Text(
+                        "${product.originalPrice}",
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            decoration: TextDecoration.lineThrough),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                  if (product.discountPercentage != null) ...[
+                    const SizedBox(width: 3),
+                    Text(
+                      "${product.discountPercentage}%",
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.secondaryFixedDim),
+                    ),
+                  ],
                 ],
               ),
 
