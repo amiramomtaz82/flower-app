@@ -45,5 +45,8 @@
   "best_seller": "الأكثر مبيعاً",
   "bloom_best_sellers": "الأكثر مبيعاً في بلوم",
   "retry": "إعادة المحاولة",
-  "error": "حدث خطأ ما"
+  "error": "حدث خطأ ما",
+  "PleaseLoginOrRegisterToContinue": "يرجى تسجيل الدخول أو إنشاء حساب للمتابعة.",
+  " Login required": "التسجيل مطلوب",
+  "register": "التسجيل"
 }
