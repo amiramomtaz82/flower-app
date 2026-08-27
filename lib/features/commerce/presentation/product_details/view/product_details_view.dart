@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flower_app/config/resource/rsource.dart';
 import 'package:flower_app/features/commerce/domain/entities/product_entity.dart';
 import 'package:flower_app/features/commerce/presentation/product_details/view_model/product_details_state.dart';
+import 'package:flower_app/features/commerce/presentation/product_details/view_model/product_details_event.dart';
 import 'package:flower_app/features/commerce/presentation/product_details/view_model/product_details_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -20,7 +21,7 @@ class _ProductDetailsViewState extends State<ProductDetailsView> {
   void initState() {
     super.initState();
     if (widget.product?.id != null) {
-      context.read<ProductDetailsViewModel>().loadDetails(widget.product!.id!);
+      context.read<ProductDetailsViewModel>().doEvent(LoadProductDetails(widget.product!.id!));
     }
   }
 
@@ -55,7 +56,7 @@ class _ProductDetailsViewState extends State<ProductDetailsView> {
                       if (widget.product?.id != null) {
                         context
                             .read<ProductDetailsViewModel>()
-                            .loadDetails(widget.product!.id!);
+                            .doEvent(LoadProductDetails(widget.product!.id!));
                       }
                     },
                     child: Text('retry'.tr()),
@@ -85,7 +86,7 @@ class _ProductDetailsViewState extends State<ProductDetailsView> {
                       child: PageView.builder(
                         itemCount: images.length,
                         onPageChanged: (index) {
-                          context.read<ProductDetailsViewModel>().updateImageIndex(index);
+                          context.read<ProductDetailsViewModel>().doEvent(UpdateImageIndex(index));
                         },
                         itemBuilder: (context, index) {
                           return Image.network(

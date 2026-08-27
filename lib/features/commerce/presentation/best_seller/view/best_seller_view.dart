@@ -4,6 +4,7 @@ import 'package:flower_app/core/pagination/pagination_state.dart';
 import 'package:flower_app/core/pagination/presentaion/pagination_footer.dart';
 import 'package:flower_app/features/commerce/domain/entities/product_entity.dart';
 import 'package:flower_app/features/commerce/presentation/best_seller/view_model/best_seller_view_model.dart';
+import 'package:flower_app/features/commerce/presentation/best_seller/view_model/best_seller_event.dart';
 import 'package:flower_app/features/commerce/presentation/widgets/custom_product_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -21,7 +22,7 @@ class _BestSellerViewState extends State<BestSellerView> {
   @override
   void initState() {
     super.initState();
-    context.read<BestSellerViewModel>().loadInitial();
+    context.read<BestSellerViewModel>().doEvent(LoadInitialBestSellers());
     _scrollController.addListener(_onScroll);
   }
 
@@ -34,7 +35,7 @@ class _BestSellerViewState extends State<BestSellerView> {
   void _onScroll() {
     if (_scrollController.position.pixels >=
         _scrollController.position.maxScrollExtent - 200) {
-      context.read<BestSellerViewModel>().loadMore();
+      context.read<BestSellerViewModel>().doEvent(LoadMoreBestSellers());
     }
   }
 
@@ -82,7 +83,7 @@ class _BestSellerViewState extends State<BestSellerView> {
                   const SizedBox(height: 12),
                   ElevatedButton(
                     onPressed: () =>
-                        context.read<BestSellerViewModel>().loadInitial(),
+                        context.read<BestSellerViewModel>().doEvent(LoadInitialBestSellers()),
                     child: Text('retry'.tr()),
                   ),
                 ],
@@ -116,7 +117,7 @@ class _BestSellerViewState extends State<BestSellerView> {
                   hasNextPage: state.hasNextPage,
                   loadMoreError: state.loadMoreError,
                   onRetry: () =>
-                      context.read<BestSellerViewModel>().retry(),
+                      context.read<BestSellerViewModel>().doEvent(RetryBestSellers()),
                 ),
               ),
             ],
