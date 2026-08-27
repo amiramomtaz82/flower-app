@@ -138,8 +138,9 @@ class HomeCubit extends Cubit<HomeState> {
     );
   }
 
-  // this fetches products per occasion and keeps whichever ones are
-  // flagged, instead of leaving the section empty.
+  // Backend has no best-sellers endpoint and won't add one, so this fetches
+  // products per occasion and keeps whichever ones are flagged with
+  // isBestSeller, instead of leaving the section empty.
   Future<void> _loadBestSellers() async {
     emit(state.copyWith(bestSellerResource: Resource.loading()));
 
