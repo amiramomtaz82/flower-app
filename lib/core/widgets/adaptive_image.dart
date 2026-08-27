@@ -21,6 +21,10 @@ class AdaptiveImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (path.isEmpty) {
+      return Image.asset(AppAssets.image, width: width, height: height, fit: fit);
+    }
+
     if (path.startsWith('http')) {
       return Image.network(
         path,
