@@ -46,9 +46,7 @@ class HomeCubit extends Cubit<HomeState> {
     final result = await _getHomeSectionsUseCase();
     switch (result) {
       case SuccessResponse<List<HomeSectionEntity>>():
-        emit(
-          state.copyWith(sectionsResource: Resource.success(result.data)),
-        );
+        emit(state.copyWith(sectionsResource: Resource.success(result.data)));
         await Future.wait(result.data.map(_loadSectionContent));
 
       case ErrorResponse<List<HomeSectionEntity>>():
