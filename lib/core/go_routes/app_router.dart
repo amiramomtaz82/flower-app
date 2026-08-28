@@ -6,6 +6,9 @@ import 'package:flower_app/features/auth/presentation/login/manager/login_cubit.
 import 'package:flower_app/features/auth/presentation/register/view_model/register_view_model.dart';
 import 'package:flower_app/features/auth/presentation/register/views/register_view.dart';
 import 'package:flower_app/core/widgets/coming_soon_view.dart';
+import 'package:flower_app/features/commerce/domain/entities/product_entity.dart';
+import 'package:flower_app/features/commerce/presentation/best_seller/view/best_seller_view.dart';
+import 'package:flower_app/features/commerce/presentation/best_seller/view_model/best_seller_view_model.dart';
 import 'package:flower_app/features/commerce/presentation/categories/manager/categories_cubit.dart';
 import 'package:flower_app/features/commerce/presentation/categories/manager/categories_events.dart';
 import 'package:flower_app/features/commerce/presentation/categories/view/categories_view.dart';
@@ -15,7 +18,7 @@ import 'package:flower_app/features/commerce/presentation/occasions/manager/occa
 import 'package:flower_app/features/commerce/presentation/occasions/manager/occasions_events.dart';
 import 'package:flower_app/features/commerce/presentation/occasions/view/occasions_view.dart';
 import 'package:flower_app/features/commerce/presentation/product_details/view/product_details_view.dart';
-import 'package:flower_app/features/commerce/presentation/widgets/test_screen.dart';
+import 'package:flower_app/features/commerce/presentation/product_details/view_model/product_details_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -23,7 +26,6 @@ import 'package:go_router/go_router.dart';
 import '../../features/auth/presentation/login/views/login_view.dart';
 import '../../features/commerce/presentation/home/view/home_view.dart';
 import 'main_shell_view.dart';
-
 
 class AppRouter {
   AppRouter._();
@@ -34,7 +36,6 @@ class AppRouter {
   static final GoRouter router = GoRouter(
     navigatorKey: navigatorKey,
     initialLocation: AppRoutes.home,
-
     routes: [
       GoRoute(
         path: AppRoutes.login,
@@ -43,7 +44,6 @@ class AppRouter {
           child: const LoginView(),
         ),
       ),
-
       GoRoute(
         path: AppRoutes.forgotPassword,
         builder: (context, state) => BlocProvider(
@@ -114,14 +114,22 @@ class AppRouter {
           child: const RegisterView(),
         ),
       ),
-
       GoRoute(
-        path: AppRoutes.test,
-        builder: (context, state) =>  const TestView(),
+        path: AppRoutes.bestSeller,
+        builder: (context, state) => BlocProvider(
+          create: (_) => getIt<BestSellerViewModel>(),
+          child: const BestSellerView(),
         ),
+      ),
       GoRoute(
         path: AppRoutes.productDetails,
-        builder: (context, state) =>  const ProductDetailsView(),
+        builder: (context, state) {
+          final product = state.extra as ProductEntity?;
+          return BlocProvider(
+            create: (_) => getIt<ProductDetailsViewModel>(),
+            child: ProductDetailsView(product: product),
+          );
+        },
       ),
 
       // outside the shell on purpose: pushed over Home with a back arrow
@@ -140,6 +148,4 @@ class AppRouter {
       ),
     ],
   );
-
-
 }

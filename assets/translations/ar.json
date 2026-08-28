@@ -47,7 +47,11 @@
   "conflict occurred, the data might already exist": "حدث تعارض، قد تكون البيانات موجودة بالفعل",
   "some fields are invalid, please check your input": "بعض الحقول غير صالحة، من فضلك تحقق من البيانات المدخلة",
   "internal server error, please try again later": "خطأ في الخادم، من فضلك حاول لاحقًا",
+  "best_seller": "الأكثر مبيعاً",
+  "bloom_best_sellers": "الأكثر مبيعاً في بلوم",
+  "retry": "إعادة المحاولة",
+  "error": "حدث خطأ ما",
   "PleaseLoginOrRegisterToContinue": "يرجى تسجيل الدخول أو إنشاء حساب للمتابعة.",
- " Login required": "التسجيل مطلوب",
+  " Login required": "التسجيل مطلوب",
   "register": "التسجيل"
 }

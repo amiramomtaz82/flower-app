@@ -9,7 +9,9 @@ class AppRoutes {
   static const String forgotPassword = '/forgot-password';
   static const String test = '/test';
 
-  static const String productDetails = '/productDetails';
+  static const String productDetails = '/product-details';
+
+  static const String bestSeller = '/best-seller';
 
   static const String categoryIdParam = 'categoryId';
 
@@ -20,7 +22,6 @@ class AppRoutes {
 
   static const String occasionIdParam = 'occasionId';
 
-  
   static String occasionsForOccasion(String occasionId) =>
       '$occasions?$occasionIdParam=${Uri.encodeQueryComponent(occasionId)}';
 }

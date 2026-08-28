@@ -24,6 +24,8 @@ class CustomProductCard extends StatelessWidget {
       context.push(AppRoutes.productDetails,extra: product);
     },
       child: Container(
+        height: 230,
+        width: 163,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
           border: Border.all(

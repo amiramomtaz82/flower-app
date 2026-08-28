@@ -8,6 +8,7 @@ import 'package:injectable/injectable.dart';
 import '../../domain/entities/category_entity.dart';
 import '../../domain/entities/home_section_entity.dart';
 import '../../domain/entities/occasion_entity.dart';
+import '../../domain/entities/product_details_entity.dart';
 import '../../domain/entities/product_entity.dart';
 import '../../domain/repo/commerce_repo.dart';
 
@@ -119,6 +120,48 @@ class CommerceRepoImpl implements CommerceRepo {
         productId: productId,
       );
       return SuccessResponse(product.toEntity());
+    } on DioException catch (e) {
+      return ErrorResponse(error: e);
+    }
+  }
+
+  @override
+  Future<BaseResponse<PaginatedResponse<ProductEntity>>> getBestSellers({
+    required int page,
+    required int pageSize,
+    required String sort,
+  }) async {
+    try {
+      final products = await _commerceRemoteDataSource.getBestSellers(
+        page: page,
+        pageSize: pageSize,
+      );
+
+      return SuccessResponse(
+        PaginatedResponse<ProductEntity>(
+          data: products.items.map((p) => p.toEntity()).toList(),
+          pagination: PaginationModel(
+            page: products.pageNumber,
+            pageSize: products.pageSize,
+            totalCount: products.totalCount,
+            totalPages: products.totalPages,
+            hasNextPage: products.hasNextPage,
+            hasPreviousPage: products.hasPreviousPage,
+          ),
+        ),
+      );
+    } on DioException catch (e) {
+      return ErrorResponse(error: e);
+    }
+  }
+
+  @override
+  Future<BaseResponse<ProductDetailsEntity>> getProductDetails(
+    String id,
+  ) async {
+    try {
+      final details = await _commerceRemoteDataSource.getProductDetails(id);
+      return SuccessResponse(details.toEntity());
     } on DioException catch (e) {
       return ErrorResponse(error: e);
     }

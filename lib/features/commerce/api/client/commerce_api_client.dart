@@ -6,6 +6,7 @@ import 'package:retrofit/retrofit.dart';
 import '../../data/models/categories_response_model.dart';
 import '../../data/models/home_sections_response_model.dart';
 import '../../data/models/occasions_response_model.dart';
+import '../../data/models/product_details_response_model.dart';
 import '../../data/models/product_response_model.dart';
 import '../../data/models/products_by_category_response_model.dart';
 import '../../data/models/products_response_model.dart';
@@ -43,6 +44,11 @@ abstract class CommerceApiClient {
 
   @GET(Endpoints.productById)
   Future<ProductResponseModel> getProductById(
+    @Path(QueryParams.productId) String productId,
+  );
+
+  @GET(Endpoints.productById)
+  Future<ProductDetailsResponseModel> getProductDetails(
     @Path(QueryParams.productId) String productId,
   );
 }

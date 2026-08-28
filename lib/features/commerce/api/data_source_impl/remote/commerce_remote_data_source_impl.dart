@@ -1,9 +1,11 @@
 import 'package:injectable/injectable.dart';
 
+import '../../../../../core/app_constants/endpoints.dart';
 import '../../../data/data_sorce/remote/commerce_remote_data_source.dart';
 import '../../../data/models/category_dto.dart';
 import '../../../data/models/home_section_dto.dart';
 import '../../../data/models/occasions_data_model.dart';
+import '../../../data/models/product_details_dto.dart';
 import '../../../data/models/product_dto.dart';
 import '../../../data/models/products_data_model.dart';
 import '../../client/commerce_api_client.dart';
@@ -65,6 +67,25 @@ class CommerceRemoteDataSourceImpl implements CommerceRemoteDataSource {
   @override
   Future<ProductDTO> getProductById({required String productId}) async {
     final response = await _commerceApiClient.getProductById(productId);
+    return response.data;
+  }
+
+  @override
+  Future<ProductsDataModel> getBestSellers({
+    required int page,
+    required int pageSize,
+  }) async {
+    final response = await _commerceApiClient.getProducts(
+      Endpoints.bestSellersOccasionId,
+      page,
+      pageSize,
+    );
+    return response.data;
+  }
+
+  @override
+  Future<ProductDetailsDTO> getProductDetails(String productId) async {
+    final response = await _commerceApiClient.getProductDetails(productId);
     return response.data;
   }
 }

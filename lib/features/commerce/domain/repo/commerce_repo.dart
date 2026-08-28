@@ -4,6 +4,7 @@ import 'package:flower_app/core/pagination/paginated_response.dart';
 import '../entities/category_entity.dart';
 import '../entities/home_section_entity.dart';
 import '../entities/occasion_entity.dart';
+import '../entities/product_details_entity.dart';
 import '../entities/product_entity.dart';
 
 abstract interface class CommerceRepo {
@@ -29,4 +30,12 @@ abstract interface class CommerceRepo {
   Future<BaseResponse<ProductEntity>> getProductById({
     required String productId,
   });
+
+  Future<BaseResponse<PaginatedResponse<ProductEntity>>> getBestSellers({
+    required int page,
+    required int pageSize,
+    required String sort,
+  });
+
+  Future<BaseResponse<ProductDetailsEntity>> getProductDetails(String id);
 }
