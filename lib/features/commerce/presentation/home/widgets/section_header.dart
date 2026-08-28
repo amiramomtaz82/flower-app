@@ -1,3 +1,4 @@
+import 'package:flower_app/core/app_constants/app_strings.dart';
 import 'package:flower_app/core/app_theme/app_colors.dart';
 import 'package:flutter/material.dart';
 
@@ -9,7 +10,7 @@ class SectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final AppColors colors = LightColors();
+    final AppColors colors = Theme.of(context).extension<LightColors>()!;
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -18,7 +19,7 @@ class SectionHeader extends StatelessWidget {
         InkWell(
           onTap: onViewAll,
           child: Text(
-            'View All',
+            AppStrings.viewAll,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: colors.primary,
               decoration: TextDecoration.underline,

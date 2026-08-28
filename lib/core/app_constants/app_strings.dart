@@ -80,6 +80,7 @@ class AppStrings {
   static const String sectionHasNoFilter =
       'this section has no occasion or category to load products for';
   static const String comingSoon = 'coming soon';
+  static const String viewAll = 'View All';
   static const String pleaseLoginOrRegisterToContinue="PleaseLoginOrRegisterToContinue";
   static const String loginRequired='Login required';
   static const String register="Register";

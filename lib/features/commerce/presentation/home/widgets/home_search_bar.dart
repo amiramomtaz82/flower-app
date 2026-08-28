@@ -11,7 +11,7 @@ class HomeSearchBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final AppColors colors = LightColors();
+    final AppColors colors = Theme.of(context).extension<LightColors>()!;
     final pillBorder = OutlineInputBorder(
       borderRadius: BorderRadius.circular(8),
       borderSide: BorderSide(color: colors.hint, width: 1),

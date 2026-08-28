@@ -1,4 +1,4 @@
-import 'dart:ui';
+import 'package:flutter/material.dart';
 
 abstract class AppColors {
   Color get primary;
@@ -32,7 +32,13 @@ abstract class AppColors {
   Color get hint;
 }
 
-class LightColors implements AppColors {
+/// Registered as a [ThemeExtension] in [AppTheme] so widgets read colors via
+/// `Theme.of(context).extension<LightColors>()` instead of instantiating
+/// this directly — `ThemeExtension<T>` requires `T` to itself be the
+/// extension type, so this can't be keyed by the abstract [AppColors]
+/// interface, but the theme is still the single place a color scheme is
+/// constructed.
+class LightColors extends ThemeExtension<LightColors> implements AppColors {
   @override
   Color get background => const Color(0xffF2F2F7);
 
@@ -77,4 +83,11 @@ class LightColors implements AppColors {
 
   @override
   Color get white => const Color(0xffF2F2F7);
+
+  @override
+  LightColors copyWith() => LightColors();
+
+  @override
+  LightColors lerp(covariant ThemeExtension<LightColors>? other, double t) =>
+      this;
 }

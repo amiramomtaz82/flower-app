@@ -12,7 +12,7 @@ class CategoryChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final AppColors colors = LightColors();
+    final AppColors colors = Theme.of(context).extension<LightColors>()!;
 
     return InkWell(
       onTap: onTap,
