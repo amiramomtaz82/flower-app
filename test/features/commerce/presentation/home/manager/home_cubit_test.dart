@@ -13,6 +13,7 @@ import 'package:flower_app/features/commerce/domain/use_cases/get_products_by_ca
 import 'package:flower_app/features/commerce/domain/use_cases/get_products_use_case.dart';
 import 'package:flower_app/features/commerce/presentation/home/manager/home_cubit.dart';
 import 'package:flower_app/features/commerce/presentation/home/manager/home_events.dart';
+import 'package:flower_app/features/commerce/presentation/home/manager/home_state.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
@@ -156,6 +157,9 @@ void main() {
           (_) async => const SuccessResponse(<CategoryEntity>[]),
         );
 
+        // Categories and occasions load concurrently here, so their
+        // completion order isn't guaranteed — assert on the final state
+        // instead of a strict emission order.
         await cubit.doEvents(HomeStarted());
 
         expect(cubit.state.sectionsResource.isSuccess, true);
@@ -167,38 +171,87 @@ void main() {
       },
     );
 
-    test('emits an error resource when fetching sections fails', () async {
+    test('emits loading then an error when fetching sections fails', () async {
       when(mockGetHomeSectionsUseCase()).thenAnswer(
         (_) async => ErrorResponse(errMessage: 'network down'),
       );
 
-      await cubit.doEvents(HomeStarted());
-
-      expect(cubit.state.sectionsResource.isError, true);
-      expect(cubit.state.sectionsResource.errorMessage, 'network down');
+      final expectation = expectLater(
+        cubit.stream,
+        emitsInOrder([
+          isA<HomeState>().having(
+            (s) => s.sectionsResource.isLoading,
+            'sectionsResource.isLoading',
+            true,
+          ),
+          isA<HomeState>()
+              .having(
+                (s) => s.sectionsResource.isError,
+                'sectionsResource.isError',
+                true,
+              )
+              .having(
+                (s) => s.sectionsResource.errorMessage,
+                'sectionsResource.errorMessage',
+                'network down',
+              ),
+        ]),
+      );
+      final acting = cubit.doEvents(HomeStarted());
+      await expectation;
+      await acting;
     });
   });
 
   group('Categories section', () {
-    test('loads categories into categoriesResource', () async {
+    test('emits loading then the categories on success', () async {
       when(mockGetHomeSectionsUseCase()).thenAnswer(
         (_) async => const SuccessResponse([categoriesSection]),
       );
-      when(mockGetCategoriesUseCase()).thenAnswer(
-        (_) async => const SuccessResponse([
-          CategoryEntity(id: '1', name: 'Roses', icon: 'roses.png'),
+      const roses = CategoryEntity(id: '1', name: 'Roses', icon: 'roses.png');
+      when(
+        mockGetCategoriesUseCase(),
+      ).thenAnswer((_) async => const SuccessResponse([roses]));
+
+      final expectation = expectLater(
+        cubit.stream,
+        emitsInOrder([
+          isA<HomeState>().having(
+            (s) => s.sectionsResource.isLoading,
+            'sectionsResource.isLoading',
+            true,
+          ),
+          isA<HomeState>().having(
+            (s) => s.sectionsResource.isSuccess,
+            'sectionsResource.isSuccess',
+            true,
+          ),
+          isA<HomeState>().having(
+            (s) => s.categoriesResource.isLoading,
+            'categoriesResource.isLoading',
+            true,
+          ),
+          isA<HomeState>()
+              .having(
+                (s) => s.categoriesResource.isSuccess,
+                'categoriesResource.isSuccess',
+                true,
+              )
+              .having(
+                (s) => s.categoriesResource.data,
+                'categoriesResource.data',
+                [roses],
+              ),
         ]),
       );
-
-      await cubit.doEvents(HomeStarted());
-
-      expect(cubit.state.categoriesResource.isSuccess, true);
-      expect(cubit.state.categoriesResource.data?.single.name, 'Roses');
+      final acting = cubit.doEvents(HomeStarted());
+      await expectation;
+      await acting;
     });
   });
 
   group('Occasions section', () {
-    test('loads occasions into occasionsResource', () async {
+    test('emits loading then the occasions on success', () async {
       when(mockGetHomeSectionsUseCase()).thenAnswer(
         (_) async => const SuccessResponse([occasionsSection]),
       );
@@ -206,37 +259,105 @@ void main() {
         mockGetOccasionsUseCase(pageNumber: 1, pageSize: 20),
       ).thenAnswer((_) async => SuccessResponse(paginatedOf([occasion])));
 
-      await cubit.doEvents(HomeStarted());
-
-      expect(cubit.state.occasionsResource.isSuccess, true);
-      expect(cubit.state.occasionsResource.data, [occasion]);
+      final expectation = expectLater(
+        cubit.stream,
+        emitsInOrder([
+          isA<HomeState>().having(
+            (s) => s.sectionsResource.isLoading,
+            'sectionsResource.isLoading',
+            true,
+          ),
+          isA<HomeState>().having(
+            (s) => s.sectionsResource.isSuccess,
+            'sectionsResource.isSuccess',
+            true,
+          ),
+          isA<HomeState>().having(
+            (s) => s.occasionsResource.isLoading,
+            'occasionsResource.isLoading',
+            true,
+          ),
+          isA<HomeState>()
+              .having(
+                (s) => s.occasionsResource.isSuccess,
+                'occasionsResource.isSuccess',
+                true,
+              )
+              .having(
+                (s) => s.occasionsResource.data,
+                'occasionsResource.data',
+                [occasion],
+              ),
+        ]),
+      );
+      final acting = cubit.doEvents(HomeStarted());
+      await expectation;
+      await acting;
     });
   });
 
   group('ProductsCarousel section', () {
-    test('fetches by occasionId when the section has one', () async {
-      when(mockGetHomeSectionsUseCase()).thenAnswer(
-        (_) async => const SuccessResponse([carouselByOccasionSection]),
-      );
-      const product = ProductEntity(id: 'p1', name: 'Rose Bouquet');
-      when(
-        mockGetProductsUseCase(
-          occasionId: 'occ-1',
-          pageNumber: 1,
-          pageSize: 20,
-        ),
-      ).thenAnswer((_) async => SuccessResponse(paginatedOf([product])));
+    test(
+      'emits loading then the products, fetched by occasionId when the section has one',
+      () async {
+        when(mockGetHomeSectionsUseCase()).thenAnswer(
+          (_) async => const SuccessResponse([carouselByOccasionSection]),
+        );
+        const product = ProductEntity(id: 'p1', name: 'Rose Bouquet');
+        when(
+          mockGetProductsUseCase(
+            occasionId: 'occ-1',
+            pageNumber: 1,
+            pageSize: 20,
+          ),
+        ).thenAnswer((_) async => SuccessResponse(paginatedOf([product])));
 
-      await cubit.doEvents(HomeStarted());
+        final expectation = expectLater(
+          cubit.stream,
+          emitsInOrder([
+            isA<HomeState>().having(
+              (s) => s.sectionsResource.isLoading,
+              'sectionsResource.isLoading',
+              true,
+            ),
+            isA<HomeState>().having(
+              (s) => s.sectionsResource.isSuccess,
+              'sectionsResource.isSuccess',
+              true,
+            ),
+            isA<HomeState>().having(
+              (s) =>
+                  s.carouselResources[carouselByOccasionSection.id]
+                      ?.isLoading,
+              'carousel.isLoading',
+              true,
+            ),
+            isA<HomeState>()
+                .having(
+                  (s) =>
+                      s
+                          .carouselResources[carouselByOccasionSection.id]
+                          ?.isSuccess,
+                  'carousel.isSuccess',
+                  true,
+                )
+                .having(
+                  (s) =>
+                      s.carouselResources[carouselByOccasionSection.id]?.data,
+                  'carousel.data',
+                  [product],
+                ),
+          ]),
+        );
+        final acting = cubit.doEvents(HomeStarted());
+        await expectation;
+        await acting;
 
-      final resource =
-          cubit.state.carouselResources[carouselByOccasionSection.id];
-      expect(resource?.isSuccess, true);
-      expect(resource?.data, [product]);
-      verifyNever(
-        mockGetProductsByCategoryUseCase(categoryId: anyNamed('categoryId')),
-      );
-    });
+        verifyNever(
+          mockGetProductsByCategoryUseCase(categoryId: anyNamed('categoryId')),
+        );
+      },
+    );
 
     test('falls back to categoryId when there is no occasionId', () async {
       when(mockGetHomeSectionsUseCase()).thenAnswer(
@@ -247,16 +368,49 @@ void main() {
         mockGetProductsByCategoryUseCase(categoryId: 'cat-1'),
       ).thenAnswer((_) async => const SuccessResponse([product]));
 
-      await cubit.doEvents(HomeStarted());
-
-      final resource =
-          cubit.state.carouselResources[carouselByCategorySection.id];
-      expect(resource?.isSuccess, true);
-      expect(resource?.data, [product]);
+      final expectation = expectLater(
+        cubit.stream,
+        emitsInOrder([
+          isA<HomeState>().having(
+            (s) => s.sectionsResource.isLoading,
+            'sectionsResource.isLoading',
+            true,
+          ),
+          isA<HomeState>().having(
+            (s) => s.sectionsResource.isSuccess,
+            'sectionsResource.isSuccess',
+            true,
+          ),
+          isA<HomeState>().having(
+            (s) =>
+                s.carouselResources[carouselByCategorySection.id]?.isLoading,
+            'carousel.isLoading',
+            true,
+          ),
+          isA<HomeState>()
+              .having(
+                (s) =>
+                    s
+                        .carouselResources[carouselByCategorySection.id]
+                        ?.isSuccess,
+                'carousel.isSuccess',
+                true,
+              )
+              .having(
+                (s) =>
+                    s.carouselResources[carouselByCategorySection.id]?.data,
+                'carousel.data',
+                [product],
+              ),
+        ]),
+      );
+      final acting = cubit.doEvents(HomeStarted());
+      await expectation;
+      await acting;
     });
 
     test(
-      'multiple concurrent carousels each keep their own data (no cross-overwrite)',
+      'multiple concurrent carousels resolve in completion order, each keeping its own data',
       () async {
         const secondCarouselSection = HomeSectionEntity(
           id: 'section-carousel-occasion-2',
@@ -276,7 +430,8 @@ void main() {
         );
         // occ-1 resolves after occ-2, on purpose: if _emitCarousel read a
         // stale `state` captured before either await, the later (occ-1)
-        // emission would clobber occ-2's already-landed entry.
+        // emission would clobber occ-2's already-landed entry — this is
+        // an empirical check for that, not just a final-state assertion.
         when(
           mockGetProductsUseCase(
             occasionId: 'occ-1',
@@ -295,29 +450,104 @@ void main() {
           ),
         ).thenAnswer((_) async => SuccessResponse(paginatedOf([productB])));
 
-        await cubit.doEvents(HomeStarted());
-
-        expect(
-          cubit.state.carouselResources[carouselByOccasionSection.id]?.data,
-          [productA],
+        final expectation = expectLater(
+          cubit.stream,
+          emitsInOrder([
+            isA<HomeState>().having(
+              (s) => s.sectionsResource.isLoading,
+              'sectionsResource.isLoading',
+              true,
+            ),
+            isA<HomeState>().having(
+              (s) => s.sectionsResource.isSuccess,
+              'sectionsResource.isSuccess',
+              true,
+            ),
+            isA<HomeState>().having(
+              (s) =>
+                  s.carouselResources[carouselByOccasionSection.id]
+                      ?.isLoading,
+              'occ-1 carousel.isLoading',
+              true,
+            ),
+            isA<HomeState>().having(
+              (s) => s.carouselResources[secondCarouselSection.id]?.isLoading,
+              'occ-2 carousel.isLoading',
+              true,
+            ),
+            // occ-2 has no delay, so it lands before occ-1 despite being
+            // started second.
+            isA<HomeState>()
+                .having(
+                  (s) =>
+                      s.carouselResources[secondCarouselSection.id]?.data,
+                  'occ-2 carousel.data',
+                  [productB],
+                )
+                .having(
+                  (s) =>
+                      s
+                          .carouselResources[carouselByOccasionSection.id]
+                          ?.isLoading,
+                  'occ-1 carousel still loading',
+                  true,
+                ),
+            isA<HomeState>()
+                .having(
+                  (s) =>
+                      s.carouselResources[carouselByOccasionSection.id]?.data,
+                  'occ-1 carousel.data',
+                  [productA],
+                )
+                .having(
+                  (s) => s.carouselResources[secondCarouselSection.id]?.data,
+                  'occ-2 carousel.data still present',
+                  [productB],
+                ),
+          ]),
         );
-        expect(
-          cubit.state.carouselResources[secondCarouselSection.id]?.data,
-          [productB],
-        );
+        final acting = cubit.doEvents(HomeStarted());
+        await expectation;
+        await acting;
       },
     );
 
-    test('emits an error when the section has neither filter', () async {
+    test('emits loading then an error when the section has neither filter', () async {
       when(mockGetHomeSectionsUseCase()).thenAnswer(
         (_) async => const SuccessResponse([carouselWithNoFilterSection]),
       );
 
-      await cubit.doEvents(HomeStarted());
+      final expectation = expectLater(
+        cubit.stream,
+        emitsInOrder([
+          isA<HomeState>().having(
+            (s) => s.sectionsResource.isLoading,
+            'sectionsResource.isLoading',
+            true,
+          ),
+          isA<HomeState>().having(
+            (s) => s.sectionsResource.isSuccess,
+            'sectionsResource.isSuccess',
+            true,
+          ),
+          isA<HomeState>().having(
+            (s) =>
+                s.carouselResources[carouselWithNoFilterSection.id]
+                    ?.isLoading,
+            'carousel.isLoading',
+            true,
+          ),
+          isA<HomeState>().having(
+            (s) => s.carouselResources[carouselWithNoFilterSection.id]?.isError,
+            'carousel.isError',
+            true,
+          ),
+        ]),
+      );
+      final acting = cubit.doEvents(HomeStarted());
+      await expectation;
+      await acting;
 
-      final resource =
-          cubit.state.carouselResources[carouselWithNoFilterSection.id];
-      expect(resource?.isError, true);
       verifyNever(
         mockGetProductsUseCase(
           occasionId: anyNamed('occasionId'),
@@ -333,7 +563,7 @@ void main() {
 
   group('BestSeller section', () {
     test(
-      'fetches products per occasion and keeps only isBestSeller ones',
+      'emits loading then fetches products per occasion, keeping only isBestSeller ones',
       () async {
         when(mockGetHomeSectionsUseCase()).thenAnswer(
           (_) async => const SuccessResponse([bestSellerSection]),
@@ -362,14 +592,44 @@ void main() {
           (_) async => SuccessResponse(paginatedOf([bestSeller, regular])),
         );
 
-        await cubit.doEvents(HomeStarted());
-
-        expect(cubit.state.bestSellerResource.isSuccess, true);
-        expect(cubit.state.bestSellerResource.data, [bestSeller]);
+        final expectation = expectLater(
+          cubit.stream,
+          emitsInOrder([
+            isA<HomeState>().having(
+              (s) => s.sectionsResource.isLoading,
+              'sectionsResource.isLoading',
+              true,
+            ),
+            isA<HomeState>().having(
+              (s) => s.sectionsResource.isSuccess,
+              'sectionsResource.isSuccess',
+              true,
+            ),
+            isA<HomeState>().having(
+              (s) => s.bestSellerResource.isLoading,
+              'bestSellerResource.isLoading',
+              true,
+            ),
+            isA<HomeState>()
+                .having(
+                  (s) => s.bestSellerResource.isSuccess,
+                  'bestSellerResource.isSuccess',
+                  true,
+                )
+                .having(
+                  (s) => s.bestSellerResource.data,
+                  'bestSellerResource.data',
+                  [bestSeller],
+                ),
+          ]),
+        );
+        final acting = cubit.doEvents(HomeStarted());
+        await expectation;
+        await acting;
       },
     );
 
-    test('emits an error when fetching occasions fails', () async {
+    test('emits loading then an error when fetching occasions fails', () async {
       when(mockGetHomeSectionsUseCase()).thenAnswer(
         (_) async => const SuccessResponse([bestSellerSection]),
       );
@@ -377,14 +637,44 @@ void main() {
         mockGetOccasionsUseCase(pageNumber: 1, pageSize: 50),
       ).thenAnswer((_) async => ErrorResponse(errMessage: 'network down'));
 
-      await cubit.doEvents(HomeStarted());
-
-      expect(cubit.state.bestSellerResource.isError, true);
-      expect(cubit.state.bestSellerResource.errorMessage, 'network down');
+      final expectation = expectLater(
+        cubit.stream,
+        emitsInOrder([
+          isA<HomeState>().having(
+            (s) => s.sectionsResource.isLoading,
+            'sectionsResource.isLoading',
+            true,
+          ),
+          isA<HomeState>().having(
+            (s) => s.sectionsResource.isSuccess,
+            'sectionsResource.isSuccess',
+            true,
+          ),
+          isA<HomeState>().having(
+            (s) => s.bestSellerResource.isLoading,
+            'bestSellerResource.isLoading',
+            true,
+          ),
+          isA<HomeState>()
+              .having(
+                (s) => s.bestSellerResource.isError,
+                'bestSellerResource.isError',
+                true,
+              )
+              .having(
+                (s) => s.bestSellerResource.errorMessage,
+                'bestSellerResource.errorMessage',
+                'network down',
+              ),
+        ]),
+      );
+      final acting = cubit.doEvents(HomeStarted());
+      await expectation;
+      await acting;
     });
 
     test(
-      'emits an error instead of hanging when a per-occasion fetch throws',
+      'emits loading then an error instead of hanging when a per-occasion fetch throws',
       () async {
         when(mockGetHomeSectionsUseCase()).thenAnswer(
           (_) async => const SuccessResponse([bestSellerSection]),
@@ -400,9 +690,34 @@ void main() {
           ),
         ).thenThrow(Exception('unexpected parse failure'));
 
-        await cubit.doEvents(HomeStarted());
-
-        expect(cubit.state.bestSellerResource.isError, true);
+        final expectation = expectLater(
+          cubit.stream,
+          emitsInOrder([
+            isA<HomeState>().having(
+              (s) => s.sectionsResource.isLoading,
+              'sectionsResource.isLoading',
+              true,
+            ),
+            isA<HomeState>().having(
+              (s) => s.sectionsResource.isSuccess,
+              'sectionsResource.isSuccess',
+              true,
+            ),
+            isA<HomeState>().having(
+              (s) => s.bestSellerResource.isLoading,
+              'bestSellerResource.isLoading',
+              true,
+            ),
+            isA<HomeState>().having(
+              (s) => s.bestSellerResource.isError,
+              'bestSellerResource.isError',
+              true,
+            ),
+          ]),
+        );
+        final acting = cubit.doEvents(HomeStarted());
+        await expectation;
+        await acting;
       },
     );
   });
