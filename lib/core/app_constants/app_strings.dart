@@ -81,6 +81,12 @@ class AppStrings {
       'this section has no occasion or category to load products for';
   static const String comingSoon = 'coming soon';
   static const String viewAll = 'View All';
+
+  // Bottom nav bar labels.
+  static const String navHome = 'Home';
+  static const String navCategories = 'Categories';
+  static const String navCart = 'Cart';
+  static const String navProfile = 'Profile';
   static const String pleaseLoginOrRegisterToContinue="PleaseLoginOrRegisterToContinue";
   static const String loginRequired='Login required';
   static const String register="Register";

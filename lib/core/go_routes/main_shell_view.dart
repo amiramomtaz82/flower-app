@@ -1,3 +1,4 @@
+import 'package:flower_app/core/app_constants/app_strings.dart';
 import 'package:flower_app/core/app_theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -9,7 +10,7 @@ class MainShellView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final AppColors colors = LightColors();
+    final AppColors colors = Theme.of(context).extension<LightColors>()!;
 
     return Scaffold(
       body: navigationShell,
@@ -27,22 +28,22 @@ class MainShellView extends StatelessWidget {
               NavigationDestination(
                 icon: Icon(Icons.home_outlined),
                 selectedIcon: Icon(Icons.home),
-                label: 'Home',
+                label: AppStrings.navHome,
               ),
               NavigationDestination(
                 icon: Icon(Icons.grid_view_outlined),
                 selectedIcon: Icon(Icons.grid_view),
-                label: 'Categories',
+                label: AppStrings.navCategories,
               ),
               NavigationDestination(
                 icon: Icon(Icons.shopping_cart_outlined),
                 selectedIcon: Icon(Icons.shopping_cart),
-                label: 'Cart',
+                label: AppStrings.navCart,
               ),
               NavigationDestination(
                 icon: Icon(Icons.person_outline),
                 selectedIcon: Icon(Icons.person),
-                label: 'Profile',
+                label: AppStrings.navProfile,
               ),
             ],
           ),
