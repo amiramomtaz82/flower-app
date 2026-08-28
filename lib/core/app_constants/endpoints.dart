@@ -20,3 +20,15 @@ class Endpoints {
   static const String productsByCategory = '/catalog/products/by-category';
   static const String productById = '/catalog/products/{productId}';
 }
+
+/// Query/path parameter keys for [Endpoints] — kept alongside them since
+/// retrofit's @Query/@Path annotations need compile-time constant strings.
+class QueryParams {
+  QueryParams._();
+
+  static const String occasionId = 'occasionId';
+  static const String categoryId = 'categoryId';
+  static const String productId = 'productId';
+  static const String pageNumber = 'pageNumber';
+  static const String pageSize = 'pageSize';
+}

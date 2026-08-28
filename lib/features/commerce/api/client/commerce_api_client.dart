@@ -25,24 +25,24 @@ abstract class CommerceApiClient {
 
   @GET(Endpoints.occasions)
   Future<OccasionsResponseModel> getOccasions(
-    @Query('pageNumber') int pageNumber,
-    @Query('pageSize') int pageSize,
+    @Query(QueryParams.pageNumber) int pageNumber,
+    @Query(QueryParams.pageSize) int pageSize,
   );
 
   @GET(Endpoints.products)
   Future<ProductsResponseModel> getProducts(
-    @Query('occasionId') String? occasionId,
-    @Query('pageNumber') int pageNumber,
-    @Query('pageSize') int pageSize,
+    @Query(QueryParams.occasionId) String? occasionId,
+    @Query(QueryParams.pageNumber) int pageNumber,
+    @Query(QueryParams.pageSize) int pageSize,
   );
 
   @GET(Endpoints.productsByCategory)
   Future<ProductsByCategoryResponseModel> getProductsByCategory(
-    @Query('categoryId') String categoryId,
+    @Query(QueryParams.categoryId) String categoryId,
   );
 
   @GET(Endpoints.productById)
   Future<ProductResponseModel> getProductById(
-    @Path('productId') String productId,
+    @Path(QueryParams.productId) String productId,
   );
 }
