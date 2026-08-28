@@ -79,6 +79,7 @@ class AppStrings {
       'bloom with our exquisite best sellers';
   static const String sectionHasNoFilter =
       'this section has no occasion or category to load products for';
+  static const String comingSoon = 'coming soon';
   static const String pleaseLoginOrRegisterToContinue="PleaseLoginOrRegisterToContinue";
   static const String loginRequired='Login required';
   static const String register="Register";
