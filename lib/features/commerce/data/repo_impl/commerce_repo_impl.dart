@@ -12,9 +12,9 @@ import '../../domain/entities/product_entity.dart';
 import '../../domain/repo/commerce_repo.dart';
 
 @Injectable(as: CommerceRepo)
-class CommerceRepImpl implements CommerceRepo {
+class CommerceRepoImpl implements CommerceRepo {
   final CommerceRemoteDataSource _commerceRemoteDataSource;
-  CommerceRepImpl(this._commerceRemoteDataSource);
+  CommerceRepoImpl(this._commerceRemoteDataSource);
 
   @override
   Future<BaseResponse<List<HomeSectionEntity>>> getHomeSections() async {

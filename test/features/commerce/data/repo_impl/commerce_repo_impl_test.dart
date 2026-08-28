@@ -8,7 +8,7 @@ import 'package:flower_app/features/commerce/data/models/occasion_dto.dart';
 import 'package:flower_app/features/commerce/data/models/occasions_data_model.dart';
 import 'package:flower_app/features/commerce/data/models/product_dto.dart';
 import 'package:flower_app/features/commerce/data/models/products_data_model.dart';
-import 'package:flower_app/features/commerce/data/repo_impl/commerce_rep_impl.dart';
+import 'package:flower_app/features/commerce/data/repo_impl/commerce_repo_impl.dart';
 import 'package:flower_app/features/commerce/domain/entities/category_entity.dart';
 import 'package:flower_app/features/commerce/domain/entities/home_section_entity.dart';
 import 'package:flower_app/features/commerce/domain/entities/home_section_type.dart';
@@ -18,18 +18,18 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
-import 'commerce_rep_impl_test.mocks.dart';
+import 'commerce_repo_impl_test.mocks.dart';
 
 @GenerateMocks([CommerceRemoteDataSource])
 void main() {
   late MockCommerceRemoteDataSource mockRemoteDataSource;
-  late CommerceRepImpl repo;
+  late CommerceRepoImpl repo;
 
   final dioException = DioException(requestOptions: RequestOptions(path: ''));
 
   setUp(() {
     mockRemoteDataSource = MockCommerceRemoteDataSource();
-    repo = CommerceRepImpl(mockRemoteDataSource);
+    repo = CommerceRepoImpl(mockRemoteDataSource);
   });
 
   group('getHomeSections', () {
