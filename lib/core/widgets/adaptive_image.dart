@@ -22,7 +22,12 @@ class AdaptiveImage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (path.isEmpty) {
-      return Image.asset(AppAssets.image, width: width, height: height, fit: fit);
+      return Image.asset(
+        AppAssets.image,
+        width: width,
+        height: height,
+        fit: fit,
+      );
     }
 
     if (path.startsWith('http')) {
@@ -31,8 +36,12 @@ class AdaptiveImage extends StatelessWidget {
         width: width,
         height: height,
         fit: fit,
-        errorBuilder: (context, error, stackTrace) =>
-            Image.asset(AppAssets.image, width: width, height: height, fit: fit),
+        errorBuilder: (context, error, stackTrace) => Image.asset(
+          AppAssets.image,
+          width: width,
+          height: height,
+          fit: fit,
+        ),
       );
     }
 

@@ -72,13 +72,6 @@ void main() {
     index: 5,
     isActive: true,
   );
-  const inactiveSection = HomeSectionEntity(
-    id: 'section-inactive',
-    type: HomeSectionType.categories,
-    index: -1,
-    isActive: false,
-  );
-
   final occasion = const OccasionEntity(
     id: 'occ-1',
     name: 'Birthday',
@@ -151,13 +144,12 @@ void main() {
 
   group('HomeStarted', () {
     test(
-      'keeps only active sections, sorted by index, and loads each one',
+      'emits whatever sections the use case returns and loads each one',
       () async {
         when(mockGetHomeSectionsUseCase()).thenAnswer(
           (_) async => const SuccessResponse([
-            occasionsSection,
-            inactiveSection,
             categoriesSection,
+            occasionsSection,
           ]),
         );
         when(mockGetCategoriesUseCase()).thenAnswer(
@@ -263,6 +255,59 @@ void main() {
       expect(resource?.data, [product]);
     });
 
+    test(
+      'multiple concurrent carousels each keep their own data (no cross-overwrite)',
+      () async {
+        const secondCarouselSection = HomeSectionEntity(
+          id: 'section-carousel-occasion-2',
+          type: HomeSectionType.productsCarousel,
+          index: 6,
+          isActive: true,
+          occasionId: 'occ-2',
+        );
+        const productA = ProductEntity(id: 'pA', name: 'A');
+        const productB = ProductEntity(id: 'pB', name: 'B');
+
+        when(mockGetHomeSectionsUseCase()).thenAnswer(
+          (_) async => const SuccessResponse([
+            carouselByOccasionSection,
+            secondCarouselSection,
+          ]),
+        );
+        // occ-1 resolves after occ-2, on purpose: if _emitCarousel read a
+        // stale `state` captured before either await, the later (occ-1)
+        // emission would clobber occ-2's already-landed entry.
+        when(
+          mockGetProductsUseCase(
+            occasionId: 'occ-1',
+            pageNumber: 1,
+            pageSize: 20,
+          ),
+        ).thenAnswer((_) async {
+          await Future.delayed(const Duration(milliseconds: 20));
+          return SuccessResponse(paginatedOf([productA]));
+        });
+        when(
+          mockGetProductsUseCase(
+            occasionId: 'occ-2',
+            pageNumber: 1,
+            pageSize: 20,
+          ),
+        ).thenAnswer((_) async => SuccessResponse(paginatedOf([productB])));
+
+        await cubit.doEvents(HomeStarted());
+
+        expect(
+          cubit.state.carouselResources[carouselByOccasionSection.id]?.data,
+          [productA],
+        );
+        expect(
+          cubit.state.carouselResources[secondCarouselSection.id]?.data,
+          [productB],
+        );
+      },
+    );
+
     test('emits an error when the section has neither filter', () async {
       when(mockGetHomeSectionsUseCase()).thenAnswer(
         (_) async => const SuccessResponse([carouselWithNoFilterSection]),
@@ -337,5 +382,28 @@ void main() {
       expect(cubit.state.bestSellerResource.isError, true);
       expect(cubit.state.bestSellerResource.errorMessage, 'network down');
     });
+
+    test(
+      'emits an error instead of hanging when a per-occasion fetch throws',
+      () async {
+        when(mockGetHomeSectionsUseCase()).thenAnswer(
+          (_) async => const SuccessResponse([bestSellerSection]),
+        );
+        when(
+          mockGetOccasionsUseCase(pageNumber: 1, pageSize: 50),
+        ).thenAnswer((_) async => SuccessResponse(paginatedOf([occasion])));
+        when(
+          mockGetProductsUseCase(
+            occasionId: 'occ-1',
+            pageNumber: 1,
+            pageSize: 20,
+          ),
+        ).thenThrow(Exception('unexpected parse failure'));
+
+        await cubit.doEvents(HomeStarted());
+
+        expect(cubit.state.bestSellerResource.isError, true);
+      },
+    );
   });
 }

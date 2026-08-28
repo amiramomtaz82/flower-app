@@ -2,6 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 
 import '../../../../../config/base_response/base_response.dart';
+import '../../../../../core/app_constants/app_strings.dart';
 import '../../../../../config/resource/rsource.dart';
 import '../../../../../core/pagination/paginated_response.dart';
 import '../../../domain/entities/home_section_entity.dart';
@@ -45,12 +46,10 @@ class HomeCubit extends Cubit<HomeState> {
     final result = await _getHomeSectionsUseCase();
     switch (result) {
       case SuccessResponse<List<HomeSectionEntity>>():
-        final activeSections = result.data.where((s) => s.isActive).toList()
-          ..sort((a, b) => a.index.compareTo(b.index));
         emit(
-          state.copyWith(sectionsResource: Resource.success(activeSections)),
+          state.copyWith(sectionsResource: Resource.success(result.data)),
         );
-        await Future.wait(activeSections.map(_loadSectionContent));
+        await Future.wait(result.data.map(_loadSectionContent));
 
       case ErrorResponse<List<HomeSectionEntity>>():
         emit(
@@ -127,7 +126,7 @@ class HomeCubit extends Cubit<HomeState> {
       return;
     }
 
-    _emitCarousel(section.id, Resource.error('Section has no filter'));
+    _emitCarousel(section.id, Resource.error(AppStrings.sectionHasNoFilter));
   }
 
   void _emitCarousel(String sectionId, Resource<List<ProductEntity>> resource) {
@@ -164,15 +163,21 @@ class HomeCubit extends Cubit<HomeState> {
   Future<void> _fetchBestSellersForOccasions(
     List<OccasionEntity> occasions,
   ) async {
-    final results = await Future.wait(
-      occasions.map(
-        (occasion) => _getProductsUseCase(
-          occasionId: occasion.id,
-          pageNumber: 1,
-          pageSize: 20,
+    final List<BaseResponse<PaginatedResponse<ProductEntity>>> results;
+    try {
+      results = await Future.wait(
+        occasions.map(
+          (occasion) => _getProductsUseCase(
+            occasionId: occasion.id,
+            pageNumber: 1,
+            pageSize: 20,
+          ),
         ),
-      ),
-    );
+      );
+    } catch (e) {
+      emit(state.copyWith(bestSellerResource: Resource.error(e.toString())));
+      return;
+    }
 
     final bestSellersById = <String, ProductEntity>{};
     for (final result in results) {
