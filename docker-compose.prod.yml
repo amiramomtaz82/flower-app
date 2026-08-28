@@ -38,6 +38,10 @@ services:
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-guest}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASS:-guest}
+      # Disable Erlang's busy-wait scheduler — it otherwise spins CPU cores
+      # even at complete idle, which is fine on a dedicated server but eats
+      # into a local dev machine shared with an emulator/IDE/etc.
+      RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS: "+sbwt none +sbwtdcpu none +sbwtdio none"
     ports:
       - "127.0.0.1:5672:5672"
       - "127.0.0.1:15672:15672"
@@ -117,6 +121,12 @@ services:
       JwtSettings__Secret: ${JWT_SECRET:-YOUR_SUPER_SECRET_KEY_CHANGE_IN_PRODUCTION_MIN_32_CHARS}
       JwtSettings__Issuer: ${JWT_ISSUER:-FlowersAuth}
       JwtSettings__Audience: ${JWT_AUDIENCE:-FlowersApp}
+      EmailSettings__SmtpServer: ${SMTP_SERVER:-smtp.gmail.com}
+      EmailSettings__SmtpPort: ${SMTP_PORT:-587}
+      EmailSettings__SenderEmail: ${SMTP_SENDER_EMAIL:-mnourhan527@gmail.com}
+      EmailSettings__SenderName: ${SMTP_SENDER_NAME:-Flower App}
+      EmailSettings__Password: "${SMTP_PASSWORD:-igyq hsld opls dqny}"
+      Security__HmacKey: ${HMAC_KEY:-YOUR_SUPER_SECRET_HMAC_KEY_MIN_32_CHARS}
     ports:
       - "5022:8080"
     networks:
@@ -129,9 +139,13 @@ services:
     image: ${DOCKER_USERNAME:-hossammokhtar}/flower-catalog-service:latest
     container_name: flower_catalog_service
     restart: unless-stopped
+    depends_on:
+      sqlserver:
+        condition: service_healthy
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_HTTP_PORTS: 8080
+      ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=${MSSQL_CATALOG_DB:-FlowersCatalogDb};User Id=sa;Password=${MSSQL_SA_PASSWORD:-Password123!};TrustServerCertificate=True;MultipleActiveResultSets=true;"
     ports:
       - "5129:8080"
     networks:
@@ -189,9 +203,16 @@ services:
     image: ${DOCKER_USERNAME:-hossammokhtar}/flower-address-service:latest
     container_name: flower_address_service
     restart: unless-stopped
+    depends_on:
+      sqlserver:
+        condition: service_healthy
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_HTTP_PORTS: 8080
+      ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=${MSSQL_ADDRESS_DB:-FlowersAddressStoreCoverageDb};User Id=sa;Password=${MSSQL_SA_PASSWORD:-Password123!};TrustServerCertificate=True;MultipleActiveResultSets=true;"
+      JwtSettings__Secret: ${JWT_SECRET:-YOUR_SUPER_SECRET_KEY_CHANGE_IN_PRODUCTION_MIN_32_CHARS}
+      JwtSettings__Issuer: ${JWT_ISSUER:-FlowersAuth}
+      JwtSettings__Audience: ${JWT_AUDIENCE:-FlowersApp}
     ports:
       - "5272:8080"
     networks:

@@ -29,6 +29,11 @@
   "enter your password": "أدخل كلمة المرور",
   "confirm password": "تأكيد كلمة المرور",
   "your reset code expired, please request a new one": "انتهت صلاحية رمز إعادة التعيين، من فضلك اطلب رمزًا جديدًا",
+  "no categories yet": "لا توجد فئات بعد",
+  "no occasions yet": "لا توجد مناسبات بعد",
+  "no products in this category yet": "لا توجد منتجات في هذه الفئة بعد",
+  "no products for this occasion yet": "لا توجد منتجات لهذه المناسبة بعد",
+  "bloom with our exquisite best sellers": "تألّق مع أفضل منتجاتنا مبيعًا",
   "something went wrong, please try again": "حدث خطأ ما، من فضلك حاول مرة أخرى",
   "something went wrong, please check your connection": "حدث خطأ ما، من فضلك تحقق من اتصالك بالإنترنت",
   "connection timeout, please try again": "انتهت مهلة الاتصال، من فضلك حاول مرة أخرى",
@@ -41,5 +46,12 @@
   "the requested data was not found": "لم يتم العثور على البيانات المطلوبة",
   "conflict occurred, the data might already exist": "حدث تعارض، قد تكون البيانات موجودة بالفعل",
   "some fields are invalid, please check your input": "بعض الحقول غير صالحة، من فضلك تحقق من البيانات المدخلة",
-  "internal server error, please try again later": "خطأ في الخادم، من فضلك حاول لاحقًا"
+  "internal server error, please try again later": "خطأ في الخادم، من فضلك حاول لاحقًا",
+  "best_seller": "الأكثر مبيعاً",
+  "bloom_best_sellers": "الأكثر مبيعاً في بلوم",
+  "retry": "إعادة المحاولة",
+  "error": "حدث خطأ ما",
+  "PleaseLoginOrRegisterToContinue": "يرجى تسجيل الدخول أو إنشاء حساب للمتابعة.",
+  " Login required": "التسجيل مطلوب",
+  "register": "التسجيل"
 }

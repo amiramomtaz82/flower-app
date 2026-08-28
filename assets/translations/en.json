@@ -46,6 +46,11 @@
   "enter your password": "Enter your password",
   "confirm password": "Confirm password",
   "your reset code expired, please request a new one": "Your reset code expired, please request a new one",
+  "no categories yet": "No categories yet",
+  "no occasions yet": "No occasions yet",
+  "no products in this category yet": "No products in this category yet",
+  "no products for this occasion yet": "No products for this occasion yet",
+  "bloom with our exquisite best sellers": "Bloom with our exquisite best sellers",
   "something went wrong, please try again": "Something went wrong, please try again",
   "something went wrong, please check your connection": "Something went wrong, please check your connection",
   "connection timeout, please try again": "Connection timeout, please try again",
@@ -58,5 +63,13 @@
   "the requested data was not found": "The requested data was not found",
   "conflict occurred, the data might already exist": "Conflict occurred, the data might already exist",
   "some fields are invalid, please check your input": "Some fields are invalid, please check your input",
-  "internal server error, please try again later": "Internal server error, please try again later"
+  "internal server error, please try again later": "Internal server error, please try again later",
+  "best_seller": "Best Seller",
+  "bloom_best_sellers": "Bloom's Best Sellers",
+  "retry": "Retry",
+  "error": "Something went wrong",
+  "PleaseLoginOrRegisterToContinue": "Please login or register to continue",
+  "Login required": "Login required",
+  "register": "Register",
+  "forget_password": "forget password ?"
 }
