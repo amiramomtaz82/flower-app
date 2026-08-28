@@ -1,4 +1,4 @@
-import 'package:flower_app/core/domain/result.dart';
+import 'package:flower_app/config/base_response/base_response.dart';
 import 'package:flower_app/features/commerce/domain/entities/product_details_entity.dart';
 import 'package:flower_app/features/commerce/domain/repo/commerce_repo.dart';
 import 'package:injectable/injectable.dart';
@@ -9,7 +9,7 @@ class GetProductDetailsUseCase {
 
   GetProductDetailsUseCase(this._repo);
 
-  Future<Result<ProductDetailsEntity>> call(String id) {
+  Future<BaseResponse<ProductDetailsEntity>> call(String id) {
     return _repo.getProductDetails(id);
   }
 }

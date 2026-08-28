@@ -56,7 +56,7 @@ class _BestSellerViewState extends State<BestSellerView> {
             child: Align(
               alignment: AlignmentDirectional.centerStart,
               child: Text(
-                'Bloom with our exquisite best sellers'.tr(),
+                'bloom_best_sellers'.tr(),
                 style: textTheme.bodySmall?.copyWith(
                   color: colorScheme.onSurfaceVariant,
                 ),

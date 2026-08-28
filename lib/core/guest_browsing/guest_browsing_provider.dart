@@ -6,7 +6,7 @@ import 'package:injectable/injectable.dart';
 
 
 import '../../features/auth/data/data_source/local/auth_local_data_source.dart';
-import '../../config/router/app_router.dart';
+import '../go_routes/app_router.dart';
 import '../go_routes/routes_name.dart';
 import 'auth_required_bottom_sheet.dart';
 

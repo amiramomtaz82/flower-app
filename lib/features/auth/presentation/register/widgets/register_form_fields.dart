@@ -39,7 +39,7 @@ class _RegisterFormFieldsState extends State<RegisterFormFields> {
     // But MVI still holds because onChanged updates the state.
     final vm = context.read<RegisterViewModel>();
     final state = vm.state;
-    
+
     return Column(
       children: [
         Row(
@@ -96,10 +96,8 @@ class _RegisterFormFieldsState extends State<RegisterFormFields> {
               child: CustomTextField(
                 label: 'confirm_password'.tr(),
                 hint: 'confirm_password'.tr(),
-                validator: (value) => Validation.validateConfirmPassword(
-                  value,
-                  _currentPassword,
-                ),
+                validator: (value) =>
+                    Validation.validateConfirmPassword(value, _currentPassword),
                 obscureText: true,
                 onChanged: widget.onConfirmPasswordChanged,
                 initialValue: state.confirmPassword,

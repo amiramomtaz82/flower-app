@@ -2,6 +2,7 @@
 /// password : "Password123"
 /// deviceId : "device_abc123"
 /// fcmToken : "fcm_token_xyz"
+library;
 
 class LoginRequest {
   final String email;

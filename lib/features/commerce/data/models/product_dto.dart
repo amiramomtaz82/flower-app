@@ -1,5 +1,22 @@
+import 'package:json_annotation/json_annotation.dart';
+
+import '../../domain/entities/product_entity.dart';
+
+part 'product_dto.g.dart';
+
+@JsonSerializable()
 class ProductDTO {
-  ProductDTO({
+  final String? id;
+  final String? name;
+  final String? imageUrl;
+  final String? currency;
+  final num? price;
+  final num? originalPrice;
+  final num? discountPercentage;
+  final String? status;
+  final bool? isBestSeller;
+
+  const ProductDTO({
     this.id,
     this.name,
     this.imageUrl,
@@ -11,39 +28,20 @@ class ProductDTO {
     this.isBestSeller,
   });
 
-  ProductDTO.fromJson(dynamic json) {
-    id = json['id']?.toString();
-    name = json['name'];
-    imageUrl = json['imageUrl'];
-    currency = json['currency'];
-    price = json['price'];
-    originalPrice = json['originalPrice'];
-    discountPercentage = json['discountPercentage'];
-    status = json['status'];
-    isBestSeller = json['isBestSeller'];
-  }
+  factory ProductDTO.fromJson(Map<String, dynamic> json) =>
+      _$ProductDTOFromJson(json);
 
-  String? id;
-  String? name;
-  String? imageUrl;
-  String? currency;
-  num? price;
-  num? originalPrice;
-  num? discountPercentage;
-  String? status;
-  bool? isBestSeller;
+  Map<String, dynamic> toJson() => _$ProductDTOToJson(this);
 
-  Map<String, dynamic> toJson() {
-    final map = <String, dynamic>{};
-    map['id'] = id;
-    map['name'] = name;
-    map['imageUrl'] = imageUrl;
-    map['currency'] = currency;
-    map['price'] = price;
-    map['originalPrice'] = originalPrice;
-    map['discountPercentage'] = discountPercentage;
-    map['status'] = status;
-    map['isBestSeller'] = isBestSeller;
-    return map;
-  }
+  ProductEntity toEntity() => ProductEntity(
+    id: id,
+    name: name,
+    imageUrl: imageUrl,
+    currency: currency,
+    price: price,
+    originalPrice: originalPrice,
+    discountPercentage: discountPercentage,
+    status: status,
+    isBestSeller: isBestSeller,
+  );
 }

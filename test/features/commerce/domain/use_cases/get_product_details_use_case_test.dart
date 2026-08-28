@@ -1,4 +1,4 @@
-import 'package:flower_app/core/domain/result.dart';
+import 'package:flower_app/config/base_response/base_response.dart';
 import 'package:flower_app/features/commerce/domain/entities/product_details_entity.dart';
 import 'package:flower_app/features/commerce/domain/repo/commerce_repo.dart';
 import 'package:flower_app/features/commerce/domain/use_cases/get_product_details_use_case.dart';
@@ -11,7 +11,9 @@ import 'get_product_details_use_case_test.mocks.dart';
 @GenerateMocks([CommerceRepo])
 void main() {
   setUpAll(() {
-    provideDummy<Result<ProductDetailsEntity>>(const Failure('dummy'));
+    provideDummy<BaseResponse<ProductDetailsEntity>>(
+      ErrorResponse(errMessage: 'dummy'),
+    );
   });
 
   late GetProductDetailsUseCase useCase;
@@ -24,26 +26,26 @@ void main() {
 
   final tProductDetails = ProductDetailsEntity(id: '1', name: 'Product 1');
 
-  test('should return Success when repo returns Success', () async {
+  test('should return SuccessResponse when repo returns SuccessResponse', () async {
     when(mockRepo.getProductDetails('1'))
-        .thenAnswer((_) async => Success(tProductDetails));
+        .thenAnswer((_) async => SuccessResponse(tProductDetails));
 
     final result = await useCase.call('1');
 
-    expect(result, isA<Success<ProductDetailsEntity>>());
-    expect((result as Success).data, tProductDetails);
+    expect(result, isA<SuccessResponse<ProductDetailsEntity>>());
+    expect((result as SuccessResponse).data, tProductDetails);
     verify(mockRepo.getProductDetails('1'));
     verifyNoMoreInteractions(mockRepo);
   });
 
-  test('should return Failure when repo returns Failure', () async {
+  test('should return ErrorResponse when repo returns ErrorResponse', () async {
     when(mockRepo.getProductDetails('1'))
-        .thenAnswer((_) async => Failure('Error'));
+        .thenAnswer((_) async => ErrorResponse(errMessage: 'Error'));
 
     final result = await useCase.call('1');
 
-    expect(result, isA<Failure<ProductDetailsEntity>>());
-    expect((result as Failure).message, 'Error');
+    expect(result, isA<ErrorResponse<ProductDetailsEntity>>());
+    expect((result as ErrorResponse).errMessage, 'Error');
     verify(mockRepo.getProductDetails('1'));
     verifyNoMoreInteractions(mockRepo);
   });

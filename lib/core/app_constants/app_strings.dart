@@ -67,6 +67,26 @@ class AppStrings {
       'some fields are invalid, please check your input';
   static const String internalServerError =
       'internal server error, please try again later';
+
+  // Empty states on the categories and occasions pages.
+  static const String noCategoriesYet = 'no categories yet';
+  static const String noOccasionsYet = 'no occasions yet';
+  static const String noProductsInThisCategory =
+      'no products in this category yet';
+  static const String noProductsForThisOccasion =
+      'no products for this occasion yet';
+  static const String bloomWithBestSellers =
+      'bloom with our exquisite best sellers';
+  static const String sectionHasNoFilter =
+      'this section has no occasion or category to load products for';
+  static const String comingSoon = 'coming soon';
+  static const String viewAll = 'View All';
+
+  // Bottom nav bar labels.
+  static const String navHome = 'Home';
+  static const String navCategories = 'Categories';
+  static const String navCart = 'Cart';
+  static const String navProfile = 'Profile';
   static const String pleaseLoginOrRegisterToContinue="PleaseLoginOrRegisterToContinue";
   static const String loginRequired='Login required';
   static const String register="Register";

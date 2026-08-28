@@ -16,7 +16,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import 'package:easy_localization/easy_localization.dart';
 
-import 'config/router/app_router.dart';
+import 'core/go_routes/app_router.dart';
 import 'firebase_options.dart';
 
 void main() async {

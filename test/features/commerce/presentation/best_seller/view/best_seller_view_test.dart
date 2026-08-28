@@ -1,6 +1,4 @@
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flower_app/config/resource/rsource.dart';
-import 'package:flower_app/core/pagination/paginated_response.dart';
 import 'package:flower_app/core/pagination/pagination_state.dart';
 import 'package:flower_app/features/commerce/domain/entities/product_entity.dart';
 import 'package:flower_app/features/commerce/presentation/best_seller/view/best_seller_view.dart';
@@ -9,7 +7,6 @@ import 'package:flower_app/features/commerce/presentation/best_seller/view_model
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
 class MockBestSellerViewModel extends Mock implements BestSellerViewModel {

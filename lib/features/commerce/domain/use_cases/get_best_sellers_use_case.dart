@@ -1,4 +1,4 @@
-import 'package:flower_app/core/domain/result.dart';
+import 'package:flower_app/config/base_response/base_response.dart';
 import 'package:flower_app/core/pagination/paginated_response.dart';
 import 'package:flower_app/features/commerce/domain/entities/product_entity.dart';
 import 'package:flower_app/features/commerce/domain/repo/commerce_repo.dart';
@@ -10,7 +10,7 @@ class GetBestSellersUseCase {
 
   GetBestSellersUseCase(this._repo);
 
-  Future<Result<PaginatedResponse<ProductEntity>>> call({
+  Future<BaseResponse<PaginatedResponse<ProductEntity>>> call({
     required int page,
     required int pageSize,
     required String sort,

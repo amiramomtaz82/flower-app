@@ -9,10 +9,11 @@ class AppTheme {
       LightColors(), Brightness.light);
 
 
-  static ThemeData _buildTheme(AppColors colors, Brightness brightness) {
+  static ThemeData _buildTheme(LightColors colors, Brightness brightness) {
     return ThemeData(
       useMaterial3: true,
       scaffoldBackgroundColor: colors.background,
+      extensions: [colors],
 
       colorScheme: ColorScheme(
         brightness: brightness,

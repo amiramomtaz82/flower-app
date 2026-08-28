@@ -74,6 +74,8 @@ flutter:
     - assets/translations/
     - .env
     - assets/images/
+    - assets/images/home/
+    - assets/images/logo/
 
 
   #   - images/a_dot_burr.jpeg

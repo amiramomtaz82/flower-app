@@ -1,4 +1,4 @@
-import 'package:flower_app/core/domain/result.dart';
+import 'package:flower_app/config/base_response/base_response.dart';
 import 'package:flower_app/config/resource/rsource.dart';
 import 'package:flower_app/features/commerce/domain/entities/product_details_entity.dart';
 import 'package:flower_app/features/commerce/domain/use_cases/get_product_details_use_case.dart';
@@ -30,10 +30,10 @@ class ProductDetailsViewModel extends Cubit<ProductDetailsState> {
       final result = await _getProductDetailsUseCase(id);
 
       switch (result) {
-        case Success<ProductDetailsEntity>():
+        case SuccessResponse<ProductDetailsEntity>():
           emit(state.copyWith(resource: Resource.success(result.data)));
-        case Failure<ProductDetailsEntity>():
-          emit(state.copyWith(resource: Resource.error(result.message)));
+        case ErrorResponse<ProductDetailsEntity>():
+          emit(state.copyWith(resource: Resource.error(result.errMessage)));
       }
     } catch (e) {
       emit(state.copyWith(resource: Resource.error(e.toString())));

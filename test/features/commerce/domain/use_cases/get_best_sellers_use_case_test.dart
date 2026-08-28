@@ -1,4 +1,4 @@
-import 'package:flower_app/core/domain/result.dart';
+import 'package:flower_app/config/base_response/base_response.dart';
 import 'package:flower_app/core/pagination/paginated_response.dart';
 import 'package:flower_app/core/pagination/pagination_model.dart';
 import 'package:flower_app/features/commerce/domain/entities/product_entity.dart';
@@ -13,7 +13,9 @@ import 'get_best_sellers_use_case_test.mocks.dart';
 @GenerateMocks([CommerceRepo])
 void main() {
   setUpAll(() {
-    provideDummy<Result<PaginatedResponse<ProductEntity>>>(const Failure('dummy'));
+    provideDummy<BaseResponse<PaginatedResponse<ProductEntity>>>(
+      ErrorResponse(errMessage: 'dummy'),
+    );
   });
 
   late GetBestSellersUseCase useCase;
@@ -29,26 +31,26 @@ void main() {
     pagination: PaginationModel(page: 1, pageSize: 10, totalCount: 1),
   );
 
-  test('should return Success when repo returns Success', () async {
+  test('should return SuccessResponse when repo returns SuccessResponse', () async {
     when(mockRepo.getBestSellers(page: 1, pageSize: 10, sort: ''))
-        .thenAnswer((_) async => Success(tPaginatedResponse));
+        .thenAnswer((_) async => SuccessResponse(tPaginatedResponse));
 
     final result = await useCase.call(page: 1, pageSize: 10, sort: '');
 
-    expect(result, isA<Success<PaginatedResponse<ProductEntity>>>());
-    expect((result as Success).data, tPaginatedResponse);
+    expect(result, isA<SuccessResponse<PaginatedResponse<ProductEntity>>>());
+    expect((result as SuccessResponse).data, tPaginatedResponse);
     verify(mockRepo.getBestSellers(page: 1, pageSize: 10, sort: ''));
     verifyNoMoreInteractions(mockRepo);
   });
 
-  test('should return Failure when repo returns Failure', () async {
+  test('should return ErrorResponse when repo returns ErrorResponse', () async {
     when(mockRepo.getBestSellers(page: 1, pageSize: 10, sort: ''))
-        .thenAnswer((_) async => Failure('Error'));
+        .thenAnswer((_) async => ErrorResponse(errMessage: 'Error'));
 
     final result = await useCase.call(page: 1, pageSize: 10, sort: '');
 
-    expect(result, isA<Failure<PaginatedResponse<ProductEntity>>>());
-    expect((result as Failure).message, 'Error');
+    expect(result, isA<ErrorResponse<PaginatedResponse<ProductEntity>>>());
+    expect((result as ErrorResponse).errMessage, 'Error');
     verify(mockRepo.getBestSellers(page: 1, pageSize: 10, sort: ''));
     verifyNoMoreInteractions(mockRepo);
   });

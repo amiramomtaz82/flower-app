@@ -1,5 +1,5 @@
 import 'package:flower_app/config/resource/rsource.dart';
-import 'package:flower_app/core/domain/result.dart';
+import 'package:flower_app/config/base_response/base_response.dart';
 import 'package:flower_app/features/commerce/domain/entities/product_details_entity.dart';
 import 'package:flower_app/features/commerce/domain/use_cases/get_product_details_use_case.dart';
 import 'package:flower_app/features/commerce/presentation/product_details/view_model/product_details_state.dart';
@@ -14,7 +14,9 @@ import 'product_details_view_model_test.mocks.dart';
 @GenerateMocks([GetProductDetailsUseCase])
 void main() {
   setUpAll(() {
-    provideDummy<Result<ProductDetailsEntity>>(const Failure('dummy'));
+    provideDummy<BaseResponse<ProductDetailsEntity>>(
+      ErrorResponse(errMessage: 'dummy'),
+    );
   });
 
   late ProductDetailsViewModel viewModel;
@@ -33,7 +35,7 @@ void main() {
   });
 
   test('loadDetails should emit loading then success', () async {
-    when(mockUseCase.call('1')).thenAnswer((_) async => Success(tProductDetails));
+    when(mockUseCase.call('1')).thenAnswer((_) async => SuccessResponse(tProductDetails));
 
     expectLater(
       viewModel.stream,
@@ -48,7 +50,7 @@ void main() {
   });
 
   test('loadDetails should emit loading then error on failure', () async {
-    when(mockUseCase.call('1')).thenAnswer((_) async => Failure('Error message'));
+    when(mockUseCase.call('1')).thenAnswer((_) async => ErrorResponse(errMessage: 'Error message'));
 
     expectLater(
       viewModel.stream,
@@ -64,9 +66,9 @@ void main() {
 
   test('updateImageIndex should update the current image index', () {
     expect(viewModel.state.currentImageIndex, 0);
-    
+
     viewModel.doEvent(UpdateImageIndex(2));
-    
+
     expect(viewModel.state.currentImageIndex, 2);
   });
 }

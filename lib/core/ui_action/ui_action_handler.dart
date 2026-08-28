@@ -2,7 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 import '../app_constants/app_strings.dart';
-import '../../config/router/app_router.dart';
+import '../go_routes/app_router.dart';
 import 'ui_action.dart';
 
 class UiActionHandler {
