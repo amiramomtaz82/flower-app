@@ -41,7 +41,7 @@ class AppRouter {
     navigatorKey: navigatorKey,
     initialLocation: AppRoutes.addAddress,
 
-    initialLocation: AppRoutes.home,
+
     routes: [
       GoRoute(
         path: AppRoutes.login,
@@ -55,7 +55,7 @@ class AppRouter {
         builder: (context, state) => BlocProvider(
           create: (_) => getIt<ForgetPasswordBloc>(),
           child: const ForgetPasswordFlowView(),
- zz       ),
+       ),
       ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) =>
@@ -127,7 +127,8 @@ class AppRouter {
         builder: (context, state) => BlocProvider(
           create: (_) => getIt<BestSellerViewModel>(),
           child: const BestSellerView(),
-
+        )
+      ),
 
      GoRoute(
         path: AppRoutes.addAddress,
@@ -147,8 +148,7 @@ class AppRouter {
         },
       ),
 
-      // outside the shell on purpose: pushed over Home with a back arrow
-      // instead of living in the bottom nav
+
       GoRoute(
         path: AppRoutes.occasions,
         builder: (context, state) {
