@@ -1,5 +1,7 @@
 import 'package:flower_app/config/di/di.dart';
 import 'package:flower_app/core/go_routes/routes_name.dart';
+
+
 import 'package:flower_app/features/auth/presentation/forget_password/bloc/forget_password_bloc.dart';
 import 'package:flower_app/features/auth/presentation/forget_password/views/forget_password_flow_view.dart';
 import 'package:flower_app/features/auth/presentation/login/manager/login_cubit.dart';
@@ -11,6 +13,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/Address/presentaion/manager/address_cubit.dart';
+import '../../features/Address/presentaion/view/add_address_view.dart';
 import '../../features/auth/presentation/login/views/login_view.dart';
 import '../../features/commerce/presentation/home/view/home_view.dart';
 
@@ -23,7 +27,7 @@ class AppRouter {
 
   static final GoRouter router = GoRouter(
     navigatorKey: navigatorKey,
-    initialLocation: AppRoutes.login,
+    initialLocation: AppRoutes.addAddress,
 
     routes: [
       GoRoute(
@@ -45,6 +49,8 @@ class AppRouter {
         path: AppRoutes.home,
         builder: (context, state) => const HomeView(),
       ),
+
+
       GoRoute(
         path: AppRoutes.register,
         builder: (context, state) => BlocProvider(
@@ -53,10 +59,14 @@ class AppRouter {
         ),
       ),
 
-      GoRoute(
-        path: AppRoutes.test,
-        builder: (context, state) =>  const TestView(),
+
+     GoRoute(
+        path: AppRoutes.addAddress,
+        builder: (context, state) => BlocProvider(
+          create: (_) => getIt<AddressCubit>(),
+          child: const AddAddressView(),
         ),
+      ),
       GoRoute(
         path: AppRoutes.productDetails,
         builder: (context, state) =>  const ProductDetailsView(),
