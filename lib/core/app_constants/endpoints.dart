@@ -10,6 +10,9 @@ class Endpoints {
   static const String forgetPassword = '/auth/forgot-password';
   static const String verifyOtp = '/auth/verify-otp';
   static const String resetPassword = '/auth/reset-password';
+  static const String addAddress = '/address/users/me/addresses';
+  static const String getAddresses="/address/users/me/addresses";
+  static const String getAreas = '/address/api/areas';
 
   // Commerce (routed through the API Gateway's /catalog prefix)
   static const String homeSections = '/catalog/home/sections';
