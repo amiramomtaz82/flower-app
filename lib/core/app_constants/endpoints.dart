@@ -36,4 +36,8 @@ class QueryParams {
   static const String productId = 'productId';
   static const String pageNumber = 'pageNumber';
   static const String pageSize = 'pageSize';
+
+  static const String addAddress = '/address/users/me/addresses';
+  static const String getAddresses="/address/users/me/addresses";
+  static const String getAreas = '/address/api/areas';
 }
