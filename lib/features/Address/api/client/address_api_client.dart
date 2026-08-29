@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart';
-import 'package:flower_app/config/base_response/base_response.dart';
+
 import 'package:flower_app/core/app_constants/endpoints.dart';
 
 import 'package:flower_app/features/Address/data/models/areas_with_city_response.dart';

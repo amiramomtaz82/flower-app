@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-
+import 'package:geolocator/geolocator.dart';
 import 'package:injectable/injectable.dart';
-
-
+import 'package:latlong2/latlong.dart';
+import 'package:nominatim_flutter/model/request/reverse_request.dart';
+import 'package:nominatim_flutter/nominatim_flutter.dart';
 
 import 'location_model.dart';
 
