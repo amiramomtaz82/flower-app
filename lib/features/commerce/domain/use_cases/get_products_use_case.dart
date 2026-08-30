@@ -12,11 +12,17 @@ class GetProductsUseCase {
 
   Future<BaseResponse<PaginatedResponse<ProductEntity>>> call({
     String? occasionId,
+    String? categoryId,
+    String? keyword,
+    String? sortBy,
     required int pageNumber,
     required int pageSize,
   }) {
     return _commerceRepo.getProducts(
       occasionId: occasionId,
+      categoryId: categoryId,
+      keyword: keyword,
+      sortBy: sortBy,
       pageNumber: pageNumber,
       pageSize: pageSize,
     );
