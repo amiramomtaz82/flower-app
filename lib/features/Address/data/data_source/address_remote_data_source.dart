@@ -10,6 +10,7 @@ import 'package:flower_app/features/Address/data/models/saved_addresses_response
 
 import '../models/create_address_request.dart';
 import '../models/create_address_response.dart';
+import '../models/set_default_address_response.dart';
 
 abstract class AddressRemoteDataSource {
 
@@ -17,6 +18,10 @@ abstract class AddressRemoteDataSource {
   Future<BaseResponse<CreateAddressResponse>> addAddress(CreateAddressRequest addressRequest);
   Future<BaseResponse<SavedAddressesResponse>> getSavedAddresses();
   Future<BaseResponse<AreasWithCityResponse>> getCities();
+
+  Future<SetDefaultAddressResponse> setDefaultAddress(
+      String addressId,
+      );
 }
 
 

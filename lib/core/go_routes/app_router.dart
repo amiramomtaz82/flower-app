@@ -26,6 +26,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/Address/presentaion/manager/address_cubit.dart';
+import '../../features/Address/presentaion/manager/address_events.dart';
 import '../../features/Address/presentaion/view/add_address_view.dart';
 import '../../features/auth/presentation/login/views/login_view.dart';
 import '../../features/commerce/presentation/home/view/home_view.dart';
@@ -39,7 +40,7 @@ class AppRouter {
 
   static final GoRouter router = GoRouter(
     navigatorKey: navigatorKey,
-    initialLocation: AppRoutes.addAddress,
+    initialLocation: AppRoutes.home,
 
 
     routes: [
@@ -65,8 +66,19 @@ class AppRouter {
             routes: [
               GoRoute(
                 path: AppRoutes.home,
-                builder: (context, state) => BlocProvider(
-                  create: (_) => getIt<HomeCubit>()..doEvents(HomeStarted()),
+                builder: (context, state) => MultiBlocProvider(
+                  providers: [
+                    BlocProvider(
+                      create: (_) => getIt<HomeCubit>()
+                        ..doEvents(HomeStarted()),
+                    ),
+                    BlocProvider(
+                      create: (_) => getIt<AddressCubit>()
+                        ..doEvents(
+                          const InitializeHomeAddressEvent(),
+                        ),
+                    ),
+                  ],
                   child: const HomeView(),
                 ),
               ),

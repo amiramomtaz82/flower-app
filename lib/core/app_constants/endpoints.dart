@@ -13,6 +13,7 @@ class Endpoints {
   static const String addAddress = '/address/users/me/addresses';
   static const String getAddresses="/address/users/me/addresses";
   static const String getAreas = '/address/api/areas';
+  static const String setDefaultAddress= "/address/api/addresses/{id}/default";
 
   // Commerce (routed through the API Gateway's /catalog prefix)
   static const String homeSections = '/catalog/home/sections';

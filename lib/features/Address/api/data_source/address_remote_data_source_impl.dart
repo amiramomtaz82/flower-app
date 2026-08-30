@@ -10,6 +10,7 @@ import 'package:injectable/injectable.dart';
 import '../../data/data_source/address_remote_data_source.dart';
 import '../../data/models/addressdto.dart';
 
+import '../../data/models/set_default_address_response.dart';
 import '../client/address_api_client.dart';
 
 @Injectable(as: AddressRemoteDataSource)
@@ -57,5 +58,13 @@ class AddressRemoteDataSourceImpl implements AddressRemoteDataSource {
 
 
     }
+  }
+
+
+  @override
+  Future<SetDefaultAddressResponse> setDefaultAddress(
+      String addressId,
+      ) async {
+    return await _apiClient.setDefaultAddress(addressId);
   }
 }

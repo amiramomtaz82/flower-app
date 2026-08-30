@@ -60,3 +60,16 @@ class GetAreasWithCitiesEvent extends AddressEvent {
 class InitializeAddressEvent extends AddressEvent {
   const InitializeAddressEvent();
 }
+
+class SetDefaultAddressEvent extends AddressEvent {
+  final String addressId;
+
+  const SetDefaultAddressEvent(this.addressId);
+
+  @override
+  List<Object?> get props => [addressId];
+}
+
+class InitializeHomeAddressEvent extends AddressEvent {
+  const InitializeHomeAddressEvent();
+}

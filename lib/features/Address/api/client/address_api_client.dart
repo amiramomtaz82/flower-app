@@ -10,6 +10,7 @@ import 'package:injectable/injectable.dart';
 import 'package:retrofit/retrofit.dart';
 
 import '../../data/models/create_address_response.dart';
+import '../../data/models/set_default_address_response.dart';
 part 'address_api_client.g.dart';
 @singleton
 @RestApi()
@@ -25,4 +26,9 @@ abstract class AddressApiClient {
 
   @GET(Endpoints.getAreas)
   Future<AreasWithCityResponse> getAreas();
+
+@PUT(Endpoints.setDefaultAddress)
+  Future<SetDefaultAddressResponse> setDefaultAddress(
+      @Path('id') String id,
+      );
 }

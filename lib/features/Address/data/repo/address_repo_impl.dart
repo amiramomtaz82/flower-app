@@ -99,4 +99,30 @@ class AddressRepoImpl implements AddressRepo {
         );
     }
   }
+
+  //-------------set default address------------------
+
+  @override
+  Future<BaseResponse<AddressEntity>> setDefaultAddress(
+      String addressId,
+      ) async {
+    try {
+      final response =
+      await _remoteDataSource.setDefaultAddress(addressId);
+
+      if (response.isSuccess == true && response.data != null) {
+        return SuccessResponse<AddressEntity>(
+           response.data!.toEntity(),
+        );
+      }
+
+      return ErrorResponse<AddressEntity>(
+        error: response.message ?? 'Failed to set default address',
+      );
+    } catch (e) {
+      return ErrorResponse<AddressEntity>(
+        error: e.toString(),
+      );
+    }
+  }
 }

@@ -6,6 +6,7 @@ import 'package:latlong2/latlong.dart';
 import '../../../../../../config/base_response/base_response.dart';
 import '../../../../../config/resource/rsource.dart';
 import '../../../../core/location/location_service.dart';
+import '../../../auth/data/data_source/local/auth_local_data_source.dart';
 import '../../domain/entities/add_address_entity.dart';
 import '../../domain/entities/address_entity.dart';
 import '../../domain/entities/area_entity.dart';
@@ -13,6 +14,7 @@ import '../../domain/entities/city_entity.dart';
 import '../../domain/use_cases/add_address_usecase.dart';
 import '../../domain/use_cases/get_area_with_city_usecase.dart';
 import '../../domain/use_cases/get_saved_address_useacse.dart';
+import '../../domain/use_cases/set_default_address_usecase.dart';
 import 'address_events.dart';
 import 'address_state.dart';
 
@@ -22,12 +24,16 @@ class AddressCubit extends Cubit<AddressState> {
   final AddAddressUseCase _addAddressUseCase;
   final LocationService _locationService;
   final GetAreasWithCitiesUseCase _getAreasWithCitiesUseCase;
+  final SetDefaultAddressUseCase _setDefaultAddressUseCase;
+  final AuthLocalDataSource _authLocalDataSource;
 
   AddressCubit(
       this._getAreasWithCitiesUseCase,
       this._getSavedAddressesUseCase,
       this._addAddressUseCase,
       this._locationService,
+      this._setDefaultAddressUseCase,
+      this._authLocalDataSource
       ) : super(AddressState.initial());
 
   Future<void> doEvents(AddressEvent event) async {
@@ -56,10 +62,61 @@ class AddressCubit extends Cubit<AddressState> {
 
       case SelectAreaEvent():
         _selectArea(event.area);
+
+      case SetDefaultAddressEvent():
+        await _setDefaultAddress(event.addressId);
+
+case InitializeHomeAddressEvent():
+    await _initializeHomeAddress();
     }
   }
 
+  Future<void> _setDefaultAddress(String addressId) async {
+    final result = await _setDefaultAddressUseCase(addressId);
 
+    switch (result) {
+      case SuccessResponse<AddressEntity>():
+        final updatedAddress = result.data;
+
+        if (updatedAddress == null) {
+          return;
+        }
+
+        final updatedAddresses = state.addresses.map((address) {
+          if (address.id == updatedAddress.id) {
+            return updatedAddress;
+          }
+
+          return AddressEntity(
+            id: address.id,
+            recipientName: address.recipientName,
+            recipientPhone: address.recipientPhone,
+            addressLine: address.addressLine,
+            cityId: address.cityId,
+            areaId: address.areaId,
+            lat: address.lat,
+            lng: address.lng,
+            label: address.label,
+            isDefault: false,
+            storeId: address.storeId,
+            isServiceable: address.isServiceable,
+            createdAt: address.createdAt,
+          );
+        }).toList();
+
+        emit(
+          state.copyWith(
+            addresses: updatedAddresses,
+            selectedAddress: updatedAddress,
+          ),
+        );
+
+      case ErrorResponse<AddressEntity>():
+        debugPrint(
+          'Set default address error: ${result.errMessage}',
+        );
+    }
+  }
   Future<void> _getAreasWithCities() async {
     final result = await _getAreasWithCitiesUseCase();
 
@@ -397,5 +454,140 @@ class AddressCubit extends Cubit<AddressState> {
     }
 
     return cityMap.values.toList();
+  }
+
+//----------------------------------
+  void _selectDefaultAddress() {
+    AddressEntity? defaultAddress;
+
+    for (final address in state.addresses) {
+      if (address.isDefault == true) {
+        defaultAddress = address;
+        break;
+      }
+    }
+
+    if (defaultAddress == null) {
+      debugPrint('No default address found.');
+      return;
+    }
+
+    debugPrint(
+      'Using default address: ${defaultAddress.addressLine}',
+    );
+
+    _selectAddress(defaultAddress);
+  }
+  Future<void> _selectBestAddress() async {
+    final addresses = state.addresses;
+
+    if (addresses.isEmpty) {
+      return;
+    }
+
+    try {
+      // Get user's current GPS location
+      final currentLocation =
+      await _locationService.getCurrentLocation();
+
+      final distance = Distance();
+
+      AddressEntity? nearestAddress;
+      double? nearestDistance;
+
+      for (final address in addresses) {
+        // Skip addresses without coordinates
+        if (address.lat == null || address.lng == null) {
+          continue;
+        }
+
+        final addressLocation = LatLng(
+          address.lat!,
+          address.lng!,
+        );
+
+        final distanceInMeters = distance.as(
+          LengthUnit.Meter,
+          currentLocation,
+          addressLocation,
+        );
+
+        if (nearestDistance == null ||
+            distanceInMeters < nearestDistance!) {
+          nearestDistance = distanceInMeters;
+          nearestAddress = address;
+        }
+      }
+
+      // No valid address with coordinates
+      if (nearestAddress == null || nearestDistance == null) {
+        debugPrint(
+          'HOME ADDRESS: No address has valid coordinates',
+        );
+
+        _selectDefaultAddress();
+        return;
+      }
+
+      debugPrint('========== HOME ADDRESS ==========');
+      debugPrint(
+        'Current location: '
+            '${currentLocation.latitude}, '
+            '${currentLocation.longitude}',
+      );
+      debugPrint(
+        'Nearest address: ${nearestAddress.addressLine}',
+      );
+      debugPrint(
+        'Distance: ${nearestDistance.toStringAsFixed(0)} meters',
+      );
+      debugPrint('==================================');
+
+      // Maximum distance allowed for automatic selection
+      const maxDistanceInMeters = 10000.0;
+
+      if (nearestDistance <= maxDistanceInMeters) {
+        debugPrint(
+          'HOME ADDRESS: Nearest address selected',
+        );
+
+        _selectAddress(nearestAddress);
+      } else {
+        debugPrint(
+          'HOME ADDRESS: Nearest address is too far',
+        );
+
+        _selectDefaultAddress();
+      }
+    } catch (e) {
+      // GPS unavailable / permission denied / location service disabled
+      debugPrint(
+        'HOME ADDRESS: GPS unavailable: $e',
+      );
+
+      _selectDefaultAddress();
+    }
+  }
+
+  Future<void> _initializeHomeAddress() async {
+    final token = await _authLocalDataSource.getToken();
+
+    // Guest user
+    if (token == null || token.isEmpty) {
+      debugPrint('HOME ADDRESS: Guest user');
+      return;
+    }
+
+    // Logged-in user
+    debugPrint('HOME ADDRESS: Logged-in user');
+
+    await _getSavedAddresses();
+
+    if (state.addresses.isEmpty) {
+      debugPrint('HOME ADDRESS: No saved addresses');
+      return;
+    }
+
+    await _selectBestAddress();
   }
 }
