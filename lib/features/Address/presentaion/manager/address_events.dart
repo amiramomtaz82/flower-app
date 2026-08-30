@@ -53,3 +53,10 @@ class SelectAreaEvent extends AddressEvent {
 
   SelectAreaEvent(this.area);
 }
+
+class GetAreasWithCitiesEvent extends AddressEvent {
+  const GetAreasWithCitiesEvent();
+}
+class InitializeAddressEvent extends AddressEvent {
+  const InitializeAddressEvent();
+}

@@ -70,37 +70,18 @@ class LocationService {
     debugPrint('========== NOMINATIM RAW ADDRESS ==========');
     debugPrint('$address');
     debugPrint('============================================');
-    return LocationModel(
+
+    return  LocationModel(
       lat: lat,
       lng: lng,
       addressLine: address?['road'],
-      city: address?['city'] ??
-          address?['town'] ??
-          address?['municipality'],
-      area: address?['suburb'] ??
-          address?['neighbourhood'],
+      state: address?['state'],
+      city: address?['city'],
+      town: address?['town'],
+      municipality: address?['municipality'],
+      suburb: address?['suburb'],
+      neighbourhood: address?['neighbourhood'],
+      cityDistrict: address?['city_district'],
     );
-  }
-
-  String? _buildAddressLine(dynamic address) {
-    if (address == null) {
-      return null;
-    }
-
-    final parts = <String?>[
-      address.houseNumber,
-      address.road,
-    ];
-
-    final filtered = parts
-        .where((part) => part != null && part!.trim().isNotEmpty)
-        .map((part) => part!.trim())
-        .toList();
-
-    if (filtered.isEmpty) {
-      return null;
-    }
-
-    return filtered.join(', ');
   }
 }
