@@ -43,23 +43,19 @@ class CommerceRemoteDataSourceImpl implements CommerceRemoteDataSource {
   @override
   Future<ProductsDataModel> getProducts({
     String? occasionId,
+    String? categoryId,
+    String? keyword,
+    String? sortBy,
     required int pageNumber,
     required int pageSize,
   }) async {
     final response = await _commerceApiClient.getProducts(
       occasionId,
+      categoryId,
+      keyword,
+      sortBy,
       pageNumber,
       pageSize,
-    );
-    return response.data;
-  }
-
-  @override
-  Future<List<ProductDTO>> getProductsByCategory({
-    required String categoryId,
-  }) async {
-    final response = await _commerceApiClient.getProductsByCategory(
-      categoryId,
     );
     return response.data;
   }
@@ -77,6 +73,9 @@ class CommerceRemoteDataSourceImpl implements CommerceRemoteDataSource {
   }) async {
     final response = await _commerceApiClient.getProducts(
       Endpoints.bestSellersOccasionId,
+      null,
+      null,
+      null,
       page,
       pageSize,
     );

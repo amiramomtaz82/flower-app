@@ -73,10 +73,10 @@ class CategoriesCubit extends Cubit<CategoriesState> {
 
   void _selectCategory(String categoryId) {
     if (state.selectedCategoryId == categoryId) return;
-    
+
     emit(state.copyWith(
       selectedCategoryId: categoryId,
-      keyword: null, // Reset search when category changes
+      keyword: null,
     ));
     _reloadProducts();
   }
@@ -93,12 +93,11 @@ class CategoriesCubit extends Cubit<CategoriesState> {
 
   Future<void> _reloadProducts() async {
     _paginationController.reset();
-    
-    // Update local state to loading
+
     emit(state.copyWith(
       productsPagination: _paginationController.state.copyWith(resource: Resource.loading())
     ));
-    
+
     final newState = await _paginationController.loadInitialPage();
     emit(state.copyWith(productsPagination: newState));
   }

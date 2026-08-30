@@ -4,7 +4,6 @@ import 'package:flower_app/config/resource/rsource.dart';
 import 'package:flower_app/core/app_constants/app_strings.dart';
 import 'package:flower_app/core/pagination/pagination_state.dart';
 import 'package:flower_app/core/pagination/presentaion/pagination_footer.dart';
-import 'package:flower_app/core/widgets/custom_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../domain/entities/category_entity.dart';
@@ -74,7 +73,6 @@ class _CategoriesViewState extends State<CategoriesView> {
       body: SafeArea(
         child: BlocConsumer<CategoriesCubit, CategoriesState>(
           listenWhen: (previous, current) {
-             // If category changed, clear search text field
              return previous.selectedCategoryId != current.selectedCategoryId;
           },
           listener: (context, state) {
@@ -103,18 +101,28 @@ class _CategoriesViewState extends State<CategoriesView> {
             return Column(
               children: [
                 const SizedBox(height: 16),
-                
-                // Search Bar
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Row(
                     children: [
                       Expanded(
-                        child: CustomTextField(
+                        child: TextFormField(
                           controller: _searchController,
-                          hintText: 'Search',
-                          prefixIcon: const Icon(Icons.search),
                           onChanged: _onSearchChanged,
+                          decoration: InputDecoration(
+                            hintText: 'Search',
+                            prefixIcon: const Icon(Icons.search),
+                            filled: true,
+                            fillColor: colorScheme.surfaceContainerHighest,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: BorderSide.none,
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 14,
+                            ),
+                          ),
                         ),
                       ),
                       const SizedBox(width: 8),
@@ -134,8 +142,6 @@ class _CategoriesViewState extends State<CategoriesView> {
                   ),
                 ),
                 const SizedBox(height: 16),
-
-                // Selection Tabs
                 SizedBox(
                   height: 44,
                   child: SelectionTabs(
@@ -149,8 +155,6 @@ class _CategoriesViewState extends State<CategoriesView> {
                         .doEvents(CategorySelected(categoryId)),
                   ),
                 ),
-                
-                // Products Grid
                 Expanded(
                   child: _buildProductsGrid(productsPagination, products, colorScheme),
                 ),
@@ -207,7 +211,6 @@ class _CategoriesViewState extends State<CategoriesView> {
         ),
         SliverToBoxAdapter(
           child: Padding(
-            // Extra padding at the bottom so the floating button doesn't hide the loader
             padding: const EdgeInsets.only(bottom: 80),
             child: PaginationFooter(
               isLoadingMore: state.isLoadingMore,

@@ -1,4 +1,3 @@
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -100,7 +99,7 @@ class _CategoriesFilterBottomSheetState extends State<CategoriesFilterBottomShee
                   decoration: BoxDecoration(
                     color: Colors.white,
                     border: Border.all(
-                      color: isSelected ? colorScheme.primary : colorScheme.outline.withOpacity(0.2),
+                      color: isSelected ? colorScheme.primary : colorScheme.outline.withValues(alpha: 0.2),
                     ),
                     borderRadius: BorderRadius.circular(8),
                   ),
@@ -119,7 +118,7 @@ class _CategoriesFilterBottomSheetState extends State<CategoriesFilterBottomShee
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           border: Border.all(
-                            color: isSelected ? colorScheme.primary : colorScheme.outline.withOpacity(0.5),
+                            color: colorScheme.primary,
                             width: 2,
                           ),
                         ),
