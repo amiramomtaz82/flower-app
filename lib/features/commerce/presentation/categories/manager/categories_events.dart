@@ -12,3 +12,19 @@ class CategorySelected extends CategoriesEvent {
 
   final String categoryId;
 }
+
+class CategoriesSearchChanged extends CategoriesEvent {
+  CategoriesSearchChanged(this.keyword);
+
+  final String keyword;
+}
+
+class CategoriesSortChanged extends CategoriesEvent {
+  CategoriesSortChanged(this.sortBy);
+
+  final String sortBy;
+}
+
+class CategoriesLoadMore extends CategoriesEvent {}
+
+class CategoriesRetry extends CategoriesEvent {}
