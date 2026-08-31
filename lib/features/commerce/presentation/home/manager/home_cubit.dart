@@ -12,7 +12,6 @@ import '../../../domain/entities/product_entity.dart';
 import '../../../domain/use_cases/get_categories_use_case.dart';
 import '../../../domain/use_cases/get_home_sections_use_case.dart';
 import '../../../domain/use_cases/get_occasions_use_case.dart';
-import '../../../domain/use_cases/get_products_by_category_use_case.dart';
 import '../../../domain/use_cases/get_products_use_case.dart';
 import 'home_events.dart';
 import 'home_state.dart';

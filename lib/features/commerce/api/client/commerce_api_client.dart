@@ -36,7 +36,7 @@ abstract class CommerceApiClient {
     @Query(QueryParams.categoryId) String? categoryId,
     @Query('keyword') String? keyword,
     @Query('sortBy') String? sortBy,
-    @Query(QueryParams.pageNumber) int pageNumber,
+    @Query('page') int pageNumber,
     @Query(QueryParams.pageSize) int pageSize,
   );
 

@@ -6,6 +6,7 @@ part 'products_response_model.g.dart';
 
 @JsonSerializable()
 class ProductsResponseModel {
+  @JsonKey(name: 'value')
   final ProductsDataModel data;
 
   const ProductsResponseModel({required this.data});
