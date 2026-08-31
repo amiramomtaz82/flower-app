@@ -7,6 +7,7 @@ import '../../../../../../config/base_response/base_response.dart';
 import '../../../../../config/resource/rsource.dart';
 import '../../../../core/location/location_service.dart';
 import '../../../auth/data/data_source/local/auth_local_data_source.dart';
+import '../../api/data_source/address_local_data_source_imp.dart';
 import '../../domain/entities/add_address_entity.dart';
 import '../../domain/entities/address_entity.dart';
 import '../../domain/entities/area_entity.dart';
@@ -118,35 +119,64 @@ case InitializeHomeAddressEvent():
     }
   }
   Future<void> _getAreasWithCities() async {
-    final result = await _getAreasWithCitiesUseCase();
+    emit(
+      state.copyWith(
+        areaResource: Resource.loading(),
+      ),
+    );
 
-    switch (result) {
-      case SuccessResponse<List<AreaEntity>>():
-        final areas = result.data ?? [];
+    try {
+      final result = await _getAreasWithCitiesUseCase();
 
-        debugPrint('========== AREAS LOADED ==========');
-        debugPrint('Areas count: ${areas.length}');
+      switch (result) {
+        case SuccessResponse<List<AreaEntity>>():
+          final areas = result.data ?? [];
 
-        for (final area in areas) {
-          debugPrint('AREA: ${area.name}');
+          if (areas.isNotEmpty) {
+            debugPrint('========== AREAS API SUCCESS ==========');
+            debugPrint('Areas count: ${areas.length}');
 
-          for (final city in area.cities) {
-            debugPrint('   CITY: ${city.name}');
+            emit(
+              state.copyWith(
+                areas: areas,
+                areaResource: Resource.success(areas),
+              ),
+            );
+          } else {
+            debugPrint('========== API EMPTY ==========');
+            debugPrint('Using local fallback areas');
+
+            emit(
+              state.copyWith(
+                areas: cityAreaData,
+                areaResource: Resource.success(cityAreaData),
+              ),
+            );
           }
-        }
 
-        debugPrint('==================================');
+        case ErrorResponse<List<AreaEntity>>():
+          debugPrint('========== AREAS API ERROR ==========');
+          debugPrint('Error: ${result.errMessage}');
+          debugPrint('Using local fallback areas');
 
-        emit(
-          state.copyWith(
-            areas: areas,
-          ),
-        );
+          emit(
+            state.copyWith(
+              areas: cityAreaData,
+              areaResource: Resource.success(cityAreaData),
+            ),
+          );
+      }
+    } catch (e) {
+      debugPrint('========== AREAS API EXCEPTION ==========');
+      debugPrint('Exception: $e');
+      debugPrint('Using local fallback areas');
 
-      case ErrorResponse<List<AreaEntity>>():
-        debugPrint(
-          'Get areas error: ${result.errMessage}',
-        );
+      emit(
+        state.copyWith(
+          areas: cityAreaData,
+          areaResource: Resource.success(cityAreaData),
+        ),
+      );
     }
   }
 
@@ -239,9 +269,7 @@ case InitializeHomeAddressEvent():
     }
   }
 
-  // ============================================================
-  // SELECT SAVED ADDRESS
-  // ============================================================
+
 
   void _selectAddress(AddressEntity address) {
     emit(
@@ -251,9 +279,7 @@ case InitializeHomeAddressEvent():
     );
   }
 
-  // ============================================================
-  // GET CURRENT LOCATION
-  // ============================================================
+
 
   Future<void> _getCurrentLocation() async {
     try {
@@ -265,9 +291,6 @@ case InitializeHomeAddressEvent():
     }
   }
 
-  // ============================================================
-  // NORMALIZE
-  // ============================================================
 
   String _normalize(String? value) {
     if (value == null || value.trim().isEmpty) {
@@ -282,9 +305,7 @@ case InitializeHomeAddressEvent():
   }
 
 
-  // ============================================================
-  // SELECT LOCATION
-  // ============================================================
+
 
   Future<void> _selectLocation(LatLng location) async {
     debugPrint('========== _SELECT LOCATION ==========');
@@ -384,9 +405,7 @@ case InitializeHomeAddressEvent():
       debugPrint('Reverse geocoding error: $e');
     }
   }
-  // ============================================================
-  // SELECT CITY
-  // ============================================================
+
 
   void _selectCity(CityEntity city) {
     emit(
@@ -396,13 +415,19 @@ case InitializeHomeAddressEvent():
     );
   }
 
-  // ============================================================
-  // SELECT AREA
-  // ============================================================
+
 
   void _selectArea(AreaEntity area) {
     emit(
-      state.copyWith(
+      AddressState(
+        addresses: state.addresses,
+        selectedAddress: state.selectedAddress,
+        getAddressesResource: state.getAddressesResource,
+        addAddressResource: state.addAddressResource,
+        areaResource: state.areaResource,
+        selectedLocation: state.selectedLocation,
+        selectedLocationDetails: state.selectedLocationDetails,
+        areas: state.areas,
         selectedArea: area,
         selectedCity: null,
       ),

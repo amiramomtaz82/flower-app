@@ -14,16 +14,21 @@ class AddressState extends Equatable {
   final Resource<List<AddressEntity>> getAddressesResource;
   final Resource<AddressEntity> addAddressResource;
 
+  // API resource for areas + cities
+  final Resource<List<AreaEntity>> areaResource;
+
   final LatLng? selectedLocation;
   final LocationModel? selectedLocationDetails;
 
   final List<AreaEntity> areas;
+
   List<CityEntity> get cities {
     return areas
         .expand((area) => area.cities)
         .toSet()
         .toList();
   }
+
   final CityEntity? selectedCity;
   final AreaEntity? selectedArea;
 
@@ -35,10 +40,14 @@ class AddressState extends Equatable {
     this.areas = const [],
     this.selectedCity,
     this.selectedArea,
+
+    Resource<List<AreaEntity>>? areaResource,
     Resource<List<AddressEntity>>? getAddressesResource,
     Resource<AddressEntity>? addAddressResource,
   })  : getAddressesResource =
       getAddressesResource ?? Resource.initial(),
+        areaResource =
+            areaResource ?? Resource.initial(),
         addAddressResource =
             addAddressResource ?? Resource.initial();
 
@@ -46,23 +55,32 @@ class AddressState extends Equatable {
     return AddressState(
       getAddressesResource: Resource.initial(),
       addAddressResource: Resource.initial(),
+      areaResource: Resource.initial(),
     );
   }
 
   AddressState copyWith({
     List<AddressEntity>? addresses,
     AddressEntity? selectedAddress,
+
     Resource<List<AddressEntity>>? getAddressesResource,
     Resource<AddressEntity>? addAddressResource,
+
+    Resource<List<AreaEntity>>? areaResource,
+
     LatLng? selectedLocation,
     LocationModel? selectedLocationDetails,
+
     CityEntity? selectedCity,
     AreaEntity? selectedArea,
+
     List<AreaEntity>? areas,
   }) {
     return AddressState(
       addresses: addresses ?? this.addresses,
-      selectedAddress: selectedAddress ?? this.selectedAddress,
+
+      selectedAddress:
+      selectedAddress ?? this.selectedAddress,
 
       getAddressesResource:
       getAddressesResource ?? this.getAddressesResource,
@@ -70,11 +88,15 @@ class AddressState extends Equatable {
       addAddressResource:
       addAddressResource ?? this.addAddressResource,
 
+      areaResource:
+      areaResource ?? this.areaResource,
+
       selectedLocation:
       selectedLocation ?? this.selectedLocation,
 
       selectedLocationDetails:
-      selectedLocationDetails ?? this.selectedLocationDetails,
+      selectedLocationDetails ??
+          this.selectedLocationDetails,
 
       selectedCity:
       selectedCity ?? this.selectedCity,
@@ -93,6 +115,7 @@ class AddressState extends Equatable {
     selectedAddress,
     getAddressesResource,
     addAddressResource,
+    areaResource,
     selectedLocation,
     selectedLocationDetails,
     areas,

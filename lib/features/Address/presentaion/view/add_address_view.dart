@@ -72,28 +72,20 @@ class _AddAddressViewState extends State<AddAddressView> {
 
         builder: (context, state) {
           final cubit = context.read<AddressCubit>();
-
-          // ============================================================
-          // CITIES
-          // ============================================================
-
-          final cityMap = <String, CityEntity>{};
+          debugPrint('========== DROPDOWN STATE ==========');
+          debugPrint('state.areas = ${state.areas.length}');
+          debugPrint('state.selectedArea = ${state.selectedArea?.name}');
+          debugPrint('state.selectedCity = ${state.selectedCity?.name}');
+          debugPrint('cubit.filteredAreas = ${cubit.filteredAreas.length}');
+          debugPrint('cubit.filteredCities = ${cubit.filteredCities.length}');
 
           for (final area in state.areas) {
-            for (final city in area.cities) {
-              if (city.id != null) {
-                cityMap[city.id!] = city;
-              }
-            }
+            debugPrint('AREA: ${area.name}, cities=${area.cities.length}');
           }
+          debugPrint('====================================');
 
-          final cities = cityMap.values.toList();
-
-          // ============================================================
-          // AREAS
-          // ============================================================
-
-          final areas = cubit.filteredAreas;
+          final areas = state.areas;
+          final cities = cubit.filteredCities;
 
           // Make sure selected values actually exist in dropdown items.
           final selectedCity =
@@ -204,9 +196,9 @@ class _AddAddressViewState extends State<AddAddressView> {
                       child: DropdownButtonFormField<CityEntity>(
                         initialValue: selectedCity,
                         isExpanded: true,
-                        decoration: const InputDecoration(labelText: 'City'),
-
-                        // Disable if there are no cities.
+                        decoration: const InputDecoration(
+                          labelText: 'City',
+                        ),
                         items: cities.map((city) {
                           return DropdownMenuItem<CityEntity>(
                             value: city,
@@ -216,16 +208,15 @@ class _AddAddressViewState extends State<AddAddressView> {
                             ),
                           );
                         }).toList(),
-
                         onChanged: cities.isEmpty
                             ? null
                             : (city) {
-                                if (city == null) return;
+                          if (city == null) return;
 
-                                context.read<AddressCubit>().doEvents(
-                                  SelectCityEvent(city),
-                                );
-                              },
+                          context.read<AddressCubit>().doEvents(
+                            SelectCityEvent(city),
+                          );
+                        },
                       ),
                     ),
 
@@ -235,8 +226,9 @@ class _AddAddressViewState extends State<AddAddressView> {
                       child: DropdownButtonFormField<AreaEntity>(
                         initialValue: selectedArea,
                         isExpanded: true,
-                        decoration: const InputDecoration(labelText: 'Area'),
-
+                        decoration: const InputDecoration(
+                          labelText: 'Area',
+                        ),
                         items: areas.map((area) {
                           return DropdownMenuItem<AreaEntity>(
                             value: area,
@@ -246,17 +238,15 @@ class _AddAddressViewState extends State<AddAddressView> {
                             ),
                           );
                         }).toList(),
-
-                        // Enable manual area selection even when city is null.
                         onChanged: areas.isEmpty
                             ? null
                             : (area) {
-                                if (area == null) return;
+                          if (area == null) return;
 
-                                context.read<AddressCubit>().doEvents(
-                                  SelectAreaEvent(area),
-                                );
-                              },
+                          context.read<AddressCubit>().doEvents(
+                            SelectAreaEvent(area),
+                          );
+                        },
                       ),
                     ),
                   ],
