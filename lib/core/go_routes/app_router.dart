@@ -152,7 +152,10 @@ class AppRouter {
       ),
       GoRoute(
         path: AppRoutes.savedAddresses,
-        builder: (context, state) => const SavedAddressesListView(),
+        builder: (context, state) => BlocProvider(
+          create: (_) => getIt<AddressCubit>(),
+          child: const SavedAddressesListView(),
+        ),
       ),
       GoRoute(
         path: AppRoutes.productDetails,
