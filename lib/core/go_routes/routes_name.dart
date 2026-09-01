@@ -8,6 +8,7 @@ class AppRoutes {
   static const String register = '/register';
   static const String forgotPassword = '/forgot-password';
   static const String addAddress= '/addAddress';
+  static const String savedAddresses = '/saved-addresses';
 
   static const String productDetails = '/product-details';
 
