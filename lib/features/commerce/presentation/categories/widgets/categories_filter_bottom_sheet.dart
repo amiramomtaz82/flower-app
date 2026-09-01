@@ -1,13 +1,16 @@
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flower_app/core/app_constants/app_strings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../manager/categories_cubit.dart';
 import '../manager/categories_events.dart';
+import '../manager/sort_option.dart';
 
 class CategoriesFilterBottomSheet extends StatefulWidget {
-  final String? initialSortBy;
+  final SortOption? initialSortOption;
 
-  const CategoriesFilterBottomSheet({super.key, this.initialSortBy});
+  const CategoriesFilterBottomSheet({super.key, this.initialSortOption});
 
   static Future<void> show(BuildContext context) {
     final cubit = context.read<CategoriesCubit>();
@@ -20,31 +23,25 @@ class CategoriesFilterBottomSheet extends StatefulWidget {
       builder: (_) => BlocProvider.value(
         value: cubit,
         child: CategoriesFilterBottomSheet(
-          initialSortBy: cubit.state.sortBy,
+          initialSortOption: cubit.state.sortOption,
         ),
       ),
     );
   }
 
   @override
-  State<CategoriesFilterBottomSheet> createState() => _CategoriesFilterBottomSheetState();
+  State<CategoriesFilterBottomSheet> createState() =>
+      _CategoriesFilterBottomSheetState();
 }
 
-class _CategoriesFilterBottomSheetState extends State<CategoriesFilterBottomSheet> {
-  String? _selectedSort;
-
-  final List<Map<String, String>> _sortOptions = [
-    {'label': 'Lowest Price', 'value': 'PriceLowToHigh'},
-    {'label': 'Highest Price', 'value': 'PriceHighToLow'},
-    {'label': 'New', 'value': 'Newest'},
-    {'label': 'Old', 'value': 'Oldest'},
-    {'label': 'Discount', 'value': 'Discount'},
-  ];
+class _CategoriesFilterBottomSheetState
+    extends State<CategoriesFilterBottomSheet> {
+  SortOption? _selectedSort;
 
   @override
   void initState() {
     super.initState();
-    _selectedSort = widget.initialSortBy;
+    _selectedSort = widget.initialSortOption;
   }
 
   @override
@@ -63,7 +60,6 @@ class _CategoriesFilterBottomSheetState extends State<CategoriesFilterBottomShee
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Drag handle
           Center(
             child: Container(
               width: 40,
@@ -76,30 +72,35 @@ class _CategoriesFilterBottomSheetState extends State<CategoriesFilterBottomShee
           ),
           const SizedBox(height: 16),
           Text(
-            'Sort by',
+            AppStrings.sortBy.tr(),
             style: textTheme.titleLarge?.copyWith(
               color: colorScheme.primary,
               fontWeight: FontWeight.bold,
             ),
           ),
           const SizedBox(height: 16),
-          ..._sortOptions.map((option) {
-            final isSelected = _selectedSort == option['value'];
+          ...SortOption.values.map((option) {
+            final isSelected = _selectedSort == option;
             return Padding(
               padding: const EdgeInsets.only(bottom: 8),
               child: InkWell(
                 onTap: () {
                   setState(() {
-                    _selectedSort = option['value'];
+                    _selectedSort = option;
                   });
                 },
                 borderRadius: BorderRadius.circular(8),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     border: Border.all(
-                      color: isSelected ? colorScheme.primary : colorScheme.outline.withValues(alpha: 0.2),
+                      color: isSelected
+                          ? colorScheme.primary
+                          : colorScheme.outline.withValues(alpha: 0.2),
                     ),
                     borderRadius: BorderRadius.circular(8),
                   ),
@@ -107,9 +108,10 @@ class _CategoriesFilterBottomSheetState extends State<CategoriesFilterBottomShee
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        option['label']!,
+                        option.label,
                         style: textTheme.bodyLarge?.copyWith(
-                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                          fontWeight:
+                              isSelected ? FontWeight.bold : FontWeight.normal,
                         ),
                       ),
                       Container(
@@ -145,7 +147,9 @@ class _CategoriesFilterBottomSheetState extends State<CategoriesFilterBottomShee
           ElevatedButton(
             onPressed: () {
               if (_selectedSort != null) {
-                context.read<CategoriesCubit>().doEvents(CategoriesSortChanged(_selectedSort!));
+                context
+                    .read<CategoriesCubit>()
+                    .doEvents(CategoriesSortChanged(_selectedSort!));
               }
               Navigator.of(context).pop();
             },
@@ -162,7 +166,10 @@ class _CategoriesFilterBottomSheetState extends State<CategoriesFilterBottomShee
               children: [
                 const Icon(Icons.filter_list),
                 const SizedBox(width: 8),
-                Text('Filter', style: textTheme.labelLarge?.copyWith(color: Colors.white)),
+                Text(
+                  AppStrings.filter.tr(),
+                  style: textTheme.labelLarge?.copyWith(color: Colors.white),
+                ),
               ],
             ),
           ),

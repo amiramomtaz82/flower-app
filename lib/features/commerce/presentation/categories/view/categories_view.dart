@@ -1,12 +1,11 @@
-import 'dart:async';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flower_app/config/resource/rsource.dart';
 import 'package:flower_app/core/app_constants/app_strings.dart';
+import 'package:flower_app/core/go_routes/routes_name.dart';
 import 'package:flower_app/core/pagination/pagination_state.dart';
 import 'package:flower_app/core/pagination/presentaion/pagination_footer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../domain/entities/category_entity.dart';
+import 'package:go_router/go_router.dart';
 import '../../../domain/entities/product_entity.dart';
 import '../../widgets/centered_message.dart';
 import '../../widgets/custom_product_card.dart';
@@ -25,8 +24,6 @@ class CategoriesView extends StatefulWidget {
 
 class _CategoriesViewState extends State<CategoriesView> {
   final ScrollController _scrollController = ScrollController();
-  final TextEditingController _searchController = TextEditingController();
-  Timer? _debounce;
 
   @override
   void initState() {
@@ -37,8 +34,6 @@ class _CategoriesViewState extends State<CategoriesView> {
   @override
   void dispose() {
     _scrollController.dispose();
-    _searchController.dispose();
-    _debounce?.cancel();
     super.dispose();
   }
 
@@ -49,56 +44,35 @@ class _CategoriesViewState extends State<CategoriesView> {
     }
   }
 
-  void _onSearchChanged(String query) {
-    if (_debounce?.isActive ?? false) _debounce!.cancel();
-    _debounce = Timer(const Duration(milliseconds: 500), () {
-      if (mounted) {
-        context.read<CategoriesCubit>().doEvents(CategoriesSearchChanged(query));
-      }
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    return Scaffold(
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => CategoriesFilterBottomSheet.show(context),
-        backgroundColor: colorScheme.primary,
-        icon: const Icon(Icons.filter_list, color: Colors.white),
-        label: const Text('Filter', style: TextStyle(color: Colors.white)),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      body: SafeArea(
-        child: BlocConsumer<CategoriesCubit, CategoriesState>(
-          listenWhen: (previous, current) {
-             return previous.selectedCategoryId != current.selectedCategoryId;
-          },
-          listener: (context, state) {
-            _searchController.clear();
-          },
-          builder: (context, state) {
-            final categories = state.categoriesResource;
+    return BlocBuilder<CategoriesCubit, CategoriesState>(
+      builder: (context, state) {
+        if (state.categoriesResource.isLoading) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (state.categoriesResource.isError) {
+          return CenteredMessage(
+            text: state.categoriesResource.errorMessage ??
+                AppStrings.somethingWentWrong.tr(),
+          );
+        }
 
-            if (categories.isLoading ||
-                categories.status == ApiStatus.initial) {
-              return const Center(child: CircularProgressIndicator());
-            }
+        final data = state.categoriesResource.data ?? [];
+        if (data.isEmpty) {
+          return CenteredMessage(
+            text: AppStrings.noCategoriesYet.tr(),
+          );
+        }
 
-            if (categories.isError) {
-              return CenteredMessage(text: categories.errorMessage);
-            }
+        final productsPagination = state.productsPagination;
+        final products = productsPagination.resource.data ?? [];
 
-            final data = categories.data ?? const <CategoryEntity>[];
-            if (data.isEmpty) {
-              return CenteredMessage(text: AppStrings.noCategoriesYet.tr());
-            }
-
-            final productsPagination = state.productsPagination;
-            final products = productsPagination.resource.data ?? [];
-
-            return Column(
+        return Scaffold(
+          body: SafeArea(
+            child: Column(
               children: [
                 const SizedBox(height: 16),
                 Padding(
@@ -106,21 +80,25 @@ class _CategoriesViewState extends State<CategoriesView> {
                   child: Row(
                     children: [
                       Expanded(
-                        child: TextFormField(
-                          controller: _searchController,
-                          onChanged: _onSearchChanged,
-                          decoration: InputDecoration(
-                            hintText: 'Search',
-                            prefixIcon: const Icon(Icons.search),
-                            filled: true,
-                            fillColor: colorScheme.surfaceContainerHighest,
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              borderSide: BorderSide.none,
-                            ),
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 14,
+                        child: GestureDetector(
+                          onTap: () => context.push(AppRoutes.search),
+                          child: AbsorbPointer(
+                            child: TextFormField(
+                              readOnly: true,
+                              decoration: InputDecoration(
+                                hintText: AppStrings.search.tr(),
+                                prefixIcon: const Icon(Icons.search),
+                                filled: true,
+                                fillColor: colorScheme.surfaceContainerHighest,
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide: BorderSide.none,
+                                ),
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 14,
+                                ),
+                              ),
                             ),
                           ),
                         ),
@@ -159,10 +137,10 @@ class _CategoriesViewState extends State<CategoriesView> {
                   child: _buildProductsGrid(productsPagination, products, colorScheme),
                 ),
               ],
-            );
-          },
-        ),
-      ),
+            ),
+          ),
+        );
+      },
     );
   }
 

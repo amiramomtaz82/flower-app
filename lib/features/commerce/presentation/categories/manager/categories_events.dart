@@ -1,6 +1,7 @@
+import 'sort_option.dart';
+
 sealed class CategoriesEvent {}
 
-/// [initialCategoryId] is the category the user tapped on Home, if any.
 class CategoriesStarted extends CategoriesEvent {
   CategoriesStarted({this.initialCategoryId});
 
@@ -20,9 +21,9 @@ class CategoriesSearchChanged extends CategoriesEvent {
 }
 
 class CategoriesSortChanged extends CategoriesEvent {
-  CategoriesSortChanged(this.sortBy);
+  CategoriesSortChanged(this.sortOption);
 
-  final String sortBy;
+  final SortOption sortOption;
 }
 
 class CategoriesLoadMore extends CategoriesEvent {}

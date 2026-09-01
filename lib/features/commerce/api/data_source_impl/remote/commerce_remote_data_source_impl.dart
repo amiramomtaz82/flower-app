@@ -50,12 +50,12 @@ class CommerceRemoteDataSourceImpl implements CommerceRemoteDataSource {
     required int pageSize,
   }) async {
     final response = await _commerceApiClient.getProducts(
-      occasionId,
-      categoryId,
-      keyword,
-      sortBy,
-      pageNumber,
-      pageSize,
+      occasionId: occasionId,
+      categoryId: categoryId,
+      keyword: keyword,
+      sortBy: sortBy,
+      pageNumber: pageNumber,
+      pageSize: pageSize,
     );
     return response.data;
   }
@@ -72,12 +72,9 @@ class CommerceRemoteDataSourceImpl implements CommerceRemoteDataSource {
     required int pageSize,
   }) async {
     final response = await _commerceApiClient.getProducts(
-      Endpoints.bestSellersOccasionId,
-      null,
-      null,
-      null,
-      page,
-      pageSize,
+      occasionId: Endpoints.bestSellersOccasionId,
+      pageNumber: page,
+      pageSize: pageSize,
     );
     return response.data;
   }

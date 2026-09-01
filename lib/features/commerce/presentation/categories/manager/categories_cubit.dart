@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flower_app/core/pagination/pagination_controller.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
@@ -10,13 +12,16 @@ import '../../../domain/use_cases/get_categories_use_case.dart';
 import '../../../domain/use_cases/get_products_use_case.dart';
 import 'categories_events.dart';
 import 'categories_state.dart';
+import 'sort_option.dart';
 
 const int kCategoryProductsPageSize = 10;
+const Duration kSearchDebounce = Duration(milliseconds: 500);
 
 @injectable
 class CategoriesCubit extends Cubit<CategoriesState> {
   final GetCategoriesUseCase _getCategoriesUseCase;
   late final PaginationController<ProductEntity> _paginationController;
+  Timer? _debounce;
 
   CategoriesCubit(
     this._getCategoriesUseCase,
@@ -26,11 +31,17 @@ class CategoriesCubit extends Cubit<CategoriesState> {
       fetchPage: (page) => getProductsUseCase(
         categoryId: state.selectedCategoryId,
         keyword: state.keyword,
-        sortBy: state.sortBy,
+        sortBy: state.sortOption?.apiValue,
         pageNumber: page,
         pageSize: kCategoryProductsPageSize,
       ),
     );
+  }
+
+  @override
+  Future<void> close() {
+    _debounce?.cancel();
+    return super.close();
   }
 
   Future<void> doEvents(CategoriesEvent event) async {
@@ -38,11 +49,11 @@ class CategoriesCubit extends Cubit<CategoriesState> {
       case CategoriesStarted():
         await _loadCategories(event.initialCategoryId);
       case CategorySelected():
-        _selectCategory(event.categoryId);
+        await _selectCategory(event.categoryId);
       case CategoriesSearchChanged():
-        _searchChanged(event.keyword);
+        _onSearchChanged(event.keyword);
       case CategoriesSortChanged():
-        _sortChanged(event.sortBy);
+        _sortChanged(event.sortOption);
       case CategoriesLoadMore():
         _loadMore();
       case CategoriesRetry():
@@ -62,7 +73,7 @@ class CategoriesCubit extends Cubit<CategoriesState> {
         final selected = result.data.any((c) => c.id == initialCategoryId)
             ? initialCategoryId!
             : result.data.first.id;
-        _selectCategory(selected);
+        await _selectCategory(selected);
 
       case ErrorResponse<List<CategoryEntity>>():
         emit(
@@ -71,33 +82,44 @@ class CategoriesCubit extends Cubit<CategoriesState> {
     }
   }
 
-  void _selectCategory(String categoryId) {
+  Future<void> _selectCategory(String categoryId) async {
     if (state.selectedCategoryId == categoryId) return;
-
+    _paginationController.reset();
     emit(state.copyWith(
       selectedCategoryId: categoryId,
-      keyword: null,
+      clearKeyword: true,
+      productsPagination: _paginationController.state.copyWith(
+        resource: Resource.loading(),
+      ),
     ));
-    _reloadProducts();
+    await _fetchProducts();
   }
 
-  void _searchChanged(String keyword) {
+  void _onSearchChanged(String keyword) {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
     emit(state.copyWith(keyword: keyword.isEmpty ? null : keyword));
-    _reloadProducts();
+    _debounce = Timer(kSearchDebounce, () {
+      _reloadProducts();
+    });
   }
 
-  void _sortChanged(String sortBy) {
-    emit(state.copyWith(sortBy: sortBy));
+  void _sortChanged(SortOption sortOption) {
+    emit(state.copyWith(sortOption: sortOption));
     _reloadProducts();
   }
 
   Future<void> _reloadProducts() async {
     _paginationController.reset();
-
     emit(state.copyWith(
-      productsPagination: _paginationController.state.copyWith(resource: Resource.loading())
+      productsPagination: _paginationController.state.copyWith(
+        resource: Resource.loading(),
+      ),
     ));
+    final newState = await _paginationController.loadInitialPage();
+    emit(state.copyWith(productsPagination: newState));
+  }
 
+  Future<void> _fetchProducts() async {
     final newState = await _paginationController.loadInitialPage();
     emit(state.copyWith(productsPagination: newState));
   }

@@ -4,20 +4,21 @@ import 'package:flower_app/core/pagination/pagination_state.dart';
 import '../../../../../config/resource/rsource.dart';
 import '../../../domain/entities/category_entity.dart';
 import '../../../domain/entities/product_entity.dart';
+import 'sort_option.dart';
 
 class CategoriesState extends Equatable {
   final Resource<List<CategoryEntity>> categoriesResource;
   final PaginationState<ProductEntity> productsPagination;
   final String? selectedCategoryId;
   final String? keyword;
-  final String? sortBy;
+  final SortOption? sortOption;
 
   CategoriesState({
     Resource<List<CategoryEntity>>? categoriesResource,
     PaginationState<ProductEntity>? productsPagination,
     this.selectedCategoryId,
     this.keyword,
-    this.sortBy,
+    this.sortOption,
   }) : categoriesResource = categoriesResource ?? Resource.initial(),
        productsPagination = productsPagination ?? PaginationState.initial();
 
@@ -28,14 +29,15 @@ class CategoriesState extends Equatable {
     PaginationState<ProductEntity>? productsPagination,
     String? selectedCategoryId,
     String? keyword,
-    String? sortBy,
+    SortOption? sortOption,
+    bool clearKeyword = false,
   }) {
     return CategoriesState(
       categoriesResource: categoriesResource ?? this.categoriesResource,
       productsPagination: productsPagination ?? this.productsPagination,
       selectedCategoryId: selectedCategoryId ?? this.selectedCategoryId,
-      keyword: keyword ?? this.keyword,
-      sortBy: sortBy ?? this.sortBy,
+      keyword: clearKeyword ? null : (keyword ?? this.keyword),
+      sortOption: sortOption ?? this.sortOption,
     );
   }
 
@@ -45,6 +47,6 @@ class CategoriesState extends Equatable {
     productsPagination,
     selectedCategoryId,
     keyword,
-    sortBy,
+    sortOption,
   ];
 }

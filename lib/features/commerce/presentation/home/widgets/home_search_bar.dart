@@ -1,13 +1,12 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flower_app/core/app_constants/app_strings.dart';
 import 'package:flower_app/core/app_theme/app_colors.dart';
+import 'package:flower_app/core/go_routes/routes_name.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class HomeSearchBar extends StatelessWidget {
-  const HomeSearchBar({super.key, this.onChanged, this.onSubmitted});
-
-  final ValueChanged<String>? onChanged;
-  final ValueChanged<String>? onSubmitted;
+  const HomeSearchBar({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -19,15 +18,19 @@ class HomeSearchBar extends StatelessWidget {
 
     return SizedBox(
       height: 40,
-      child: TextField(
-        onChanged: onChanged,
-        onSubmitted: onSubmitted,
-        decoration: InputDecoration(
-          hintText: AppStrings.search.tr(),
-          prefixIcon: Icon(Icons.search, color: colors.hint),
-          border: pillBorder,
-          enabledBorder: pillBorder,
-          focusedBorder: pillBorder,
+      child: GestureDetector(
+        onTap: () => context.push(AppRoutes.search),
+        child: AbsorbPointer(
+          child: TextField(
+            readOnly: true,
+            decoration: InputDecoration(
+              hintText: AppStrings.search.tr(),
+              prefixIcon: Icon(Icons.search, color: colors.hint),
+              border: pillBorder,
+              enabledBorder: pillBorder,
+              focusedBorder: pillBorder,
+            ),
+          ),
         ),
       ),
     );

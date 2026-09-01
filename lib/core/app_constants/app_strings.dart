@@ -91,4 +91,13 @@ class AppStrings {
   static const String loginRequired='Login required';
   static const String register="Register";
   static const String rememberMe="Remember me";
+
+  static const String filter = 'filter';
+  static const String sortBy = 'sort_by';
+  static const String lowestPrice = 'lowest_price';
+  static const String highestPrice = 'highest_price';
+  static const String newest = 'newest';
+  static const String oldest = 'oldest';
+  static const String discount = 'discount';
+  static const String searchForAnyProduct = 'search_for_any_product';
 }
