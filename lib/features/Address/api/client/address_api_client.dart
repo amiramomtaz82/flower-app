@@ -20,7 +20,7 @@ abstract class AddressApiClient {
 @POST(Endpoints.addAddress)
   Future<CreateAddressResponse> addAddress(@Body() CreateAddressRequest addressRequest);
 
-  @GET(Endpoints.addAddress)
+  @GET(Endpoints.getAddresses)
   Future<SavedAddressesResponse> getSavedAddresses();
 
   @GET(Endpoints.getAreas)

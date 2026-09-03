@@ -13,7 +13,7 @@ import 'location_model.dart';
 class LocationService {
   final NominatimFlutter _nominatim = NominatimFlutter.instance;
 
-  LocationService() {
+  LocationService({NominatimFlutter? nominatim}) {
     _nominatim.configureNominatim(
       userAgent: 'FlowerApp/1.0',
     );
