@@ -11,9 +11,10 @@ import 'location_model.dart';
 
 @LazySingleton()
 class LocationService {
-  final NominatimFlutter _nominatim = NominatimFlutter.instance;
+  final NominatimFlutter _nominatim;
 
-  LocationService({NominatimFlutter? nominatim}) {
+  LocationService({NominatimFlutter? nominatim})
+      : _nominatim = nominatim ?? NominatimFlutter.instance {
     _nominatim.configureNominatim(
       userAgent: 'FlowerApp/1.0',
     );
