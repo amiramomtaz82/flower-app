@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
 
+import '../../../../config/resource/rsource.dart';
 import '../../domain/entities/add_address_entity.dart';
+import '../../domain/entities/address_entity.dart';
 import '../../domain/entities/area_entity.dart';
 import '../../domain/entities/city_entity.dart';
 import '../manager/address_cubit.dart';
@@ -25,11 +28,19 @@ class _AddAddressViewState extends State<AddAddressView> {
   final TextEditingController addressController = TextEditingController();
   final TextEditingController labelController = TextEditingController();
 
+  // AddressCubit is a shared singleton, so this is seeded from whatever
+  // save result (if any) already existed before this screen opened — that
+  // way only a NEW save triggered from this screen shows feedback, not a
+  // stale result left over from an earlier visit.
+  Resource<AddressEntity>? _lastAddAddressResource;
+
   @override
   void initState() {
     super.initState();
 
-    context.read<AddressCubit>().doEvents(const InitializeAddressEvent());
+    final cubit = context.read<AddressCubit>();
+    _lastAddAddressResource = cubit.state.addAddressResource;
+    cubit.doEvents(const InitializeAddressEvent());
   }
 
   @override
@@ -67,6 +78,28 @@ class _AddAddressViewState extends State<AddAddressView> {
 
           if (location != null) {
             addressController.text = location.addressLine ?? '';
+          }
+
+          final addAddressResource = state.addAddressResource;
+
+          if (!identical(addAddressResource, _lastAddAddressResource)) {
+            _lastAddAddressResource = addAddressResource;
+
+            if (addAddressResource.isSuccess) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Address saved successfully')),
+              );
+              context.pop();
+            } else if (addAddressResource.isError) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    addAddressResource.errorMessage ??
+                        'Failed to save address',
+                  ),
+                ),
+              );
+            }
           }
         },
 
@@ -260,10 +293,19 @@ class _AddAddressViewState extends State<AddAddressView> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: () {
-                      _saveAddress(context, state);
-                    },
-                    child: const Text('Save Address'),
+                    onPressed: state.addAddressResource.isLoading
+                        ? null
+                        : () => _saveAddress(context, state),
+                    child: state.addAddressResource.isLoading
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : const Text('Save Address'),
                   ),
                 ),
               ],

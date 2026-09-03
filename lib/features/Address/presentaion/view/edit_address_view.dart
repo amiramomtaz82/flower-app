@@ -4,7 +4,9 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
 
+import '../../../../config/resource/rsource.dart';
 import '../../domain/entities/add_address_entity.dart';
+import '../../domain/entities/address_entity.dart';
 import '../../domain/entities/area_entity.dart';
 import '../../domain/entities/city_entity.dart';
 import '../manager/address_cubit.dart';
@@ -30,11 +32,17 @@ class _EditAddressViewState extends State<EditAddressView> {
 
   bool _prefilled = false;
 
+  // AddressCubit is a shared singleton, so this is seeded from whatever
+  // update result (if any) already existed before this screen opened —
+  // that way only a NEW save triggered from this screen shows feedback.
+  Resource<AddressEntity>? _lastUpdateAddressResource;
+
   @override
   void initState() {
     super.initState();
 
     final cubit = context.read<AddressCubit>();
+    _lastUpdateAddressResource = cubit.state.updateAddressResource;
     cubit.doEvents(const GetAreasWithCitiesEvent());
     cubit.doEvents(GetAddressByIdEvent(widget.addressId));
   }
@@ -83,8 +91,26 @@ class _EditAddressViewState extends State<EditAddressView> {
         listener: (context, state) {
           _prefillIfReady(state);
 
-          if (state.updateAddressResource.isSuccess) {
-            context.pop();
+          final updateAddressResource = state.updateAddressResource;
+
+          if (!identical(updateAddressResource, _lastUpdateAddressResource)) {
+            _lastUpdateAddressResource = updateAddressResource;
+
+            if (updateAddressResource.isSuccess) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Address updated successfully')),
+              );
+              context.pop();
+            } else if (updateAddressResource.isError) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    updateAddressResource.errorMessage ??
+                        'Failed to update address',
+                  ),
+                ),
+              );
+            }
           }
         },
 
