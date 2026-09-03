@@ -5,6 +5,7 @@ import 'package:latlong2/latlong.dart';
 
 import '../../../../../../config/base_response/base_response.dart';
 import '../../../../../config/resource/rsource.dart';
+import '../../../../core/location/location_model.dart';
 import '../../../../core/location/location_service.dart';
 import '../../../auth/data/data_source/local/auth_local_data_source.dart';
 import '../../domain/entities/add_address_entity.dart';
@@ -332,21 +333,39 @@ case InitializeHomeAddressEvent():
       // 1. FIND BACKEND CITY
       // ============================================================
 
-      final cityName = locationDetails.state ??
-          locationDetails.city ??
-          locationDetails.town ??
-          locationDetails.municipality;
+      // Nominatim's `state` is often a governorate transliteration that
+      // doesn't match our seeded city names (e.g. "Aj Jiza" vs "Giza"), so
+      // try the more specific fields first and only fall back to `state`.
+      final cityCandidates = [
+        locationDetails.city,
+        locationDetails.town,
+        locationDetails.municipality,
+        locationDetails.state,
+      ];
 
-      final normalizedCityName = _normalize(cityName);
-
+      String? cityName;
       CityEntity? matchedCity;
 
-      for (final city in state.cities) {
-        if (_normalize(city.name) == normalizedCityName) {
-          matchedCity = city;
-          break;
+      for (final candidate in cityCandidates) {
+        final normalizedCandidate = _normalize(candidate);
+
+        if (normalizedCandidate.isEmpty) continue;
+
+        for (final city in state.cities) {
+          if (_normalize(city.name) == normalizedCandidate) {
+            cityName = candidate;
+            matchedCity = city;
+            break;
+          }
         }
+
+        if (matchedCity != null) break;
       }
+
+      cityName ??= locationDetails.city ??
+          locationDetails.town ??
+          locationDetails.municipality ??
+          locationDetails.state;
 
       // ============================================================
       // 2. FIND BACKEND AREA
@@ -387,16 +406,49 @@ case InitializeHomeAddressEvent():
       // 3. UPDATE STATE
       // ============================================================
 
+      // Built directly (not via copyWith) so a tap that matches no
+      // city/area actually clears a stale selection from the previous tap,
+      // rather than leaving it in place.
       emit(
-        state.copyWith(
+        AddressState(
+          addresses: state.addresses,
+          selectedAddress: state.selectedAddress,
+          getAddressesResource: state.getAddressesResource,
+          addAddressResource: state.addAddressResource,
           selectedLocation: location,
           selectedLocationDetails: locationDetails,
-          selectedArea: matchedArea,
+          cities: state.cities,
           selectedCity: matchedCity,
+          selectedArea: matchedArea,
+          addressDetails: state.addressDetails,
+          getAddressByIdResource: state.getAddressByIdResource,
+          updateAddressResource: state.updateAddressResource,
         ),
       );
     } catch (e) {
       debugPrint('Reverse geocoding error: $e');
+
+      // Still clear any stale details/selection from a previous tap, so the
+      // form doesn't silently keep showing an unrelated address.
+      emit(
+        AddressState(
+          addresses: state.addresses,
+          selectedAddress: state.selectedAddress,
+          getAddressesResource: state.getAddressesResource,
+          addAddressResource: state.addAddressResource,
+          selectedLocation: location,
+          selectedLocationDetails: LocationModel(
+            lat: location.latitude,
+            lng: location.longitude,
+          ),
+          cities: state.cities,
+          selectedCity: null,
+          selectedArea: null,
+          addressDetails: state.addressDetails,
+          getAddressByIdResource: state.getAddressByIdResource,
+          updateAddressResource: state.updateAddressResource,
+        ),
+      );
     }
   }
   // ============================================================

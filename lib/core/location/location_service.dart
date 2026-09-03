@@ -71,10 +71,19 @@ class LocationService {
     debugPrint('$address');
     debugPrint('============================================');
 
+    // `road` is missing for many tapped points (parks, open areas, buildings
+    // without a mapped road) — fall back through other descriptive fields
+    // rather than leaving the address line empty.
+    final addressLine = address?['road'] ??
+        address?['pedestrian'] ??
+        address?['neighbourhood'] ??
+        address?['suburb'] ??
+        address?['amenity'];
+
     return  LocationModel(
       lat: lat,
       lng: lng,
-      addressLine: address?['road'],
+      addressLine: addressLine,
       state: address?['state'],
       city: address?['city'],
       town: address?['town'],
