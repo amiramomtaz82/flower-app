@@ -1,15 +1,13 @@
 import 'package:dio/dio.dart';
 
 import 'package:flower_app/core/app_constants/endpoints.dart';
-
-import 'package:flower_app/features/Address/data/models/areas_with_city_response.dart';
-
-import 'package:flower_app/features/Address/data/models/create_address_request.dart';
-import 'package:flower_app/features/Address/data/models/saved_addresses_response.dart';
 import 'package:injectable/injectable.dart';
 import 'package:retrofit/retrofit.dart';
 
+import '../../data/models/areas_with_city_response.dart';
+import '../../data/models/create_address_request.dart';
 import '../../data/models/create_address_response.dart';
+import '../../data/models/saved_addresses_response.dart';
 import '../../data/models/set_default_address_response.dart';
 part 'address_api_client.g.dart';
 @singleton
@@ -24,8 +22,17 @@ abstract class AddressApiClient {
   @GET(Endpoints.addAddress)
   Future<SavedAddressesResponse> getSavedAddresses();
 
-  @GET(Endpoints.getAreas)
-  Future<AreasWithCityResponse> getAreas();
+  @GET(Endpoints.getCities)
+  Future<CitiesWithAreasResponse> getCities();
+
+  @GET(Endpoints.addressById)
+  Future<CreateAddressResponse> getAddressById(@Path('id') String id);
+
+  @PUT(Endpoints.addressById)
+  Future<CreateAddressResponse> updateAddress(
+      @Path('id') String id,
+      @Body() CreateAddressRequest addressRequest,
+      );
 
 @PUT(Endpoints.setDefaultAddress)
   Future<SetDefaultAddressResponse> setDefaultAddress(

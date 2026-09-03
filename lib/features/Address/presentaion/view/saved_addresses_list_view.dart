@@ -4,8 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:flower_app/features/Address/domain/entities/address_entity.dart';
-
+import '../../domain/entities/address_entity.dart';
 import '../manager/address_cubit.dart';
 import '../manager/address_events.dart';
 import '../manager/address_state.dart';
@@ -13,24 +12,15 @@ import '../manager/address_state.dart';
 /// Fallback data, shown only when the API returns no saved addresses
 /// (or fails), so the screen never renders empty during this sprint.
 const List<AddressEntity> _dummyAddresses = [
-  AddressEntity(
-    id: '1',
-    label: 'Cairo',
-    addressLine: '2XVP+XC - Sheikh Zayed',
-  ),
-  AddressEntity(
-    id: '2',
-    label: 'Cairo',
-    addressLine: '2XVP+XC - Sheikh Zayed',
-  ),
+  AddressEntity(id: '1', label: 'Cairo', addressLine: '2XVP+XC - Sheikh Zayed'),
+  AddressEntity(id: '2', label: 'Cairo', addressLine: '2XVP+XC - Sheikh Zayed'),
 ];
 
 class SavedAddressesListView extends StatefulWidget {
   const SavedAddressesListView({super.key});
 
   @override
-  State<SavedAddressesListView> createState() =>
-      _SavedAddressesListViewState();
+  State<SavedAddressesListView> createState() => _SavedAddressesListViewState();
 }
 
 class _SavedAddressesListViewState extends State<SavedAddressesListView> {
@@ -92,58 +82,75 @@ class _AddressCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
 
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: colors.border),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(Icons.location_on_outlined, size: 20, color: colors.textPrimary),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        (address.label?.trim().isNotEmpty ?? false)
-                            ? address.label!
-                            : 'Address',
-                        style: textTheme.bodyLarge?.copyWith(
-                          fontWeight: FontWeight.w700,
+    return InkWell(
+      borderRadius: BorderRadius.circular(12),
+      onTap: address.id == null
+          ? null
+          : () => context.push(AppRoutes.addressDetailsFor(address.id!)),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: colors.border),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(
+              Icons.location_on_outlined,
+              size: 20,
+              color: colors.textPrimary,
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          (address.label?.trim().isNotEmpty ?? false)
+                              ? address.label!
+                              : 'Address',
+                          style: textTheme.bodyLarge?.copyWith(
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
                       ),
+                      IconButton(
+                        visualDensity: VisualDensity.compact,
+                        icon: Icon(Icons.delete_outline, color: colors.error),
+                        onPressed: () {
+                          // TODO: wire up delete once that flow exists.
+                        },
+                      ),
+                      IconButton(
+                        visualDensity: VisualDensity.compact,
+                        icon: Icon(
+                          Icons.edit_outlined,
+                          color: colors.textPrimary,
+                        ),
+                        onPressed: address.id == null
+                            ? null
+                            : () => context.push(
+                                AppRoutes.editAddressFor(address.id!),
+                              ),
+                      ),
+                    ],
+                  ),
+                  Text(
+                    address.addressLine ?? '',
+                    style: textTheme.bodyMedium?.copyWith(
+                      color: colors.darkGrey,
                     ),
-                    IconButton(
-                      visualDensity: VisualDensity.compact,
-                      icon: Icon(Icons.delete_outline, color: colors.error),
-                      onPressed: () {
-                        // TODO: wire up delete once that flow exists.
-                      },
-                    ),
-                    IconButton(
-                      visualDensity: VisualDensity.compact,
-                      icon: Icon(Icons.edit_outlined, color: colors.textPrimary),
-                      onPressed: () {
-                        // TODO: navigate to Edit Address once that flow exists.
-                      },
-                    ),
-                  ],
-                ),
-                Text(
-                  address.addressLine ?? '',
-                  style: textTheme.bodyMedium?.copyWith(color: colors.darkGrey),
-                ),
-              ],
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

@@ -1,9 +1,9 @@
 import 'package:equatable/equatable.dart';
-import 'package:flower_app/features/Address/domain/entities/address_entity.dart';
 import 'package:latlong2/latlong.dart';
 
 import '../../../../../config/resource/rsource.dart';
 import '../../../../core/location/location_model.dart';
+import '../../domain/entities/address_entity.dart';
 import '../../domain/entities/area_entity.dart';
 import '../../domain/entities/city_entity.dart';
 
@@ -17,35 +17,44 @@ class AddressState extends Equatable {
   final LatLng? selectedLocation;
   final LocationModel? selectedLocationDetails;
 
-  final List<AreaEntity> areas;
-  List<CityEntity> get cities {
-    return areas
-        .expand((area) => area.cities)
-        .toSet()
-        .toList();
-  }
+  /// Cities, each carrying its nested areas.
+  final List<CityEntity> cities;
   final CityEntity? selectedCity;
   final AreaEntity? selectedArea;
+
+  /// The address currently being viewed/edited on the Details & Edit screens.
+  final AddressEntity? addressDetails;
+  final Resource<AddressEntity> getAddressByIdResource;
+  final Resource<AddressEntity> updateAddressResource;
 
   AddressState({
     this.addresses = const [],
     this.selectedAddress,
     this.selectedLocationDetails,
     this.selectedLocation,
-    this.areas = const [],
+    this.cities = const [],
     this.selectedCity,
     this.selectedArea,
+    this.addressDetails,
     Resource<List<AddressEntity>>? getAddressesResource,
     Resource<AddressEntity>? addAddressResource,
+    Resource<AddressEntity>? getAddressByIdResource,
+    Resource<AddressEntity>? updateAddressResource,
   })  : getAddressesResource =
       getAddressesResource ?? Resource.initial(),
         addAddressResource =
-            addAddressResource ?? Resource.initial();
+            addAddressResource ?? Resource.initial(),
+        getAddressByIdResource =
+            getAddressByIdResource ?? Resource.initial(),
+        updateAddressResource =
+            updateAddressResource ?? Resource.initial();
 
   factory AddressState.initial() {
     return AddressState(
       getAddressesResource: Resource.initial(),
       addAddressResource: Resource.initial(),
+      getAddressByIdResource: Resource.initial(),
+      updateAddressResource: Resource.initial(),
     );
   }
 
@@ -58,7 +67,10 @@ class AddressState extends Equatable {
     LocationModel? selectedLocationDetails,
     CityEntity? selectedCity,
     AreaEntity? selectedArea,
-    List<AreaEntity>? areas,
+    List<CityEntity>? cities,
+    AddressEntity? addressDetails,
+    Resource<AddressEntity>? getAddressByIdResource,
+    Resource<AddressEntity>? updateAddressResource,
   }) {
     return AddressState(
       addresses: addresses ?? this.addresses,
@@ -82,8 +94,17 @@ class AddressState extends Equatable {
       selectedArea:
       selectedArea ?? this.selectedArea,
 
-      areas:
-      areas ?? this.areas,
+      cities:
+      cities ?? this.cities,
+
+      addressDetails:
+      addressDetails ?? this.addressDetails,
+
+      getAddressByIdResource:
+      getAddressByIdResource ?? this.getAddressByIdResource,
+
+      updateAddressResource:
+      updateAddressResource ?? this.updateAddressResource,
     );
   }
 
@@ -95,8 +116,11 @@ class AddressState extends Equatable {
     addAddressResource,
     selectedLocation,
     selectedLocationDetails,
-    areas,
+    cities,
     selectedCity,
     selectedArea,
+    addressDetails,
+    getAddressByIdResource,
+    updateAddressResource,
   ];
 }

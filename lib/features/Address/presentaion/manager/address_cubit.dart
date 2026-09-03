@@ -12,9 +12,11 @@ import '../../domain/entities/address_entity.dart';
 import '../../domain/entities/area_entity.dart';
 import '../../domain/entities/city_entity.dart';
 import '../../domain/use_cases/add_address_usecase.dart';
+import '../../domain/use_cases/get_address_by_id_usecase.dart';
 import '../../domain/use_cases/get_area_with_city_usecase.dart';
 import '../../domain/use_cases/get_saved_address_useacse.dart';
 import '../../domain/use_cases/set_default_address_usecase.dart';
+import '../../domain/use_cases/update_address_usecase.dart';
 import 'address_events.dart';
 import 'address_state.dart';
 
@@ -26,6 +28,8 @@ class AddressCubit extends Cubit<AddressState> {
   final GetAreasWithCitiesUseCase _getAreasWithCitiesUseCase;
   final SetDefaultAddressUseCase _setDefaultAddressUseCase;
   final AuthLocalDataSource _authLocalDataSource;
+  final GetAddressByIdUseCase _getAddressByIdUseCase;
+  final UpdateAddressUseCase _updateAddressUseCase;
 
   AddressCubit(
       this._getAreasWithCitiesUseCase,
@@ -33,7 +37,9 @@ class AddressCubit extends Cubit<AddressState> {
       this._addAddressUseCase,
       this._locationService,
       this._setDefaultAddressUseCase,
-      this._authLocalDataSource
+      this._authLocalDataSource,
+      this._getAddressByIdUseCase,
+      this._updateAddressUseCase,
       ) : super(AddressState.initial());
 
   Future<void> doEvents(AddressEvent event) async {
@@ -68,6 +74,15 @@ class AddressCubit extends Cubit<AddressState> {
 
 case InitializeHomeAddressEvent():
     await _initializeHomeAddress();
+
+      case GetAddressByIdEvent():
+        await _getAddressById(event.addressId);
+
+      case UpdateAddressEvent():
+        await _updateAddress(event.addressId, event.address);
+
+      case PrefillAddressForEditEvent():
+        _prefillAddressForEdit(event.address);
     }
   }
 
@@ -121,17 +136,17 @@ case InitializeHomeAddressEvent():
     final result = await _getAreasWithCitiesUseCase();
 
     switch (result) {
-      case SuccessResponse<List<AreaEntity>>():
-        final areas = result.data ?? [];
+      case SuccessResponse<List<CityEntity>>():
+        final cities = result.data;
 
-        debugPrint('========== AREAS LOADED ==========');
-        debugPrint('Areas count: ${areas.length}');
+        debugPrint('========== CITIES LOADED ==========');
+        debugPrint('Cities count: ${cities.length}');
 
-        for (final area in areas) {
-          debugPrint('AREA: ${area.name}');
+        for (final city in cities) {
+          debugPrint('CITY: ${city.name}');
 
-          for (final city in area.cities) {
-            debugPrint('   CITY: ${city.name}');
+          for (final area in city.areas) {
+            debugPrint('   AREA: ${area.name}');
           }
         }
 
@@ -139,13 +154,13 @@ case InitializeHomeAddressEvent():
 
         emit(
           state.copyWith(
-            areas: areas,
+            cities: cities,
           ),
         );
 
-      case ErrorResponse<List<AreaEntity>>():
+      case ErrorResponse<List<CityEntity>>():
         debugPrint(
-          'Get areas error: ${result.errMessage}',
+          'Get cities error: ${result.errMessage}',
         );
     }
   }
@@ -314,40 +329,40 @@ case InitializeHomeAddressEvent():
       debugPrint('========================================');
 
       // ============================================================
-      // 1. FIND BACKEND AREA
+      // 1. FIND BACKEND CITY
       // ============================================================
 
-      final areaName = locationDetails.state ??
+      final cityName = locationDetails.state ??
           locationDetails.city ??
           locationDetails.town ??
           locationDetails.municipality;
-
-      final normalizedAreaName = _normalize(areaName);
-
-      AreaEntity? matchedArea;
-
-      for (final area in state.areas) {
-        if (_normalize(area.name) == normalizedAreaName) {
-          matchedArea = area;
-          break;
-        }
-      }
-
-      // ============================================================
-      // 2. FIND BACKEND CITY
-      // ============================================================
-
-      final cityName = locationDetails.suburb ??
-          locationDetails.neighbourhood;
 
       final normalizedCityName = _normalize(cityName);
 
       CityEntity? matchedCity;
 
-      if (matchedArea != null && normalizedCityName.isNotEmpty) {
-        for (final city in matchedArea.cities) {
-          if (_normalize(city.name) == normalizedCityName) {
-            matchedCity = city;
+      for (final city in state.cities) {
+        if (_normalize(city.name) == normalizedCityName) {
+          matchedCity = city;
+          break;
+        }
+      }
+
+      // ============================================================
+      // 2. FIND BACKEND AREA
+      // ============================================================
+
+      final areaName = locationDetails.suburb ??
+          locationDetails.neighbourhood;
+
+      final normalizedAreaName = _normalize(areaName);
+
+      AreaEntity? matchedArea;
+
+      if (matchedCity != null && normalizedAreaName.isNotEmpty) {
+        for (final area in matchedCity.areas) {
+          if (_normalize(area.name) == normalizedAreaName) {
+            matchedArea = area;
             break;
           }
         }
@@ -358,14 +373,14 @@ case InitializeHomeAddressEvent():
       // ============================================================
 
       debugPrint('========== MATCHING RESULT ==========');
-      debugPrint('Nominatim Area: $areaName');
       debugPrint('Nominatim City: $cityName');
-
-      debugPrint('Matched area: ${matchedArea?.name}');
-      debugPrint('Matched area ID: ${matchedArea?.id}');
+      debugPrint('Nominatim Area: $areaName');
 
       debugPrint('Matched city: ${matchedCity?.name}');
       debugPrint('Matched city ID: ${matchedCity?.id}');
+
+      debugPrint('Matched area: ${matchedArea?.name}');
+      debugPrint('Matched area ID: ${matchedArea?.id}');
       debugPrint('=====================================');
 
       // ============================================================
@@ -389,9 +404,25 @@ case InitializeHomeAddressEvent():
   // ============================================================
 
   void _selectCity(CityEntity city) {
+    // Selecting a new city invalidates any previously picked area, since
+    // areas belong to exactly one city.
+    final stillValidArea = state.selectedArea != null &&
+        city.areas.any((area) => area.id == state.selectedArea!.id);
+
     emit(
-      state.copyWith(
+      AddressState(
+        addresses: state.addresses,
+        selectedAddress: state.selectedAddress,
+        getAddressesResource: state.getAddressesResource,
+        addAddressResource: state.addAddressResource,
+        selectedLocation: state.selectedLocation,
+        selectedLocationDetails: state.selectedLocationDetails,
+        cities: state.cities,
         selectedCity: city,
+        selectedArea: stillValidArea ? state.selectedArea : null,
+        addressDetails: state.addressDetails,
+        getAddressByIdResource: state.getAddressByIdResource,
+        updateAddressResource: state.updateAddressResource,
       ),
     );
   }
@@ -404,34 +435,14 @@ case InitializeHomeAddressEvent():
     emit(
       state.copyWith(
         selectedArea: area,
-        selectedCity: null,
       ),
     );
   }
 
+  /// Areas belonging to the currently selected city — empty until a city
+  /// is chosen, since a standalone area can't be resolved to a city.
   List<AreaEntity> get filteredAreas {
-    final selectedCity = state.selectedCity;
-
-    // Nothing selected → show ALL areas
-    if (selectedCity == null) {
-      return state.areas;
-    }
-
-    // City selected → show areas containing that city
-    return state.areas.where((area) {
-      return area.cities.any(
-            (city) => city.id == selectedCity.id,
-      );
-    }).toList();
-  }
-  List<CityEntity> get filteredCities {
-    final selectedArea = state.selectedArea;
-
-    if (selectedArea == null) {
-      return [];
-    }
-
-    return selectedArea.cities;
+    return state.selectedCity?.areas ?? [];
   }
 
 
@@ -442,20 +453,6 @@ case InitializeHomeAddressEvent():
 
     await _getSavedAddresses();
   }
-  List<CityEntity> _getAllCities() {
-    final cityMap = <String, CityEntity>{};
-
-    for (final area in state.areas) {
-      for (final city in area.cities) {
-        if (city.id != null) {
-          cityMap[city.id!] = city;
-        }
-      }
-    }
-
-    return cityMap.values.toList();
-  }
-
 //----------------------------------
   void _selectDefaultAddress() {
     AddressEntity? defaultAddress;
@@ -589,5 +586,136 @@ case InitializeHomeAddressEvent():
     }
 
     await _selectBestAddress();
+  }
+
+  // ============================================================
+  // PREFILL ADDRESS FOR EDIT
+  // ============================================================
+
+  void _prefillAddressForEdit(AddressEntity address) {
+    CityEntity? matchedCity;
+    AreaEntity? matchedArea;
+
+    for (final city in state.cities) {
+      if (city.id == address.cityId) {
+        matchedCity = city;
+
+        for (final area in city.areas) {
+          if (area.id == address.areaId) {
+            matchedArea = area;
+            break;
+          }
+        }
+
+        break;
+      }
+    }
+
+    LatLng? location;
+
+    if (address.lat != null && address.lng != null) {
+      location = LatLng(address.lat!, address.lng!);
+    }
+
+    // AddressState.copyWith can't null a field back out (a null argument
+    // just keeps the old value), so this is built directly to guarantee a
+    // stale selection from an earlier screen doesn't leak into this one —
+    // AddressCubit is a shared singleton across the app.
+    emit(
+      AddressState(
+        addresses: state.addresses,
+        selectedAddress: state.selectedAddress,
+        getAddressesResource: state.getAddressesResource,
+        addAddressResource: state.addAddressResource,
+        selectedLocation: location,
+        selectedLocationDetails: state.selectedLocationDetails,
+        cities: state.cities,
+        selectedCity: matchedCity,
+        selectedArea: matchedArea,
+        addressDetails: state.addressDetails,
+        getAddressByIdResource: state.getAddressByIdResource,
+        updateAddressResource: state.updateAddressResource,
+      ),
+    );
+  }
+
+  // ============================================================
+  // GET ADDRESS BY ID
+  // ============================================================
+
+  Future<void> _getAddressById(String addressId) async {
+    emit(
+      state.copyWith(
+        getAddressByIdResource: Resource.loading(),
+      ),
+    );
+
+    final result = await _getAddressByIdUseCase(addressId);
+
+    switch (result) {
+      case SuccessResponse<AddressEntity>():
+        final address = result.data;
+
+        emit(
+          state.copyWith(
+            addressDetails: address,
+            getAddressByIdResource: Resource.success(address),
+          ),
+        );
+
+      case ErrorResponse<AddressEntity>():
+        emit(
+          state.copyWith(
+            getAddressByIdResource: Resource.error(
+              result.errMessage,
+            ),
+          ),
+        );
+    }
+  }
+
+  // ============================================================
+  // UPDATE ADDRESS
+  // ============================================================
+
+  Future<void> _updateAddress(
+      String addressId,
+      AddAddressEntity address,
+      ) async {
+    emit(
+      state.copyWith(
+        updateAddressResource: Resource.loading(),
+      ),
+    );
+
+    final result = await _updateAddressUseCase(addressId, address);
+
+    switch (result) {
+      case SuccessResponse<AddressEntity>():
+        final updatedAddress = result.data;
+
+        final updatedAddresses = state.addresses.map((existing) {
+          return existing.id == updatedAddress.id
+              ? updatedAddress
+              : existing;
+        }).toList();
+
+        emit(
+          state.copyWith(
+            addresses: updatedAddresses,
+            addressDetails: updatedAddress,
+            updateAddressResource: Resource.success(updatedAddress),
+          ),
+        );
+
+      case ErrorResponse<AddressEntity>():
+        emit(
+          state.copyWith(
+            updateAddressResource: Resource.error(
+              result.errMessage,
+            ),
+          ),
+        );
+    }
   }
 }

@@ -1,15 +1,12 @@
 import 'package:flower_app/config/base_response/base_response.dart';
 
-import 'package:flower_app/features/Address/data/models/areas_with_city_response.dart';
-
-import 'package:flower_app/features/Address/data/models/create_address_request.dart';
-import 'package:flower_app/features/Address/data/models/create_address_response.dart';
-import 'package:flower_app/features/Address/data/models/saved_addresses_response.dart';
 import 'package:injectable/injectable.dart';
 
 import '../../data/data_source/address_remote_data_source.dart';
-import '../../data/models/addressdto.dart';
-
+import '../../data/models/areas_with_city_response.dart';
+import '../../data/models/create_address_request.dart';
+import '../../data/models/create_address_response.dart';
+import '../../data/models/saved_addresses_response.dart';
 import '../../data/models/set_default_address_response.dart';
 import '../client/address_api_client.dart';
 
@@ -45,21 +42,45 @@ class AddressRemoteDataSourceImpl implements AddressRemoteDataSource {
 
 
   @override
-  Future<BaseResponse<AreasWithCityResponse>> getCities() async {
+  Future<BaseResponse<CitiesWithAreasResponse>> getCities() async {
     try {
-      final response = await _apiClient.getAreas();
+      final response = await _apiClient.getCities();
 
-      return SuccessResponse<AreasWithCityResponse>(
+      return SuccessResponse<CitiesWithAreasResponse>(
         response,
       );
     } catch (e) {
-      return ErrorResponse<AreasWithCityResponse>(error:e) ;
-
-
-
+      return ErrorResponse<CitiesWithAreasResponse>(error: e);
     }
   }
 
+  @override
+  Future<BaseResponse<CreateAddressResponse>> getAddressById(
+      String addressId,
+      ) async {
+    try {
+      final response = await _apiClient.getAddressById(addressId);
+
+      return SuccessResponse<CreateAddressResponse>(response);
+    } on Exception catch (e) {
+      return ErrorResponse<CreateAddressResponse>(error: e);
+    }
+  }
+
+  @override
+  Future<BaseResponse<CreateAddressResponse>> updateAddress(
+      String addressId,
+      CreateAddressRequest addressRequest,
+      ) async {
+    try {
+      final response =
+          await _apiClient.updateAddress(addressId, addressRequest);
+
+      return SuccessResponse<CreateAddressResponse>(response);
+    } on Exception catch (e) {
+      return ErrorResponse<CreateAddressResponse>(error: e);
+    }
+  }
 
   @override
   Future<SetDefaultAddressResponse> setDefaultAddress(

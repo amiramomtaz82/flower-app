@@ -1,7 +1,7 @@
 import 'package:injectable/injectable.dart';
 
 import '../../../../../../config/base_response/base_response.dart';
-import '../entities/area_entity.dart';
+import '../entities/city_entity.dart';
 import '../repo/address_repo.dart';
 
 
@@ -11,7 +11,7 @@ class GetAreasWithCitiesUseCase {
 
   GetAreasWithCitiesUseCase(this._repository);
 
-  Future<BaseResponse<List<AreaEntity>>> call() async {
+  Future<BaseResponse<List<CityEntity>>> call() async {
     return await _repository.getAreasWithCities();
   }
 }

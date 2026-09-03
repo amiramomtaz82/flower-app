@@ -10,6 +10,15 @@ class AppRoutes {
   static const String addAddress= '/addAddress';
   static const String savedAddresses = '/saved-addresses';
 
+  static const String addressDetails = '/address-details/:addressId';
+  static const String editAddress = '/edit-address/:addressId';
+
+  static String addressDetailsFor(String addressId) =>
+      '/address-details/${Uri.encodeComponent(addressId)}';
+
+  static String editAddressFor(String addressId) =>
+      '/edit-address/${Uri.encodeComponent(addressId)}';
+
   static const String productDetails = '/product-details';
 
   static const String bestSeller = '/best-seller';

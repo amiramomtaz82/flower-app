@@ -28,6 +28,8 @@ import 'package:go_router/go_router.dart';
 import '../../features/Address/presentaion/manager/address_cubit.dart';
 import '../../features/Address/presentaion/manager/address_events.dart';
 import '../../features/Address/presentaion/view/add_address_view.dart';
+import '../../features/Address/presentaion/view/address_details_view.dart';
+import '../../features/Address/presentaion/view/edit_address_view.dart';
 import '../../features/Address/presentaion/view/saved_addresses_list_view.dart';
 import '../../features/auth/presentation/login/views/login_view.dart';
 import '../../features/commerce/presentation/home/view/home_view.dart';
@@ -155,6 +157,24 @@ class AppRouter {
         builder: (context, state) => BlocProvider(
           create: (_) => getIt<AddressCubit>(),
           child: const SavedAddressesListView(),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.addressDetails,
+        builder: (context, state) => BlocProvider(
+          create: (_) => getIt<AddressCubit>(),
+          child: AddressDetailsView(
+            addressId: state.pathParameters['addressId']!,
+          ),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.editAddress,
+        builder: (context, state) => BlocProvider(
+          create: (_) => getIt<AddressCubit>(),
+          child: EditAddressView(
+            addressId: state.pathParameters['addressId']!,
+          ),
         ),
       ),
       GoRoute(

@@ -73,3 +73,35 @@ class SetDefaultAddressEvent extends AddressEvent {
 class InitializeHomeAddressEvent extends AddressEvent {
   const InitializeHomeAddressEvent();
 }
+
+class GetAddressByIdEvent extends AddressEvent {
+  final String addressId;
+
+  const GetAddressByIdEvent(this.addressId);
+
+  @override
+  List<Object?> get props => [addressId];
+}
+
+class UpdateAddressEvent extends AddressEvent {
+  final String addressId;
+  final AddAddressEntity address;
+
+  const UpdateAddressEvent(this.addressId, this.address);
+
+  @override
+  List<Object?> get props => [addressId, address];
+}
+
+/// Populates the map/city/area selection from an existing address, for the
+/// Edit screen — unlike [SelectLocationEvent], this does not trigger
+/// reverse geocoding, so it won't overwrite the loaded city/area with a
+/// GPS-based guess.
+class PrefillAddressForEditEvent extends AddressEvent {
+  final AddressEntity address;
+
+  const PrefillAddressForEditEvent(this.address);
+
+  @override
+  List<Object?> get props => [address];
+}
