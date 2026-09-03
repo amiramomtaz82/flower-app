@@ -19,12 +19,11 @@ abstract interface class CommerceRepo {
 
   Future<BaseResponse<PaginatedResponse<ProductEntity>>> getProducts({
     String? occasionId,
+    String? categoryId,
+    String? keyword,
+    String? sortBy,
     required int pageNumber,
     required int pageSize,
-  });
-
-  Future<BaseResponse<List<ProductEntity>>> getProductsByCategory({
-    required String categoryId,
   });
 
   Future<BaseResponse<ProductEntity>> getProductById({

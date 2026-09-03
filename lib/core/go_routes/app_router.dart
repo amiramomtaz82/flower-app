@@ -19,6 +19,8 @@ import 'package:flower_app/features/commerce/presentation/occasions/manager/occa
 import 'package:flower_app/features/commerce/presentation/occasions/view/occasions_view.dart';
 import 'package:flower_app/features/commerce/presentation/product_details/view/product_details_view.dart';
 import 'package:flower_app/features/commerce/presentation/product_details/view_model/product_details_view_model.dart';
+import 'package:flower_app/features/commerce/presentation/search/manager/search_cubit.dart';
+import 'package:flower_app/features/commerce/presentation/search/view/search_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -145,6 +147,13 @@ class AppRouter {
             child: const OccasionsView(),
           );
         },
+      ),
+      GoRoute(
+        path: AppRoutes.search,
+        builder: (context, state) => BlocProvider(
+          create: (_) => getIt<SearchCubit>(),
+          child: const SearchView(),
+        ),
       ),
     ],
   );

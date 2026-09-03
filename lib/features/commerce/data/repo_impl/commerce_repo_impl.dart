@@ -69,12 +69,18 @@ class CommerceRepoImpl implements CommerceRepo {
   @override
   Future<BaseResponse<PaginatedResponse<ProductEntity>>> getProducts({
     String? occasionId,
+    String? categoryId,
+    String? keyword,
+    String? sortBy,
     required int pageNumber,
     required int pageSize,
   }) async {
     try {
       final products = await _commerceRemoteDataSource.getProducts(
         occasionId: occasionId,
+        categoryId: categoryId,
+        keyword: keyword,
+        sortBy: sortBy,
         pageNumber: pageNumber,
         pageSize: pageSize,
       );
@@ -92,20 +98,6 @@ class CommerceRepoImpl implements CommerceRepo {
           ),
         ),
       );
-    } on DioException catch (e) {
-      return ErrorResponse(error: e);
-    }
-  }
-
-  @override
-  Future<BaseResponse<List<ProductEntity>>> getProductsByCategory({
-    required String categoryId,
-  }) async {
-    try {
-      final products = await _commerceRemoteDataSource.getProductsByCategory(
-        categoryId: categoryId,
-      );
-      return SuccessResponse(products.map((p) => p.toEntity()).toList());
     } on DioException catch (e) {
       return ErrorResponse(error: e);
     }

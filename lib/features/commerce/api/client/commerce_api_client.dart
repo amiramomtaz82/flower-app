@@ -31,11 +31,14 @@ abstract class CommerceApiClient {
   );
 
   @GET(Endpoints.products)
-  Future<ProductsResponseModel> getProducts(
+  Future<ProductsResponseModel> getProducts({
     @Query(QueryParams.occasionId) String? occasionId,
-    @Query(QueryParams.pageNumber) int pageNumber,
-    @Query(QueryParams.pageSize) int pageSize,
-  );
+    @Query(QueryParams.categoryId) String? categoryId,
+    @Query('keyword') String? keyword,
+    @Query('sortBy') String? sortBy,
+    @Query('page') required int pageNumber,
+    @Query(QueryParams.pageSize) required int pageSize,
+  });
 
   @GET(Endpoints.productsByCategory)
   Future<ProductsByCategoryResponseModel> getProductsByCategory(
