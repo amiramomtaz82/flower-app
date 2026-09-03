@@ -58,4 +58,13 @@ class AddressRemoteDataSourceImpl implements AddressRemoteDataSource {
 
     }
   }
+  @override
+  Future<BaseResponse<AddressDto>> setDefaultAddress(String id) async {
+    try {
+      final response = await _apiClient.setDefaultAddress(id);
+      return SuccessResponse<AddressDto>(response);
+    } on Exception catch (e) {
+      return ErrorResponse<AddressDto>(error: e);
+    }
+  }
 }

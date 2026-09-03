@@ -1,3 +1,4 @@
+// lib/features/Address/domain/entities/address_entity.dart
 import 'package:equatable/equatable.dart';
 
 class AddressEntity extends Equatable {
@@ -12,7 +13,6 @@ class AddressEntity extends Equatable {
   final String? label;
   final bool? isDefault;
   final String? storeId;
-  final bool? isServiceable;
   final String? createdAt;
 
   const AddressEntity({
@@ -27,9 +27,38 @@ class AddressEntity extends Equatable {
     this.label,
     this.isDefault,
     this.storeId,
-    this.isServiceable,
     this.createdAt,
   });
+
+  AddressEntity copyWith({
+    String? id,
+    String? recipientName,
+    String? recipientPhone,
+    String? addressLine,
+    String? cityId,
+    String? areaId,
+    double? lat,
+    double? lng,
+    String? label,
+    bool? isDefault,
+    String? storeId,
+    String? createdAt,
+  }) {
+    return AddressEntity(
+      id: id ?? this.id,
+      recipientName: recipientName ?? this.recipientName,
+      recipientPhone: recipientPhone ?? this.recipientPhone,
+      addressLine: addressLine ?? this.addressLine,
+      cityId: cityId ?? this.cityId,
+      areaId: areaId ?? this.areaId,
+      lat: lat ?? this.lat,
+      lng: lng ?? this.lng,
+      label: label ?? this.label,
+      isDefault: isDefault ?? this.isDefault,
+      storeId: storeId ?? this.storeId,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
 
   @override
   List<Object?> get props => [
@@ -44,7 +73,6 @@ class AddressEntity extends Equatable {
     label,
     isDefault,
     storeId,
-    isServiceable,
     createdAt,
   ];
 }

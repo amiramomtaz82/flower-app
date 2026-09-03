@@ -5,6 +5,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:nominatim_flutter/model/request/reverse_request.dart';
 import 'package:nominatim_flutter/nominatim_flutter.dart';
 
+import '../../features/Address/domain/entities/address_entity.dart';
 import 'location_model.dart';
 
 
@@ -13,12 +14,13 @@ import 'location_model.dart';
 class LocationService {
   final NominatimFlutter _nominatim;
 
-  LocationService({NominatimFlutter? nominatim})
-      : _nominatim = nominatim ?? NominatimFlutter.instance {
+  LocationService() : _nominatim = NominatimFlutter.instance {
     _nominatim.configureNominatim(
       userAgent: 'FlowerApp/1.0',
     );
   }
+  @visibleForTesting
+  LocationService.test(this._nominatim);
 
   ////=========================current location===================
   Future<LatLng> getCurrentLocation() async {
@@ -103,5 +105,22 @@ class LocationService {
     }
 
     return filtered.join(', ');
+  }
+
+  AddressEntity getClosestAddress(List<AddressEntity> addresses, LatLng current) {
+    const distance = Distance();
+    AddressEntity closest = addresses.first;
+    double minMeters = double.infinity;
+
+    for (final addr in addresses) {
+      if (addr.lat != null && addr.lng != null) {
+        final meters = distance(current, LatLng(addr.lat!, addr.lng!));
+        if (meters < minMeters) {
+          minMeters = meters;
+          closest = addr;
+        }
+      }
+    }
+    return closest;
   }
 }

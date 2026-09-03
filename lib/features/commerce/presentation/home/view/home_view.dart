@@ -1,9 +1,11 @@
 import 'package:flower_app/config/resource/rsource.dart';
 import 'package:flower_app/core/app_constants/app_assets.dart';
 import 'package:flower_app/core/go_routes/routes_name.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../../domain/entities/category_entity.dart';
 import '../../../domain/entities/home_section_entity.dart';
 import '../../../domain/entities/home_section_type.dart';
@@ -13,15 +15,20 @@ import '../manager/home_cubit.dart';
 import '../manager/home_state.dart';
 import '../widgets/best_seller_card.dart';
 import '../widgets/category_chip.dart';
-import '../widgets/deliver_to_row.dart';
+
+import '../widgets/home_address_header.dart';
 import '../widgets/home_horizontal_section.dart';
 import '../widgets/home_search_bar.dart';
 import '../widgets/occasion_card.dart';
 
-class HomeView extends StatelessWidget {
+class HomeView extends StatefulWidget {
   const HomeView({super.key});
 
   @override
+  State<HomeView> createState() => _HomeViewState();
+}
+
+class _HomeViewState extends State<HomeView> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
@@ -42,9 +49,8 @@ class HomeView extends StatelessWidget {
                   const SizedBox(height: 16),
 
                   // ---------- deliver to ------------------
-                  const DeliverToRow(address: '2XVP+XC - Sheikh Zayed'),
-                  const SizedBox(height: 24),
-
+                  const HomeAddressHeader(),
+                  const SizedBox(height: 16),
                   // ---------- sections, driven by /home/sections ------------------
                   // Selects only sectionsResource so adding/loading a single
                   // section's content doesn't rebuild this list — each
@@ -94,6 +100,7 @@ class HomeView extends StatelessWidget {
     );
   }
 }
+
 
 /// Renders one `/home/sections` entry, re-selecting only the resource it
 /// needs so an unrelated section loading doesn't rebuild this one.

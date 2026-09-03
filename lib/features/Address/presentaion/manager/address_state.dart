@@ -1,53 +1,45 @@
 import 'package:equatable/equatable.dart';
-import 'package:flower_app/features/Address/domain/entities/address_entity.dart';
 import 'package:latlong2/latlong.dart';
 
-import '../../../../../config/resource/rsource.dart';
+import '../../../../../../config/resource/rsource.dart';
 import '../../../../core/location/location_model.dart';
+import '../../domain/entities/address_entity.dart';
 import '../../domain/entities/area_entity.dart';
 import '../../domain/entities/city_entity.dart';
 
 class AddressState extends Equatable {
   final List<AddressEntity> addresses;
   final AddressEntity? selectedAddress;
-
   final Resource<List<AddressEntity>> getAddressesResource;
   final Resource<AddressEntity> addAddressResource;
-
   final LatLng? selectedLocation;
   final LocationModel? selectedLocationDetails;
-
   final List<AreaEntity> areas;
-  List<CityEntity> get cities {
-    return areas
-        .expand((area) => area.cities)
-        .toSet()
-        .toList();
-  }
   final CityEntity? selectedCity;
   final AreaEntity? selectedArea;
+  final bool isGuest; // <-- Added field
 
-  AddressState({
-    this.addresses = const [],
+  const AddressState({
+    required this.addresses,
     this.selectedAddress,
-    this.selectedLocationDetails,
+    required this.getAddressesResource,
+    required this.addAddressResource,
     this.selectedLocation,
-    this.areas = const [],
+    this.selectedLocationDetails,
+    required this.areas,
     this.selectedCity,
     this.selectedArea,
-    Resource<List<AddressEntity>>? getAddressesResource,
-    Resource<AddressEntity>? addAddressResource,
-  })  : getAddressesResource =
-      getAddressesResource ?? Resource.initial(),
-        addAddressResource =
-            addAddressResource ?? Resource.initial();
+    this.isGuest = false, // <-- Added default
+  });
 
-  factory AddressState.initial() {
-    return AddressState(
-      getAddressesResource: Resource.initial(),
-      addAddressResource: Resource.initial(),
-    );
-  }
+  factory AddressState.initial() => AddressState(
+    addresses: const [],
+    selectedAddress: null,
+    getAddressesResource: Resource.initial(),
+    addAddressResource: Resource.initial(),
+    areas: const [],
+    isGuest: false, // <-- Initialized as false
+  );
 
   AddressState copyWith({
     List<AddressEntity>? addresses,
@@ -56,34 +48,23 @@ class AddressState extends Equatable {
     Resource<AddressEntity>? addAddressResource,
     LatLng? selectedLocation,
     LocationModel? selectedLocationDetails,
+    List<AreaEntity>? areas,
     CityEntity? selectedCity,
     AreaEntity? selectedArea,
-    List<AreaEntity>? areas,
+    bool? isGuest, // <-- Added parameter
   }) {
     return AddressState(
       addresses: addresses ?? this.addresses,
       selectedAddress: selectedAddress ?? this.selectedAddress,
-
-      getAddressesResource:
-      getAddressesResource ?? this.getAddressesResource,
-
-      addAddressResource:
-      addAddressResource ?? this.addAddressResource,
-
-      selectedLocation:
-      selectedLocation ?? this.selectedLocation,
-
+      getAddressesResource: getAddressesResource ?? this.getAddressesResource,
+      addAddressResource: addAddressResource ?? this.addAddressResource,
+      selectedLocation: selectedLocation ?? this.selectedLocation,
       selectedLocationDetails:
       selectedLocationDetails ?? this.selectedLocationDetails,
-
-      selectedCity:
-      selectedCity ?? this.selectedCity,
-
-      selectedArea:
-      selectedArea ?? this.selectedArea,
-
-      areas:
-      areas ?? this.areas,
+      areas: areas ?? this.areas,
+      selectedCity: selectedCity ?? this.selectedCity,
+      selectedArea: selectedArea ?? this.selectedArea,
+      isGuest: isGuest ?? this.isGuest, // <-- Assigned
     );
   }
 
@@ -98,5 +79,6 @@ class AddressState extends Equatable {
     areas,
     selectedCity,
     selectedArea,
+    isGuest, // <-- Added to Equatable props
   ];
 }
