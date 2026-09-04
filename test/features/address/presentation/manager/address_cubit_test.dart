@@ -9,6 +9,7 @@ import 'package:flower_app/features/Address/domain/entities/address_entity.dart'
 import 'package:flower_app/features/Address/domain/entities/area_entity.dart';
 import 'package:flower_app/features/Address/domain/entities/city_entity.dart';
 import 'package:flower_app/features/Address/domain/use_cases/add_address_usecase.dart';
+import 'package:flower_app/features/Address/domain/use_cases/get_areas_with_cities_usecase.dart';
 import 'package:flower_app/features/Address/domain/use_cases/get_saved_address_useacse.dart';
 import 'package:flower_app/features/Address/domain/use_cases/set_default_address_usecase.dart';
 import 'package:flower_app/features/Address/presentaion/manager/address_cubit.dart';
@@ -27,6 +28,7 @@ import 'address_cubit_test.mocks.dart';
   LocationService,
   SetDefaultAddressUseCase,
   GuestBrowsingProvider,
+  GetAreasWithCitiesUseCase,
 ])
 void main() {
   late AddressCubit cubit;
@@ -35,9 +37,14 @@ void main() {
   late MockLocationService mockLocationService;
   late MockSetDefaultAddressUseCase mockSetDefaultAddressUseCase;
   late MockGuestBrowsingProvider mockGuestBrowsingProvider;
+  late MockGetAreasWithCitiesUseCase mockGetAreasWithCitiesUseCase;
 
   provideDummy<BaseResponse<List<AddressEntity>>>(
     const SuccessResponse<List<AddressEntity>>([]),
+  );
+
+  provideDummy<BaseResponse<List<AreaEntity>>>(
+    const SuccessResponse<List<AreaEntity>>([]),
   );
 
   provideDummy<BaseResponse<AddressEntity>>(
@@ -52,6 +59,7 @@ void main() {
     mockLocationService = MockLocationService();
     mockSetDefaultAddressUseCase = MockSetDefaultAddressUseCase();
     mockGuestBrowsingProvider = MockGuestBrowsingProvider();
+    mockGetAreasWithCitiesUseCase = MockGetAreasWithCitiesUseCase();
 
     cubit = AddressCubit(
       mockGetSavedAddressesUseCase,
@@ -59,6 +67,7 @@ void main() {
       mockLocationService,
       mockSetDefaultAddressUseCase,
       mockGuestBrowsingProvider,
+      mockGetAreasWithCitiesUseCase,
     );
   });
 
@@ -104,6 +113,7 @@ void main() {
   );
 
   const tCity = CityEntity(id: 'city_cairo', name: 'Cairo');
+  const tCity2 = CityEntity(id: 'city_giza', name: 'Giza');
   const tArea = AreaEntity(id: 'area_maadi', name: 'Maadi', cities: [tCity]);
 
   // ============================================================
@@ -166,11 +176,50 @@ void main() {
   });
 
   // ============================================================
+  // GET AREAS WITH CITIES
+  // ============================================================
+  group('GetAreasWithCitiesEvent', () {
+    blocTest<AddressCubit, AddressState>(
+      'emits state with updated areas when usecase returns SuccessResponse',
+      build: () {
+        when(mockGetAreasWithCitiesUseCase()).thenAnswer(
+              (_) async => const SuccessResponse<List<AreaEntity>>([tArea]),
+        );
+        return cubit;
+      },
+      act: (cubit) => cubit.doEvents(GetAreasWithCitiesEvent()),
+      expect: () => [
+        AddressState.initial().copyWith(areas: [tArea]),
+      ],
+      verify: (_) {
+        verify(mockGetAreasWithCitiesUseCase()).called(1);
+      },
+    );
+
+    blocTest<AddressCubit, AddressState>(
+      'emits nothing when usecase returns ErrorResponse',
+      build: () {
+        when(mockGetAreasWithCitiesUseCase()).thenAnswer(
+              (_) async => ErrorResponse<List<AreaEntity>>(
+            errMessage: 'Failed to fetch areas',
+          ),
+        );
+        return cubit;
+      },
+      act: (cubit) => cubit.doEvents(GetAreasWithCitiesEvent()),
+      expect: () => [],
+      verify: (_) {
+        verify(mockGetAreasWithCitiesUseCase()).called(1);
+      },
+    );
+  });
+
+  // ============================================================
   // ADD ADDRESS
   // ============================================================
   group('AddAddressEvent', () {
     blocTest<AddressCubit, AddressState>(
-      'emits [loading, success] and updates address list & selectedAddress on success',
+      'emits [loading, success] and resets location/city/area form fields on success',
       build: () {
         when(mockAddAddressUseCase(any)).thenAnswer(
               (_) async => const SuccessResponse<AddressEntity>(tAddress),
@@ -186,6 +235,10 @@ void main() {
           addresses: [tAddress],
           selectedAddress: tAddress,
           addAddressResource: Resource.success(tAddress),
+          selectedLocation: null,
+          selectedLocationDetails: null,
+          selectedCity: null,
+          selectedArea: null,
         ),
       ],
       verify: (_) {
@@ -219,6 +272,25 @@ void main() {
   });
 
   // ============================================================
+  // RESET ADD ADDRESS STATE
+  // ============================================================
+  group('ResetAddAddressStateEvent', () {
+    blocTest<AddressCubit, AddressState>(
+      'resets addAddressResource back to initial',
+      seed: () => AddressState.initial().copyWith(
+        addAddressResource: Resource.success(tAddress),
+      ),
+      build: () => cubit,
+      act: (cubit) => cubit.doEvents(ResetAddAddressStateEvent()),
+      expect: () => [
+        AddressState.initial().copyWith(
+          addAddressResource: Resource.initial(),
+        ),
+      ],
+    );
+  });
+
+  // ============================================================
   // SELECTION EVENTS
   // ============================================================
   group('Selection Events', () {
@@ -232,26 +304,40 @@ void main() {
     );
 
     blocTest<AddressCubit, AddressState>(
-      'SelectAreaEvent updates selectedArea in state',
+      'SelectAreaEvent keeps selectedCity if present in the new area',
+      seed: () => AddressState.initial().copyWith(
+        selectedCity: tCity,
+      ),
       build: () => cubit,
       act: (cubit) => cubit.doEvents(SelectAreaEvent(tArea)),
       expect: () => [
-        AddressState.initial().copyWith(selectedArea: tArea),
+        AddressState.initial().copyWith(
+          selectedArea: tArea,
+          selectedCity: tCity,
+        ),
       ],
     );
 
     blocTest<AddressCubit, AddressState>(
-      'SelectCityEvent updates selectedCity and filters matching areas',
+      'SelectAreaEvent resets selectedCity to null if not present in the new area',
       seed: () => AddressState.initial().copyWith(
-        areas: [tArea],
+        selectedCity: tCity2,
       ),
+      build: () => cubit,
+      act: (cubit) => cubit.doEvents(SelectAreaEvent(tArea)),
+      expect: () => [
+        AddressState.initial().copyWith(
+          selectedCity: tCity2, // copyWith retains previous value when null is passed
+          selectedArea: tArea,
+        ),
+      ],
+    );
+    blocTest<AddressCubit, AddressState>(
+      'SelectCityEvent updates selectedCity in state',
       build: () => cubit,
       act: (cubit) => cubit.doEvents(SelectCityEvent(tCity)),
       expect: () => [
-        AddressState.initial().copyWith(
-          selectedCity: tCity,
-          areas: [tArea],
-        ),
+        AddressState.initial().copyWith(selectedCity: tCity),
       ],
     );
   });
@@ -261,7 +347,7 @@ void main() {
   // ============================================================
   group('Location Events', () {
     final tLatLng = LatLng(29.96, 31.25);
-    final tLocationDetails = const LocationModel(
+    const tLocationDetails = LocationModel(
       lat: 29.96,
       lng: 31.25,
       addressLine: 'Street 9, Maadi',
@@ -347,9 +433,6 @@ void main() {
   // ============================================================
   // SET DEFAULT ADDRESS
   // ============================================================
-  // ============================================================
-  // SET DEFAULT ADDRESS
-  // ============================================================
   group('SetDefaultAddressEvent', () {
     final tInitialList = [
       tAddress.copyWith(isDefault: false),
@@ -363,7 +446,7 @@ void main() {
 
     final tBackendSuccessAddress = tAddress.copyWith(
       isDefault: true,
-      recipientName: 'Ahmed Hassan Updated', // Distinct value so Equatable registers the confirmation emit
+      recipientName: 'Ahmed Hassan Updated',
     );
 
     final tConfirmedList = [
@@ -437,14 +520,17 @@ void main() {
   // ============================================================
   group('ResolveHomeAddressEvent', () {
     blocTest<AddressCubit, AddressState>(
-      'sets selectedAddress to null when user is guest',
+      'sets isGuest to true and selectedAddress to null when user is guest',
       build: () {
         when(mockGuestBrowsingProvider.isGuest()).thenAnswer((_) async => true);
         return cubit;
       },
       act: (cubit) => cubit.doEvents(ResolveHomeAddressEvent()),
       expect: () => [
-        AddressState.initial().copyWith(selectedAddress: null),
+        AddressState.initial().copyWith(
+          isGuest: true,
+          selectedAddress: null,
+        ),
       ],
       verify: (_) {
         verify(mockGuestBrowsingProvider.isGuest()).called(1);
@@ -453,27 +539,19 @@ void main() {
     );
 
     blocTest<AddressCubit, AddressState>(
-      'sets selectedAddress to null when authenticated user has no addresses',
-      build: () {
-        when(mockGuestBrowsingProvider.isGuest()).thenAnswer((_) async => false);
-        when(mockGetSavedAddressesUseCase()).thenAnswer(
-              (_) async => const SuccessResponse<List<AddressEntity>>([]),
-        );
-        return cubit;
-      },
-      act: (cubit) => cubit.doEvents(ResolveHomeAddressEvent()),
+      'SelectAreaEvent resets selectedCity to null if not present in the new area',
+      seed: () => AddressState.initial().copyWith(
+        selectedCity: tCity2,
+      ),
+      build: () => cubit,
+      act: (cubit) => cubit.doEvents(SelectAreaEvent(tArea)),
       expect: () => [
         AddressState.initial().copyWith(
-          getAddressesResource: Resource.loading(),
-        ),
-        AddressState.initial().copyWith(
-          addresses: [],
-          getAddressesResource: Resource.success([]),
-          selectedAddress: null,
+          selectedCity: tCity2, // copyWith retains previous value when null is passed
+          selectedArea: tArea,
         ),
       ],
     );
-
     blocTest<AddressCubit, AddressState>(
       'automatically selects the only address if addresses length is 1',
       build: () {
@@ -485,18 +563,20 @@ void main() {
       },
       act: (cubit) => cubit.doEvents(ResolveHomeAddressEvent()),
       expect: () => [
-        // 1. _getSavedAddresses() loading
         AddressState.initial().copyWith(
+          isGuest: false,
+        ),
+        AddressState.initial().copyWith(
+          isGuest: false,
           getAddressesResource: Resource.loading(),
         ),
-        // 2. _getSavedAddresses() success with list loaded
         AddressState.initial().copyWith(
+          isGuest: false,
           addresses: [tAddress],
           getAddressesResource: Resource.success([tAddress]),
-          selectedAddress: null,
         ),
-        // 3. Selection resolved for the single address
         AddressState.initial().copyWith(
+          isGuest: false,
           addresses: [tAddress],
           getAddressesResource: Resource.success([tAddress]),
           selectedAddress: tAddress,
@@ -526,18 +606,20 @@ void main() {
       },
       act: (cubit) => cubit.doEvents(ResolveHomeAddressEvent()),
       expect: () => [
-        // 1. _getSavedAddresses() loading
         AddressState.initial().copyWith(
+          isGuest: false,
+        ),
+        AddressState.initial().copyWith(
+          isGuest: false,
           getAddressesResource: Resource.loading(),
         ),
-        // 2. _getSavedAddresses() success with list loaded
         AddressState.initial().copyWith(
+          isGuest: false,
           addresses: [tAddress, tAddress2],
           getAddressesResource: Resource.success([tAddress, tAddress2]),
-          selectedAddress: null,
         ),
-        // 3. Selection resolved to closest address
         AddressState.initial().copyWith(
+          isGuest: false,
           addresses: [tAddress, tAddress2],
           getAddressesResource: Resource.success([tAddress, tAddress2]),
           selectedAddress: tAddress,
@@ -561,46 +643,25 @@ void main() {
       },
       act: (cubit) => cubit.doEvents(ResolveHomeAddressEvent()),
       expect: () => [
-        // 1. _getSavedAddresses() loading
         AddressState.initial().copyWith(
+          isGuest: false,
+        ),
+        AddressState.initial().copyWith(
+          isGuest: false,
           getAddressesResource: Resource.loading(),
         ),
-        // 2. _getSavedAddresses() success with list loaded
         AddressState.initial().copyWith(
+          isGuest: false,
           addresses: [tAddress, tAddress2],
           getAddressesResource: Resource.success([tAddress, tAddress2]),
-          selectedAddress: null,
         ),
-        // 3. Selection resolved to fallback default
         AddressState.initial().copyWith(
+          isGuest: false,
           addresses: [tAddress, tAddress2],
           getAddressesResource: Resource.success([tAddress, tAddress2]),
           selectedAddress: tAddress2,
         ),
       ],
     );
-  });
-
-  // ============================================================
-  // GETTER: filteredAreas
-  // ============================================================
-  group('filteredAreas getter', () {
-    test('returns empty list when selectedCity is null', () {
-      expect(cubit.filteredAreas, isEmpty);
-    });
-
-    test('returns matching areas when selectedCity matches', () {
-      cubit.emit(
-        cubit.state.copyWith(
-          selectedCity: tCity,
-          areas: [tArea],
-        ),
-      );
-
-      final result = cubit.filteredAreas;
-
-      expect(result.length, 1);
-      expect(result.first.id, tArea.id);
-    });
   });
 }

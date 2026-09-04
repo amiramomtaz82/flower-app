@@ -1,5 +1,6 @@
 import 'package:flower_app/core/location/location_model.dart';
 import 'package:flower_app/core/location/location_service.dart';
+import 'package:flower_app/features/Address/domain/entities/address_entity.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geolocator_platform_interface/geolocator_platform_interface.dart';
@@ -97,14 +98,18 @@ void main() {
     GeolocatorPlatform.instance = fakeGeolocatorPlatform;
 
     fakeNominatim = FakeNominatimFlutter();
-    locationService = LocationService(nominatim: fakeNominatim);
+    // Use the @visibleForTesting named constructor
+    locationService = LocationService.test(fakeNominatim);
   });
 
+  // ============================================================
+  // getCurrentLocation
+  // ============================================================
   group('getCurrentLocation', () {
     test('throws Exception when location services are disabled', () async {
       fakeGeolocatorPlatform.serviceEnabled = false;
 
-      expect(
+      await expectLater(
             () => locationService.getCurrentLocation(),
         throwsA(
           isA<Exception>().having(
@@ -122,7 +127,6 @@ void main() {
           fakeGeolocatorPlatform.checkPermissionResult = LocationPermission.denied;
           fakeGeolocatorPlatform.requestPermissionResult = LocationPermission.denied;
 
-          // Notice the `await` before expect!
           await expectLater(
                 () => locationService.getCurrentLocation(),
             throwsA(
@@ -138,41 +142,26 @@ void main() {
           expect(fakeGeolocatorPlatform.requestPermissionCallCount, 1);
         });
 
+    test('throws Exception when permission is deniedForever without requesting',
+            () async {
+          fakeGeolocatorPlatform.serviceEnabled = true;
+          fakeGeolocatorPlatform.checkPermissionResult =
+              LocationPermission.deniedForever;
 
+          await expectLater(
+                () => locationService.getCurrentLocation(),
+            throwsA(
+              isA<Exception>().having(
+                    (e) => e.toString(),
+                'message',
+                contains('Location permission permanently denied.'),
+              ),
+            ),
+          );
 
-    test('throws Exception when location services are disabled', () async {
-      fakeGeolocatorPlatform.serviceEnabled = false;
-
-      await expectLater(
-            () => locationService.getCurrentLocation(),
-        throwsA(
-          isA<Exception>().having(
-                (e) => e.toString(),
-            'message',
-            contains('Location services are disabled.'),
-          ),
-        ),
-      );
-    });
-
-    test('throws Exception when permission is deniedForever', () async {
-      fakeGeolocatorPlatform.serviceEnabled = true;
-      fakeGeolocatorPlatform.checkPermissionResult =
-          LocationPermission.deniedForever;
-
-      await expectLater(
-            () => locationService.getCurrentLocation(),
-        throwsA(
-          isA<Exception>().having(
-                (e) => e.toString(),
-            'message',
-            contains('Location permission permanently denied.'),
-          ),
-        ),
-      );
-
-      expect(fakeGeolocatorPlatform.requestPermissionCallCount, 0);
-    });
+          expect(fakeGeolocatorPlatform.checkPermissionCallCount, 1);
+          expect(fakeGeolocatorPlatform.requestPermissionCallCount, 0);
+        });
 
     test('returns LatLng when permissions are granted and location is fetched',
             () async {
@@ -198,6 +187,9 @@ void main() {
         });
   });
 
+  // ============================================================
+  // reverseGeocode
+  // ============================================================
   group('reverseGeocode', () {
     const tLat = 29.96;
     const tLng = 31.25;
@@ -248,5 +240,92 @@ void main() {
           expect(result.city, equals('New Cairo'));
           expect(result.area, equals('El Rehab'));
         });
+
+    test('falls back to municipality when city and town are null', () async {
+      fakeNominatim.nextResponse = FakeNominatimResponse(
+        address: {
+          'municipality': 'Giza Municipality',
+          'suburb': 'Dokki',
+        },
+      );
+
+      final result = await locationService.reverseGeocode(
+        lat: tLat,
+        lng: tLng,
+      );
+
+      expect(result.city, equals('Giza Municipality'));
+      expect(result.area, equals('Dokki'));
+    });
+
+    test('returns null fields when address map is null', () async {
+      fakeNominatim.nextResponse = FakeNominatimResponse(address: null);
+
+      final result = await locationService.reverseGeocode(
+        lat: tLat,
+        lng: tLng,
+      );
+
+      expect(result.lat, tLat);
+      expect(result.lng, tLng);
+      expect(result.addressLine, isNull);
+      expect(result.city, isNull);
+      expect(result.area, isNull);
+    });
+  });
+
+  // ============================================================
+  // getClosestAddress
+  // ============================================================
+  group('getClosestAddress', () {
+    const currentPoint = LatLng(30.0000, 31.0000);
+
+    const closeAddress = AddressEntity(
+      id: 'addr_close',
+      lat: 30.0001,
+      lng: 31.0001,
+      addressLine: 'Nearby Street',
+    );
+
+    const farAddress = AddressEntity(
+      id: 'addr_far',
+      lat: 30.5000,
+      lng: 31.5000,
+      addressLine: 'Far Street',
+    );
+
+    test('returns the closest address from the list', () {
+      final addresses = [farAddress, closeAddress];
+
+      final result = locationService.getClosestAddress(addresses, currentPoint);
+
+      expect(result.id, equals('addr_close'));
+    });
+
+    test('ignores addresses with null coordinates and returns valid closest', () {
+      const nullCoordAddress = AddressEntity(
+        id: 'addr_null_coords',
+        lat: null,
+        lng: null,
+      );
+
+      final addresses = [nullCoordAddress, farAddress, closeAddress];
+
+      final result = locationService.getClosestAddress(addresses, currentPoint);
+
+      expect(result.id, equals('addr_close'));
+    });
+
+    test('returns first address if all coordinates in list are null', () {
+      const nullAddress1 = AddressEntity(id: 'null_1', lat: null, lng: null);
+      const nullAddress2 = AddressEntity(id: 'null_2', lat: null, lng: null);
+
+      final result = locationService.getClosestAddress(
+        [nullAddress1, nullAddress2],
+        currentPoint,
+      );
+
+      expect(result.id, equals('null_1'));
+    });
   });
 }
