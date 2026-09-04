@@ -57,6 +57,8 @@ dependencies:
   latlong2: ^0.9.1
   geocoding: ^4.0.0
   nominatim_flutter: ^0.0.8
+  plugin_platform_interface: ^2.1.8
+
 
   
 
@@ -72,6 +74,8 @@ dev_dependencies:
   json_serializable: 6.14.0
   mockito: ^5.6.4
   bloc_test: ^10.0.0
+  mocktail: ^1.0.5
+  geolocator_platform_interface: ^4.3.0
 
 
 flutter:

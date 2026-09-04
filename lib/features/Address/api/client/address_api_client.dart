@@ -9,8 +9,8 @@ import 'package:flower_app/features/Address/data/models/saved_addresses_response
 import 'package:injectable/injectable.dart';
 import 'package:retrofit/retrofit.dart';
 
+import '../../data/models/addressdto.dart';
 import '../../data/models/create_address_response.dart';
-import '../../data/models/set_default_address_response.dart';
 part 'address_api_client.g.dart';
 @singleton
 @RestApi()
@@ -21,14 +21,12 @@ abstract class AddressApiClient {
 @POST(Endpoints.addAddress)
   Future<CreateAddressResponse> addAddress(@Body() CreateAddressRequest addressRequest);
 
-  @GET(Endpoints.addAddress)
+  @GET(Endpoints.getAddresses)
   Future<SavedAddressesResponse> getSavedAddresses();
 
   @GET(Endpoints.getAreas)
   Future<AreasWithCityResponse> getAreas();
 
-@PUT(Endpoints.setDefaultAddress)
-  Future<SetDefaultAddressResponse> setDefaultAddress(
-      @Path('id') String id,
-      );
+  @PATCH('/users/me/addresses/{id}/default')
+  Future<AddressDto> setDefaultAddress(@Path('id') String id);
 }

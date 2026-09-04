@@ -14,8 +14,8 @@ abstract class AddressRepo{
 
   Future<BaseResponse<List<AreaEntity>>> getAreasWithCities();
 
-  Future<BaseResponse<AddressEntity>> setDefaultAddress(
-      String addressId,
-      );
+
+  Future<BaseResponse<AddressEntity>> setDefaultAddress(String id);
+
 
 }

@@ -5,15 +5,14 @@ import 'package:latlong2/latlong.dart';
 
 import '../../../../../../config/base_response/base_response.dart';
 import '../../../../../config/resource/rsource.dart';
+import '../../../../core/guest_browsing/guest_browsing_provider.dart';
 import '../../../../core/location/location_service.dart';
-import '../../../auth/data/data_source/local/auth_local_data_source.dart';
-import '../../api/data_source/address_local_data_source_imp.dart';
 import '../../domain/entities/add_address_entity.dart';
 import '../../domain/entities/address_entity.dart';
 import '../../domain/entities/area_entity.dart';
 import '../../domain/entities/city_entity.dart';
 import '../../domain/use_cases/add_address_usecase.dart';
-import '../../domain/use_cases/get_area_with_city_usecase.dart';
+import '../../domain/use_cases/get_areas_with_cities_usecase.dart';
 import '../../domain/use_cases/get_saved_address_useacse.dart';
 import '../../domain/use_cases/set_default_address_usecase.dart';
 import 'address_events.dart';
@@ -24,27 +23,23 @@ class AddressCubit extends Cubit<AddressState> {
   final GetSavedAddressesUseCase _getSavedAddressesUseCase;
   final AddAddressUseCase _addAddressUseCase;
   final LocationService _locationService;
-  final GetAreasWithCitiesUseCase _getAreasWithCitiesUseCase;
+  final GuestBrowsingProvider _guestBrowsingProvider;
   final SetDefaultAddressUseCase _setDefaultAddressUseCase;
-  final AuthLocalDataSource _authLocalDataSource;
+  final GetAreasWithCitiesUseCase _getAreasWithCitiesUseCase;
 
   AddressCubit(
-      this._getAreasWithCitiesUseCase,
       this._getSavedAddressesUseCase,
       this._addAddressUseCase,
       this._locationService,
       this._setDefaultAddressUseCase,
-      this._authLocalDataSource
+      this._guestBrowsingProvider,
+      this._getAreasWithCitiesUseCase,
       ) : super(AddressState.initial());
 
   Future<void> doEvents(AddressEvent event) async {
     switch (event) {
       case GetSavedAddressesEvent():
         await _getSavedAddresses();
-      case GetAreasWithCitiesEvent():
-        await _getAreasWithCities();
-      case InitializeAddressEvent():
-        await _initializeAddress();
 
       case AddAddressEvent():
         await _addAddress(event.address);
@@ -67,116 +62,14 @@ class AddressCubit extends Cubit<AddressState> {
       case SetDefaultAddressEvent():
         await _setDefaultAddress(event.addressId);
 
-case InitializeHomeAddressEvent():
-    await _initializeHomeAddress();
-    }
-  }
+      case ResolveHomeAddressEvent():
+        await _resolveHomeAddress();
 
-  Future<void> _setDefaultAddress(String addressId) async {
-    final result = await _setDefaultAddressUseCase(addressId);
+      case GetAreasWithCitiesEvent():
+        await _getAreasWithCities();
 
-    switch (result) {
-      case SuccessResponse<AddressEntity>():
-        final updatedAddress = result.data;
-
-        if (updatedAddress == null) {
-          return;
-        }
-
-        final updatedAddresses = state.addresses.map((address) {
-          if (address.id == updatedAddress.id) {
-            return updatedAddress;
-          }
-
-          return AddressEntity(
-            id: address.id,
-            recipientName: address.recipientName,
-            recipientPhone: address.recipientPhone,
-            addressLine: address.addressLine,
-            cityId: address.cityId,
-            areaId: address.areaId,
-            lat: address.lat,
-            lng: address.lng,
-            label: address.label,
-            isDefault: false,
-            storeId: address.storeId,
-            isServiceable: address.isServiceable,
-            createdAt: address.createdAt,
-          );
-        }).toList();
-
-        emit(
-          state.copyWith(
-            addresses: updatedAddresses,
-            selectedAddress: updatedAddress,
-          ),
-        );
-
-      case ErrorResponse<AddressEntity>():
-        debugPrint(
-          'Set default address error: ${result.errMessage}',
-        );
-    }
-  }
-  Future<void> _getAreasWithCities() async {
-    emit(
-      state.copyWith(
-        areaResource: Resource.loading(),
-      ),
-    );
-
-    try {
-      final result = await _getAreasWithCitiesUseCase();
-
-      switch (result) {
-        case SuccessResponse<List<AreaEntity>>():
-          final areas = result.data ?? [];
-
-          if (areas.isNotEmpty) {
-            debugPrint('========== AREAS API SUCCESS ==========');
-            debugPrint('Areas count: ${areas.length}');
-
-            emit(
-              state.copyWith(
-                areas: areas,
-                areaResource: Resource.success(areas),
-              ),
-            );
-          } else {
-            debugPrint('========== API EMPTY ==========');
-            debugPrint('Using local fallback areas');
-
-            emit(
-              state.copyWith(
-                areas: cityAreaData,
-                areaResource: Resource.success(cityAreaData),
-              ),
-            );
-          }
-
-        case ErrorResponse<List<AreaEntity>>():
-          debugPrint('========== AREAS API ERROR ==========');
-          debugPrint('Error: ${result.errMessage}');
-          debugPrint('Using local fallback areas');
-
-          emit(
-            state.copyWith(
-              areas: cityAreaData,
-              areaResource: Resource.success(cityAreaData),
-            ),
-          );
-      }
-    } catch (e) {
-      debugPrint('========== AREAS API EXCEPTION ==========');
-      debugPrint('Exception: $e');
-      debugPrint('Using local fallback areas');
-
-      emit(
-        state.copyWith(
-          areas: cityAreaData,
-          areaResource: Resource.success(cityAreaData),
-        ),
-      );
+      case ResetAddAddressStateEvent():
+        _resetAddAddressState();
     }
   }
 
@@ -212,6 +105,23 @@ case InitializeHomeAddressEvent():
             ),
           ),
         );
+    }
+  }
+
+  // ============================================================
+  // GET AREAS WITH CITIES
+  // ============================================================
+
+  Future<void> _getAreasWithCities() async {
+    final result = await _getAreasWithCitiesUseCase();
+
+    switch (result) {
+      case SuccessResponse<List<AreaEntity>>():
+        final areas = result.data ?? [];
+        emit(state.copyWith(areas: areas));
+
+      case ErrorResponse<List<AreaEntity>>():
+        debugPrint('Failed to load areas: ${result.errMessage ?? result.error}');
     }
   }
 
@@ -255,6 +165,11 @@ case InitializeHomeAddressEvent():
             addresses: updatedAddresses,
             selectedAddress: newAddress,
             addAddressResource: Resource.success(newAddress),
+            // Reset form fields so subsequent visits start fresh
+            selectedLocation: null,
+            selectedLocationDetails: null,
+            selectedCity: null,
+            selectedArea: null,
           ),
         );
 
@@ -269,7 +184,17 @@ case InitializeHomeAddressEvent():
     }
   }
 
+  void _resetAddAddressState() {
+    emit(
+      state.copyWith(
+        addAddressResource: Resource.initial(),
+      ),
+    );
+  }
 
+  // ============================================================
+  // SELECT SAVED ADDRESS
+  // ============================================================
 
   void _selectAddress(AddressEntity address) {
     emit(
@@ -279,23 +204,25 @@ case InitializeHomeAddressEvent():
     );
   }
 
-
+  // ============================================================
+  // GET CURRENT LOCATION
+  // ============================================================
 
   Future<void> _getCurrentLocation() async {
     try {
       final location = await _locationService.getCurrentLocation();
-
       await _selectLocation(location);
     } catch (e) {
       debugPrint('Location error: $e');
     }
   }
 
+  // ============================================================
+  // SELECT LOCATION & REVERSE GEOCODE
+  // ============================================================
 
   String _normalize(String? value) {
-    if (value == null || value.trim().isEmpty) {
-      return '';
-    }
+    if (value == null) return '';
     return value
         .toLowerCase()
         .replaceAll('-', ' ')
@@ -304,12 +231,7 @@ case InitializeHomeAddressEvent():
         .trim();
   }
 
-
-
-
   Future<void> _selectLocation(LatLng location) async {
-    debugPrint('========== _SELECT LOCATION ==========');
-
     emit(
       state.copyWith(
         selectedLocation: location,
@@ -322,76 +244,40 @@ case InitializeHomeAddressEvent():
         lng: location.longitude,
       );
 
-      debugPrint('========== REVERSE GEOCODING ==========');
-      debugPrint('Latitude: ${location.latitude}');
-      debugPrint('Longitude: ${location.longitude}');
-      debugPrint('Address: ${locationDetails.addressLine}');
-      debugPrint('State: ${locationDetails.state}');
-      debugPrint('City: ${locationDetails.city}');
-      debugPrint('Town: ${locationDetails.town}');
-      debugPrint('Municipality: ${locationDetails.municipality}');
-      debugPrint('Suburb: ${locationDetails.suburb}');
-      debugPrint('Neighbourhood: ${locationDetails.neighbourhood}');
-      debugPrint('========================================');
-
-      // ============================================================
-      // 1. FIND BACKEND AREA
-      // ============================================================
-
-      final areaName = locationDetails.state ??
-          locationDetails.city ??
-          locationDetails.town ??
-          locationDetails.municipality;
-
-      final normalizedAreaName = _normalize(areaName);
+      final geocodedArea = _normalize(locationDetails.area);
+      final geocodedCity = _normalize(locationDetails.city);
 
       AreaEntity? matchedArea;
+      CityEntity? matchedCity;
 
+      // 1. Find the parent Area first
       for (final area in state.areas) {
-        if (_normalize(area.name) == normalizedAreaName) {
+        if (_normalize(area.name) == geocodedArea) {
           matchedArea = area;
           break;
         }
       }
 
-      // ============================================================
-      // 2. FIND BACKEND CITY
-      // ============================================================
-
-      final cityName = locationDetails.suburb ??
-          locationDetails.neighbourhood;
-
-      final normalizedCityName = _normalize(cityName);
-
-      CityEntity? matchedCity;
-
-      if (matchedArea != null && normalizedCityName.isNotEmpty) {
+      // 2. Find the City inside the matched Area (or search all areas if area was inexact)
+      if (matchedArea != null) {
         for (final city in matchedArea.cities) {
-          if (_normalize(city.name) == normalizedCityName) {
+          if (_normalize(city.name) == geocodedCity) {
             matchedCity = city;
             break;
           }
         }
+      } else {
+        for (final area in state.areas) {
+          for (final city in area.cities) {
+            if (_normalize(city.name) == geocodedCity) {
+              matchedArea = area;
+              matchedCity = city;
+              break;
+            }
+          }
+          if (matchedCity != null) break;
+        }
       }
-
-      // ============================================================
-      // DEBUG
-      // ============================================================
-
-      debugPrint('========== MATCHING RESULT ==========');
-      debugPrint('Nominatim Area: $areaName');
-      debugPrint('Nominatim City: $cityName');
-
-      debugPrint('Matched area: ${matchedArea?.name}');
-      debugPrint('Matched area ID: ${matchedArea?.id}');
-
-      debugPrint('Matched city: ${matchedCity?.name}');
-      debugPrint('Matched city ID: ${matchedCity?.id}');
-      debugPrint('=====================================');
-
-      // ============================================================
-      // 3. UPDATE STATE
-      // ============================================================
 
       emit(
         state.copyWith(
@@ -406,6 +292,23 @@ case InitializeHomeAddressEvent():
     }
   }
 
+  // ============================================================
+  // MANUAL AREA & CITY SELECTION
+  // ============================================================
+
+  void _selectArea(AreaEntity area) {
+    // If the existing selectedCity is not in this new area, reset it
+    final cityStillValid = area.cities.any(
+          (city) => city.id == state.selectedCity?.id,
+    );
+
+    emit(
+      state.copyWith(
+        selectedArea: area,
+        selectedCity: cityStillValid ? state.selectedCity : null,
+      ),
+    );
+  }
 
   void _selectCity(CityEntity city) {
     emit(
@@ -415,204 +318,105 @@ case InitializeHomeAddressEvent():
     );
   }
 
+  // ============================================================
+  // SET DEFAULT ADDRESS
+  // ============================================================
 
+  Future<void> _setDefaultAddress(String addressId) async {
+    final previousAddresses = state.addresses;
+    final previousSelected = state.selectedAddress;
 
-  void _selectArea(AreaEntity area) {
-    emit(
-      AddressState(
-        addresses: state.addresses,
-        selectedAddress: state.selectedAddress,
-        getAddressesResource: state.getAddressesResource,
-        addAddressResource: state.addAddressResource,
-        areaResource: state.areaResource,
-        selectedLocation: state.selectedLocation,
-        selectedLocationDetails: state.selectedLocationDetails,
-        areas: state.areas,
-        selectedArea: area,
-        selectedCity: null,
-      ),
-    );
-  }
-
-  List<AreaEntity> get filteredAreas {
-    final selectedCity = state.selectedCity;
-
-    // Nothing selected → show ALL areas
-    if (selectedCity == null) {
-      return state.areas;
-    }
-
-    // City selected → show areas containing that city
-    return state.areas.where((area) {
-      return area.cities.any(
-            (city) => city.id == selectedCity.id,
-      );
+    // 1. Optimistic update
+    final updatedList = state.addresses.map((addr) {
+      final isTarget = addr.id == addressId;
+      return addr.copyWith(isDefault: isTarget);
     }).toList();
-  }
-  List<CityEntity> get filteredCities {
-    final selectedArea = state.selectedArea;
 
-    if (selectedArea == null) {
-      return [];
-    }
+    final newDefault = updatedList.firstWhere(
+          (a) => a.id == addressId,
+      orElse: () => previousSelected ?? state.addresses.first,
+    );
 
-    return selectedArea.cities;
-  }
+    emit(state.copyWith(
+      addresses: updatedList,
+      selectedAddress: newDefault,
+    ));
 
+    // 2. Call backend
+    final result = await _setDefaultAddressUseCase(addressId);
 
-  Future<void> _initializeAddress() async {
-    await _getAreasWithCities();
+    switch (result) {
+      case SuccessResponse<AddressEntity>():
+        final serverUpdatedAddress = result.data;
 
-    await _getCurrentLocation();
-
-    await _getSavedAddresses();
-  }
-  List<CityEntity> _getAllCities() {
-    final cityMap = <String, CityEntity>{};
-
-    for (final area in state.areas) {
-      for (final city in area.cities) {
-        if (city.id != null) {
-          cityMap[city.id!] = city;
+        if (serverUpdatedAddress == null) {
+          emit(state.copyWith(
+            addresses: previousAddresses,
+            selectedAddress: previousSelected,
+          ));
+          return;
         }
-      }
-    }
 
-    return cityMap.values.toList();
+        final confirmedList = state.addresses.map((addr) {
+          if (addr.id == serverUpdatedAddress.id) {
+            return serverUpdatedAddress;
+          }
+          return addr.copyWith(isDefault: false);
+        }).toList();
+
+        emit(state.copyWith(
+          addresses: confirmedList,
+          selectedAddress: serverUpdatedAddress,
+        ));
+
+      case ErrorResponse<AddressEntity>():
+        emit(state.copyWith(
+          addresses: previousAddresses,
+          selectedAddress: previousSelected,
+        ));
+    }
   }
 
-//----------------------------------
-  void _selectDefaultAddress() {
-    AddressEntity? defaultAddress;
+  // ============================================================
+  // RESOLVE HOME ADDRESS
+  // ============================================================
 
-    for (final address in state.addresses) {
-      if (address.isDefault == true) {
-        defaultAddress = address;
-        break;
-      }
-    }
+  Future<void> _resolveHomeAddress() async {
+    final isGuest = await _guestBrowsingProvider.isGuest();
 
-    if (defaultAddress == null) {
-      debugPrint('No default address found.');
+    if (isGuest) {
+      emit(state.copyWith(
+        isGuest: true,
+        selectedAddress: null,
+      ));
       return;
     }
 
-    debugPrint(
-      'Using default address: ${defaultAddress.addressLine}',
-    );
+    emit(state.copyWith(isGuest: false));
 
-    _selectAddress(defaultAddress);
-  }
-  Future<void> _selectBestAddress() async {
-    final addresses = state.addresses;
+    await _getSavedAddresses();
+    final list = state.addresses;
 
-    if (addresses.isEmpty) {
+    if (list.isEmpty) {
+      emit(state.copyWith(selectedAddress: null));
+      return;
+    }
+
+    if (list.length == 1) {
+      emit(state.copyWith(selectedAddress: list.first));
       return;
     }
 
     try {
-      // Get user's current GPS location
-      final currentLocation =
-      await _locationService.getCurrentLocation();
-
-      final distance = Distance();
-
-      AddressEntity? nearestAddress;
-      double? nearestDistance;
-
-      for (final address in addresses) {
-        // Skip addresses without coordinates
-        if (address.lat == null || address.lng == null) {
-          continue;
-        }
-
-        final addressLocation = LatLng(
-          address.lat!,
-          address.lng!,
-        );
-
-        final distanceInMeters = distance.as(
-          LengthUnit.Meter,
-          currentLocation,
-          addressLocation,
-        );
-
-        if (nearestDistance == null ||
-            distanceInMeters < nearestDistance!) {
-          nearestDistance = distanceInMeters;
-          nearestAddress = address;
-        }
-      }
-
-      // No valid address with coordinates
-      if (nearestAddress == null || nearestDistance == null) {
-        debugPrint(
-          'HOME ADDRESS: No address has valid coordinates',
-        );
-
-        _selectDefaultAddress();
-        return;
-      }
-
-      debugPrint('========== HOME ADDRESS ==========');
-      debugPrint(
-        'Current location: '
-            '${currentLocation.latitude}, '
-            '${currentLocation.longitude}',
+      final currentLatLng = await _locationService.getCurrentLocation();
+      final closest = _locationService.getClosestAddress(list, currentLatLng);
+      emit(state.copyWith(selectedAddress: closest));
+    } catch (_) {
+      final defaultAddr = list.firstWhere(
+            (a) => a.isDefault == true,
+        orElse: () => list.first,
       );
-      debugPrint(
-        'Nearest address: ${nearestAddress.addressLine}',
-      );
-      debugPrint(
-        'Distance: ${nearestDistance.toStringAsFixed(0)} meters',
-      );
-      debugPrint('==================================');
-
-      // Maximum distance allowed for automatic selection
-      const maxDistanceInMeters = 10000.0;
-
-      if (nearestDistance <= maxDistanceInMeters) {
-        debugPrint(
-          'HOME ADDRESS: Nearest address selected',
-        );
-
-        _selectAddress(nearestAddress);
-      } else {
-        debugPrint(
-          'HOME ADDRESS: Nearest address is too far',
-        );
-
-        _selectDefaultAddress();
-      }
-    } catch (e) {
-      // GPS unavailable / permission denied / location service disabled
-      debugPrint(
-        'HOME ADDRESS: GPS unavailable: $e',
-      );
-
-      _selectDefaultAddress();
+      emit(state.copyWith(selectedAddress: defaultAddr));
     }
-  }
-
-  Future<void> _initializeHomeAddress() async {
-    final token = await _authLocalDataSource.getToken();
-
-    // Guest user
-    if (token == null || token.isEmpty) {
-      debugPrint('HOME ADDRESS: Guest user');
-      return;
-    }
-
-    // Logged-in user
-    debugPrint('HOME ADDRESS: Logged-in user');
-
-    await _getSavedAddresses();
-
-    if (state.addresses.isEmpty) {
-      debugPrint('HOME ADDRESS: No saved addresses');
-      return;
-    }
-
-    await _selectBestAddress();
   }
 }

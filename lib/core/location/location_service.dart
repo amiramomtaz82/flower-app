@@ -5,19 +5,22 @@ import 'package:latlong2/latlong.dart';
 import 'package:nominatim_flutter/model/request/reverse_request.dart';
 import 'package:nominatim_flutter/nominatim_flutter.dart';
 
+import '../../features/Address/domain/entities/address_entity.dart';
 import 'location_model.dart';
 
 
 
 @LazySingleton()
 class LocationService {
-  final NominatimFlutter _nominatim = NominatimFlutter.instance;
+  final NominatimFlutter _nominatim;
 
-  LocationService() {
+  LocationService() : _nominatim = NominatimFlutter.instance {
     _nominatim.configureNominatim(
       userAgent: 'FlowerApp/1.0',
     );
   }
+  @visibleForTesting
+  LocationService.test(this._nominatim);
 
   ////=========================current location===================
   Future<LatLng> getCurrentLocation() async {
@@ -70,18 +73,54 @@ class LocationService {
     debugPrint('========== NOMINATIM RAW ADDRESS ==========');
     debugPrint('$address');
     debugPrint('============================================');
-
-    return  LocationModel(
+    return LocationModel(
       lat: lat,
       lng: lng,
       addressLine: address?['road'],
-      state: address?['state'],
-      city: address?['city'],
-      town: address?['town'],
-      municipality: address?['municipality'],
-      suburb: address?['suburb'],
-      neighbourhood: address?['neighbourhood'],
-      cityDistrict: address?['city_district'],
+      city: address?['city'] ??
+          address?['town'] ??
+          address?['municipality'],
+      area: address?['suburb'] ??
+          address?['neighbourhood'],
     );
+  }
+
+  String? _buildAddressLine(dynamic address) {
+    if (address == null) {
+      return null;
+    }
+
+    final parts = <String?>[
+      address.houseNumber,
+      address.road,
+    ];
+
+    final filtered = parts
+        .where((part) => part != null && part!.trim().isNotEmpty)
+        .map((part) => part!.trim())
+        .toList();
+
+    if (filtered.isEmpty) {
+      return null;
+    }
+
+    return filtered.join(', ');
+  }
+
+  AddressEntity getClosestAddress(List<AddressEntity> addresses, LatLng current) {
+    const distance = Distance();
+    AddressEntity closest = addresses.first;
+    double minMeters = double.infinity;
+
+    for (final addr in addresses) {
+      if (addr.lat != null && addr.lng != null) {
+        final meters = distance(current, LatLng(addr.lat!, addr.lng!));
+        if (meters < minMeters) {
+          minMeters = meters;
+          closest = addr;
+        }
+      }
+    }
+    return closest;
   }
 }

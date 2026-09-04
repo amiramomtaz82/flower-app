@@ -11,6 +11,7 @@ import '../../domain/entities/address_entity.dart';
 import '../../domain/entities/area_entity.dart';
 import '../../domain/entities/city_entity.dart';
 import '../../domain/repo/address_repo.dart';
+import '../models/addressdto.dart';
 import '../models/create_address_response.dart';
 
 
@@ -26,19 +27,21 @@ class AddressRepoImpl implements AddressRepo {
 
     switch (response) {
       case SuccessResponse<SavedAddressesResponse>():
-        final addresses = response.data.data
+        final addressDtos = response.data?.data; // Safely access inner data list
+
+        final addresses = addressDtos
             ?.map((dto) => dto.toEntity())
             .toList() ??
-            [];
+            <AddressEntity>[];
 
         return SuccessResponse<List<AddressEntity>>(addresses);
 
       case ErrorResponse<SavedAddressesResponse>():
         return ErrorResponse<List<AddressEntity>>(
           error: response.error,
+          errMessage: response.errMessage,
         );
     }
-
   }
 
   @override
@@ -60,8 +63,12 @@ class AddressRepoImpl implements AddressRepo {
 
     switch (response) {
       case SuccessResponse<CreateAddressResponse>():
-        return SuccessResponse<AddressEntity>(
-          response.data.data!.toEntity(),
+        final addressData = response.data.data;
+        if (addressData != null) {
+          return SuccessResponse<AddressEntity>(addressData.toEntity());
+        }
+        return ErrorResponse<AddressEntity>(
+          error: 'Missing address data',
         );
 
       case ErrorResponse<CreateAddressResponse>():
@@ -69,6 +76,7 @@ class AddressRepoImpl implements AddressRepo {
           error: response.error,
         );
     }
+
   }
 
 
@@ -100,29 +108,19 @@ class AddressRepoImpl implements AddressRepo {
     }
   }
 
-  //-------------set default address------------------
-
   @override
-  Future<BaseResponse<AddressEntity>> setDefaultAddress(
-      String addressId,
-      ) async {
-    try {
-      final response =
-      await _remoteDataSource.setDefaultAddress(addressId);
+  Future<BaseResponse<AddressEntity>> setDefaultAddress(String id) async {
+    final response = await _remoteDataSource.setDefaultAddress(id);
 
-      if (response.isSuccess == true && response.data != null) {
-        return SuccessResponse<AddressEntity>(
-           response.data!.toEntity(),
-        );
-      }
-
-      return ErrorResponse<AddressEntity>(
-        error: response.message ?? 'Failed to set default address',
-      );
-    } catch (e) {
-      return ErrorResponse<AddressEntity>(
-        error: e.toString(),
-      );
+    switch (response) {
+      case SuccessResponse<AddressDto>():
+        final dto = response.data;
+        if (dto != null) {
+          return SuccessResponse<AddressEntity>(dto.toEntity());
+        }
+        return ErrorResponse<AddressEntity>(error: 'Missing address data');
+      case ErrorResponse<AddressDto>():
+        return ErrorResponse<AddressEntity>(error: response.error);
     }
   }
 }

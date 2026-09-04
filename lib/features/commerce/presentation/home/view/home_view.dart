@@ -1,12 +1,11 @@
 import 'package:flower_app/config/resource/rsource.dart';
 import 'package:flower_app/core/app_constants/app_assets.dart';
 import 'package:flower_app/core/go_routes/routes_name.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../Address/presentaion/manager/address_cubit.dart';
-import '../../../../Address/presentaion/manager/address_events.dart';
-import '../../../../Address/presentaion/manager/address_state.dart';
+
 import '../../../domain/entities/category_entity.dart';
 import '../../../domain/entities/home_section_entity.dart';
 import '../../../domain/entities/home_section_type.dart';
@@ -16,7 +15,8 @@ import '../manager/home_cubit.dart';
 import '../manager/home_state.dart';
 import '../widgets/best_seller_card.dart';
 import '../widgets/category_chip.dart';
-import '../widgets/deliver_to_row.dart';
+
+import '../widgets/home_address_header.dart';
 import '../widgets/home_horizontal_section.dart';
 import '../widgets/home_search_bar.dart';
 import '../widgets/occasion_card.dart';
@@ -29,7 +29,6 @@ class HomeView extends StatefulWidget {
 }
 
 class _HomeViewState extends State<HomeView> {
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
@@ -50,61 +49,8 @@ class _HomeViewState extends State<HomeView> {
                   const SizedBox(height: 16),
 
                   // ---------- deliver to ------------------
-                  BlocBuilder<AddressCubit, AddressState>(
-                    builder: (context, state) {
-                      final address = state.selectedAddress;
-
-                      return InkWell(
-                        onTap: () {
-                          final addresses = context
-                              .read<AddressCubit>()
-                              .state
-                              .addresses;
-
-                          if (addresses.isEmpty) {
-                            context.push(AppRoutes.addAddress);
-                            return;
-                          }
-                          showModalBottomSheet(
-                            context: context,
-                            builder: (bottomSheetContext) {
-                              return ListView.builder(
-                                shrinkWrap: true,
-                                itemCount: state.addresses.length,
-                                itemBuilder: (context, index) {
-                                  final address = state.addresses[index];
-
-                                  return ListTile(
-                                    title: Text(
-                                      address.label ?? 'Address',
-                                    ),
-                                    subtitle: Text(
-                                      address.addressLine ?? '',
-                                    ),
-                                    trailing: address.id == state.selectedAddress?.id
-                                        ? const Icon(Icons.check)
-                                        : null,
-                                    onTap: () {
-                                      context.read<AddressCubit>().doEvents(
-                                        SelectAddressEvent(address),
-                                      );
-
-                                      Navigator.pop(bottomSheetContext);
-                                    },
-                                  );
-                                },
-                              );
-                            },
-                          );
-                        },
-                        child: DeliverToRow(
-                          address: address?.addressLine ?? 'Add address',
-                        ),
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 24),
-
+                  const HomeAddressHeader(),
+                  const SizedBox(height: 16),
                   // ---------- sections, driven by /home/sections ------------------
                   // Selects only sectionsResource so adding/loading a single
                   // section's content doesn't rebuild this list — each
@@ -138,7 +84,8 @@ class _HomeViewState extends State<HomeView> {
                       return Column(
                         children: [
                           for (final section
-                              in sections.data ?? const <HomeSectionEntity>[])
+                              in sections.data ??
+                                  const <HomeSectionEntity>[])
                             _HomeSection(section: section),
                         ],
                       );
@@ -153,6 +100,7 @@ class _HomeViewState extends State<HomeView> {
     );
   }
 }
+
 
 /// Renders one `/home/sections` entry, re-selecting only the resource it
 /// needs so an unrelated section loading doesn't rebuild this one.
@@ -261,5 +209,4 @@ class _HomeSection extends StatelessWidget {
         return const SizedBox.shrink();
     }
   }
-
 }
