@@ -2,7 +2,7 @@
 import 'package:injectable/injectable.dart';
 
 import '../../../../config/base_response/base_response.dart';
-import '../../api/data_source/checkout_remote_data_source_impl.dart';
+import '../data_source/checkout_remote_data_source.dart';
 import '../../domain/entities/checkout_details_entity.dart';
 import '../../domain/entities/estimated_delivery_entity.dart';
 
@@ -65,6 +65,7 @@ class CheckoutRepositoryImpl implements CheckoutRepository {
       cartId: order.cartId,
       addressId: order.addressId,
       isGift: order.isGift,
+
       giftRecipient: order.isGift && order.giftRecipient != null
           ? GiftRecipientRequest(
         recipientName: order.giftRecipient!.name,

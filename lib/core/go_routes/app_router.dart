@@ -7,6 +7,7 @@ import 'package:flower_app/features/auth/presentation/login/manager/login_cubit.
 import 'package:flower_app/features/auth/presentation/register/view_model/register_view_model.dart';
 import 'package:flower_app/features/auth/presentation/register/views/register_view.dart';
 import 'package:flower_app/core/widgets/coming_soon_view.dart';
+import 'package:flower_app/features/check_out/presentation/view/checkout_view.dart';
 import 'package:flower_app/features/commerce/domain/entities/product_entity.dart';
 import 'package:flower_app/features/commerce/presentation/best_seller/view/best_seller_view.dart';
 import 'package:flower_app/features/commerce/presentation/best_seller/view_model/best_seller_view_model.dart';
@@ -28,6 +29,7 @@ import '../../features/Address/presentaion/manager/address_cubit.dart';
 import '../../features/Address/presentaion/manager/address_events.dart';
 import '../../features/Address/presentaion/view/add_address_view.dart';
 import '../../features/auth/presentation/login/views/login_view.dart';
+import '../../features/check_out/presentation/manager/checkout_cubit.dart';
 import '../../features/commerce/presentation/home/view/home_view.dart';
 import 'main_shell_view.dart';
 
@@ -39,7 +41,7 @@ class AppRouter {
 
   static final GoRouter router = GoRouter(
     navigatorKey: navigatorKey,
-    initialLocation: AppRoutes.login,
+    initialLocation: AppRoutes.checkout,
 
     routes: [
       GoRoute(
@@ -48,6 +50,24 @@ class AppRouter {
           create: (_) => getIt<LoginCubit>(),
           child: const LoginView(),
         ),
+      ),
+      GoRoute(
+        path: AppRoutes.checkout,
+        builder: (context, state) {
+          final cartId = (state.extra as String?) ?? '';
+
+          return MultiBlocProvider(
+            providers: [
+              BlocProvider(
+                create: (_) => getIt<CheckoutCubit>(),
+              ),
+              BlocProvider(
+                create: (_) => getIt<AddressCubit>(),
+              ),
+            ],
+            child: CheckoutScreen(cartId: cartId),
+          );
+        },
       ),
       GoRoute(
         path: AppRoutes.forgotPassword,
