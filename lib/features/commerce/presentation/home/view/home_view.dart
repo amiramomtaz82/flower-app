@@ -49,7 +49,7 @@ class _HomeViewState extends State<HomeView> {
                   const SizedBox(height: 16),
 
                   // ---------- deliver to ------------------
-                  const HomeAddressHeader(),
+                 HomeAddressHeader(),
                   const SizedBox(height: 16),
                   // ---------- sections, driven by /home/sections ------------------
                   // Selects only sectionsResource so adding/loading a single

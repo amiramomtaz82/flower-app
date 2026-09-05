@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -183,7 +184,7 @@ class _AddAddressViewState extends State<AddAddressView> {
                     TextFormField(
                       controller: labelController,
                       decoration: const InputDecoration(
-                        labelText: 'Label (e.g. Home, Work)',
+                        labelText: 'Label ',
                       ),
                       validator: (val) =>
                       val == null || val.trim().isEmpty ? 'Please enter a label' : null,
@@ -212,7 +213,7 @@ class _AddAddressViewState extends State<AddAddressView> {
                       controller: phoneController,
                       keyboardType: TextInputType.phone,
                       decoration: const InputDecoration(
-                        labelText: 'Phone',
+                        labelText: 'Phone number',
                       ),
                       validator: (val) =>
                       val == null || val.trim().isEmpty ? 'Please enter phone number' : null,

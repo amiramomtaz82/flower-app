@@ -5,7 +5,7 @@ class LocationModel extends Equatable {
   final double? lng;
   final String? addressLine;
 
-  final String? state;
+  final String? area;
   final String? city;
   final String? town;
   final String? municipality;
@@ -17,7 +17,7 @@ class LocationModel extends Equatable {
     this.lat,
     this.lng,
     this.addressLine,
-    this.state,
+    this.area,
     this.city,
     this.town,
     this.municipality,

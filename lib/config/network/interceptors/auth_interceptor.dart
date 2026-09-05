@@ -14,13 +14,17 @@ class AuthInterceptor extends Interceptor {
 
   @override
   Future<void> onRequest(
-    RequestOptions options,
-    RequestInterceptorHandler handler,
-  ) async {
+      RequestOptions options,
+      RequestInterceptorHandler handler,
+      ) async {
     final token = await _secureStorage.read(key: _accessTokenKey);
 
+    // Debug print to confirm whether storage actually holds the token
+    // print('AuthInterceptor -> read token: $token');
+
     if (token != null && token.isNotEmpty) {
-      options.headers[AppStrings.accessToken] = token;
+      // Must match Postman: 'Authorization': 'Bearer <token>'
+      options.headers['Authorization'] = 'Bearer $token';
     }
 
     handler.next(options);
@@ -28,9 +32,9 @@ class AuthInterceptor extends Interceptor {
 
   @override
   Future<void> onError(
-    DioException err,
-    ErrorInterceptorHandler handler,
-  ) async {
+      DioException err,
+      ErrorInterceptorHandler handler,
+      ) async {
     if (err.response?.statusCode == 401) {
       await _secureStorage.delete(key: _accessTokenKey);
     }

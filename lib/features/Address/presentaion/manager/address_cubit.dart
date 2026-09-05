@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
@@ -78,8 +79,25 @@ class AddressCubit extends Cubit<AddressState> {
   // ============================================================
 
   Future<void> _getSavedAddresses() async {
+    // 1. Check if the user is a guest
+    final isGuest = await _guestBrowsingProvider.isGuest();
+
+    if (isGuest) {
+      emit(
+        state.copyWith(
+          isGuest: true,
+          addresses: const [],
+          selectedAddress: null,
+          getAddressesResource: Resource.initial(), // Do not leave in loading
+        ),
+      );
+      return; // Exit before calling the usecase
+    }
+
+    // 2. User has an active session -> proceed with loading and fetching
     emit(
       state.copyWith(
+        isGuest: false,
         getAddressesResource: Resource.loading(),
       ),
     );
@@ -92,7 +110,9 @@ class AddressCubit extends Cubit<AddressState> {
 
         emit(
           state.copyWith(
+            isGuest: false,
             addresses: addresses,
+            selectedAddress: addresses.isNotEmpty ? addresses.first : null,
             getAddressesResource: Resource.success(addresses),
           ),
         );
@@ -100,6 +120,7 @@ class AddressCubit extends Cubit<AddressState> {
       case ErrorResponse<List<AddressEntity>>():
         emit(
           state.copyWith(
+            isGuest: false,
             getAddressesResource: Resource.error(
               result.errMessage,
             ),
@@ -107,7 +128,6 @@ class AddressCubit extends Cubit<AddressState> {
         );
     }
   }
-
   // ============================================================
   // GET AREAS WITH CITIES
   // ============================================================
@@ -211,7 +231,9 @@ class AddressCubit extends Cubit<AddressState> {
   Future<void> _getCurrentLocation() async {
     try {
       final location = await _locationService.getCurrentLocation();
-      await _selectLocation(location);
+      if (location != null) {
+        await _selectLocation(location);
+      }
     } catch (e) {
       debugPrint('Location error: $e');
     }
@@ -243,6 +265,10 @@ class AddressCubit extends Cubit<AddressState> {
         lat: location.latitude,
         lng: location.longitude,
       );
+
+      if (locationDetails == null) {
+        return;
+      }
 
       final geocodedArea = _normalize(locationDetails.area);
       final geocodedCity = _normalize(locationDetails.city);
@@ -278,6 +304,8 @@ class AddressCubit extends Cubit<AddressState> {
           if (matchedCity != null) break;
         }
       }
+
+      if (isClosed) return;
 
       emit(
         state.copyWith(
@@ -382,41 +410,49 @@ class AddressCubit extends Cubit<AddressState> {
   // ============================================================
 
   Future<void> _resolveHomeAddress() async {
+    if (isClosed) return;
+
     final isGuest = await _guestBrowsingProvider.isGuest();
 
-    if (isGuest) {
-      emit(state.copyWith(
-        isGuest: true,
-        selectedAddress: null,
-      ));
-      return;
-    }
-
-    emit(state.copyWith(isGuest: false));
-
-    await _getSavedAddresses();
-    final list = state.addresses;
-
-    if (list.isEmpty) {
-      emit(state.copyWith(selectedAddress: null));
-      return;
-    }
-
-    if (list.length == 1) {
-      emit(state.copyWith(selectedAddress: list.first));
-      return;
-    }
-
-    try {
-      final currentLatLng = await _locationService.getCurrentLocation();
-      final closest = _locationService.getClosestAddress(list, currentLatLng);
-      emit(state.copyWith(selectedAddress: closest));
-    } catch (_) {
-      final defaultAddr = list.firstWhere(
+    // 1. If logged in and has saved addresses, pick the default or nearest
+    if (!isGuest && state.addresses.isNotEmpty) {
+      final defaultAddress = state.addresses.firstWhere(
             (a) => a.isDefault == true,
-        orElse: () => list.first,
+        orElse: () => state.addresses.first,
       );
-      emit(state.copyWith(selectedAddress: defaultAddr));
+      emit(state.copyWith(isGuest: false, selectedAddress: defaultAddress));
+      return;
     }
+
+    // 2. If guest or 0 addresses, try GPS
+    final currentCoordinates = await _locationService.getCurrentLocation();
+    if (isClosed) return;
+
+    if (currentCoordinates != null) {
+      final locationDetails = await _locationService.reverseGeocode(
+        lat: currentCoordinates.latitude,
+        lng: currentCoordinates.longitude,
+      );
+      if (isClosed) return;
+
+      emit(state.copyWith(
+        isGuest: isGuest,
+        selectedLocation: currentCoordinates,
+        selectedLocationDetails: locationDetails,
+      ));
+    } else {
+      // GPS rejected, disabled, or unavailable -> remain in standard guest/empty state
+      emit(state.copyWith(isGuest: isGuest));
+    }
+  }
+  void resetToGuest() {
+    emit(
+      state.copyWith(
+        isGuest: true,
+        addresses: const [],
+        selectedAddress: null,
+        getAddressesResource: Resource.initial(),
+      ),
+    );
   }
 }

@@ -1,4 +1,3 @@
-// lib/features/commerce/presentation/home/widgets/home_address_header.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -12,7 +11,7 @@ import '../../../../Address/presentaion/manager/address_state.dart';
 class HomeAddressHeader extends StatelessWidget {
   final VoidCallback? onNavigateToAddAddress;
 
-  const HomeAddressHeader({
+  HomeAddressHeader({
     super.key,
     this.onNavigateToAddAddress,
   });
@@ -23,8 +22,8 @@ class HomeAddressHeader extends StatelessWidget {
 
     return BlocBuilder<AddressCubit, AddressState>(
       builder: (context, state) {
-        // 1. Loading address state
-        if (state.getAddressesResource.isLoading) {
+        // 1. Session check in progress or addresses loading
+        if (state.isGuest == null || state.getAddressesResource.isLoading) {
           return const SizedBox(
             height: 44,
             child: Center(
@@ -37,25 +36,29 @@ class HomeAddressHeader extends StatelessWidget {
           );
         }
 
-        // 2. Guest User -> Completely hidden
+        // 2. Confirmed Guest
         if (state.isGuest == true) {
-          return const SizedBox.shrink();
+          return InkWell(
+            onTap: () => context.push(AppRoutes.login),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: Text(
+                "Sign in to add Address",
+                style: theme.textTheme.titleSmall?.copyWith(
+                  color: theme.colorScheme.primary,
+                ),
+              ),
+            ),
+          );
         }
 
-        // 3. Authenticated, but no addresses saved -> Prompt "Add Address"
+        // 3. Authenticated, but no addresses saved
         if (state.addresses.isEmpty) {
           return InkWell(
             borderRadius: BorderRadius.circular(8),
             onTap: onNavigateToAddAddress ?? () => context.push(AppRoutes.addAddress),
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              decoration: BoxDecoration(
-                color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(
-                  color: theme.colorScheme.outline.withValues(alpha: 0.2),
-                ),
-              ),
               child: Row(
                 children: [
                   Icon(
@@ -66,32 +69,28 @@ class HomeAddressHeader extends StatelessWidget {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      'No address found. Tap to add address',
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: theme.colorScheme.primary,
-                        fontWeight: FontWeight.w600,
-                      ),
+                      'No address found',
+                      style: theme.textTheme.bodyMedium,
                     ),
                   ),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: theme.colorScheme.primary,
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.add,
                           size: 16,
-                          color: Colors.white,
+                          color: theme.colorScheme.primary,
                         ),
                         const SizedBox(width: 4),
                         Text(
                           'Add Address',
                           style: theme.textTheme.labelMedium?.copyWith(
-                            color: Colors.white,
+                            color: theme.colorScheme.primary,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -104,7 +103,7 @@ class HomeAddressHeader extends StatelessWidget {
           );
         }
 
-        // 4. Authenticated with 1 Address -> Single row display
+        // 4. Authenticated with 1 Address
         if (state.addresses.length == 1) {
           final singleAddress = state.addresses.first;
           final title = (singleAddress.label?.isNotEmpty ?? false)
@@ -135,7 +134,7 @@ class HomeAddressHeader extends StatelessWidget {
           );
         }
 
-        // 5. Authenticated with Multiple Addresses -> Safe Dropdown menu
+        // 5. Authenticated with Multiple Addresses
         final selectedId = state.selectedAddress?.id;
         final selectedValue = (selectedId != null &&
             state.addresses.any((a) => a.id != null && a.id == selectedId))
@@ -178,10 +177,7 @@ class HomeAddressHeader extends StatelessWidget {
                     if (isDefault)
                       Container(
                         margin: const EdgeInsets.only(left: 8.0),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 6,
-                          vertical: 2,
-                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(
                           color: theme.colorScheme.primaryContainer,
                           borderRadius: BorderRadius.circular(6),
