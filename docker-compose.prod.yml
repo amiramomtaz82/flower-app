@@ -38,10 +38,6 @@ services:
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-guest}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASS:-guest}
-      # Disable Erlang's busy-wait scheduler — it otherwise spins CPU cores
-      # even at complete idle, which is fine on a dedicated server but eats
-      # into a local dev machine shared with an emulator/IDE/etc.
-      RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS: "+sbwt none +sbwtdcpu none +sbwtdio none"
     ports:
       - "127.0.0.1:5672:5672"
       - "127.0.0.1:15672:15672"
@@ -158,9 +154,17 @@ services:
     image: ${DOCKER_USERNAME:-hossammokhtar}/flower-cart-service:latest
     container_name: flower_cart_service
     restart: unless-stopped
+    depends_on:
+      sqlserver:
+        condition: service_healthy
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_HTTP_PORTS: 8080
+      ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=FlowersCartDb;User Id=sa;Password=${MSSQL_SA_PASSWORD:-Password123!};TrustServerCertificate=True;MultipleActiveResultSets=true;"
+      CatalogService__BaseUrl: "http://catalog-service:8080"
+      JwtSettings__Secret: ${JWT_SECRET:-YOUR_SUPER_SECRET_KEY_CHANGE_IN_PRODUCTION_MIN_32_CHARS}
+      JwtSettings__Issuer: ${JWT_ISSUER:-FlowersAuth}
+      JwtSettings__Audience: ${JWT_AUDIENCE:-FlowersApp}
     ports:
       - "5292:8080"
     networks:

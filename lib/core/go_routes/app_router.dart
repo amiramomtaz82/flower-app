@@ -1,5 +1,6 @@
 import 'package:flower_app/config/di/di.dart';
 import 'package:flower_app/core/go_routes/routes_name.dart';
+
 import 'package:flower_app/features/auth/presentation/forget_password/bloc/forget_password_bloc.dart';
 import 'package:flower_app/features/auth/presentation/forget_password/views/forget_password_flow_view.dart';
 import 'package:flower_app/features/auth/presentation/login/manager/login_cubit.dart';
@@ -25,6 +26,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/Address/presentaion/manager/address_cubit.dart';
+import '../../features/Address/presentaion/manager/address_events.dart';
+import '../../features/Address/presentaion/view/add_address_view.dart';
 import '../../features/auth/presentation/login/views/login_view.dart';
 import '../../features/commerce/presentation/home/view/home_view.dart';
 import 'main_shell_view.dart';
@@ -37,7 +41,8 @@ class AppRouter {
 
   static final GoRouter router = GoRouter(
     navigatorKey: navigatorKey,
-    initialLocation: AppRoutes.home,
+    initialLocation: AppRoutes.login,
+
     routes: [
       GoRoute(
         path: AppRoutes.login,
@@ -61,8 +66,18 @@ class AppRouter {
             routes: [
               GoRoute(
                 path: AppRoutes.home,
-                builder: (context, state) => BlocProvider(
-                  create: (_) => getIt<HomeCubit>()..doEvents(HomeStarted()),
+                builder: (context, state) => MultiBlocProvider(
+                  providers: [
+                    BlocProvider<HomeCubit>(
+                      create: (_) =>
+                          getIt<HomeCubit>()..doEvents(HomeStarted()),
+                    ),
+                    BlocProvider<AddressCubit>(
+                      create: (_) =>
+                          getIt<AddressCubit>()
+                            ..doEvents(ResolveHomeAddressEvent()),
+                    ),
+                  ],
                   child: const HomeView(),
                 ),
               ),
@@ -109,6 +124,7 @@ class AppRouter {
           ),
         ],
       ),
+
       GoRoute(
         path: AppRoutes.register,
         builder: (context, state) => BlocProvider(
@@ -123,6 +139,14 @@ class AppRouter {
           child: const BestSellerView(),
         ),
       ),
+
+      GoRoute(
+        path: AppRoutes.addAddress,
+        builder: (context, state) => BlocProvider.value(
+          value: getIt<AddressCubit>()..doEvents(const GetAreasWithCitiesEvent()),
+          child: const AddAddressView(),
+        ),
+      ),
       GoRoute(
         path: AppRoutes.productDetails,
         builder: (context, state) {
@@ -134,16 +158,15 @@ class AppRouter {
         },
       ),
 
-      // outside the shell on purpose: pushed over Home with a back arrow
-      // instead of living in the bottom nav
       GoRoute(
         path: AppRoutes.occasions,
         builder: (context, state) {
           final occasionId =
               state.uri.queryParameters[AppRoutes.occasionIdParam];
           return BlocProvider(
-            create: (_) => getIt<OccasionsCubit>()
-              ..doEvents(OccasionsStarted(initialOccasionId: occasionId)),
+            create: (_) =>
+                getIt<OccasionsCubit>()
+                  ..doEvents(OccasionsStarted(initialOccasionId: occasionId)),
             child: const OccasionsView(),
           );
         },
