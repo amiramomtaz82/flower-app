@@ -58,11 +58,13 @@ class AppTheme {
         bodyMedium: TextStyle(
           fontSize: 13,
           color: colors.textPrimary,
-        ),
+        ),labelMedium: TextStyle(fontSize: 16,fontWeight:FontWeight.w600),
         bodySmall: TextStyle(
           fontSize: 12,
           color: colors.textPrimary,
-        ),
+
+        ),displaySmall: TextStyle(fontSize: 16,color: colors.textSecondary),
+          titleSmall: TextStyle(fontSize: 13,color: colors.hint)
       ),
 
       ///--------------- text Field -------------------///

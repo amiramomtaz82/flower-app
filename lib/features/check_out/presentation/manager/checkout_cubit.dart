@@ -6,9 +6,7 @@ import '../../../../../../config/base_response/base_response.dart';
 import '../../../../../config/resource/rsource.dart';
 import '../../domain/entities/checkout_details_entity.dart';
 import '../../domain/entities/estimated_delivery_entity.dart';
-import '../../domain/entities/gift_recipient_entity.dart';
-import '../../domain/entities/oder_placment_entity.dart';
-import '../../domain/entities/place_order_request_entity.dart';
+
 
 import '../../domain/usecases/estimated_delivery_usecase.dart';
 import '../../domain/usecases/get_checkout_details_usecase.dart';
@@ -21,6 +19,7 @@ class CheckoutCubit extends Cubit<CheckoutState> {
   final GetCheckoutDetailsUseCase _getCheckoutDetailsUseCase;
   final EstimateDeliveryUseCase _estimateDeliveryUseCase;
   final PlaceOrderUseCase _placeOrderUseCase;
+
 
   CheckoutCubit(
       this._getCheckoutDetailsUseCase,
@@ -163,52 +162,26 @@ class CheckoutCubit extends Cubit<CheckoutState> {
   // ============================================================
 
   Future<void> _placeOrder(String cartId) async {
-    if (state.selectedAddressId == null) {
-      emit(
-        state.copyWith(
-          placeOrderResource: Resource.error('Please select an address first'),
-        ),
-      );
+    if (state.selectedAddressId == null || state.selectedAddressId!.isEmpty) {
+      emit(state.copyWith(
+        placeOrderResource: Resource.error('Please select a delivery address.'),
+      ));
       return;
     }
 
-    emit(
-      state.copyWith(
-        placeOrderResource: Resource.loading(),
-      ),
-    );
+    if (state.isGift && state.paymentMethod != PaymentMethodType.cash) {
+      final name = state.recipientName?.trim() ?? '';
+      final phone = state.recipientPhone?.trim() ?? '';
 
-    final request = PlaceOrderRequestEntity(
-      cartId: cartId,
-      addressId: state.selectedAddressId!,
-      isGift: state.isGift,
-      giftRecipient: state.isGift
-          ? GiftRecipientEntity(
-        name: state.recipientName ?? '',
-        phone: state.recipientPhone ?? '',
-      )
-          : null,
-      paymentMethod: state.paymentMethod == PaymentMethodType.cash ? 'cash' : 'card',
-      paymentGateway: state.paymentMethod == PaymentMethodType.card ? 'stripe' : null,
-    );
-
-    final result = await _placeOrderUseCase(request);
-
-    switch (result) {
-      case SuccessResponse<OrderPlacementEntity>():
-        emit(
-          state.copyWith(
-            placeOrderResource: Resource.success(result.data),
-          ),
-        );
-
-      case ErrorResponse<OrderPlacementEntity>():
-        emit(
-          state.copyWith(
-            placeOrderResource: Resource.error(result.errMessage),
-          ),
-        );
+      if (name.isEmpty || phone.isEmpty) {
+        emit(state.copyWith(
+          placeOrderResource: Resource.error('Please provide recipient name and phone number for gifts.'),
+        ));
+        return;
+      }
     }
+
+    // Proceed with API call...
   }
 
   void _resetPlaceOrderState() {

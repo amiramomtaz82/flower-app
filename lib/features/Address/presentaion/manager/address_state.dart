@@ -17,7 +17,7 @@ class AddressState extends Equatable {
   final List<AreaEntity> areas;
   final CityEntity? selectedCity;
   final AreaEntity? selectedArea;
-  final bool isGuest; // <-- Added field
+  final bool? isGuest;
 
   const AddressState({
     required this.addresses,
@@ -29,7 +29,7 @@ class AddressState extends Equatable {
     required this.areas,
     this.selectedCity,
     this.selectedArea,
-    this.isGuest = false, // <-- Added default
+    this.isGuest ,
   });
 
   factory AddressState.initial() => AddressState(
@@ -38,7 +38,7 @@ class AddressState extends Equatable {
     getAddressesResource: Resource.initial(),
     addAddressResource: Resource.initial(),
     areas: const [],
-    isGuest: false, // <-- Initialized as false
+    isGuest: null,
   );
 
   AddressState copyWith({

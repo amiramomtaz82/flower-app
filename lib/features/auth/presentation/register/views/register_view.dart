@@ -57,7 +57,7 @@ class _RegisterViewState extends State<RegisterView> {
             previous.status.status != current.status.status,
         listener: (context, state) {
           if (state.status.status == ApiStatus.success) {
-            context.go(AppRoutes.home);
+            context.go(AppRoutes.login);
           } else if (state.status.status == ApiStatus.error) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(

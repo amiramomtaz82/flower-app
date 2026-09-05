@@ -30,6 +30,7 @@ import '../../features/Address/presentaion/manager/address_events.dart';
 import '../../features/Address/presentaion/view/add_address_view.dart';
 import '../../features/auth/presentation/login/views/login_view.dart';
 import '../../features/check_out/presentation/manager/checkout_cubit.dart';
+import '../../features/check_out/presentation/view/order_succss_screen.dart';
 import '../../features/commerce/presentation/home/view/home_view.dart';
 import 'main_shell_view.dart';
 
@@ -41,7 +42,7 @@ class AppRouter {
 
   static final GoRouter router = GoRouter(
     navigatorKey: navigatorKey,
-    initialLocation: AppRoutes.checkout,
+    initialLocation: AppRoutes.login,
 
     routes: [
       GoRoute(
@@ -67,6 +68,14 @@ class AppRouter {
             ],
             child: CheckoutScreen(cartId: cartId),
           );
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.orderSuccess,
+        builder: (context, state) {
+          // Optional: read orderId passed via extra or path params
+          final orderId = state.extra as String?;
+          return OrderSuccessScreen(orderId: orderId);
         },
       ),
       GoRoute(
