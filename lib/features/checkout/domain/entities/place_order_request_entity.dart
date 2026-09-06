@@ -1,5 +1,5 @@
 
-import 'package:flower_app/features/check_out/domain/entities/card_payment_session_entity.dart';
+import 'package:flower_app/features/checkout/domain/entities/card_payment_session_entity.dart';
 
 import 'gift_recipient_entity.dart';
 

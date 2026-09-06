@@ -1,7 +1,7 @@
 // lib/features/checkout/presentation/screens/checkout_screen.dart
 import 'package:flower_app/core/app_theme/app_colors.dart';
 import 'package:flower_app/core/go_routes/routes_name.dart';
-import 'package:flower_app/features/check_out/presentation/view/widget/checkout_address_card.dart';
+import 'package:flower_app/features/checkout/presentation/view/widget/checkout_address_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
