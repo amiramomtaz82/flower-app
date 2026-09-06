@@ -1,32 +1,35 @@
+import 'package:equatable/equatable.dart';
+
 enum ApiStatus { initial, loading, success, error }
 
-class Resource<E> {
-  E? data;
-  String? errorMessage;
-  late ApiStatus status;
+class Resource<E> extends Equatable {
+  final E? data;
+  final String? errorMessage;
+  final ApiStatus status;
 
-  Resource(this.status, this.data, this.errorMessage);
+  const Resource(this.status, this.data, this.errorMessage);
 
-  Resource.loading() {
-    status = ApiStatus.loading;
-  }
+  const Resource.loading({this.data})
+      : status = ApiStatus.loading,
+        errorMessage = null;
 
-  Resource.success(this.data) {
-    status = ApiStatus.success;
-  }
+  const Resource.success(this.data)
+      : status = ApiStatus.success,
+        errorMessage = null;
 
-  Resource.error(String error) {
-    errorMessage = error;
-    status = ApiStatus.error;
-  }
+  const Resource.error(String error, {this.data})
+      : status = ApiStatus.error,
+        errorMessage = error;
 
-  Resource.initial() {
-    status = ApiStatus.initial;
-  }
+  const Resource.initial()
+      : status = ApiStatus.initial,
+        data = null,
+        errorMessage = null;
 
   bool get isSuccess => status == ApiStatus.success;
-
   bool get isLoading => status == ApiStatus.loading;
-
   bool get isError => status == ApiStatus.error;
+
+  @override
+  List<Object?> get props => [status, data, errorMessage];
 }

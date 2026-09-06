@@ -21,6 +21,10 @@ import 'auth_required_bottom_sheet.dart';
 
   bool get hasPendingAction => _pendingAction != null;
 
+  Future<bool> isGuest() async {
+    return !(await hasSession());
+  }
+
   Future<bool> hasSession() async {
     final token =  await _authLocalDataSource.getToken();
 

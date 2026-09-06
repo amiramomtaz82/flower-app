@@ -37,12 +37,18 @@ class Fcm {
   }
 
   Future<String?> getToken() async {
-    final token = await _messaging.getToken();
+    try {
+      final token = await _messaging.getToken();
 
-    print('========== FCM TOKEN ==========');
-    print(token);
+      print('========== FCM TOKEN ==========');
+      print(token);
 
-    return token;
+      return token;
+    } catch (e) {
+      print('========== FCM TOKEN ERROR ==========');
+      print('Failed to get FCM token: $e');
+      return null;
+    }
   }
 
   Future<void> requestPermission() async {

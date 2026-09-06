@@ -73,7 +73,7 @@ class LightColors extends ThemeExtension<LightColors> implements AppColors {
   Color get success => const Color(0xff0CB359);
 
   @override
-  Color get surface => const Color(0xffCFCFCF);
+  Color get surface => const Color(0xfFEAEAEA);
 
   @override
   Color get textPrimary => const Color(0xff0C1015);

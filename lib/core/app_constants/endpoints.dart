@@ -10,6 +10,10 @@ class Endpoints {
   static const String forgetPassword = '/auth/forgot-password';
   static const String verifyOtp = '/auth/verify-otp';
   static const String resetPassword = '/auth/reset-password';
+  static const String addAddress = '/address/users/me/addresses';
+  static const String getAddresses="/address/users/me/addresses";
+  static const String getAreas = '/address/api/areas';
+  static const String setDefaultAddress= "/address/api/addresses/{id}/default";
 
   static const String homeSections = '/catalog/home/sections';
   static const String categories = '/catalog/categories';
@@ -30,4 +34,8 @@ class QueryParams {
   static const String productId = 'productId';
   static const String pageNumber = 'pageNumber';
   static const String pageSize = 'pageSize';
+
+  static const String addAddress = '/address/users/me/addresses';
+  static const String getAddresses="/address/users/me/addresses";
+  static const String getAreas = '/address/api/areas';
 }

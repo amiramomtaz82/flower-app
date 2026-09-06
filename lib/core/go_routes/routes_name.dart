@@ -7,7 +7,7 @@ class AppRoutes {
   static const String profile = '/profile';
   static const String register = '/register';
   static const String forgotPassword = '/forgot-password';
-  static const String test = '/test';
+  static const String addAddress='/add-address';
 
   static const String productDetails = '/product-details';
 
@@ -16,6 +16,8 @@ class AppRoutes {
   static const String search = '/search';
 
   static const String categoryIdParam = 'categoryId';
+  static const String checkout = '/checkout';
+  static const String orderSuccess = '/orderSuccess';
 
   static String categoriesForCategory(String categoryId) =>
       '$categories?$categoryIdParam=${Uri.encodeQueryComponent(categoryId)}';
