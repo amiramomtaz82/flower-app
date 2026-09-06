@@ -417,54 +417,127 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     AppColors colors = LightColors();
     final isCash = state.paymentMethod == PaymentMethodType.cash;
 
+    // When cash is selected, force isDisabled to true
+    final isDisabled = isCash;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // ... Toggle Switch ...
-        if (!isCash && state.isGift) ...[
+        // 1. Toggle Switch & Label
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'It is a gift',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: isDisabled ? Colors.grey.shade400 : Colors.black,
+              ),
+            ),
+            Switch(
+              value: isDisabled ? false : state.isGift,
+              activeColor: colors.primary,
+              // Passing null to onChanged completely disables the switch
+              onChanged: isDisabled
+                  ? null
+                  : (val) {
+                cubit.doEvents(ToggleGiftEvent(val)); // Use your cubit's gift event
+              },
+            ),
+          ],
+        ),
+
+        // Optional helper note explaining why it's disabled
+        if (isCash)
+          Padding(
+            padding: const EdgeInsets.only(top: 4.0),
+            child: Text(
+              'Gift option is only available with card payments.',
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.grey.shade500,
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+          ),
+
+        // 2. Form Fields (Disabled via IgnorePointer + Opacity when cash is selected)
+        if (state.isGift) ...[
           const SizedBox(height: 12),
-          Form(
-            key: _giftFormKey,
-            child: Column(
-              children: [
-                TextFormField(
-                  controller: _nameController,
-                  decoration: InputDecoration(
-                    hintText: 'Enter recipient name',
-                    labelText: "Name",
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                  ),
-                  validator: (val) {
-                    if (val == null || val.trim().isEmpty) {
-                      return 'Please enter recipient name';
-                    }
-                    return null;
-                  },
-                  onChanged: (name) => cubit.doEvents(UpdateGiftDetailsEvent(name: name)),
+          IgnorePointer(
+            ignoring: isDisabled,
+            child: Opacity(
+              opacity: isDisabled ? 0.5 : 1.0,
+              child: Form(
+                key: _giftFormKey,
+                child: Column(
+                  children: [
+                    TextFormField(
+                      controller: _nameController,
+                      enabled: !isDisabled,
+                      decoration: InputDecoration(
+                        hintText: 'Enter recipient name',
+                        labelText: 'Name',
+                        floatingLabelBehavior: FloatingLabelBehavior.always,
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(color: colors.primary),
+                        ),
+                      ),
+                      validator: (val) {
+                        if (!isDisabled && (val == null || val.trim().isEmpty)) {
+                          return 'Please enter recipient name';
+                        }
+                        return null;
+                      },
+                      onChanged: (name) =>
+                          cubit.doEvents(UpdateGiftDetailsEvent(name: name)),
+                    ),
+                    const SizedBox(height: 14),
+                    TextFormField(
+                      controller: _phoneController,
+                      enabled: !isDisabled,
+                      keyboardType: TextInputType.phone,
+                      decoration: InputDecoration(
+                        hintText: 'Enter recipient phone number',
+                        labelText: 'Phone number',
+                        floatingLabelBehavior: FloatingLabelBehavior.always,
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(color: colors.primary),
+                        ),
+                      ),
+                      validator: (val) {
+                        if (isDisabled) return null;
+                        if (val == null || val.trim().isEmpty) {
+                          return 'Please enter recipient phone number';
+                        }
+                        if (val.trim().length < 10) {
+                          return 'Please enter a valid phone number';
+                        }
+                        return null;
+                      },
+                      onChanged: (phone) =>
+                          cubit.doEvents(UpdateGiftDetailsEvent(phone: phone)),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 10),
-                TextFormField(
-                  controller: _phoneController,
-                  keyboardType: TextInputType.phone,
-                  decoration: InputDecoration(
-                    hintText: 'Enter recipient phone number',
-                    labelText: "Phone number",
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                  ),
-                  validator: (val) {
-                    if (val == null || val.trim().isEmpty) {
-                      return 'Please enter recipient phone number';
-                    }
-                    if (val.trim().length < 10) {
-                      return 'Please enter a valid phone number';
-                    }
-                    return null;
-                  },
-                  onChanged: (phone) => cubit.doEvents(UpdateGiftDetailsEvent(phone: phone)),
-                ),
-              ],
+              ),
             ),
           ),
         ],
