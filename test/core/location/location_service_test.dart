@@ -15,11 +15,18 @@ class FakeGeolocatorPlatform extends Fake
     with MockPlatformInterfaceMixin
     implements GeolocatorPlatform {
   bool serviceEnabled = true;
+  bool serviceEnabledAfterPrompt = false;
+  int openLocationSettingsCallCount = 0;
+
   LocationPermission checkPermissionResult = LocationPermission.always;
   LocationPermission requestPermissionResult = LocationPermission.always;
   int requestPermissionCallCount = 0;
   int checkPermissionCallCount = 0;
   int getCurrentPositionCallCount = 0;
+  int getLastKnownPositionCallCount = 0;
+
+  bool shouldThrowOnGetCurrentPosition = false;
+  Position? lastKnownPositionResult;
 
   Position positionResult = Position(
     longitude: 31.25,
@@ -35,7 +42,18 @@ class FakeGeolocatorPlatform extends Fake
   );
 
   @override
-  Future<bool> isLocationServiceEnabled() async => serviceEnabled;
+  Future<bool> isLocationServiceEnabled() async {
+    if (openLocationSettingsCallCount > 0) {
+      return serviceEnabledAfterPrompt;
+    }
+    return serviceEnabled;
+  }
+
+  @override
+  Future<bool> openLocationSettings() async {
+    openLocationSettingsCallCount++;
+    return true;
+  }
 
   @override
   Future<LocationPermission> checkPermission() async {
@@ -52,7 +70,16 @@ class FakeGeolocatorPlatform extends Fake
   @override
   Future<Position> getCurrentPosition({LocationSettings? locationSettings}) async {
     getCurrentPositionCallCount++;
+    if (shouldThrowOnGetCurrentPosition) {
+      throw Exception('Timeout or location error');
+    }
     return positionResult;
+  }
+
+  @override
+  Future<Position?> getLastKnownPosition({bool forceLocationManager = false}) async {
+    getLastKnownPositionCallCount++;
+    return lastKnownPositionResult;
   }
 }
 
@@ -65,6 +92,7 @@ class FakeNominatimResponse extends NominatimResponse {
 
 class FakeNominatimFlutter extends Fake implements NominatimFlutter {
   NominatimResponse nextResponse = FakeNominatimResponse();
+  bool shouldThrow = false;
 
   @override
   void configureNominatim({
@@ -82,6 +110,9 @@ class FakeNominatimFlutter extends Fake implements NominatimFlutter {
     required ReverseRequest reverseRequest,
     String? language,
   }) async {
+    if (shouldThrow) {
+      throw Exception('Network error');
+    }
     return nextResponse;
   }
 }
@@ -98,7 +129,6 @@ void main() {
     GeolocatorPlatform.instance = fakeGeolocatorPlatform;
 
     fakeNominatim = FakeNominatimFlutter();
-    // Use the @visibleForTesting named constructor
     locationService = LocationService.test(fakeNominatim);
   });
 
@@ -106,85 +136,108 @@ void main() {
   // getCurrentLocation
   // ============================================================
   group('getCurrentLocation', () {
-    test('throws Exception when location services are disabled', () async {
+    test('returns null when location services remain disabled after prompt', () async {
       fakeGeolocatorPlatform.serviceEnabled = false;
+      fakeGeolocatorPlatform.serviceEnabledAfterPrompt = false;
 
-      await expectLater(
-            () => locationService.getCurrentLocation(),
-        throwsA(
-          isA<Exception>().having(
-                (e) => e.toString(),
-            'message',
-            contains('Location services are disabled.'),
-          ),
-        ),
-      );
+      final result = await locationService.getCurrentLocation();
+
+      expect(result, isNull);
+      expect(fakeGeolocatorPlatform.openLocationSettingsCallCount, 1);
+      expect(fakeGeolocatorPlatform.checkPermissionCallCount, 0);
     });
 
-    test('requests permission and throws Exception when permission is denied',
-            () async {
-          fakeGeolocatorPlatform.serviceEnabled = true;
-          fakeGeolocatorPlatform.checkPermissionResult = LocationPermission.denied;
-          fakeGeolocatorPlatform.requestPermissionResult = LocationPermission.denied;
+    test('continues and fetches location if service is enabled after prompt', () async {
+      fakeGeolocatorPlatform.serviceEnabled = false;
+      fakeGeolocatorPlatform.serviceEnabledAfterPrompt = true;
+      fakeGeolocatorPlatform.checkPermissionResult = LocationPermission.whileInUse;
 
-          await expectLater(
-                () => locationService.getCurrentLocation(),
-            throwsA(
-              isA<Exception>().having(
-                    (e) => e.toString(),
-                'message',
-                contains('Location permission denied.'),
-              ),
-            ),
-          );
+      final result = await locationService.getCurrentLocation();
 
-          expect(fakeGeolocatorPlatform.checkPermissionCallCount, 1);
-          expect(fakeGeolocatorPlatform.requestPermissionCallCount, 1);
-        });
+      expect(result, equals(const LatLng(29.96, 31.25)));
+      expect(fakeGeolocatorPlatform.openLocationSettingsCallCount, 1);
+      expect(fakeGeolocatorPlatform.getCurrentPositionCallCount, 1);
+    });
 
-    test('throws Exception when permission is deniedForever without requesting',
-            () async {
-          fakeGeolocatorPlatform.serviceEnabled = true;
-          fakeGeolocatorPlatform.checkPermissionResult =
-              LocationPermission.deniedForever;
+    test('requests permission and returns null when permission is denied', () async {
+      fakeGeolocatorPlatform.serviceEnabled = true;
+      fakeGeolocatorPlatform.checkPermissionResult = LocationPermission.denied;
+      fakeGeolocatorPlatform.requestPermissionResult = LocationPermission.denied;
 
-          await expectLater(
-                () => locationService.getCurrentLocation(),
-            throwsA(
-              isA<Exception>().having(
-                    (e) => e.toString(),
-                'message',
-                contains('Location permission permanently denied.'),
-              ),
-            ),
-          );
+      final result = await locationService.getCurrentLocation();
 
-          expect(fakeGeolocatorPlatform.checkPermissionCallCount, 1);
-          expect(fakeGeolocatorPlatform.requestPermissionCallCount, 0);
-        });
+      expect(result, isNull);
+      expect(fakeGeolocatorPlatform.checkPermissionCallCount, 1);
+      expect(fakeGeolocatorPlatform.requestPermissionCallCount, 1);
+    });
 
-    test('returns LatLng when permissions are granted and location is fetched',
-            () async {
-          fakeGeolocatorPlatform.serviceEnabled = true;
-          fakeGeolocatorPlatform.checkPermissionResult = LocationPermission.whileInUse;
-          fakeGeolocatorPlatform.positionResult = Position(
-            latitude: 29.96,
-            longitude: 31.25,
-            timestamp: DateTime(2026),
-            accuracy: 5.0,
-            altitude: 0.0,
-            heading: 0.0,
-            speed: 0.0,
-            speedAccuracy: 0.0,
-            altitudeAccuracy: 0.0,
-            headingAccuracy: 0.0,
-          );
+    test('returns null when permission is deniedForever without requesting', () async {
+      fakeGeolocatorPlatform.serviceEnabled = true;
+      fakeGeolocatorPlatform.checkPermissionResult = LocationPermission.deniedForever;
 
-          final result = await locationService.getCurrentLocation();
+      final result = await locationService.getCurrentLocation();
 
-          expect(result, equals(const LatLng(29.96, 31.25)));
-          expect(fakeGeolocatorPlatform.getCurrentPositionCallCount, 1);
-        });
+      expect(result, isNull);
+      expect(fakeGeolocatorPlatform.checkPermissionCallCount, 1);
+      expect(fakeGeolocatorPlatform.requestPermissionCallCount, 0);
+    });
+
+    test('returns LatLng when permissions are granted and location is fetched', () async {
+      fakeGeolocatorPlatform.serviceEnabled = true;
+      fakeGeolocatorPlatform.checkPermissionResult = LocationPermission.whileInUse;
+      fakeGeolocatorPlatform.positionResult = Position(
+        latitude: 29.96,
+        longitude: 31.25,
+        timestamp: DateTime(2026),
+        accuracy: 5.0,
+        altitude: 0.0,
+        heading: 0.0,
+        speed: 0.0,
+        speedAccuracy: 0.0,
+        altitudeAccuracy: 0.0,
+        headingAccuracy: 0.0,
+      );
+
+      final result = await locationService.getCurrentLocation();
+
+      expect(result, equals(const LatLng(29.96, 31.25)));
+      expect(fakeGeolocatorPlatform.getCurrentPositionCallCount, 1);
+    });
+
+    test('falls back to last known position when getCurrentPosition fails', () async {
+      fakeGeolocatorPlatform.serviceEnabled = true;
+      fakeGeolocatorPlatform.checkPermissionResult = LocationPermission.always;
+      fakeGeolocatorPlatform.shouldThrowOnGetCurrentPosition = true;
+      fakeGeolocatorPlatform.lastKnownPositionResult = Position(
+        latitude: 30.05,
+        longitude: 31.30,
+        timestamp: DateTime(2026),
+        accuracy: 15.0,
+        altitude: 0.0,
+        heading: 0.0,
+        speed: 0.0,
+        speedAccuracy: 0.0,
+        altitudeAccuracy: 0.0,
+        headingAccuracy: 0.0,
+      );
+
+      final result = await locationService.getCurrentLocation();
+
+      expect(result, equals(const LatLng(30.05, 31.30)));
+      expect(fakeGeolocatorPlatform.getLastKnownPositionCallCount, 1);
+    });
+
+    test('returns null when getCurrentPosition throws and last known position is null', () async {
+      fakeGeolocatorPlatform.serviceEnabled = true;
+      fakeGeolocatorPlatform.checkPermissionResult = LocationPermission.always;
+      fakeGeolocatorPlatform.shouldThrowOnGetCurrentPosition = true;
+      fakeGeolocatorPlatform.lastKnownPositionResult = null;
+
+      final result = await locationService.getCurrentLocation();
+
+      expect(result, isNull);
+      expect(fakeGeolocatorPlatform.getLastKnownPositionCallCount, 1);
+    });
   });
 
   // ============================================================
@@ -194,9 +247,10 @@ void main() {
     const tLat = 29.96;
     const tLng = 31.25;
 
-    test('returns LocationModel with correctly parsed city and area', () async {
+    test('returns LocationModel with house number and road concatenated', () async {
       fakeNominatim.nextResponse = FakeNominatimResponse(
         address: {
+          'house_number': '12',
           'road': 'Street 9',
           'city': 'Cairo',
           'suburb': 'Maadi',
@@ -214,7 +268,7 @@ void main() {
           const LocationModel(
             lat: tLat,
             lng: tLng,
-            addressLine: 'Street 9',
+            addressLine: '12 Street 9',
             city: 'Cairo',
             area: 'Maadi',
           ),
@@ -222,30 +276,12 @@ void main() {
       );
     });
 
-    test('falls back to town/municipality for city and neighbourhood for area',
-            () async {
-          fakeNominatim.nextResponse = FakeNominatimResponse(
-            address: {
-              'town': 'New Cairo',
-              'neighbourhood': 'El Rehab',
-            },
-          );
-
-          final result = await locationService.reverseGeocode(
-            lat: tLat,
-            lng: tLng,
-          );
-
-          expect(result.addressLine, isNull);
-          expect(result.city, equals('New Cairo'));
-          expect(result.area, equals('El Rehab'));
-        });
-
-    test('falls back to municipality when city and town are null', () async {
+    test('falls back to pedestrian/footway for road and state for city', () async {
       fakeNominatim.nextResponse = FakeNominatimResponse(
         address: {
-          'municipality': 'Giza Municipality',
-          'suburb': 'Dokki',
+          'pedestrian': 'Nile Walk',
+          'state': 'Cairo Governorate',
+          'quarter': 'Zamalek',
         },
       );
 
@@ -254,11 +290,29 @@ void main() {
         lng: tLng,
       );
 
-      expect(result.city, equals('Giza Municipality'));
-      expect(result.area, equals('Dokki'));
+      expect(result?.addressLine, equals('Nile Walk'));
+      expect(result?.city, equals('Cairo Governorate'));
+      expect(result?.area, equals('Zamalek'));
     });
 
-    test('returns null fields when address map is null', () async {
+    test('falls back to display_name when no road tags are available', () async {
+      fakeNominatim.nextResponse = FakeNominatimResponse(
+        address: {
+          'display_name': 'Unknown Landmark, Giza',
+          'city': 'Giza',
+        },
+      );
+
+      final result = await locationService.reverseGeocode(
+        lat: tLat,
+        lng: tLng,
+      );
+
+      expect(result?.addressLine, equals('Unknown Landmark, Giza'));
+      expect(result?.city, equals('Giza'));
+    });
+
+    test('returns coordinates with null fields when address map is null', () async {
       fakeNominatim.nextResponse = FakeNominatimResponse(address: null);
 
       final result = await locationService.reverseGeocode(
@@ -266,11 +320,24 @@ void main() {
         lng: tLng,
       );
 
-      expect(result.lat, tLat);
-      expect(result.lng, tLng);
-      expect(result.addressLine, isNull);
-      expect(result.city, isNull);
-      expect(result.area, isNull);
+      expect(result?.lat, tLat);
+      expect(result?.lng, tLng);
+      expect(result?.addressLine, isNull);
+      expect(result?.city, isNull);
+      expect(result?.area, isNull);
+    });
+
+    test('handles exceptions gracefully and returns coordinates model', () async {
+      fakeNominatim.shouldThrow = true;
+
+      final result = await locationService.reverseGeocode(
+        lat: tLat,
+        lng: tLng,
+      );
+
+      expect(result?.lat, tLat);
+      expect(result?.lng, tLng);
+      expect(result?.addressLine, isNull);
     });
   });
 
@@ -294,12 +361,18 @@ void main() {
       addressLine: 'Far Street',
     );
 
+    test('returns null if address list is empty', () {
+      final result = locationService.getClosestAddress([], currentPoint);
+
+      expect(result, isNull);
+    });
+
     test('returns the closest address from the list', () {
       final addresses = [farAddress, closeAddress];
 
       final result = locationService.getClosestAddress(addresses, currentPoint);
 
-      expect(result.id, equals('addr_close'));
+      expect(result?.id, equals('addr_close'));
     });
 
     test('ignores addresses with null coordinates and returns valid closest', () {
@@ -313,7 +386,7 @@ void main() {
 
       final result = locationService.getClosestAddress(addresses, currentPoint);
 
-      expect(result.id, equals('addr_close'));
+      expect(result?.id, equals('addr_close'));
     });
 
     test('returns first address if all coordinates in list are null', () {
@@ -325,7 +398,7 @@ void main() {
         currentPoint,
       );
 
-      expect(result.id, equals('null_1'));
+      expect(result?.id, equals('null_1'));
     });
   });
 }
