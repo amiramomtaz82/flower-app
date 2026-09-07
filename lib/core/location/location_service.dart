@@ -12,40 +12,23 @@ import 'location_model.dart';
 class LocationService {
   final NominatimFlutter _nominatim;
 
-  LocationService() : _nominatim = NominatimFlutter.instance {
-    _nominatim.configureNominatim(
-      userAgent: 'FlowerApp/1.0',
-    );
+  LocationService(this._nominatim);
+
+  // ========================= Atomic GPS & Permission Helpers =========================
+
+  Future<bool> isServiceEnabled() async {
+    return await Geolocator.isLocationServiceEnabled();
   }
 
-  @visibleForTesting
-  LocationService.test(this._nominatim);
+  Future<LocationPermission> checkPermission() async {
+    return await Geolocator.checkPermission();
+  }
 
-  // ========================= Current Location =========================
-  Future<LatLng?> getCurrentLocation() async {
-    // 1. Check if GPS hardware service is enabled
-    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      // Optional: Ask system to prompt user to enable location
-      await Geolocator.openLocationSettings();
-      serviceEnabled = await Geolocator.isLocationServiceEnabled();
-      if (!serviceEnabled) return null;
-    }
+  Future<LocationPermission> requestPermission() async {
+    return await Geolocator.requestPermission();
+  }
 
-    // 2. Handle permissions
-    LocationPermission permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        return null;
-      }
-    }
-
-    if (permission == LocationPermission.deniedForever) {
-      return null;
-    }
-
-    // 3. Fetch position with strict timeout to prevent emulator hangs
+  Future<LatLng?> getCurrentPosition() async {
     try {
       final position = await Geolocator.getCurrentPosition(
         locationSettings: const LocationSettings(
@@ -53,11 +36,9 @@ class LocationService {
           timeLimit: Duration(seconds: 10),
         ),
       );
-
       return LatLng(position.latitude, position.longitude);
     } catch (e) {
       debugPrint('Geolocator error or timeout: $e');
-      // Fallback to last known position if current times out
       final lastPosition = await Geolocator.getLastKnownPosition();
       if (lastPosition != null) {
         return LatLng(lastPosition.latitude, lastPosition.longitude);
@@ -67,6 +48,7 @@ class LocationService {
   }
 
   // ========================= Reverse Geocode =========================
+
   Future<LocationModel?> reverseGeocode({
     required double lat,
     required double lng,
@@ -85,15 +67,10 @@ class LocationService {
 
       final address = response.address;
 
-      debugPrint('========== NOMINATIM RAW ADDRESS ==========');
-      debugPrint('$address');
-      debugPrint('============================================');
-
       if (address == null) {
         return LocationModel(lat: lat, lng: lng);
       }
 
-      // Comprehensive fallbacks for MENA / international OpenStreetMap tags
       final road = address['road'] ?? address['pedestrian'] ?? address['footway'];
       final houseNumber = address['house_number'];
       final addressLine = (houseNumber != null && road != null)
@@ -103,7 +80,7 @@ class LocationService {
       final city = address['city'] ??
           address['town'] ??
           address['municipality'] ??
-          address['state'] ?? // Often holds Governorate/Province (e.g. Cairo)
+          address['state'] ??
           address['county'];
 
       final area = address['suburb'] ??
@@ -126,6 +103,7 @@ class LocationService {
   }
 
   // ========================= Closest Address =========================
+
   AddressEntity? getClosestAddress(List<AddressEntity> addresses, LatLng current) {
     if (addresses.isEmpty) return null;
 
@@ -146,7 +124,3 @@ class LocationService {
     return closest ?? addresses.first;
   }
 }
-
-
-
-

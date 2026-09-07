@@ -15,8 +15,6 @@ class FakeGeolocatorPlatform extends Fake
     with MockPlatformInterfaceMixin
     implements GeolocatorPlatform {
   bool serviceEnabled = true;
-  bool serviceEnabledAfterPrompt = false;
-  int openLocationSettingsCallCount = 0;
 
   LocationPermission checkPermissionResult = LocationPermission.always;
   LocationPermission requestPermissionResult = LocationPermission.always;
@@ -43,16 +41,7 @@ class FakeGeolocatorPlatform extends Fake
 
   @override
   Future<bool> isLocationServiceEnabled() async {
-    if (openLocationSettingsCallCount > 0) {
-      return serviceEnabledAfterPrompt;
-    }
     return serviceEnabled;
-  }
-
-  @override
-  Future<bool> openLocationSettings() async {
-    openLocationSettingsCallCount++;
-    return true;
   }
 
   @override
@@ -129,62 +118,54 @@ void main() {
     GeolocatorPlatform.instance = fakeGeolocatorPlatform;
 
     fakeNominatim = FakeNominatimFlutter();
-    locationService = LocationService.test(fakeNominatim);
+    locationService = LocationService(fakeNominatim);
   });
 
   // ============================================================
-  // getCurrentLocation
+  // Atomic GPS & Permission Helpers
   // ============================================================
-  group('getCurrentLocation', () {
-    test('returns null when location services remain disabled after prompt', () async {
-      fakeGeolocatorPlatform.serviceEnabled = false;
-      fakeGeolocatorPlatform.serviceEnabledAfterPrompt = false;
-
-      final result = await locationService.getCurrentLocation();
-
-      expect(result, isNull);
-      expect(fakeGeolocatorPlatform.openLocationSettingsCallCount, 1);
-      expect(fakeGeolocatorPlatform.checkPermissionCallCount, 0);
-    });
-
-    test('continues and fetches location if service is enabled after prompt', () async {
-      fakeGeolocatorPlatform.serviceEnabled = false;
-      fakeGeolocatorPlatform.serviceEnabledAfterPrompt = true;
-      fakeGeolocatorPlatform.checkPermissionResult = LocationPermission.whileInUse;
-
-      final result = await locationService.getCurrentLocation();
-
-      expect(result, equals(const LatLng(29.96, 31.25)));
-      expect(fakeGeolocatorPlatform.openLocationSettingsCallCount, 1);
-      expect(fakeGeolocatorPlatform.getCurrentPositionCallCount, 1);
-    });
-
-    test('requests permission and returns null when permission is denied', () async {
+  group('isServiceEnabled', () {
+    test('returns true when location services are enabled', () async {
       fakeGeolocatorPlatform.serviceEnabled = true;
+
+      final result = await locationService.isServiceEnabled();
+
+      expect(result, isTrue);
+    });
+
+    test('returns false when location services are disabled', () async {
+      fakeGeolocatorPlatform.serviceEnabled = false;
+
+      final result = await locationService.isServiceEnabled();
+
+      expect(result, isFalse);
+    });
+  });
+
+  group('checkPermission', () {
+    test('delegates call to Geolocator.checkPermission', () async {
       fakeGeolocatorPlatform.checkPermissionResult = LocationPermission.denied;
-      fakeGeolocatorPlatform.requestPermissionResult = LocationPermission.denied;
 
-      final result = await locationService.getCurrentLocation();
+      final result = await locationService.checkPermission();
 
-      expect(result, isNull);
+      expect(result, equals(LocationPermission.denied));
       expect(fakeGeolocatorPlatform.checkPermissionCallCount, 1);
+    });
+  });
+
+  group('requestPermission', () {
+    test('delegates call to Geolocator.requestPermission', () async {
+      fakeGeolocatorPlatform.requestPermissionResult = LocationPermission.whileInUse;
+
+      final result = await locationService.requestPermission();
+
+      expect(result, equals(LocationPermission.whileInUse));
       expect(fakeGeolocatorPlatform.requestPermissionCallCount, 1);
     });
+  });
 
-    test('returns null when permission is deniedForever without requesting', () async {
-      fakeGeolocatorPlatform.serviceEnabled = true;
-      fakeGeolocatorPlatform.checkPermissionResult = LocationPermission.deniedForever;
-
-      final result = await locationService.getCurrentLocation();
-
-      expect(result, isNull);
-      expect(fakeGeolocatorPlatform.checkPermissionCallCount, 1);
-      expect(fakeGeolocatorPlatform.requestPermissionCallCount, 0);
-    });
-
-    test('returns LatLng when permissions are granted and location is fetched', () async {
-      fakeGeolocatorPlatform.serviceEnabled = true;
-      fakeGeolocatorPlatform.checkPermissionResult = LocationPermission.whileInUse;
+  group('getCurrentPosition', () {
+    test('returns LatLng when position is successfully resolved', () async {
       fakeGeolocatorPlatform.positionResult = Position(
         latitude: 29.96,
         longitude: 31.25,
@@ -198,15 +179,13 @@ void main() {
         headingAccuracy: 0.0,
       );
 
-      final result = await locationService.getCurrentLocation();
+      final result = await locationService.getCurrentPosition();
 
       expect(result, equals(const LatLng(29.96, 31.25)));
       expect(fakeGeolocatorPlatform.getCurrentPositionCallCount, 1);
     });
 
     test('falls back to last known position when getCurrentPosition fails', () async {
-      fakeGeolocatorPlatform.serviceEnabled = true;
-      fakeGeolocatorPlatform.checkPermissionResult = LocationPermission.always;
       fakeGeolocatorPlatform.shouldThrowOnGetCurrentPosition = true;
       fakeGeolocatorPlatform.lastKnownPositionResult = Position(
         latitude: 30.05,
@@ -221,21 +200,21 @@ void main() {
         headingAccuracy: 0.0,
       );
 
-      final result = await locationService.getCurrentLocation();
+      final result = await locationService.getCurrentPosition();
 
       expect(result, equals(const LatLng(30.05, 31.30)));
+      expect(fakeGeolocatorPlatform.getCurrentPositionCallCount, 1);
       expect(fakeGeolocatorPlatform.getLastKnownPositionCallCount, 1);
     });
 
     test('returns null when getCurrentPosition throws and last known position is null', () async {
-      fakeGeolocatorPlatform.serviceEnabled = true;
-      fakeGeolocatorPlatform.checkPermissionResult = LocationPermission.always;
       fakeGeolocatorPlatform.shouldThrowOnGetCurrentPosition = true;
       fakeGeolocatorPlatform.lastKnownPositionResult = null;
 
-      final result = await locationService.getCurrentLocation();
+      final result = await locationService.getCurrentPosition();
 
       expect(result, isNull);
+      expect(fakeGeolocatorPlatform.getCurrentPositionCallCount, 1);
       expect(fakeGeolocatorPlatform.getLastKnownPositionCallCount, 1);
     });
   });

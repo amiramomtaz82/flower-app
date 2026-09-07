@@ -4,7 +4,7 @@ import '../../../../config/base_response/base_response.dart';
 import '../entities/address_entity.dart';
 import '../repo/address_repo.dart';
 
-@lazySingleton
+@injectable
 class SetDefaultAddressUseCase {
   final AddressRepo _repo;
 
