@@ -21,6 +21,8 @@ class Endpoints {
   static const String products = '/catalog/products';
   static const String productsByCategory = '/catalog/products/by-category';
   static const String productById = '/catalog/products/{productId}';
+  static const String defaultAddress='/users/me/addresses/{id}/default';
+
 
   static const String bestSellersOccasionId =
       '55555555-5555-5555-5555-555555555555';

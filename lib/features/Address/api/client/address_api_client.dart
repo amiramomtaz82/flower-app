@@ -9,7 +9,7 @@ import 'package:flower_app/features/Address/data/models/saved_addresses_response
 import 'package:injectable/injectable.dart';
 import 'package:retrofit/retrofit.dart';
 
-import '../../data/models/addressdto.dart';
+import '../../data/models/address_dto.dart';
 import '../../data/models/create_address_response.dart';
 part 'address_api_client.g.dart';
 @singleton
@@ -27,6 +27,6 @@ abstract class AddressApiClient {
   @GET(Endpoints.getAreas)
   Future<AreasWithCityResponse> getAreas();
 
-  @PATCH('/users/me/addresses/{id}/default')
+  @PATCH(Endpoints.defaultAddress)
   Future<AddressDto> setDefaultAddress(@Path('id') String id);
 }

@@ -8,11 +8,11 @@ import 'package:flower_app/features/Address/data/models/areas_with_city_response
 
 import 'package:flower_app/features/Address/data/models/saved_addresses_response.dart';
 
-import '../models/addressdto.dart';
+import '../models/address_dto.dart';
 import '../models/create_address_request.dart';
 import '../models/create_address_response.dart';
 
-abstract class AddressRemoteDataSource {
+abstract interface class AddressRemoteDataSource {
 
 
   Future<BaseResponse<CreateAddressResponse>> addAddress(CreateAddressRequest addressRequest);
