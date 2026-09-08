@@ -1,4 +1,6 @@
 // lib/features/Address/presentation/widgets/address_card.dart
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flower_app/core/app_constants/app_strings.dart';
 import 'package:flutter/material.dart';
 
 import '../../../domain/entities/address_entity.dart';
@@ -25,7 +27,7 @@ class AddressCard extends StatelessWidget {
         onTap: onTap,
         title: Row(
           children: [
-            Text(address.label ?? 'Address'),
+            Text(address.label ?? AppStrings.address.tr()),
             const SizedBox(width: 8),
             if (isDefault) const DefaultAddressBadge(),
           ],
@@ -35,7 +37,7 @@ class AddressCard extends StatelessWidget {
             ? null
             : TextButton(
           onPressed: onSetDefault,
-          child: const Text('Set as default'),
+          child: const Text(AppStrings.setAsDefault),
         ),
       ),
     );

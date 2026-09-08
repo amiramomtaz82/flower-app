@@ -3,7 +3,7 @@ import 'package:flower_app/config/base_response/base_response.dart';
 import 'package:flower_app/features/Address/api/client/address_api_client.dart';
 import 'package:flower_app/features/Address/api/data_source/address_remote_data_source_impl.dart';
 
-import 'package:flower_app/features/Address/data/models/addressdto.dart';
+import 'package:flower_app/features/Address/data/models/address_dto.dart';
 import 'package:flower_app/features/Address/data/models/areas_with_city_response.dart';
 import 'package:flower_app/features/Address/data/models/create_address_request.dart';
 import 'package:flower_app/features/Address/data/models/create_address_response.dart';

@@ -1,53 +1,47 @@
-/// recipientName : "Layla Hassan"
-/// phone : "01111111101"
-/// addressLine : "123 Tahrir Square, Downtown"
-/// cityId : "00000000-0000-0000-0000-000000000001"
-/// areaId : "00000000-0000-0000-0000-000000000002"
-/// latitude : 30.0444
-/// longitude : 31.2357
-/// label : "Home"
-
 class CreateAddressRequest {
-  CreateAddressRequest({
-      this.recipientName, 
-      this.phone, 
-      this.addressLine, 
-      this.cityId, 
-      this.areaId, 
-      this.latitude, 
-      this.longitude, 
-      this.label,});
+  final String recipientName;
+  final String phone;
+  final String addressLine;
+  final String cityId;
+  final String areaId;
+  final num latitude;
+  final num longitude;
+  final String label;
 
-  CreateAddressRequest.fromJson(dynamic json) {
-    recipientName = json['recipientName'];
-    phone = json['phone'];
-    addressLine = json['addressLine'];
-    cityId = json['cityId'];
-    areaId = json['areaId'];
-    latitude = json['latitude'];
-    longitude = json['longitude'];
-    label = json['label'];
-  }
-  String? recipientName;
-  String? phone;
-  String? addressLine;
-  String? cityId;
-  String? areaId;
-  num? latitude;
-  num? longitude;
-  String? label;
+  CreateAddressRequest({
+    required this.recipientName,
+    required this.phone,
+    required this.addressLine,
+    required this.cityId,
+    required this.areaId,
+    required this.latitude,
+    required this.longitude,
+    required this.label,
+  });
 
   Map<String, dynamic> toJson() {
-    final map = <String, dynamic>{};
-    map['recipientName'] = recipientName;
-    map['phone'] = phone;
-    map['addressLine'] = addressLine;
-    map['cityId'] = cityId;
-    map['areaId'] = areaId;
-    map['latitude'] = latitude;
-    map['longitude'] = longitude;
-    map['label'] = label;
-    return map;
+    return {
+      'recipientName': recipientName,
+      'phone': phone,
+      'addressLine': addressLine,
+      'cityId': cityId,
+      'areaId': areaId,
+      'latitude': latitude,
+      'longitude': longitude,
+      'label': label,
+    };
   }
 
+  factory CreateAddressRequest.fromJson(Map<String, dynamic> json) {
+    return CreateAddressRequest(
+      recipientName: json['recipientName'] as String,
+      phone: json['phone'] as String,
+      addressLine: json['addressLine'] as String,
+      cityId: json['cityId'] as String,
+      areaId: json['areaId'] as String,
+      latitude: json['latitude'] as num,
+      longitude: json['longitude'] as num,
+      label: json['label'] as String,
+    );
+  }
 }

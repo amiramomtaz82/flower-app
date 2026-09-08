@@ -5,7 +5,7 @@ import '../entities/add_address_entity.dart';
 import '../entities/address_entity.dart';
 import '../repo/address_repo.dart';
 
-@LazySingleton()
+@injectable
 class AddAddressUseCase {
   final AddressRepo addressRepo;
 

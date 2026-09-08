@@ -6,7 +6,7 @@ import '../../../../core/network/base_response.dart';
 import '../entities/address_entity.dart';
 import '../repo/address_repo.dart';
 
-@LazySingleton()
+@injectable
 class GetSavedAddressesUseCase {
   final AddressRepo addressRepo;
 

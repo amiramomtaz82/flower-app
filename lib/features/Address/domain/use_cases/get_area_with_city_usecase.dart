@@ -5,7 +5,7 @@ import '../entities/area_entity.dart';
 import '../repo/address_repo.dart';
 
 
-@lazySingleton
+@injectable
 class GetAreasWithCitiesUseCase {
   final AddressRepo _repository;
 

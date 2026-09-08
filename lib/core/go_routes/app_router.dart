@@ -97,12 +97,11 @@ class AppRouter {
                   providers: [
                     BlocProvider<HomeCubit>(
                       create: (_) =>
-                          getIt<HomeCubit>()..doEvents(HomeStarted()),
+                      getIt<HomeCubit>()..doEvents(HomeStarted()),
                     ),
-                    BlocProvider<AddressCubit>(
-                      create: (_) =>
-                          getIt<AddressCubit>()
-                            ..doEvents(ResolveHomeAddressEvent()),
+                    BlocProvider.value(
+                      value: getIt<AddressCubit>()
+                        ..doEvents(ResolveHomeAddressEvent()),
                     ),
                   ],
                   child: const HomeView(),
