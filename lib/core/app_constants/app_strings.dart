@@ -120,5 +120,29 @@ static const String addressAddedSuccessfully='Address added successfully!';
   static const String phoneNumber = 'phone_number';
 
   static const String setAsDefault = 'sed as default';
+  static const String cartId = 'cartId';
+  static const String addressId = 'addressId';
+  static const String checkoutTitle = 'checkout_title';
+  static const String deliveryTime = 'delivery_time';
+  static const String instant = 'instant';
+  static const String arriveBy = 'arrive_by';
+  static const String notDetermined = 'not_determined';
+  static const String deliveryAddress = 'delivery_address';
+  static const String noSavedAddresses = 'no_saved_addresses';
+  static const String addNew = 'add_new';
+  static const String paymentMethod = 'payment_method';
+  static const String cashOnDelivery = 'cash_on_delivery';
+  static const String creditCard = 'credit_card';
+  static const String enterRecipientName = 'enter_recipient_name';
+  static const String name = 'name';
+  static const String enterRecipientPhone = 'enter_recipient_phone';
+
+  static const String subTotal = 'sub_total';
+  static const String deliveryFee = 'delivery_fee';
+  static const String total = 'total';
+  static const String placeOrder = 'place_order';
+  static const String selectAddressWarning = 'select_address_warning';
+  static const String orderFailedFallback = 'order_failed_fallback';
+
 }
 

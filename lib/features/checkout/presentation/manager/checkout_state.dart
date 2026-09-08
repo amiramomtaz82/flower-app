@@ -2,17 +2,17 @@
 import 'package:equatable/equatable.dart';
 
 import '../../../../../config/resource/rsource.dart';
+import '../../../Address/domain/entities/address_entity.dart';
 import '../../domain/entities/checkout_details_entity.dart';
 import '../../domain/entities/estimated_delivery_entity.dart';
 import '../../domain/entities/oder_placment_entity.dart';
 import 'checkout_event.dart';
 
-
 class CheckoutState extends Equatable {
   final Resource<CheckoutDetailsEntity> checkoutDetailsResource;
   final Resource<EstimateDeliveryEntity> estimateDeliveryResource;
   final Resource<OrderPlacementEntity> placeOrderResource;
-
+  final List<AddressEntity> addresses;
   final String? selectedAddressId;
   final PaymentMethodType paymentMethod;
   final bool isGift;
@@ -23,6 +23,7 @@ class CheckoutState extends Equatable {
     required this.checkoutDetailsResource,
     required this.estimateDeliveryResource,
     required this.placeOrderResource,
+    required this.addresses,
     this.selectedAddressId,
     this.paymentMethod = PaymentMethodType.cash,
     this.isGift = false,
@@ -39,12 +40,14 @@ class CheckoutState extends Equatable {
     isGift: false,
     recipientName: null,
     recipientPhone: null,
+    addresses: const [],
   );
 
   CheckoutState copyWith({
     Resource<CheckoutDetailsEntity>? checkoutDetailsResource,
     Resource<EstimateDeliveryEntity>? estimateDeliveryResource,
     Resource<OrderPlacementEntity>? placeOrderResource,
+    List<AddressEntity>? addresses, // <-- Changed from Resource<List<AddressEntity>>?
     String? selectedAddressId,
     PaymentMethodType? paymentMethod,
     bool? isGift,
@@ -62,6 +65,7 @@ class CheckoutState extends Equatable {
       isGift: isGift ?? this.isGift,
       recipientName: recipientName ?? this.recipientName,
       recipientPhone: recipientPhone ?? this.recipientPhone,
+      addresses: addresses ?? this.addresses,
     );
   }
 
@@ -70,6 +74,7 @@ class CheckoutState extends Equatable {
     checkoutDetailsResource,
     estimateDeliveryResource,
     placeOrderResource,
+    addresses, // <-- Added addresses to props
     selectedAddressId,
     paymentMethod,
     isGift,

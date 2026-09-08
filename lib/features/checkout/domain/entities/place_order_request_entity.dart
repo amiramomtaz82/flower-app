@@ -1,9 +1,8 @@
-
-import 'package:flower_app/features/checkout/domain/entities/card_payment_session_entity.dart';
+import 'package:equatable/equatable.dart';
 
 import 'gift_recipient_entity.dart';
 
-class PlaceOrderRequestEntity {
+class PlaceOrderRequestEntity extends Equatable {
   final String cartId;
   final String addressId;
   final bool isGift;
@@ -19,6 +18,14 @@ class PlaceOrderRequestEntity {
     required this.paymentMethod,
     this.paymentGateway,
   });
+
+  @override
+  List<Object?> get props => [
+    cartId,
+    addressId,
+    isGift,
+    giftRecipient,
+    paymentMethod,
+    paymentGateway,
+  ];
 }
-
-

@@ -16,7 +16,7 @@ import '../models/estimated_delivery_response.dart';
 import '../models/place_order_request.dart';
 import '../models/place_order_response.dart';
 
-@LazySingleton(as: CheckoutRepository)
+@Injectable(as: CheckoutRepository)
 class CheckoutRepositoryImpl implements CheckoutRepository {
   final CheckoutRemoteDataSource _remoteDataSource;
 
@@ -65,7 +65,6 @@ class CheckoutRepositoryImpl implements CheckoutRepository {
       cartId: order.cartId,
       addressId: order.addressId,
       isGift: order.isGift,
-
       giftRecipient: order.isGift && order.giftRecipient != null
           ? GiftRecipientRequest(
         recipientName: order.giftRecipient!.name,
@@ -80,10 +79,32 @@ class CheckoutRepositoryImpl implements CheckoutRepository {
 
     switch (response) {
       case SuccessResponse<PlaceOrderResponse>():
+        final sessionData = response.data.data;
+        final isCredit = order.paymentMethod.toLowerCase() == 'card' ||
+            order.paymentMethod.toLowerCase() == 'credit';
+
+        if (isCredit) {
+          final sessionUrl = sessionData?.sessionUrl;
+          final successUrl = sessionData?.successUrl;
+          final cancelUrl = sessionData?.cancelUrl;
+
+          if (sessionData == null ||
+              sessionUrl == null ||
+              sessionUrl.trim().isEmpty ||
+              successUrl == null ||
+              successUrl.trim().isEmpty ||
+              cancelUrl == null ||
+              cancelUrl.trim().isEmpty) {
+            return ErrorResponse<OrderPlacementEntity>(
+              error: 'Failed to initiate card payment: Missing payment session URLs.',
+            );
+          }
+        }
+
         return SuccessResponse<OrderPlacementEntity>(
           OrderPlacementEntity(
             isSuccess: response.data.isSuccess,
-            cardSession: response.data.data?.toEntity(),
+            cardSession: sessionData?.toEntity(),
           ),
         );
 

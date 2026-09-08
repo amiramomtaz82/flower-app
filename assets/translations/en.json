@@ -80,7 +80,7 @@
   "please_enter_label": "Please enter a label",
   "recipient_name": "Recipient Name",
   "please_enter_recipient_name": "Please enter recipient name",
-er",
+
   "please_enter_phone_number": "Please enter phone number",
   "address_details_street": "Address Details / Street",
   "please_enter_address_details": "Please enter address details",
@@ -95,6 +95,27 @@ er",
   "please_select_city": "Please select a city",
   "save_address": "Save Address",
   "please_select_location_on_map": "Please select or pin a location on the map",
+  "checkout_title": "Checkout",
+  "delivery_time": "Delivery time",
+  "instant": "Instant, ",
+  "arrive_by": "Arrive by",
+  "not_determined": "Not determined",
+  "delivery_address": "Delivery address",
+  "no_saved_addresses": "No saved addresses found. Please add a delivery address.",
+  "add_new": "Add new",
+  "payment_method": "Payment method",
+  "cash_on_delivery": "Cash on delivery",
+  "credit_card": "Credit card",
+  "enter_recipient_name": "Enter recipient name",
+  "name": "Name",
+  "enter_recipient_phone": "Enter recipient phone number",
+
+  "sub_total": "Sub Total",
+  "delivery_fee": "Delivery Fee",
+  "total": "Total",
+  "place_order": "Place order",
+  "select_address_warning": "Please select a delivery address first.",
+  "order_failed_fallback": "Failed to place order"
 
 
 

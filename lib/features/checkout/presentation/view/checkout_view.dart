@@ -1,12 +1,13 @@
-// lib/features/checkout/presentation/screens/checkout_screen.dart
 import 'package:flower_app/core/app_theme/app_colors.dart';
+
 import 'package:flower_app/core/go_routes/routes_name.dart';
 import 'package:flower_app/features/checkout/presentation/view/widget/checkout_address_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-
+import '../../../../core/app_constants/app_strings.dart';
+import '../../../../core/validation/validation.dart';
 import '../../../Address/presentaion/manager/address_cubit.dart';
 import '../../../Address/presentaion/manager/address_events.dart';
 import '../../../Address/presentaion/manager/address_state.dart';
@@ -18,8 +19,13 @@ import 'order_succss_screen.dart';
 
 class CheckoutScreen extends StatefulWidget {
   final String cartId;
+  final String? defaultAddressId;
 
-  const CheckoutScreen({super.key, required this.cartId});
+  const CheckoutScreen({
+    super.key,
+    required this.cartId,
+    this.defaultAddressId,
+  });
 
   @override
   State<CheckoutScreen> createState() => _CheckoutScreenState();
@@ -27,8 +33,42 @@ class CheckoutScreen extends StatefulWidget {
 
 class _CheckoutScreenState extends State<CheckoutScreen> {
   final _giftFormKey = GlobalKey<FormState>();
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _phoneController = TextEditingController();
+  late final TextEditingController _nameController;
+  late final TextEditingController _phoneController;
+
+  Widget _buildDeliveryTimeWidget(CheckoutState checkoutState) {
+    final isEstimateLoading = checkoutState.estimateDeliveryResource.isLoading;
+    final isDetailsLoading = checkoutState.checkoutDetailsResource.isLoading;
+
+    if (isEstimateLoading || isDetailsLoading) {
+      return const SizedBox(
+        width: 14,
+        height: 14,
+        child: CircularProgressIndicator(
+          strokeWidth: 2,
+          color: Color(0xFF00897B),
+        ),
+      );
+    }
+
+    final estimatedTime = checkoutState.estimateDeliveryResource.data?.estimatedDeliveryAt ??
+        checkoutState.checkoutDetailsResource.data?.estimatedDeliveryAt;
+
+    final displayText = (estimatedTime != null && estimatedTime.trim().isNotEmpty)
+        ? '${AppStrings.arriveBy} $estimatedTime'
+        : AppStrings.notDetermined;
+
+    return Text(
+      displayText,
+      style: TextStyle(
+        color: (estimatedTime != null && estimatedTime.trim().isNotEmpty)
+            ? const Color(0xFF00897B)
+            : Colors.grey.shade600,
+        fontWeight: FontWeight.w500,
+        fontSize: 13,
+      ),
+    );
+  }
 
   @override
   void initState() {
@@ -36,17 +76,29 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     final addressCubit = context.read<AddressCubit>();
     final checkoutCubit = context.read<CheckoutCubit>();
 
-    // 1. Fetch saved addresses if not already loaded
+    _nameController = TextEditingController(
+      text: checkoutCubit.state.recipientName ?? '',
+    );
+    _phoneController = TextEditingController(
+      text: checkoutCubit.state.recipientPhone ?? '',
+    );
+
+    // 1. Fetch saved addresses
     addressCubit.doEvents(GetSavedAddressesEvent());
 
-    // 2. Fetch checkout overview & details
-    final defaultId = addressCubit.state.selectedAddress?.id;
-    checkoutCubit.doEvents(
-      GetCheckoutDetailsEvent(
-        cartId: widget.cartId,
-        defaultAddressId: defaultId,
-      ),
-    );
+    // 2. Resolve default address id
+    final currentSelectedId = widget.defaultAddressId ??
+        addressCubit.state.selectedAddress?.id ??
+        (addressCubit.state.addresses.isNotEmpty ? addressCubit.state.addresses.first.id : null);
+
+    if (currentSelectedId != null) {
+      checkoutCubit.doEvents(
+        GetCheckoutDetailsEvent(
+          cartId: widget.cartId,
+          defaultAddressId: currentSelectedId,
+        ),
+      );
+    }
   }
 
   @override
@@ -58,19 +110,65 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
   @override
   Widget build(BuildContext context) {
-    AppColors colors=LightColors();
+    AppColors colors = LightColors();
+
     return MultiBlocListener(
       listeners: [
+        BlocListener<AddressCubit, AddressState>(
+          listenWhen: (prev, curr) {
+            final hadNoAddresses = prev.addresses.isEmpty && curr.addresses.isNotEmpty;
+            final addressSelected = prev.selectedAddress?.id != curr.selectedAddress?.id;
+            return hadNoAddresses || addressSelected;
+          },
+          listener: (context, addressState) {
+            final checkoutCubit = context.read<CheckoutCubit>();
+
+            if (checkoutCubit.state.selectedAddressId == null) {
+              final resolvedAddressId = addressState.selectedAddress?.id ??
+                  (addressState.addresses.isNotEmpty ? addressState.addresses.first.id : null);
+
+              if (resolvedAddressId != null) {
+                checkoutCubit.doEvents(
+                  GetCheckoutDetailsEvent(
+                    cartId: widget.cartId,
+                    defaultAddressId: resolvedAddressId,
+                  ),
+                );
+              }
+            }
+          },
+        ),
         BlocListener<CheckoutCubit, CheckoutState>(
           listenWhen: (prev, curr) =>
-              prev.placeOrderResource != curr.placeOrderResource,
+          prev.recipientName != curr.recipientName ||
+              prev.recipientPhone != curr.recipientPhone,
+          listener: (context, state) {
+            final incomingName = state.recipientName ?? '';
+            if (_nameController.text != incomingName) {
+              _nameController.value = TextEditingValue(
+                text: incomingName,
+                selection: TextSelection.collapsed(offset: incomingName.length),
+              );
+            }
+
+            final incomingPhone = state.recipientPhone ?? '';
+            if (_phoneController.text != incomingPhone) {
+              _phoneController.value = TextEditingValue(
+                text: incomingPhone,
+                selection: TextSelection.collapsed(offset: incomingPhone.length),
+              );
+            }
+          },
+        ),
+        BlocListener<CheckoutCubit, CheckoutState>(
+          listenWhen: (prev, curr) =>
+          prev.placeOrderResource != curr.placeOrderResource,
           listener: (context, state) {
             final resource = state.placeOrderResource;
-
             if (resource.isSuccess) {
               final orderPlacement = resource.data;
               if (orderPlacement?.cardSession?.successUrl != null) {
-                // Navigate to success screen
+                // Card session flow
               } else {
                 Navigator.pushReplacement(
                   context,
@@ -80,7 +178,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             } else if (resource.isError) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text(resource.errorMessage ?? 'Failed to place order'),
+                  content: Text(resource.errorMessage ?? AppStrings.orderFailedFallback),
                   backgroundColor: Theme.of(context).colorScheme.error,
                 ),
               );
@@ -89,7 +187,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         ),
       ],
       child: Scaffold(
-
         appBar: AppBar(
           backgroundColor: Colors.white,
           elevation: 0,
@@ -101,19 +198,15 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             ),
             onPressed: () => Navigator.of(context).pop(),
           ),
-          title: Text(
-            'Checkout',
-
-            ),
-
-          centerTitle: true,),
-
+          title: const Text(AppStrings.checkoutTitle),
+          centerTitle: true,
+        ),
         body: BlocBuilder<CheckoutCubit, CheckoutState>(
           builder: (context, checkoutState) {
             final cubit = context.read<CheckoutCubit>();
 
-            return  SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(vertical: 12.0), // No horizontal padding here
+            return SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(vertical: 12.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -123,36 +216,23 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Delivery time', style: Theme.of(context).textTheme.labelMedium),
+                        Text(AppStrings.deliveryTime, style: Theme.of(context).textTheme.labelMedium),
                         const SizedBox(height: 8),
-                        Container(
-
-                          child: Row(
-                            children: [
-                              const Icon(Icons.watch_later_outlined),
-                              const SizedBox(width: 6),
-                              Text("Instant, ", style: Theme.of(context).textTheme.bodySmall),
-                              Text(
-                                checkoutState.estimateDeliveryResource.data?.estimatedDeliveryAt != null
-                                    ? 'Arrive by ${checkoutState.estimateDeliveryResource.data!.estimatedDeliveryAt}'
-                                    : 'Arrive by 24 Sep 2024, 11:00 AM',
-                                style: const TextStyle(
-                                  color: Color(0xFF00897B),
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: 13,
-                                ),
-                              ),
-                            ],
-                          ),
+                        Row(
+                          children: [
+                            const Icon(Icons.watch_later_outlined, size: 18),
+                            const SizedBox(width: 6),
+                            Text(AppStrings.instant, style: Theme.of(context).textTheme.bodySmall),
+                            const SizedBox(width: 4),
+                            _buildDeliveryTimeWidget(checkoutState),
+                          ],
                         ),
                       ],
                     ),
                   ),
 
-                  // Full-width Divider
                   _buildSectionDivider(colors.surface),
 
-                  // --- 2. DELIVERY ADDRESS ---
                   // --- 2. DELIVERY ADDRESS ---
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -160,7 +240,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Delivery address',
+                          AppStrings.deliveryAddress,
                           style: Theme.of(context).textTheme.labelMedium,
                         ),
                         const SizedBox(height: 12),
@@ -170,7 +250,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
                             return Column(
                               children: [
-                                // 1. Show empty placeholder or address list
                                 if (addresses.isEmpty)
                                   Container(
                                     width: double.infinity,
@@ -181,7 +260,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                       border: Border.all(color: Colors.grey.shade300),
                                     ),
                                     child: Text(
-                                      'No saved addresses found. Please add a delivery address.',
+                                      AppStrings.noSavedAddresses,
                                       style: Theme.of(context).textTheme.titleSmall,
                                     ),
                                   )
@@ -215,7 +294,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
                                 const SizedBox(height: 10),
 
-                                // 2. "Add new" button always renders here
                                 SizedBox(
                                   width: double.infinity,
                                   height: 48,
@@ -229,7 +307,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                     onPressed: () => context.push(AppRoutes.addAddress),
                                     icon: const Icon(Icons.add, size: 20, color: Color(0xFFD81B60)),
                                     label: const Text(
-                                      'Add new',
+                                      AppStrings.addNew,
                                       style: TextStyle(
                                         color: Color(0xFFD81B60),
                                         fontWeight: FontWeight.w600,
@@ -244,7 +322,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       ],
                     ),
                   ),
-                  // Full-width Divider
+
                   _buildSectionDivider(colors.surface),
 
                   // --- 3. PAYMENT METHOD ---
@@ -253,16 +331,16 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Payment method', style: Theme.of(context).textTheme.labelMedium),
+                        Text(AppStrings.paymentMethod, style: Theme.of(context).textTheme.labelMedium),
                         const SizedBox(height: 6),
                         _buildRadioOption(
-                          title: 'Cash on delivery',
+                          title: AppStrings.cashOnDelivery,
                           value: PaymentMethodType.cash,
                           groupValue: checkoutState.paymentMethod,
                           onChanged: (val) => cubit.doEvents(SelectPaymentMethodEvent(val!)),
                         ),
                         _buildRadioOption(
-                          title: 'Credit card',
+                          title: AppStrings.creditCard,
                           value: PaymentMethodType.card,
                           groupValue: checkoutState.paymentMethod,
                           onChanged: (val) =>
@@ -272,7 +350,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     ),
                   ),
 
-                  // Full-width Divider
                   _buildSectionDivider(colors.surface),
 
                   // --- 4. GIFT OPTION ---
@@ -281,10 +358,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     child: _buildGiftSection(checkoutState, cubit),
                   ),
 
-                  // Full-width Divider
                   _buildSectionDivider(colors.surface),
 
-                  // --- 5. PRICE BREAKDOWN & BUTTON ---
                   // --- 5. PRICE BREAKDOWN & BUTTON ---
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -298,17 +373,17 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                         return Column(
                           children: [
                             _buildSummaryRow(
-                              'Sub Total',
+                              AppStrings.subTotal,
                               '${subtotal.toStringAsFixed(2)}\$',
                             ),
                             const SizedBox(height: 8),
                             _buildSummaryRow(
-                              'Delivery Fee',
+                              AppStrings.deliveryFee,
                               '${deliveryFee.toStringAsFixed(2)}\$',
                             ),
                             const Divider(height: 24, thickness: 0.8),
                             _buildSummaryRow(
-                              'Total',
+                              AppStrings.total,
                               '${total.toStringAsFixed(2)}\$',
                               isTotal: true,
                             ),
@@ -319,58 +394,71 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                               child: ElevatedButton(
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: const Color(0xFFD81B60),
-                                  elevation: 0,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(24),
                                   ),
                                 ),
-            onPressed: checkoutState.placeOrderResource.isLoading
-            ? null
-                : () {
-            // 1. Check Address Selection
-            if (checkoutState.selectedAddressId == null ||
-            checkoutState.selectedAddressId!.isEmpty) {
-            ScaffoldMessenger.of(context)
-            ..hideCurrentSnackBar()
-            ..showSnackBar(
-            SnackBar(
-            content: const Text('Please select a delivery address first.'),
-            backgroundColor: Theme.of(context).colorScheme.error,
-            behavior: SnackBarBehavior.floating,
-            ),
-            );
-            return;
-            }
+                                onPressed: checkoutState.placeOrderResource.isLoading
+                                    ? null
+                                    : () {
+                                  if (checkoutState.selectedAddressId == null ||
+                                      checkoutState.selectedAddressId!.isEmpty) {
+                                    ScaffoldMessenger.of(context)
+                                      ..hideCurrentSnackBar()
+                                      ..showSnackBar(
+                                        SnackBar(
+                                          content: const Text(AppStrings.selectAddressWarning),
+                                          backgroundColor: Theme.of(context).colorScheme.error,
+                                          behavior: SnackBarBehavior.floating,
+                                        ),
+                                      );
+                                    return;
+                                  }
 
-            // 2. Check Gift Info (if active)
-            if (checkoutState.isGift &&
-            checkoutState.paymentMethod != PaymentMethodType.cash) {
-            if (!(_giftFormKey.currentState?.validate() ?? false)) {
-            return;
-            }
-            }
+                                  if (checkoutState.isGift &&
+                                      checkoutState.paymentMethod != PaymentMethodType.cash) {
+                                    if (!(_giftFormKey.currentState?.validate() ?? false)) {
+                                      return;
+                                    }
+                                    cubit.doEvents(
+                                      UpdateGiftDetailsEvent(
+                                        name: _nameController.text.trim(),
+                                        phone: _phoneController.text.trim(),
+                                      ),
+                                    );
+                                  }
 
-            // 3. Dispatch Event
-            cubit.doEvents(PlaceOrderEvent(widget.cartId));
-            },child: Text("Place order") ,
+                                  cubit.doEvents(PlaceOrderEvent(widget.cartId));
+                                },
+                                child: checkoutState.placeOrderResource.isLoading
+                                    ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Colors.white,
+                                  ),
+                                )
+                                    : const Text(
+                                  AppStrings.placeOrder,
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                          ],
+                        );
+                      },
                     ),
-            ),
-                  const SizedBox(height: 16),
+                  ),
                 ],
-            );}
-            )
-              )]
-            )
+              ),
             );
           },
         ),
       ),
     );
   }
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
   // --- WIDGET BUILDERS ---
 
@@ -384,13 +472,12 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   }
 
   Widget _buildRadioOption({
-
     required String title,
     required PaymentMethodType value,
     required PaymentMethodType groupValue,
     required ValueChanged<PaymentMethodType?> onChanged,
   }) {
-    AppColors colors=LightColors();
+    AppColors colors = LightColors();
     return InkWell(
       onTap: () => onChanged(value),
       child: Padding(
@@ -402,7 +489,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             Radio<PaymentMethodType>(
               value: value,
               groupValue: groupValue,
-
               activeColor: colors.primary,
               materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
               onChanged: onChanged,
@@ -414,13 +500,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   }
 
   Widget _buildGiftSection(CheckoutState state, CheckoutCubit cubit) {
-    AppColors colors = LightColors();
     final isCash = state.paymentMethod == PaymentMethodType.cash;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // ... Toggle Switch ...
         if (!isCash && state.isGift) ...[
           const SizedBox(height: 12),
           Form(
@@ -430,17 +514,12 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 TextFormField(
                   controller: _nameController,
                   decoration: InputDecoration(
-                    hintText: 'Enter recipient name',
-                    labelText: "Name",
+                    hintText: AppStrings.enterRecipientName,
+                    labelText: AppStrings.name,
                     contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                   ),
-                  validator: (val) {
-                    if (val == null || val.trim().isEmpty) {
-                      return 'Please enter recipient name';
-                    }
-                    return null;
-                  },
+                  validator: Validation.validateName,
                   onChanged: (name) => cubit.doEvents(UpdateGiftDetailsEvent(name: name)),
                 ),
                 const SizedBox(height: 10),
@@ -448,20 +527,12 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   controller: _phoneController,
                   keyboardType: TextInputType.phone,
                   decoration: InputDecoration(
-                    hintText: 'Enter recipient phone number',
-                    labelText: "Phone number",
+                    hintText: AppStrings.enterRecipientPhone,
+                    labelText: AppStrings.phoneNumber,
                     contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                   ),
-                  validator: (val) {
-                    if (val == null || val.trim().isEmpty) {
-                      return 'Please enter recipient phone number';
-                    }
-                    if (val.trim().length < 10) {
-                      return 'Please enter a valid phone number';
-                    }
-                    return null;
-                  },
+                  validator: Validation.validatePhoneNumber,
                   onChanged: (phone) => cubit.doEvents(UpdateGiftDetailsEvent(phone: phone)),
                 ),
               ],

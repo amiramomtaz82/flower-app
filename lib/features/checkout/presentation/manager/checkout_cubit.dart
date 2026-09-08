@@ -4,27 +4,32 @@ import 'package:injectable/injectable.dart';
 
 import '../../../../../../config/base_response/base_response.dart';
 import '../../../../../config/resource/rsource.dart';
+import '../../../../core/validation/validation.dart';
+import '../../../Address/domain/use_cases/get_saved_address_useacse.dart';
 import '../../domain/entities/checkout_details_entity.dart';
 import '../../domain/entities/estimated_delivery_entity.dart';
 
-
+import '../../domain/entities/gift_recipient_entity.dart';
+import '../../domain/entities/oder_placment_entity.dart';
+import '../../domain/entities/place_order_request_entity.dart';
 import '../../domain/usecases/estimated_delivery_usecase.dart';
 import '../../domain/usecases/get_checkout_details_usecase.dart';
 import '../../domain/usecases/place_order_usecase.dart';
 import 'checkout_event.dart';
 import 'checkout_state.dart';
 
-@LazySingleton()
+@injectable
 class CheckoutCubit extends Cubit<CheckoutState> {
   final GetCheckoutDetailsUseCase _getCheckoutDetailsUseCase;
   final EstimateDeliveryUseCase _estimateDeliveryUseCase;
   final PlaceOrderUseCase _placeOrderUseCase;
-
+  final GetSavedAddressesUseCase _getSavedAddressesUseCase;
 
   CheckoutCubit(
       this._getCheckoutDetailsUseCase,
       this._estimateDeliveryUseCase,
       this._placeOrderUseCase,
+      this._getSavedAddressesUseCase
       ) : super(CheckoutState.initial());
 
   Future<void> doEvents(CheckoutEvent event) async {
@@ -68,16 +73,22 @@ class CheckoutCubit extends Cubit<CheckoutState> {
     switch (result) {
       case SuccessResponse<CheckoutDetailsEntity>():
         final details = result.data;
+
+        // Populate initial delivery estimate directly from checkout details
+        final initialDeliveryEstimate = EstimateDeliveryEntity(
+          addressId: details.addressId ?? defaultAddressId ?? '',
+          isServiceable: details.isServiceable,
+          deliveryFee: details.deliveryFee,
+          estimatedDeliveryAt: details.estimatedDeliveryAt,
+        );
+
         emit(
           state.copyWith(
             checkoutDetailsResource: Resource.success(details),
-            selectedAddressId: defaultAddressId,
+            selectedAddressId: defaultAddressId ?? details.addressId,
+            estimateDeliveryResource: Resource.success(initialDeliveryEstimate),
           ),
         );
-
-        if (defaultAddressId != null) {
-          await _estimateDelivery(defaultAddressId, cartId);
-        }
 
       case ErrorResponse<CheckoutDetailsEntity>():
         emit(
@@ -126,14 +137,12 @@ class CheckoutCubit extends Cubit<CheckoutState> {
   // FORM & SELECTION ACTIONS
   // ============================================================
 
-
   void _selectPaymentMethod(PaymentMethodType paymentMethod) {
     final isCash = paymentMethod == PaymentMethodType.cash;
 
     emit(
       state.copyWith(
         paymentMethod: paymentMethod,
-        // If cash, disable and clear gift fields automatically
         isGift: isCash ? false : state.isGift,
         recipientName: isCash ? null : state.recipientName,
         recipientPhone: isCash ? null : state.recipientPhone,
@@ -141,14 +150,12 @@ class CheckoutCubit extends Cubit<CheckoutState> {
     );
   }
 
-
-
   void _toggleGift(bool isGift) {
-    // Prevent enabling gift if current payment method is cash
     if (state.paymentMethod == PaymentMethodType.cash) return;
 
     emit(state.copyWith(isGift: isGift));
   }
+
   void _updateGiftDetails(String? name, String? phone) {
     emit(
       state.copyWith(
@@ -157,31 +164,86 @@ class CheckoutCubit extends Cubit<CheckoutState> {
       ),
     );
   }
+
   // ============================================================
   // PLACE ORDER
   // ============================================================
 
+  // lib/features/checkout/presentation/cubit/checkout_cubit.dart
+
   Future<void> _placeOrder(String cartId) async {
-    if (state.selectedAddressId == null || state.selectedAddressId!.isEmpty) {
+    // 1. Validate Cart ID
+    if (cartId.trim().isEmpty) {
+      emit(state.copyWith(
+        placeOrderResource: Resource.error('Cart identifier is missing.'),
+      ));
+      return;
+    }
+
+    // 2. Validate Address
+    final addressId = state.selectedAddressId?.trim();
+    if (addressId == null || addressId.isEmpty) {
       emit(state.copyWith(
         placeOrderResource: Resource.error('Please select a delivery address.'),
       ));
       return;
     }
 
-    if (state.isGift && state.paymentMethod != PaymentMethodType.cash) {
-      final name = state.recipientName?.trim() ?? '';
-      final phone = state.recipientPhone?.trim() ?? '';
+    // 3. Validate Gift Fields (only applicable when gift is toggled ON and not cash)
+    final isGiftActive = state.isGift && state.paymentMethod != PaymentMethodType.cash;
+    final recipientName = state.recipientName?.trim() ?? '';
+    final recipientPhone = state.recipientPhone?.trim() ?? '';
 
-      if (name.isEmpty || phone.isEmpty) {
+    if (isGiftActive) {
+      final nameError = Validation.validateName(recipientName);
+      if (nameError != null) {
         emit(state.copyWith(
-          placeOrderResource: Resource.error('Please provide recipient name and phone number for gifts.'),
+          placeOrderResource: Resource.error(nameError),
+        ));
+        return;
+      }
+
+      final phoneError = Validation.validatePhoneNumber(recipientPhone);
+      if (phoneError != null) {
+        emit(state.copyWith(
+          placeOrderResource: Resource.error(phoneError),
         ));
         return;
       }
     }
+    // 4. Emit Loading
+    emit(state.copyWith(
+      placeOrderResource: Resource.loading(),
+    ));
 
-    // Proceed with API call...
+    // 5. Build Complete PlaceOrderRequestEntity
+    final orderRequest = PlaceOrderRequestEntity(
+      cartId: cartId.trim(),
+      addressId: addressId,
+      isGift: isGiftActive,
+      giftRecipient: isGiftActive
+          ? GiftRecipientEntity(
+        name: recipientName,
+        phone: recipientPhone,
+      )
+          : null,
+      paymentMethod: state.paymentMethod == PaymentMethodType.cash ? 'COD' : 'Card',
+      paymentGateway: state.paymentMethod == PaymentMethodType.card ? 'Paymob' : null,
+    );
+
+    // 6. Execute Use Case & Handle Response
+    final result = await _placeOrderUseCase(orderRequest);
+
+    switch (result) {
+      case SuccessResponse<OrderPlacementEntity>():
+        emit(state.copyWith(
+          placeOrderResource: Resource.success(result.data),
+        ));
+      case ErrorResponse<OrderPlacementEntity>():
+        emit(state.copyWith(
+          placeOrderResource: Resource.error(result.errMessage),
+        ));
+    }
   }
 
   void _resetPlaceOrderState() {

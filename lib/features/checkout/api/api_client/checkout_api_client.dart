@@ -1,5 +1,7 @@
 // lib/features/checkout/api/client/checkout_api_client.dart
 import 'package:dio/dio.dart';
+import 'package:flower_app/core/app_constants/app_strings.dart';
+import 'package:flower_app/core/app_constants/endpoints.dart';
 import 'package:injectable/injectable.dart';
 import 'package:retrofit/retrofit.dart';
 
@@ -17,18 +19,18 @@ abstract class CheckoutApiClient {
   @factoryMethod
   factory CheckoutApiClient(Dio dio) = _CheckoutApiClient;
 
-  @GET('/checkout/details')
+  @GET(Endpoints.checkoutDetails)
   Future<CheckoutDetailsResponse> getCheckoutDetails(
-      @Query('cartId') String cartId,
+      @Query(AppStrings.cartId) String cartId,
       );
 
-  @GET('/checkout/estimate-delivery')
+  @GET(Endpoints.estimateDelivery)
   Future<EstimateDeliveryResponse> estimateDelivery(
-      @Query('addressId') String addressId,
-      @Query('cartId') String cartId,
+      @Query(AppStrings.addressId) String addressId,
+      @Query(AppStrings.cartId) String cartId,
       );
 
-  @POST('/orders/place')
+  @POST(Endpoints.placeOrder)
   Future<PlaceOrderResponse> placeOrder(
       @Body() PlaceOrderRequest request,
       );

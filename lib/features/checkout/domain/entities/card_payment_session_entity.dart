@@ -1,4 +1,6 @@
-class CardPaymentSessionEntity {
+import 'package:equatable/equatable.dart';
+
+class CardPaymentSessionEntity extends Equatable {
   final String orderId;
   final String status;
   final String gateway;
@@ -24,4 +26,19 @@ class CardPaymentSessionEntity {
     required this.currency,
     required this.estimatedDeliveryAt,
   });
+
+  @override
+  List<Object?> get props => [
+    orderId,
+    status,
+    gateway,
+    sessionId,
+    sessionUrl,
+    successUrl,
+    cancelUrl,
+    expiresAt,
+    amount,
+    currency,
+    estimatedDeliveryAt,
+  ];
 }

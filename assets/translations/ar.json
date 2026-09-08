@@ -76,6 +76,27 @@
   "select_city": "اختر المدينة",
   "please_select_city": "برجاء اختيار المدينة",
   "save_address": "حفظ العنوان",
-  "please_select_location_on_map": "برجاء تحديد الموقع على الخريطة"
+  "please_select_location_on_map": "برجاء تحديد الموقع على الخريطة",
+  "checkout_title": "إتمام الطلب",
+  "delivery_time": "وقت التوصيل",
+  "instant": "فوري، ",
+  "arrive_by": "يصل بحلول",
+  "not_determined": "غير محدد",
+  "delivery_address": "عنوان التوصيل",
+  "no_saved_addresses": "لم يتم العثور على عناوين محفوظة. يرجى إضافة عنوان توصيل.",
+  "add_new": "إضافة جديد",
+  "payment_method": "طريقة الدفع",
+  "cash_on_delivery": "الدفع عند الاستلام",
+  "credit_card": "بطاقة ائتمان",
+  "enter_recipient_name": "أدخل اسم المستلم",
+  "name": "الاسم",
+  "enter_recipient_phone": "أدخل رقم هاتف المستلم",
+
+  "sub_total": "المجموع الفرعي",
+  "delivery_fee": "رسوم التوصيل",
+  "total": "الإجمالي",
+  "place_order": "تأكيد الطلب",
+  "select_address_warning": "يرجى تحديد عنوان التوصيل أولاً.",
+  "order_failed_fallback": "فشل في إتمام الطلب"
 
 }

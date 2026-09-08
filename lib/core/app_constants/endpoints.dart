@@ -23,6 +23,9 @@ class Endpoints {
   static const String productsByCategory = '/catalog/products/by-category';
   static const String productById = '/catalog/products/{productId}';
   static const String defaultAddress='/users/me/addresses/{id}/default';
+  static const String checkoutDetails = '/checkout/details';
+  static const String estimateDelivery = '/checkout/estimate-delivery';
+  static const String placeOrder = '/orders/place';
 
 
   static const String bestSellersOccasionId =

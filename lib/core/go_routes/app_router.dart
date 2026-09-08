@@ -25,10 +25,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/Address/domain/use_cases/get_saved_address_useacse.dart';
 import '../../features/Address/presentaion/manager/address_cubit.dart';
 import '../../features/Address/presentaion/manager/address_events.dart';
 import '../../features/Address/presentaion/view/add_address_view.dart';
 import '../../features/auth/presentation/login/views/login_view.dart';
+import '../../features/checkout/domain/usecases/estimated_delivery_usecase.dart';
+import '../../features/checkout/domain/usecases/get_checkout_details_usecase.dart';
+import '../../features/checkout/domain/usecases/place_order_usecase.dart';
 import '../../features/checkout/presentation/manager/checkout_cubit.dart';
 import '../../features/checkout/presentation/view/order_succss_screen.dart';
 import '../../features/commerce/presentation/home/view/home_view.dart';
@@ -52,21 +56,31 @@ class AppRouter {
           child: const LoginView(),
         ),
       ),
+      // lib/core/go_routes/app_router.dart
+
       GoRoute(
         path: AppRoutes.checkout,
         builder: (context, state) {
-          final cartId = (state.extra as String?) ?? '';
+          final params = state.extra as Map<String, dynamic>? ?? {};
+          final cartId = params['cartId'] as String? ?? (state.extra as String? ?? '');
+          final addressId = params['addressId'] as String?;
 
           return MultiBlocProvider(
             providers: [
-              BlocProvider(
+              // 1. Fresh factory instance for screen-scoped Checkout state (auto-disposed on pop)
+              BlocProvider<CheckoutCubit>(
                 create: (_) => getIt<CheckoutCubit>(),
               ),
-              BlocProvider(
-                create: (_) => getIt<AddressCubit>(),
+
+              // 2. Existing singleton instance provided by value (DOES NOT get disposed on pop)
+              BlocProvider<AddressCubit>.value(
+                value: getIt<AddressCubit>(),
               ),
             ],
-            child: CheckoutScreen(cartId: cartId),
+            child: CheckoutScreen(
+              cartId: cartId,
+              defaultAddressId: addressId,
+            ),
           );
         },
       ),

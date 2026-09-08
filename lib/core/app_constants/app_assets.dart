@@ -3,7 +3,7 @@ abstract class AppAssets {
   static const String image = 'assets/images/Group 8.png';
 
   static const String logo = 'assets/images/logo/flowery_logo.png';
-  static const String success="assets/images/Frame 1000003483.png";
+  static const String success = "assets/images/Frame 1000003483.png";
 
   static const String categoryFlowers = 'assets/images/home/sun_flower.png';
   static const String categoryGift = 'assets/images/home/gift.png';

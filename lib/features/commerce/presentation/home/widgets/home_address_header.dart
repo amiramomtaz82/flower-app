@@ -11,7 +11,7 @@ import '../../../../Address/presentaion/manager/address_state.dart';
 class HomeAddressHeader extends StatelessWidget {
   final VoidCallback? onNavigateToAddAddress;
 
-  HomeAddressHeader({
+ const HomeAddressHeader({
     super.key,
     this.onNavigateToAddAddress,
   });

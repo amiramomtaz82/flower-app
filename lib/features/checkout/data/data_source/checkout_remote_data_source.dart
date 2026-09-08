@@ -5,7 +5,7 @@ import '../models/estimated_delivery_response.dart';
 import '../models/place_order_request.dart';
 import '../models/place_order_response.dart';
 
-abstract class CheckoutRemoteDataSource {
+abstract interface class CheckoutRemoteDataSource {
   Future<BaseResponse<CheckoutDetailsResponse>> getCheckoutDetails(String cartId);
   Future<BaseResponse<EstimateDeliveryResponse>> estimateDelivery(String addressId, String cartId);
   Future<BaseResponse<PlaceOrderResponse>> placeOrder(PlaceOrderRequest request);

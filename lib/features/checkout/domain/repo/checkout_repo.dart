@@ -6,7 +6,7 @@ import '../entities/oder_placment_entity.dart';
 import '../entities/place_order_request_entity.dart';
 
 
-abstract class CheckoutRepository {
+abstract interface class CheckoutRepository {
   Future<BaseResponse<CheckoutDetailsEntity>> getCheckoutDetails(String cartId);
   Future<BaseResponse<EstimateDeliveryEntity>> estimateDelivery(String addressId, String cartId);
   Future<BaseResponse<OrderPlacementEntity>> placeOrder(PlaceOrderRequestEntity order);
