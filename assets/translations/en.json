@@ -96,6 +96,18 @@
   "save_address": "Save Address",
   "please_select_location_on_map": "Please select or pin a location on the map"
 
+  "sign_in_to_add_address": "Sign in to add Address",
+  "no_address_found": "No address found",
+
+  "default_address_fallback": "Default Address",
+  "address_fallback": "Address",
+  "default_badge": "Default","coordinates_format": "Lat: {lat}, Lng: {lng}",
+
+  "set_as_default_address": "Set as default address"
+
+
+
+
 
 
 

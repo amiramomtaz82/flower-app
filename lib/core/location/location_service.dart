@@ -11,26 +11,30 @@ import 'location_model.dart';
 @LazySingleton()
 class LocationService {
   final NominatimFlutter _nominatim;
+  final GeolocatorPlatform _geolocator;
 
-  LocationService(this._nominatim);
+  LocationService(
+      this._nominatim,
+      this._geolocator,
+      );
 
   // ========================= Atomic GPS & Permission Helpers =========================
 
   Future<bool> isServiceEnabled() async {
-    return await Geolocator.isLocationServiceEnabled();
+    return await _geolocator.isLocationServiceEnabled();
   }
 
   Future<LocationPermission> checkPermission() async {
-    return await Geolocator.checkPermission();
+    return await _geolocator.checkPermission();
   }
 
   Future<LocationPermission> requestPermission() async {
-    return await Geolocator.requestPermission();
+    return await _geolocator.requestPermission();
   }
 
   Future<LatLng?> getCurrentPosition() async {
     try {
-      final position = await Geolocator.getCurrentPosition(
+      final position = await _geolocator.getCurrentPosition(
         locationSettings: const LocationSettings(
           accuracy: LocationAccuracy.medium,
           timeLimit: Duration(seconds: 10),
@@ -39,14 +43,9 @@ class LocationService {
       return LatLng(position.latitude, position.longitude);
     } catch (e) {
       debugPrint('Geolocator error or timeout: $e');
-      final lastPosition = await Geolocator.getLastKnownPosition();
-      if (lastPosition != null) {
-        return LatLng(lastPosition.latitude, lastPosition.longitude);
-      }
       return null;
     }
   }
-
   // ========================= Reverse Geocode =========================
 
   Future<LocationModel?> reverseGeocode({
@@ -101,10 +100,16 @@ class LocationService {
       return LocationModel(lat: lat, lng: lng);
     }
   }
+// ========================= Closest Address =========================
 
-  // ========================= Closest Address =========================
-
-  AddressEntity? getClosestAddress(List<AddressEntity> addresses, LatLng current) {
+  /// Returns the closest [AddressEntity] within [maxRangeMeters] (defaults to 500m).
+  /// If all addresses exceed [maxRangeMeters] or lack coordinates,
+  /// falls back to the user's default address (or `null` if none is set).
+  AddressEntity? getClosestAddress(
+      List<AddressEntity> addresses,
+      LatLng current, {
+        double maxRangeMeters = 500.0,
+      }) {
     if (addresses.isEmpty) return null;
 
     const distance = Distance();
@@ -112,8 +117,11 @@ class LocationService {
     double minMeters = double.infinity;
 
     for (final addr in addresses) {
-      if (addr.lat != null && addr.lng != null) {
-        final meters = distance(current, LatLng(addr.lat!, addr.lng!));
+      final lat = addr.lat;
+      final lng = addr.lng;
+
+      if (lat != null && lng != null) {
+        final meters = distance(current, LatLng(lat, lng));
         if (meters < minMeters) {
           minMeters = meters;
           closest = addr;
@@ -121,6 +129,20 @@ class LocationService {
       }
     }
 
-    return closest ?? addresses.first;
+    // 1. In range -> return the closest address
+    if (closest != null && minMeters <= maxRangeMeters) {
+      return closest;
+    }
+
+    // 2. Out of range / no valid coordinates -> fallback to default address if it exists
+    for (final addr in addresses) {
+      if (addr.isDefault == true) {
+        return addr;
+      }
+    }
+
+    // 3. Out of range and no default address exists
+    return null;
   }
+
 }

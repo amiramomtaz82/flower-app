@@ -3,6 +3,7 @@ import 'package:flower_app/config/base_response/base_response.dart';
 import 'package:flower_app/config/resource/rsource.dart';
 import 'package:flower_app/core/guest_browsing/guest_browsing_provider.dart';
 import 'package:flower_app/core/location/location_model.dart';
+import 'package:flower_app/core/location/location_service.dart';
 import 'package:flower_app/features/Address/domain/entities/add_address_entity.dart';
 import 'package:flower_app/features/Address/domain/entities/address_entity.dart';
 import 'package:flower_app/features/Address/domain/entities/area_entity.dart';
@@ -32,6 +33,7 @@ import 'address_cubit_test.mocks.dart';
   GetAreasWithCitiesUseCase,
   GetCurrentLocationUseCase,
   ResolveLocationWithAreasUseCase,
+  LocationService,
 ])
 void main() {
   late AddressCubit cubit;
@@ -42,6 +44,7 @@ void main() {
   late MockGetAreasWithCitiesUseCase mockGetAreasWithCitiesUseCase;
   late MockGetCurrentLocationUseCase mockGetCurrentLocationUseCase;
   late MockResolveLocationWithAreasUseCase mockResolveLocationWithAreasUseCase;
+  late MockLocationService mockLocationService;
 
   provideDummy<BaseResponse<List<AddressEntity>>>(
     const SuccessResponse<List<AddressEntity>>([]),
@@ -58,13 +61,13 @@ void main() {
   );
 
   provideDummy<BaseResponse<LatLng>>(
-    SuccessResponse<LatLng>(LatLng(0, 0)),
+    SuccessResponse<LatLng>(const LatLng(0, 0)),
   );
 
   provideDummy<BaseResponse<GeocodedLocationResult>>(
     SuccessResponse<GeocodedLocationResult>(
       GeocodedLocationResult(
-        location: LatLng(0, 0),
+        location: const LatLng(0, 0),
         details: const LocationModel(lat: 0, lng: 0),
       ),
     ),
@@ -78,6 +81,7 @@ void main() {
     mockGetAreasWithCitiesUseCase = MockGetAreasWithCitiesUseCase();
     mockGetCurrentLocationUseCase = MockGetCurrentLocationUseCase();
     mockResolveLocationWithAreasUseCase = MockResolveLocationWithAreasUseCase();
+    mockLocationService = MockLocationService();
 
     cubit = AddressCubit(
       mockGetSavedAddressesUseCase,
@@ -87,6 +91,7 @@ void main() {
       mockGetAreasWithCitiesUseCase,
       mockGetCurrentLocationUseCase,
       mockResolveLocationWithAreasUseCase,
+      mockLocationService,
     );
   });
 
@@ -168,11 +173,11 @@ void main() {
     );
 
     blocTest<AddressCubit, AddressState>(
-      'emits [loading, success] with addresses when use case succeeds for authenticated user',
+      'emits [loading, success] with default Address selected when available',
       build: () {
         when(mockGuestBrowsingProvider.isGuest()).thenAnswer((_) async => false);
         when(mockGetSavedAddressesUseCase()).thenAnswer(
-              (_) async => const SuccessResponse<List<AddressEntity>>([tAddress]),
+              (_) async => const SuccessResponse<List<AddressEntity>>([tAddress, tAddress2]),
         );
         return cubit;
       },
@@ -184,9 +189,9 @@ void main() {
         ),
         AddressState.initial().copyWith(
           isGuest: false,
-          addresses: const [tAddress],
-          selectedAddress: tAddress,
-          getAddressesResource: Resource.success(const [tAddress]),
+          addresses: const [tAddress, tAddress2],
+          selectedAddress: tAddress2,
+          getAddressesResource: Resource.success(const [tAddress, tAddress2]),
         ),
       ],
     );
@@ -389,7 +394,7 @@ void main() {
   // LOCATION & RESOLUTION
   // ============================================================
   group('Location Events', () {
-    final tLatLng = LatLng(29.96, 31.25);
+    final tLatLng = const LatLng(29.96, 31.25);
     const tLocationDetails = LocationModel(
       lat: 29.96,
       lng: 31.25,
@@ -484,7 +489,7 @@ void main() {
     final tUpdatedAddress = tAddress.copyWith(isDefault: true);
 
     blocTest<AddressCubit, AddressState>(
-      'emits loading then success with updated default address list',
+      'emits loading then success with updated default Address list',
       seed: () => AddressState.initial().copyWith(
         addresses: [tAddress, tAddress2],
       ),
@@ -537,52 +542,37 @@ void main() {
   // RESOLVE HOME ADDRESS
   // ============================================================
   group('ResolveHomeAddressEvent', () {
+    final tGpsPosition = const LatLng(29.96, 31.25);
+
     blocTest<AddressCubit, AddressState>(
-      'selects default address if authenticated and addresses exist',
+      'does nothing when user is guest',
       seed: () => AddressState.initial().copyWith(
         addresses: const [tAddress, tAddress2],
       ),
       build: () {
-        when(mockGuestBrowsingProvider.isGuest()).thenAnswer((_) async => false);
+        when(mockGuestBrowsingProvider.isGuest()).thenAnswer((_) async => true);
         return cubit;
       },
       act: (cubit) => cubit.doEvents(ResolveHomeAddressEvent()),
       expect: () => [
         AddressState.initial().copyWith(
-          isGuest: false,
+          isGuest: true,
           addresses: const [tAddress, tAddress2],
-          selectedAddress: tAddress2,
         ),
       ],
+      verify: (_) {
+        verifyNever(mockGetCurrentLocationUseCase());
+        verifyNever(mockLocationService.getClosestAddress(any, any));
+      },
     );
 
     blocTest<AddressCubit, AddressState>(
-      'attempts GPS resolution if user has no saved addresses',
+      'does nothing when authenticated user has no addresses',
       seed: () => AddressState.initial().copyWith(
         addresses: const [],
-        areas: const [tArea],
       ),
       build: () {
-        final tLatLng = LatLng(29.96, 31.25);
-        const tLocationDetails = LocationModel(lat: 29.96, lng: 31.25);
-        final tResolvedResult = GeocodedLocationResult(
-          location: tLatLng,
-          details: tLocationDetails,
-        );
-
         when(mockGuestBrowsingProvider.isGuest()).thenAnswer((_) async => false);
-        when(mockGetCurrentLocationUseCase()).thenAnswer(
-              (_) async => SuccessResponse<LatLng>(tLatLng),
-        );
-        when(
-          mockResolveLocationWithAreasUseCase(
-            location: tLatLng,
-            areas: const [tArea],
-          ),
-        ).thenAnswer(
-              (_) async => SuccessResponse<GeocodedLocationResult>(tResolvedResult),
-        );
-
         return cubit;
       },
       act: (cubit) => cubit.doEvents(ResolveHomeAddressEvent()),
@@ -590,9 +580,159 @@ void main() {
         AddressState.initial().copyWith(
           isGuest: false,
           addresses: const [],
-          areas: const [tArea],
-          selectedLocation: LatLng(29.96, 31.25),
-          selectedLocationDetails: const LocationModel(lat: 29.96, lng: 31.25),
+        ),
+      ],
+      verify: (_) {
+        verifyNever(mockGetCurrentLocationUseCase());
+      },
+    );
+
+    blocTest<AddressCubit, AddressState>(
+      'finds closest Address and calls setDefaultAddress if not already default',
+      seed: () => AddressState.initial().copyWith(
+        addresses: [tAddress, tAddress2],
+      ),
+      build: () {
+        when(mockGuestBrowsingProvider.isGuest()).thenAnswer((_) async => false);
+        when(mockGetCurrentLocationUseCase()).thenAnswer(
+              (_) async => SuccessResponse<LatLng>(tGpsPosition),
+        );
+        when(
+          mockLocationService.getClosestAddress([tAddress, tAddress2], tGpsPosition),
+        ).thenReturn(tAddress); // tAddress has isDefault: false
+
+        when(mockSetDefaultAddressUseCase('addr_1')).thenAnswer(
+              (_) async => SuccessResponse<AddressEntity>(tAddress.copyWith(isDefault: true)),
+        );
+
+        return cubit;
+      },
+      act: (cubit) => cubit.doEvents(ResolveHomeAddressEvent()),
+      expect: () => [
+        AddressState.initial().copyWith(
+          addresses: [tAddress, tAddress2],
+          setDefaultAddressResource: Resource.loading(),
+        ),
+        AddressState.initial().copyWith(
+          addresses: [tAddress.copyWith(isDefault: true), tAddress2.copyWith(isDefault: false)],
+          selectedAddress: tAddress.copyWith(isDefault: true),
+          setDefaultAddressResource: Resource.success(tAddress.copyWith(isDefault: true)),
+        ),
+      ],
+      verify: (_) {
+        verify(mockSetDefaultAddressUseCase('addr_1')).called(1);
+      },
+    );
+
+    blocTest<AddressCubit, AddressState>(
+      'selects closest Address without API call if already default',
+      seed: () => AddressState.initial().copyWith(
+        addresses: const [tAddress, tAddress2],
+      ),
+      build: () {
+        when(mockGuestBrowsingProvider.isGuest()).thenAnswer((_) async => false);
+        when(mockGetCurrentLocationUseCase()).thenAnswer(
+              (_) async => SuccessResponse<LatLng>(tGpsPosition),
+        );
+        when(
+          mockLocationService.getClosestAddress(const [tAddress, tAddress2], tGpsPosition),
+        ).thenReturn(tAddress2); // tAddress2 has isDefault: true
+
+        return cubit;
+      },
+      act: (cubit) => cubit.doEvents(ResolveHomeAddressEvent()),
+      expect: () => [
+        AddressState.initial().copyWith(
+          addresses: const [tAddress, tAddress2],
+          setDefaultAddressResource: Resource.loading(),
+        ),
+        AddressState.initial().copyWith(
+          addresses: const [tAddress, tAddress2],
+          selectedAddress: tAddress2,
+          setDefaultAddressResource: Resource.success(tAddress2),
+        ),
+      ],
+      verify: (_) {
+        verifyNever(mockSetDefaultAddressUseCase(any));
+      },
+    );
+
+    blocTest<AddressCubit, AddressState>(
+      'falls back to default Address when getCurrentLocation fails',
+      seed: () => AddressState.initial().copyWith(
+        addresses: const [tAddress, tAddress2],
+      ),
+      build: () {
+        when(mockGuestBrowsingProvider.isGuest()).thenAnswer((_) async => false);
+        when(mockGetCurrentLocationUseCase()).thenAnswer(
+              (_) async => ErrorResponse<LatLng>(errMessage: 'Location disabled'),
+        );
+        return cubit;
+      },
+      act: (cubit) => cubit.doEvents(ResolveHomeAddressEvent()),
+      expect: () => [
+        AddressState.initial().copyWith(
+          addresses: const [tAddress, tAddress2],
+          setDefaultAddressResource: Resource.loading(),
+        ),
+        AddressState.initial().copyWith(
+          addresses: const [tAddress, tAddress2],
+          selectedAddress: tAddress2,
+          setDefaultAddressResource: Resource.success(tAddress2),
+        ),
+      ],
+    );
+
+    blocTest<AddressCubit, AddressState>(
+      'falls back to default Address when getClosestAddress returns null',
+      seed: () => AddressState.initial().copyWith(
+        addresses: const [tAddress, tAddress2],
+      ),
+      build: () {
+        when(mockGuestBrowsingProvider.isGuest()).thenAnswer((_) async => false);
+        when(mockGetCurrentLocationUseCase()).thenAnswer(
+              (_) async => SuccessResponse<LatLng>(tGpsPosition),
+        );
+        when(
+          mockLocationService.getClosestAddress(const [tAddress, tAddress2], tGpsPosition),
+        ).thenReturn(null);
+        return cubit;
+      },
+      act: (cubit) => cubit.doEvents(ResolveHomeAddressEvent()),
+      expect: () => [
+        AddressState.initial().copyWith(
+          addresses: const [tAddress, tAddress2],
+          setDefaultAddressResource: Resource.loading(),
+        ),
+        AddressState.initial().copyWith(
+          addresses: const [tAddress, tAddress2],
+          selectedAddress: tAddress2,
+          setDefaultAddressResource: Resource.success(tAddress2),
+        ),
+      ],
+    );
+  });
+
+  // ============================================================
+  // RESET TO GUEST
+  // ============================================================
+  group('resetToGuest', () {
+    blocTest<AddressCubit, AddressState>(
+      'resets addresses, selectedAddress, and marks isGuest as true',
+      seed: () => AddressState.initial().copyWith(
+        isGuest: false,
+        addresses: const [tAddress, tAddress2],
+        selectedAddress: tAddress,
+        getAddressesResource: Resource.success(const [tAddress, tAddress2]),
+      ),
+      build: () => cubit,
+      act: (cubit) => cubit.resetToGuest(),
+      expect: () => [
+        AddressState.initial().copyWith(
+          isGuest: true,
+          addresses: const [],
+          selectedAddress: null,
+          getAddressesResource: Resource.initial(),
         ),
       ],
     );

@@ -21,10 +21,8 @@ class FakeGeolocatorPlatform extends Fake
   int requestPermissionCallCount = 0;
   int checkPermissionCallCount = 0;
   int getCurrentPositionCallCount = 0;
-  int getLastKnownPositionCallCount = 0;
 
   bool shouldThrowOnGetCurrentPosition = false;
-  Position? lastKnownPositionResult;
 
   Position positionResult = Position(
     longitude: 31.25,
@@ -63,12 +61,6 @@ class FakeGeolocatorPlatform extends Fake
       throw Exception('Timeout or location error');
     }
     return positionResult;
-  }
-
-  @override
-  Future<Position?> getLastKnownPosition({bool forceLocationManager = false}) async {
-    getLastKnownPositionCallCount++;
-    return lastKnownPositionResult;
   }
 }
 
@@ -115,10 +107,8 @@ void main() {
 
   setUp(() {
     fakeGeolocatorPlatform = FakeGeolocatorPlatform();
-    GeolocatorPlatform.instance = fakeGeolocatorPlatform;
-
     fakeNominatim = FakeNominatimFlutter();
-    locationService = LocationService(fakeNominatim);
+    locationService = LocationService(fakeNominatim, fakeGeolocatorPlatform);
   });
 
   // ============================================================
@@ -185,37 +175,13 @@ void main() {
       expect(fakeGeolocatorPlatform.getCurrentPositionCallCount, 1);
     });
 
-    test('falls back to last known position when getCurrentPosition fails', () async {
+    test('returns null when getCurrentPosition throws without falling back to stale position', () async {
       fakeGeolocatorPlatform.shouldThrowOnGetCurrentPosition = true;
-      fakeGeolocatorPlatform.lastKnownPositionResult = Position(
-        latitude: 30.05,
-        longitude: 31.30,
-        timestamp: DateTime(2026),
-        accuracy: 15.0,
-        altitude: 0.0,
-        heading: 0.0,
-        speed: 0.0,
-        speedAccuracy: 0.0,
-        altitudeAccuracy: 0.0,
-        headingAccuracy: 0.0,
-      );
-
-      final result = await locationService.getCurrentPosition();
-
-      expect(result, equals(const LatLng(30.05, 31.30)));
-      expect(fakeGeolocatorPlatform.getCurrentPositionCallCount, 1);
-      expect(fakeGeolocatorPlatform.getLastKnownPositionCallCount, 1);
-    });
-
-    test('returns null when getCurrentPosition throws and last known position is null', () async {
-      fakeGeolocatorPlatform.shouldThrowOnGetCurrentPosition = true;
-      fakeGeolocatorPlatform.lastKnownPositionResult = null;
 
       final result = await locationService.getCurrentPosition();
 
       expect(result, isNull);
       expect(fakeGeolocatorPlatform.getCurrentPositionCallCount, 1);
-      expect(fakeGeolocatorPlatform.getLastKnownPositionCallCount, 1);
     });
   });
 
@@ -291,7 +257,7 @@ void main() {
       expect(result?.city, equals('Giza'));
     });
 
-    test('returns coordinates with null fields when address map is null', () async {
+    test('returns coordinates with null fields when Address map is null', () async {
       fakeNominatim.nextResponse = FakeNominatimResponse(address: null);
 
       final result = await locationService.reverseGeocode(
@@ -326,58 +292,115 @@ void main() {
   group('getClosestAddress', () {
     const currentPoint = LatLng(30.0000, 31.0000);
 
+    // Distance ~15 meters away
     const closeAddress = AddressEntity(
       id: 'addr_close',
       lat: 30.0001,
       lng: 31.0001,
       addressLine: 'Nearby Street',
+      isDefault: false,
     );
 
+    // Distance ~75 km away
     const farAddress = AddressEntity(
       id: 'addr_far',
       lat: 30.5000,
       lng: 31.5000,
       addressLine: 'Far Street',
+      isDefault: false,
     );
 
-    test('returns null if address list is empty', () {
+    const defaultFarAddress = AddressEntity(
+      id: 'addr_default_far',
+      lat: 30.5000,
+      lng: 31.5000,
+      addressLine: 'Far Street Default',
+      isDefault: true,
+    );
+
+    test('returns null if Address list is empty', () {
       final result = locationService.getClosestAddress([], currentPoint);
 
       expect(result, isNull);
     });
 
-    test('returns the closest address from the list', () {
+    test('returns closest Address when it falls within maxRangeMeters', () {
       final addresses = [farAddress, closeAddress];
 
-      final result = locationService.getClosestAddress(addresses, currentPoint);
+      final result = locationService.getClosestAddress(
+        addresses,
+        currentPoint,
+        maxRangeMeters: 500.0,
+      );
 
       expect(result?.id, equals('addr_close'));
     });
 
-    test('ignores addresses with null coordinates and returns valid closest', () {
+    test('returns default Address when all addresses are outside maxRangeMeters', () {
+      final addresses = [farAddress, defaultFarAddress];
+
+      final result = locationService.getClosestAddress(
+        addresses,
+        currentPoint,
+        maxRangeMeters: 500.0,
+      );
+
+      expect(result?.id, equals('addr_default_far'));
+    });
+
+    test('returns null when all addresses are outside maxRangeMeters and no default exists', () {
+      final addresses = [farAddress];
+
+      final result = locationService.getClosestAddress(
+        addresses,
+        currentPoint,
+        maxRangeMeters: 500.0,
+      );
+
+      expect(result, isNull);
+    });
+
+    test('ignores addresses with null coordinates and returns close Address within range', () {
       const nullCoordAddress = AddressEntity(
         id: 'addr_null_coords',
         lat: null,
         lng: null,
+        isDefault: false,
       );
 
       final addresses = [nullCoordAddress, farAddress, closeAddress];
 
-      final result = locationService.getClosestAddress(addresses, currentPoint);
+      final result = locationService.getClosestAddress(
+        addresses,
+        currentPoint,
+        maxRangeMeters: 500.0,
+      );
 
       expect(result?.id, equals('addr_close'));
     });
 
-    test('returns first address if all coordinates in list are null', () {
-      const nullAddress1 = AddressEntity(id: 'null_1', lat: null, lng: null);
-      const nullAddress2 = AddressEntity(id: 'null_2', lat: null, lng: null);
+    test('returns default Address if all addresses lack coordinates', () {
+      const nullAddress1 = AddressEntity(id: 'null_1', lat: null, lng: null, isDefault: false);
+      const nullDefault = AddressEntity(id: 'null_default', lat: null, lng: null, isDefault: true);
+
+      final result = locationService.getClosestAddress(
+        [nullAddress1, nullDefault],
+        currentPoint,
+      );
+
+      expect(result?.id, equals('null_default'));
+    });
+
+    test('returns null if all coordinates are null and none is marked as default', () {
+      const nullAddress1 = AddressEntity(id: 'null_1', lat: null, lng: null, isDefault: false);
+      const nullAddress2 = AddressEntity(id: 'null_2', lat: null, lng: null, isDefault: false);
 
       final result = locationService.getClosestAddress(
         [nullAddress1, nullAddress2],
         currentPoint,
       );
 
-      expect(result?.id, equals('null_1'));
+      expect(result, isNull);
     });
   });
 }
