@@ -3,7 +3,9 @@ import 'dart:async';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flower_app/core/app_constants/app_assets.dart';
 import 'package:flower_app/core/app_constants/app_strings.dart';
+import 'package:flower_app/features/cart/presentation/manager/cart_cubit.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'config/di/di.dart';
 import 'config/locale/locale_service.dart';
@@ -91,14 +93,17 @@ class _MyAppState extends State<MyApp> {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      debugShowCheckedModeBanner: false,
-      scaffoldMessengerKey: _messengerKey,
-      theme: AppTheme.lightTheme,
-      routerConfig: AppRouter.router,
-      localizationsDelegates: context.localizationDelegates,
-      supportedLocales: context.supportedLocales,
-      locale: context.locale,
+    return BlocProvider(
+      create: (_) => getIt<CartCubit>(),
+      child: MaterialApp.router(
+        debugShowCheckedModeBanner: false,
+        scaffoldMessengerKey: _messengerKey,
+        theme: AppTheme.lightTheme,
+        routerConfig: AppRouter.router,
+        localizationsDelegates: context.localizationDelegates,
+        supportedLocales: context.supportedLocales,
+        locale: context.locale,
+      ),
     );
   }
 }

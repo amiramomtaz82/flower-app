@@ -79,5 +79,20 @@
     "newest":  "New",
     "oldest":  "Old",
     "discount":  "Discount",
-    "search_for_any_product":  "Search For Any Product You Want"
+    "search_for_any_product":  "Search For Any Product You Want",
+    "cart":  "Cart",
+    "cart_items_count":  "({} items)",
+    "sub_total":  "Sub Total",
+    "delivery_fee":  "Delivery Fee",
+    "total":  "Total",
+    "checkout":  "Checkout",
+    "your_cart_is_empty":  "Your cart is empty",
+    "cart_empty_hint":  "Browse our flowers and add something you love",
+    "out_of_stock":  "Out of stock",
+    "add_to_cart":  "Add to cart",
+    "added_to_cart":  "Added to cart",
+    "product_added_to_cart":  "Product added to cart successfully",
+    "product_removed_from_cart":  "Product removed from cart",
+    "product_out_of_stock_currently":  "Product is out of stock currently",
+    "egp":  "EGP"
 }

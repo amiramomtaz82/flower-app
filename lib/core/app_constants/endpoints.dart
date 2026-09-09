@@ -20,6 +20,14 @@ class Endpoints {
 
   static const String bestSellersOccasionId =
       '55555555-5555-5555-5555-555555555555';
+
+  // Cart
+  
+  static const String cart = '/cart/cart';
+  static const String cartItems = '/cart/cart/items';
+  static const String cartItemById = '/cart/cart/items/{id}';
+  static const String updateCartItemQuantity =
+      '/cart/api/cart/items/{productId}';
 }
 
 class QueryParams {

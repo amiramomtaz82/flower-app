@@ -100,4 +100,25 @@ class AppStrings {
   static const String oldest = 'oldest';
   static const String discount = 'discount';
   static const String searchForAnyProduct = 'search_for_any_product';
+
+  // Cart
+  static const String cart = 'cart';
+  static const String cartItemsCount = 'cart_items_count';
+  static const String subTotal = 'sub_total';
+  static const String deliveryFee = 'delivery_fee';
+  static const String total = 'total';
+  static const String checkout = 'checkout';
+  static const String yourCartIsEmpty = 'your_cart_is_empty';
+  static const String cartEmptyHint = 'cart_empty_hint';
+  static const String outOfStock = 'out_of_stock';
+  static const String addToCart = 'add_to_cart';
+  static const String addedToCart = 'added_to_cart';
+  static const String productAddedToCart = 'product_added_to_cart';
+  static const String productRemovedFromCart = 'product_removed_from_cart';
+  static const String productOutOfStockCurrently =
+      'product_out_of_stock_currently';
+
+  // The cart API sends no currency of its own, so prices are labelled with a
+  // fixed one until it does.
+  static const String currency = 'egp';
 }

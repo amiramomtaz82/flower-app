@@ -6,6 +6,7 @@ import 'package:flower_app/features/auth/presentation/login/manager/login_cubit.
 import 'package:flower_app/features/auth/presentation/register/view_model/register_view_model.dart';
 import 'package:flower_app/features/auth/presentation/register/views/register_view.dart';
 import 'package:flower_app/core/widgets/coming_soon_view.dart';
+import 'package:flower_app/features/cart/presentation/views/cart_view.dart';
 import 'package:flower_app/features/commerce/domain/entities/product_entity.dart';
 import 'package:flower_app/features/commerce/presentation/best_seller/view/best_seller_view.dart';
 import 'package:flower_app/features/commerce/presentation/best_seller/view_model/best_seller_view_model.dart';
@@ -93,8 +94,7 @@ class AppRouter {
             routes: [
               GoRoute(
                 path: AppRoutes.cart,
-                builder: (context, state) =>
-                    const ComingSoonView(title: 'Cart'),
+                builder: (context, state) => const CartView(),
               ),
             ],
           ),
