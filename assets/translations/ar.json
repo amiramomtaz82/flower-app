@@ -76,7 +76,6 @@
   "select_city": "اختر المدينة",
   "please_select_city": "برجاء اختيار المدينة",
   "save_address": "حفظ العنوان",
-  "please_select_location_on_map": "برجاء تحديد الموقع على الخريطة",
   "checkout_title": "إتمام الطلب",
   "delivery_time": "وقت التوصيل",
   "instant": "فوري، ",
@@ -91,23 +90,22 @@
   "enter_recipient_name": "أدخل اسم المستلم",
   "name": "الاسم",
   "enter_recipient_phone": "أدخل رقم هاتف المستلم",
-
   "sub_total": "المجموع الفرعي",
   "delivery_fee": "رسوم التوصيل",
   "total": "الإجمالي",
   "place_order": "تأكيد الطلب",
   "select_address_warning": "يرجى تحديد عنوان التوصيل أولاً.",
-  "order_failed_fallback": "فشل في إتمام الطلب"
+  "order_failed_fallback": "فشل في إتمام الطلب",
   "please_select_location_on_map": "برجاء تحديد الموقع على الخريطة",
   "sign_in_to_add_address": "سجّل الدخول لإضافة عنوان",
   "no_address_found": "لم يتم العثور على عنوان",
-
   "default_address_fallback": "العنوان الافتراضي",
   "address_fallback": "عنوان",
   "default_badge": "افتراضي",
-
   "coordinates_format": "خط العرض: {lat}، خط الطول: {lng}",
   "tap_map_to_select_location": "اضغط على الخريطة لتحديد الموقع",
-
-  "set_as_default_address": "تعيين كعنوان افتراضي"
+  "set_as_default_address": "تعيين كعنوان افتراضي",
+  "isGift": "طلب كهدية",
+  "currency_egp": "ج.م",
+  "egyptCurrency": "ج.م"
 }

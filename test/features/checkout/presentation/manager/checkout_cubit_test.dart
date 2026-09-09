@@ -1,26 +1,28 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flower_app/config/base_response/base_response.dart';
 import 'package:flower_app/config/resource/rsource.dart';
+import 'package:flower_app/features/Address/domain/use_cases/get_saved_address_useacse.dart';
 import 'package:flower_app/features/checkout/domain/entities/checkout_details_entity.dart';
 import 'package:flower_app/features/checkout/domain/entities/estimated_delivery_entity.dart';
+import 'package:flower_app/features/checkout/domain/entities/oder_placment_entity.dart';
+import 'package:flower_app/features/checkout/domain/entities/place_order_request_entity.dart';
 import 'package:flower_app/features/checkout/domain/usecases/estimated_delivery_usecase.dart';
 import 'package:flower_app/features/checkout/domain/usecases/get_checkout_details_usecase.dart';
 import 'package:flower_app/features/checkout/domain/usecases/place_order_usecase.dart';
 import 'package:flower_app/features/checkout/presentation/manager/checkout_cubit.dart';
 import 'package:flower_app/features/checkout/presentation/manager/checkout_event.dart';
 import 'package:flower_app/features/checkout/presentation/manager/checkout_state.dart';
-
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
-import '../../../address/presentation/manager/address_cubit_test.mocks.dart';
 import 'checkout_cubit_test.mocks.dart';
 
 @GenerateMocks([
   GetCheckoutDetailsUseCase,
   EstimateDeliveryUseCase,
   PlaceOrderUseCase,
+  GetSavedAddressesUseCase,
 ])
 void main() {
   late CheckoutCubit cubit;
@@ -40,8 +42,10 @@ void main() {
     deliveryFee: 15.0,
     total: 115.0,
     estimatedDeliveryAt: '2026-09-06T15:00:00Z',
-    paymentMethods: ['COD', 'Card'],
-    availableGateways: ['Paymob', 'Stripe'],
+    paymentMethods: [
+      PaymentMethodOptionEntity(method: 'COD', gateways: []),
+      PaymentMethodOptionEntity(method: 'Card', gateways: ['Paymob', 'Stripe']),
+    ],
     isGift: false,
   );
 
@@ -59,6 +63,13 @@ void main() {
     provideDummy<BaseResponse<EstimateDeliveryEntity>>(
       ErrorResponse<EstimateDeliveryEntity>(error: 'dummy'),
     );
+    provideDummy<BaseResponse<OrderPlacementEntity>>(
+      ErrorResponse<OrderPlacementEntity>(error: 'dummy'),
+
+    );
+    provideDummy<OrderPlacementEntity>(
+      const OrderPlacementEntity(isSuccess: true),
+    );
   });
 
   setUp(() {
@@ -71,8 +82,7 @@ void main() {
       mockGetCheckoutDetailsUseCase,
       mockEstimateDeliveryUseCase,
       mockPlaceOrderUseCase,
-        mockGetSavedAddressesUseCase
-
+      mockGetSavedAddressesUseCase,
     );
   });
 
@@ -89,7 +99,7 @@ void main() {
   // ============================================================
   group('GetCheckoutDetailsEvent', () {
     blocTest<CheckoutCubit, CheckoutState>(
-      'emits [loading, success] with fallback to details.addressId when defaultAddressId is null and API succeeds',
+      'emits [loading, success] with default first payment method when API succeeds and defaultAddressId is null',
       build: () {
         when(mockGetCheckoutDetailsUseCase(tCartId)).thenAnswer(
               (_) async => const SuccessResponse(tCheckoutDetails),
@@ -104,7 +114,8 @@ void main() {
         predicate<CheckoutState>((state) =>
         state.checkoutDetailsResource.isSuccess &&
             state.checkoutDetailsResource.data?.cartId == tCartId &&
-            state.selectedAddressId == tAddressId && // Resolved from tCheckoutDetails.addressId
+            state.selectedAddressId == tAddressId &&
+            state.selectedPaymentMethod == 'COD' &&
             state.estimateDeliveryResource.isSuccess &&
             state.estimateDeliveryResource.data?.deliveryFee == 15.0),
       ],
@@ -160,6 +171,7 @@ void main() {
       },
     );
   });
+
   // ============================================================
   // EstimateDeliveryEvent
   // ============================================================
@@ -216,41 +228,43 @@ void main() {
   // ============================================================
   group('Payment & Gift Selection', () {
     blocTest<CheckoutCubit, CheckoutState>(
-      'sets payment method to cash and disables isGift',
+      'sets payment method to COD, resets gateway, and disables isGift',
       seed: () => CheckoutState.initial().copyWith(
         isGift: true,
-        paymentMethod: PaymentMethodType.card,
+        selectedPaymentMethod: 'Card',
+        selectedPaymentGateway: 'Paymob',
       ),
       build: () => cubit,
       act: (cubit) => cubit.doEvents(
-        const SelectPaymentMethodEvent(PaymentMethodType.cash),
+        const SelectPaymentMethodEvent(method: 'COD', gateway: null),
       ),
       expect: () => [
         predicate<CheckoutState>((state) =>
-        state.paymentMethod == PaymentMethodType.cash &&
+        state.selectedPaymentMethod == 'COD' &&
+            state.selectedPaymentGateway == null &&
             state.isGift == false),
       ],
     );
-
     blocTest<CheckoutCubit, CheckoutState>(
-      'switches payment method to card when currently cash',
+      'switches payment method to Card and sets gateway',
       seed: () => CheckoutState.initial().copyWith(
-        paymentMethod: PaymentMethodType.cash,
+        selectedPaymentMethod: 'COD',
       ),
       build: () => cubit,
       act: (cubit) => cubit.doEvents(
-        const SelectPaymentMethodEvent(PaymentMethodType.card),
+        const SelectPaymentMethodEvent(method: 'Card', gateway: 'Paymob'),
       ),
       expect: () => [
         predicate<CheckoutState>((state) =>
-        state.paymentMethod == PaymentMethodType.card),
+        state.selectedPaymentMethod == 'Card' &&
+            state.selectedPaymentGateway == 'Paymob'),
       ],
     );
 
     blocTest<CheckoutCubit, CheckoutState>(
-      'does NOT toggle gift when payment method is cash',
+      'does NOT toggle gift when payment method is COD',
       seed: () => CheckoutState.initial().copyWith(
-        paymentMethod: PaymentMethodType.cash,
+        selectedPaymentMethod: 'COD',
         isGift: false,
       ),
       build: () => cubit,
@@ -259,9 +273,9 @@ void main() {
     );
 
     blocTest<CheckoutCubit, CheckoutState>(
-      'toggles gift when payment method is card',
+      'toggles gift when payment method is Card',
       seed: () => CheckoutState.initial().copyWith(
-        paymentMethod: PaymentMethodType.card,
+        selectedPaymentMethod: 'Card',
         isGift: false,
       ),
       build: () => cubit,
@@ -302,10 +316,27 @@ void main() {
     );
 
     blocTest<CheckoutCubit, CheckoutState>(
+      'emits error when no payment method is selected',
+      seed: () => CheckoutState.initial().copyWith(
+        selectedAddressId: tAddressId,
+        selectedPaymentMethod: null,
+      ),
+      build: () => cubit,
+      act: (cubit) => cubit.doEvents(const PlaceOrderEvent(tCartId)),
+      expect: () => [
+        predicate<CheckoutState>((state) =>
+        state.placeOrderResource.isError &&
+            state.placeOrderResource.errorMessage == 'Please select a payment method.'),
+      ],
+      verify: (_) => verifyZeroInteractions(mockPlaceOrderUseCase),
+    );
+
+    blocTest<CheckoutCubit, CheckoutState>(
       'emits error when isGift is true on card payment but recipient name is empty',
       seed: () => CheckoutState.initial().copyWith(
         selectedAddressId: tAddressId,
-        paymentMethod: PaymentMethodType.card,
+        selectedPaymentMethod: 'Card',
+        selectedPaymentGateway: 'Paymob',
         isGift: true,
         recipientName: '',
         recipientPhone: '',
@@ -319,6 +350,43 @@ void main() {
       ],
       verify: (_) => verifyZeroInteractions(mockPlaceOrderUseCase),
     );
+
+    blocTest<CheckoutCubit, CheckoutState>(
+      'calls placeOrderUseCase with mapped entity on valid card request',
+      seed: () => CheckoutState.initial().copyWith(
+        selectedAddressId: tAddressId,
+        selectedPaymentMethod: 'Card',
+        selectedPaymentGateway: 'Paymob',
+        isGift: false,
+      ),
+      build: () {
+        when(mockPlaceOrderUseCase(any)).thenAnswer(
+              (_) async => const SuccessResponse(OrderPlacementEntity(isSuccess: true,
+                  )),
+        );
+        return cubit;
+      },
+      act: (cubit) => cubit.doEvents(const PlaceOrderEvent(tCartId)),
+      expect: () => [
+        predicate<CheckoutState>((state) => state.placeOrderResource.isLoading),
+        predicate<CheckoutState>((state) => state.placeOrderResource.isSuccess),
+      ],
+      verify: (_) {
+        verify(
+          mockPlaceOrderUseCase(
+            const PlaceOrderRequestEntity(
+              cartId: tCartId,
+              addressId: tAddressId,
+              isGift: false,
+              giftRecipient: null,
+              paymentMethod: 'Card',
+              paymentGateway: 'Paymob',
+            ),
+          ),
+        ).called(1);
+      },
+    );
+
     blocTest<CheckoutCubit, CheckoutState>(
       'resets place order resource on ResetPlaceOrderStateEvent',
       seed: () => CheckoutState.initial().copyWith(
@@ -332,7 +400,6 @@ void main() {
             !state.placeOrderResource.isSuccess &&
             !state.placeOrderResource.isError),
       ],
-    );}
-  );
-
+    );
+  });
 }

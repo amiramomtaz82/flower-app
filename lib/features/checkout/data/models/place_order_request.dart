@@ -5,8 +5,8 @@ class PlaceOrderRequest {
   final String addressId;
   final bool isGift;
   final GiftRecipientRequest? giftRecipient;
-  final String paymentMethod; // 'COD' or 'Card'
-  final String? paymentGateway; // 'Stripe' or 'Paymob'
+  final String paymentMethod;
+  final String? paymentGateway;
 
   PlaceOrderRequest({
     required this.cartId,

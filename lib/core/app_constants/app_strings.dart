@@ -157,8 +157,9 @@ static const String addressAddedSuccessfully='Address added successfully!';
 
   static const String setAsDefaultAddress = 'set_as_default_address';
   static const String coordinatesFormat = 'coordinates_format';
+  static const String egyptCurrency = 'Egy';
+  static const String isGift = 'It is a gift';
   static const String tapMapToSelectLocation = 'tap_map_to_select_location';
-
 
 }
 

@@ -10,6 +10,7 @@ import '../../domain/entities/oder_placment_entity.dart';
 import '../../domain/entities/place_order_request_entity.dart';
 
 import '../../domain/repo/checkout_repo.dart';
+import '../mapper/place_order_entity_mapper.dart';
 import '../models/checkout_details_response.dart';
 
 import '../models/estimated_delivery_response.dart';
@@ -61,19 +62,7 @@ class CheckoutRepositoryImpl implements CheckoutRepository {
 
   @override
   Future<BaseResponse<OrderPlacementEntity>> placeOrder(PlaceOrderRequestEntity order) async {
-    final request = PlaceOrderRequest(
-      cartId: order.cartId,
-      addressId: order.addressId,
-      isGift: order.isGift,
-      giftRecipient: order.isGift && order.giftRecipient != null
-          ? GiftRecipientRequest(
-        recipientName: order.giftRecipient!.name,
-        recipientPhone: order.giftRecipient!.phone,
-      )
-          : null,
-      paymentMethod: order.paymentMethod,
-      paymentGateway: order.paymentGateway,
-    );
+    final request = order.toDto();
 
     final response = await _remoteDataSource.placeOrder(request);
 

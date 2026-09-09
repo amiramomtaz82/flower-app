@@ -84,10 +84,12 @@ class CheckoutDetailsDto {
       deliveryFee: deliveryFee ?? 0.0,
       total: total,
       estimatedDeliveryAt: estimatedDeliveryAt,
-      paymentMethods: paymentMethods.map((p) => p.method).toList(),
-      availableGateways: paymentMethods
-          .firstWhere((p) => p.method == 'Card', orElse: () => PaymentMethodOption(method: 'Card', gateways: []))
-          .gateways,
+      paymentMethods: paymentMethods
+          .map((p) => PaymentMethodOptionEntity(
+        method: p.method,
+        gateways: p.gateways,
+      ))
+          .toList(),
       isGift: isGift,
     );
   }

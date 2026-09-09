@@ -1,3 +1,4 @@
+// lib/features/checkout/domain/entities/checkout_details_entity.dart
 import 'package:equatable/equatable.dart';
 
 class CheckoutDetailsEntity extends Equatable {
@@ -8,8 +9,7 @@ class CheckoutDetailsEntity extends Equatable {
   final double deliveryFee;
   final double total;
   final String? estimatedDeliveryAt;
-  final List<String> paymentMethods;
-  final List<String> availableGateways;
+  final List<PaymentMethodOptionEntity> paymentMethods;
   final bool isGift;
 
   const CheckoutDetailsEntity({
@@ -21,7 +21,6 @@ class CheckoutDetailsEntity extends Equatable {
     required this.total,
     this.estimatedDeliveryAt,
     required this.paymentMethods,
-    required this.availableGateways,
     required this.isGift,
   });
 
@@ -35,7 +34,19 @@ class CheckoutDetailsEntity extends Equatable {
     total,
     estimatedDeliveryAt,
     paymentMethods,
-    availableGateways,
     isGift,
   ];
+}
+
+class PaymentMethodOptionEntity extends Equatable {
+  final String method; // e.g. "COD", "Card"
+  final List<String> gateways;
+
+  const PaymentMethodOptionEntity({
+    required this.method,
+    this.gateways = const [],
+  });
+
+  @override
+  List<Object?> get props => [method, gateways];
 }
