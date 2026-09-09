@@ -80,7 +80,7 @@
   "please_enter_label": "Please enter a label",
   "recipient_name": "Recipient Name",
   "please_enter_recipient_name": "Please enter recipient name",
-er",
+
   "please_enter_phone_number": "Please enter phone number",
   "address_details_street": "Address Details / Street",
   "please_enter_address_details": "Please enter address details",
@@ -95,6 +95,18 @@ er",
   "please_select_city": "Please select a city",
   "save_address": "Save Address",
   "please_select_location_on_map": "Please select or pin a location on the map",
+
+  "sign_in_to_add_address": "Sign in to add Address",
+  "no_address_found": "No address found",
+
+  "default_address_fallback": "Default Address",
+  "address_fallback": "Address",
+  "default_badge": "Default","coordinates_format": "Lat: {lat}, Lng: {lng}",
+
+  "set_as_default_address": "Set as default address"
+
+
+
 
 
 

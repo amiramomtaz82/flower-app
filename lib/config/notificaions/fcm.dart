@@ -45,7 +45,7 @@ class Fcm {
 
       return token;
     } catch (e) {
-      print('========== FCM TOKEN ERROR ==========');
+    //  print('========== FCM TOKEN ERROR ==========');
       print('Failed to get FCM token: $e');
       return null;
     }
