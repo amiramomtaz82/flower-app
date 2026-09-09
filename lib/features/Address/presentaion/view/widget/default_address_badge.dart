@@ -1,4 +1,6 @@
 
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flower_app/core/app_constants/app_strings.dart';
 import 'package:flutter/material.dart';
 
 class DefaultAddressBadge extends StatelessWidget {
@@ -13,7 +15,7 @@ class DefaultAddressBadge extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
       ),
       child: Text(
-        'Default',
+        AppStrings.defaultLabelHome.tr(),
         style: TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.bold,

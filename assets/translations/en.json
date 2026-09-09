@@ -117,6 +117,18 @@
   "select_address_warning": "Please select a delivery address first.",
   "order_failed_fallback": "Failed to place order"
 
+  "sign_in_to_add_address": "Sign in to add Address",
+  "no_address_found": "No address found",
+
+  "default_address_fallback": "Default Address",
+  "address_fallback": "Address",
+  "default_badge": "Default","coordinates_format": "Lat: {lat}, Lng: {lng}",
+
+  "set_as_default_address": "Set as default address"
+
+
+
+
 
 
 

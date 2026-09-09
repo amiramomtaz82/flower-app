@@ -1,3 +1,5 @@
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flower_app/core/app_constants/app_strings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -43,7 +45,7 @@ class HomeAddressHeader extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 8.0),
               child: Text(
-                "Sign in to add Address",
+                AppStrings.signInToAddAddress.tr(),
                 style: theme.textTheme.titleSmall?.copyWith(
                   color: theme.colorScheme.primary,
                 ),
@@ -69,7 +71,7 @@ class HomeAddressHeader extends StatelessWidget {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      'No address found',
+                      AppStrings.noAddressFound.tr(),
                       style: theme.textTheme.bodyMedium,
                     ),
                   ),
@@ -88,7 +90,7 @@ class HomeAddressHeader extends StatelessWidget {
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          'Add Address',
+                          AppStrings.addAddress.tr(),
                           style: theme.textTheme.labelMedium?.copyWith(
                             color: theme.colorScheme.primary,
                             fontWeight: FontWeight.bold,
@@ -108,7 +110,7 @@ class HomeAddressHeader extends StatelessWidget {
           final singleAddress = state.addresses.first;
           final title = (singleAddress.label?.isNotEmpty ?? false)
               ? singleAddress.label!
-              : (singleAddress.addressLine ?? 'Default Address');
+              : (singleAddress.addressLine ?? AppStrings.defaultLabelHome.tr());
 
           return Padding(
             padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -151,7 +153,7 @@ class HomeAddressHeader extends StatelessWidget {
               final isCurrentSelected = addr.id != null && addr.id == selectedValue.id;
               final displayName = (addr.label?.isNotEmpty ?? false)
                   ? addr.label!
-                  : (addr.addressLine ?? 'Address');
+                  : (addr.addressLine ?? AppStrings.address.tr());
 
               return DropdownMenuItem<AddressEntity>(
                 value: addr,

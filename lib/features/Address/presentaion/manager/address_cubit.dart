@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:latlong2/latlong.dart';
@@ -6,7 +6,8 @@ import 'package:latlong2/latlong.dart';
 import '../../../../../../config/base_response/base_response.dart';
 import '../../../../../config/resource/rsource.dart';
 import '../../../../core/guest_browsing/guest_browsing_provider.dart';
-import '../../../../core/location/location_model.dart';
+
+import '../../../../core/location/location_service.dart';
 import '../../domain/entities/add_address_entity.dart';
 import '../../domain/entities/address_entity.dart';
 import '../../domain/entities/area_entity.dart';
@@ -30,6 +31,7 @@ class AddressCubit extends Cubit<AddressState> {
   final GetAreasWithCitiesUseCase _getAreasWithCitiesUseCase;
   final GetCurrentLocationUseCase _getCurrentLocationUseCase;
   final ResolveLocationWithAreasUseCase _resolveLocationWithAreasUseCase;
+  final LocationService _locationService;
 
   AddressCubit(
       this._getSavedAddressesUseCase,
@@ -39,6 +41,7 @@ class AddressCubit extends Cubit<AddressState> {
       this._getAreasWithCitiesUseCase,
       this._getCurrentLocationUseCase,
       this._resolveLocationWithAreasUseCase,
+      this._locationService,
       ) : super(AddressState.initial());
 
   Future<void> doEvents(AddressEvent event) async {
@@ -90,7 +93,7 @@ class AddressCubit extends Cubit<AddressState> {
         state.copyWith(
           isGuest: true,
           addresses: const [],
-          selectedAddress: null,
+          clearSelectedAddress: true,
           getAddressesResource: Resource.initial(),
         ),
       );
@@ -109,11 +112,16 @@ class AddressCubit extends Cubit<AddressState> {
     switch (result) {
       case SuccessResponse<List<AddressEntity>>():
         final addresses = result.data ?? [];
+        final defaultAddress = addresses.firstWhere(
+              (a) => a.isDefault == true,
+          orElse: () => addresses.isNotEmpty ? addresses.first : const AddressEntity(),
+        );
+
         emit(
           state.copyWith(
             isGuest: false,
             addresses: addresses,
-            selectedAddress: addresses.isNotEmpty ? addresses.first : null,
+            selectedAddress: addresses.isNotEmpty ? defaultAddress : null,
             getAddressesResource: Resource.success(addresses),
           ),
         );
@@ -127,10 +135,6 @@ class AddressCubit extends Cubit<AddressState> {
         );
     }
   }
-
-  // ============================================================
-  // GET AREAS WITH CITIES
-  // ============================================================
 
   // ============================================================
   // GET AREAS WITH CITIES
@@ -158,13 +162,12 @@ class AddressCubit extends Cubit<AddressState> {
       case ErrorResponse<List<AreaEntity>>():
         emit(
           state.copyWith(
-            areasResource: Resource.error(
-              result.errMessage,
-            ),
+            areasResource: Resource.error(result.errMessage),
           ),
         );
     }
   }
+
   // ============================================================
   // ADD ADDRESS
   // ============================================================
@@ -266,13 +269,12 @@ class AddressCubit extends Cubit<AddressState> {
       case ErrorResponse<GeocodedLocationResult>():
         emit(
           state.copyWith(
-            locationDetailsResource: Resource.error(
-              result.errMessage,
-            ),
+            locationDetailsResource: Resource.error(result.errMessage),
           ),
         );
     }
   }
+
   // ============================================================
   // MANUAL AREA & CITY SELECTION
   // ============================================================
@@ -290,6 +292,7 @@ class AddressCubit extends Cubit<AddressState> {
       ),
     );
   }
+
   void _selectCity(CityEntity city) {
     emit(state.copyWith(selectedCity: city));
   }
@@ -329,9 +332,7 @@ class AddressCubit extends Cubit<AddressState> {
       case ErrorResponse<AddressEntity>():
         emit(
           state.copyWith(
-            setDefaultAddressResource: Resource.error(
-              result.errMessage,
-            ),
+            setDefaultAddressResource: Resource.error(result.errMessage),
           ),
         );
     }
@@ -346,49 +347,72 @@ class AddressCubit extends Cubit<AddressState> {
 
     final isGuest = await _guestBrowsingProvider.isGuest();
 
-    if (!isGuest && state.addresses.isNotEmpty) {
-      final defaultAddress = state.addresses.firstWhere(
-            (a) => a.isDefault == true,
-        orElse: () => state.addresses.first,
-      );
-      emit(state.copyWith(isGuest: false, selectedAddress: defaultAddress));
+    // 1. If guest or user has no saved addresses, do nothing (UI will show "Add Address")
+    if (isGuest || state.addresses.isEmpty) {
+      emit(state.copyWith(isGuest: isGuest));
       return;
     }
 
+    // 2. Locate the existing fallback default address
+    final defaultAddress = state.addresses.firstWhere(
+          (a) => a.isDefault == true,
+      orElse: () => state.addresses.first,
+    );
+
+    // 3. Emit loading while checking GPS proximity
+    emit(
+      state.copyWith(
+        setDefaultAddressResource: Resource.loading(),
+      ),
+    );
+
+    // 4. Try to get current position passively without requesting permissions
     final locResult = await _getCurrentLocationUseCase();
     if (isClosed) return;
 
-    if (locResult is SuccessResponse<LatLng>) {
-      final coordinates = locResult.data;
-      final geoResult = await _resolveLocationWithAreasUseCase(
-        location: coordinates,
-        areas: state.areas,
-      );
-      if (isClosed) return;
+    if (locResult is SuccessResponse<LatLng> && locResult.data != null) {
+      final currentPosition = locResult.data!;
 
-      LocationModel? locationDetails;
-      if (geoResult is SuccessResponse<GeocodedLocationResult>) {
-        locationDetails = geoResult.data.details;
+      // 5. Look for the closest saved address within threshold
+      final closestAddress = _locationService.getClosestAddress(
+        state.addresses,
+        currentPosition,
+      );
+
+      if (closestAddress != null && closestAddress.id != null) {
+        // If it's already the default address, simply select it without an API call
+        if (closestAddress.isDefault == true) {
+          emit(
+            state.copyWith(
+              selectedAddress: closestAddress,
+              setDefaultAddressResource: Resource.success(closestAddress),
+            ),
+          );
+          return;
+        }
+
+        // If it is not the default, update it on the server
+        await _setDefaultAddress(closestAddress.id!);
+        return;
       }
-
-      emit(
-        state.copyWith(
-          isGuest: isGuest,
-          selectedLocation: coordinates,
-          selectedLocationDetails: locationDetails,
-        ),
-      );
-    } else {
-      emit(state.copyWith(isGuest: isGuest));
     }
+
+    // 6. Fallback: GPS not obtained, out of range, or no coordinates -> retain current default
+    emit(
+      state.copyWith(
+        selectedAddress: defaultAddress,
+        setDefaultAddressResource: Resource.success(defaultAddress),
+      ),
+    );
   }
 
+  // In AddressCubit
   void resetToGuest() {
     emit(
       state.copyWith(
         isGuest: true,
         addresses: const [],
-        selectedAddress: null,
+        clearSelectedAddress: true, // <-- Clears the address cleanly
         getAddressesResource: Resource.initial(),
       ),
     );

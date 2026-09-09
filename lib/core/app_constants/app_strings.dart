@@ -144,5 +144,21 @@ static const String addressAddedSuccessfully='Address added successfully!';
   static const String selectAddressWarning = 'select_address_warning';
   static const String orderFailedFallback = 'order_failed_fallback';
 
+  static const String urlTemplate =  'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+  static const String userAgentPackageName = 'com.example.flower_app';
+  static const String signInToAddAddress = 'sign_in_to_add_address';
+  static const String noAddressFound = 'no_address_found';
+
+  static const String defaultAddressFallback = 'default_address_fallback';
+  static const String addressFallback = 'address_fallback';
+  static const String addLabelTitle = 'add label title';
+  static const String defaultBadge = 'default_badge';
+  static const String addressDetailsRequired = 'Address details is required';
+
+  static const String setAsDefaultAddress = 'set_as_default_address';
+  static const String coordinatesFormat = 'coordinates_format';
+  static const String tapMapToSelectLocation = 'tap_map_to_select_location';
+
+
 }
 

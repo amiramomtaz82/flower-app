@@ -1,5 +1,6 @@
 import 'package:injectable/injectable.dart';
 import 'package:nominatim_flutter/nominatim_flutter.dart';
+import 'package:geolocator/geolocator.dart';
 
 @module
 abstract class ThirdPartyModule {
@@ -11,4 +12,6 @@ abstract class ThirdPartyModule {
     );
     return instance;
   }
+  @lazySingleton
+  GeolocatorPlatform get geolocator => GeolocatorPlatform.instance;
 }
