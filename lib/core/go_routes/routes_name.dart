@@ -14,6 +14,8 @@ class AppRoutes {
   static const String bestSeller = '/best-seller';
 
   static const String categoryIdParam = 'categoryId';
+  static const String savedAddresses = '/saved-addresses';
+  static const String editAddress = '/edit-address';
 
   static String categoriesForCategory(String categoryId) =>
       '$categories?$categoryIdParam=${Uri.encodeQueryComponent(categoryId)}';

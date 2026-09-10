@@ -1,3 +1,4 @@
+// lib/features/Address/presentaion/view/widget/adress_form_fileds.dart
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flower_app/core/app_constants/app_strings.dart';
 import 'package:flutter/material.dart';
@@ -32,7 +33,12 @@ class AddressFormFields extends StatelessWidget {
           validator: (val) =>
           (val == null || val.trim().isEmpty) ? AppStrings.addLabelTitle.tr() : null,
         ),
+
         const SizedBox(height: 16),
+
+
+
+        // 3. Recipient Name (Third in Figma)
         TextFormField(
           controller: nameController,
           decoration: InputDecoration(
@@ -43,7 +49,10 @@ class AddressFormFields extends StatelessWidget {
           ),
           validator: Validation.validateName,
         ),
+
         const SizedBox(height: 16),
+
+        // 2. Phone Number (Second in Figma)
         TextFormField(
           controller: phoneController,
           keyboardType: TextInputType.phone,
@@ -56,6 +65,8 @@ class AddressFormFields extends StatelessWidget {
           validator: Validation.validatePhoneNumber,
         ),
         const SizedBox(height: 16),
+
+        //  Label (Home / Work)
         TextFormField(
           controller: addressLineController,
           decoration: InputDecoration(

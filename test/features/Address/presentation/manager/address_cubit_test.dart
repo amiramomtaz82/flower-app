@@ -9,12 +9,12 @@ import 'package:flower_app/features/Address/domain/entities/address_entity.dart'
 import 'package:flower_app/features/Address/domain/entities/area_entity.dart';
 import 'package:flower_app/features/Address/domain/entities/city_entity.dart';
 import 'package:flower_app/features/Address/domain/entities/geocoded_location_result.dart';
-import 'package:flower_app/features/Address/domain/use_cases/add_address_usecase.dart';
-import 'package:flower_app/features/Address/domain/use_cases/get_areas_with_cities_usecase.dart';
+import 'package:flower_app/features/Address/domain/use_cases/add_address_use_case.dart';
+import 'package:flower_app/features/Address/domain/use_cases/get_areas_with_cities_use_case.dart';
 import 'package:flower_app/features/Address/domain/use_cases/get_current_location_usecase.dart';
-import 'package:flower_app/features/Address/domain/use_cases/get_saved_address_useacse.dart';
-import 'package:flower_app/features/Address/domain/use_cases/reslove_location_with _areas_usecase.dart';
-import 'package:flower_app/features/Address/domain/use_cases/set_default_address_usecase.dart';
+import 'package:flower_app/features/Address/domain/use_cases/get_saved_address_use_case.dart';
+import 'package:flower_app/features/Address/domain/use_cases/resolve_location_with _areas_use_case.dart';
+import 'package:flower_app/features/Address/domain/use_cases/set_default_address_use_case.dart';
 import 'package:flower_app/features/Address/presentaion/manager/address_cubit.dart';
 import 'package:flower_app/features/Address/presentaion/manager/address_events.dart';
 import 'package:flower_app/features/Address/presentaion/manager/address_state.dart';

@@ -80,3 +80,13 @@ class GetAreasWithCitiesEvent extends AddressEvent {
 class ResetAddAddressStateEvent extends AddressEvent {
   const ResetAddAddressStateEvent();
 }
+class UpdateAddressEvent extends AddressEvent {
+  final String id;
+  final AddressEntity entity;
+  UpdateAddressEvent({required this.id, required this.entity});
+}
+
+class DeleteAddressEvent extends AddressEvent {
+  final String id;
+  DeleteAddressEvent(this.id);
+}

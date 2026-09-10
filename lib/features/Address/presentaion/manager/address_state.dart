@@ -14,6 +14,8 @@ class AddressState extends Equatable {
   final AddressEntity? selectedAddress;
   final Resource<List<AddressEntity>> getAddressesResource;
   final Resource<AddressEntity> addAddressResource;
+  final Resource<AddressEntity> updateAddressResource;
+  final Resource<void> deleteAddressResource;
   final Resource<AddressEntity> setDefaultAddressResource;
   final Resource<List<AreaEntity>> areasResource;
   final Resource<GeocodedLocationResult> locationDetailsResource;
@@ -29,6 +31,8 @@ class AddressState extends Equatable {
     this.selectedAddress,
     required this.getAddressesResource,
     required this.addAddressResource,
+    required this.updateAddressResource,
+    required this.deleteAddressResource,
     required this.setDefaultAddressResource,
     required this.areasResource,
     required this.locationDetailsResource,
@@ -45,6 +49,8 @@ class AddressState extends Equatable {
     selectedAddress: null,
     getAddressesResource: Resource.initial(),
     addAddressResource: Resource.initial(),
+    updateAddressResource: Resource.initial(),
+    deleteAddressResource: Resource.initial(),
     setDefaultAddressResource: Resource.initial(),
     areasResource: Resource.initial(),
     locationDetailsResource: Resource.initial(),
@@ -64,26 +70,27 @@ class AddressState extends Equatable {
     return exists ? selectedArea : null;
   }
 
-  /// List of available cities derived from the currently validated area.
+
   List<CityEntity> get availableCities {
     return validSelectedArea?.cities ?? const [];
   }
 
-  /// Returns [selectedCity] only if it exists in the [availableCities] list
-  /// of the selected area.
+
   CityEntity? get validSelectedCity {
     if (selectedCity == null) return null;
     final exists = availableCities.any((c) => c.id == selectedCity!.id);
     return exists ? selectedCity : null;
   }
 
-  // In AddressState (lib/features/Address/presentaion/manager/address_state.dart)
+
   AddressState copyWith({
     List<AddressEntity>? addresses,
     AddressEntity? selectedAddress,
     bool clearSelectedAddress = false, // <-- Add this flag
     Resource<List<AddressEntity>>? getAddressesResource,
     Resource<AddressEntity>? addAddressResource,
+    Resource<AddressEntity>? updateAddressResource,
+    Resource<void>? deleteAddressResource,
     Resource<AddressEntity>? setDefaultAddressResource,
     Resource<List<AreaEntity>>? areasResource,
     Resource<GeocodedLocationResult>? locationDetailsResource,
@@ -102,6 +109,10 @@ class AddressState extends Equatable {
           : (selectedAddress ?? this.selectedAddress), // <-- Use flag here
       getAddressesResource: getAddressesResource ?? this.getAddressesResource,
       addAddressResource: addAddressResource ?? this.addAddressResource,
+      updateAddressResource:
+      updateAddressResource ?? this.updateAddressResource,
+      deleteAddressResource:
+      deleteAddressResource ?? this.deleteAddressResource,
       setDefaultAddressResource:
       setDefaultAddressResource ?? this.setDefaultAddressResource,
       areasResource: areasResource ?? this.areasResource,
@@ -124,6 +135,8 @@ class AddressState extends Equatable {
     selectedAddress,
     getAddressesResource,
     addAddressResource,
+    updateAddressResource,
+    deleteAddressResource,
     setDefaultAddressResource,
     areasResource,
     locationDetailsResource,

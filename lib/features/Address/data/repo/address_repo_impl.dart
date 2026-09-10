@@ -174,4 +174,44 @@ class AddressRepoImpl implements AddressRepo {
       return ErrorResponse<LocationModel>(error: e.toString());
     }
   }
+  @override
+  Future<BaseResponse<AddressEntity>> updateAddress({
+    required String id,
+    required AddressEntity address,
+  }) async {
+    try {
+      final request = CreateAddressRequest(
+        recipientName: address.recipientName ?? '',
+        phone: address.recipientPhone ?? '',
+        addressLine: address.addressLine ?? '',
+        cityId: address.cityId ?? '',
+        areaId: address.areaId ?? '',
+        latitude: address.lat ?? 0.0,
+        longitude: address.lng ?? 0.0,
+        label: (address.label != null && address.label!.trim().isNotEmpty)
+            ? address.label!.trim()
+            : 'Home',
+      );
+
+      final response = await _remoteDataSource.updateAddress(id, request);
+      final updatedDto = response.data;
+
+      if (updatedDto != null) {
+        return SuccessResponse(updatedDto.toEntity());
+      }
+      return ErrorResponse(errMessage: response.message ?? 'Failed to update address');
+    } catch (e) {
+      return ErrorResponse(error: e);
+    }
+  }
+
+  @override
+  Future<BaseResponse<void>> deleteAddress(String id) async {
+    try {
+      await _remoteDataSource.deleteAddress(id);
+      return SuccessResponse(null);
+    } catch (e) {
+      return ErrorResponse(error: e);
+    }
+  }
 }
