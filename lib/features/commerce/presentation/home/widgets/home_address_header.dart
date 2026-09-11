@@ -13,25 +13,32 @@ import '../../../../Address/presentaion/manager/address_state.dart';
 class HomeAddressHeader extends StatelessWidget {
   final VoidCallback? onNavigateToAddAddress;
 
- const HomeAddressHeader({
+  const HomeAddressHeader({
     super.key,
     this.onNavigateToAddAddress,
   });
+
+  static const Color _primaryPink = Color(0xFFD21E6A);
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
     return BlocBuilder<AddressCubit, AddressState>(
+      buildWhen: (prev, curr) =>
+      prev.isGuest != curr.isGuest ||
+          prev.getAddressesResource != curr.getAddressesResource ||
+          prev.addresses != curr.addresses ||
+          prev.selectedAddress != curr.selectedAddress,
       builder: (context, state) {
         // 1. Session check in progress or addresses loading
         if (state.isGuest == null || state.getAddressesResource.isLoading) {
           return const SizedBox(
-            height: 44,
+            height: 36,
             child: Center(
               child: SizedBox(
-                width: 18,
-                height: 18,
+                width: 16,
+                height: 16,
                 child: CircularProgressIndicator(strokeWidth: 2),
               ),
             ),
@@ -43,12 +50,24 @@ class HomeAddressHeader extends StatelessWidget {
           return InkWell(
             onTap: () => context.push(AppRoutes.login),
             child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: Text(
-                AppStrings.signInToAddAddress.tr(),
-                style: theme.textTheme.titleSmall?.copyWith(
-                  color: theme.colorScheme.primary,
-                ),
+              padding: const EdgeInsets.symmetric(vertical: 4.0),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(
+                    Icons.location_on_outlined,
+                    size: 18,
+                    color: Colors.black87,
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    AppStrings.signInToAddAddress.tr(),
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: _primaryPink,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
               ),
             ),
           );
@@ -59,44 +78,29 @@ class HomeAddressHeader extends StatelessWidget {
           return InkWell(
             borderRadius: BorderRadius.circular(8),
             onTap: onNavigateToAddAddress ?? () => context.push(AppRoutes.addAddress),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4.0),
               child: Row(
                 children: [
-                  Icon(
-                    Icons.location_off_outlined,
-                    color: theme.colorScheme.error,
-                    size: 20,
+                  const Icon(
+                    Icons.location_on_outlined,
+                    size: 18,
+                    color: Colors.black87,
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: 6),
                   Expanded(
                     child: Text(
                       AppStrings.noAddressFound.tr(),
-                      style: theme.textTheme.bodyMedium,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: Colors.black87,
+                      ),
                     ),
                   ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.add,
-                          size: 16,
-                          color: theme.colorScheme.primary,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          AppStrings.addAddress.tr(),
-                          style: theme.textTheme.labelMedium?.copyWith(
-                            color: theme.colorScheme.primary,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
+                  Text(
+                    AppStrings.addAddress.tr(),
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: _primaryPink,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ],
@@ -105,94 +109,131 @@ class HomeAddressHeader extends StatelessWidget {
           );
         }
 
-        // 4. Authenticated with 1 Address
-        if (state.addresses.length == 1) {
-          final singleAddress = state.addresses.first;
-          final title = (singleAddress.label?.isNotEmpty ?? false)
-              ? singleAddress.label!
-              : (singleAddress.addressLine ?? AppStrings.defaultLabelHome.tr());
-
-          return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8.0),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.location_on,
-                  color: theme.colorScheme.primary,
-                  size: 20,
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    title,
-                    overflow: TextOverflow.ellipsis,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          );
-        }
-
-        // 5. Authenticated with Multiple Addresses
+        // 4. Authenticated with 1 or More Addresses -> Figma Style Dropdown
         final selectedId = state.selectedAddress?.id;
+
         final selectedValue = (selectedId != null &&
             state.addresses.any((a) => a.id != null && a.id == selectedId))
             ? state.addresses.firstWhere((a) => a.id == selectedId)
-            : state.addresses.first;
+            : state.addresses.firstWhere(
+              (a) => a.isDefault == true,
+          orElse: () => state.addresses.first,
+        );
 
         return DropdownButtonHideUnderline(
           child: DropdownButton<AddressEntity>(
             isExpanded: true,
             value: selectedValue,
-            icon: const Icon(Icons.keyboard_arrow_down),
+            icon: const Icon(
+              Icons.keyboard_arrow_down_rounded,
+              color: _primaryPink,
+              size: 22,
+            ),
+            selectedItemBuilder: (context) {
+              // Header display matching Figma: [Pin] Deliver to <Address> [Arrow]
+              return state.addresses.map((addr) {
+                final displayLocation = (addr.addressLine?.trim().isNotEmpty == true)
+                    ? addr.addressLine!.trim()
+                    : (addr.label?.trim().isNotEmpty == true
+                    ? addr.label!.trim()
+                    : (addr.areaId?.trim() ?? AppStrings.address.tr()));
+
+                return Column(
+                  children: [ InkWell(onTap: (){context.push(AppRoutes.savedAddresses);},child: Text("go to saved addresss "),
+
+
+                  ),
+
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.location_on_outlined,
+                          size: 18,
+                          color: Colors.black87,
+                        ),
+                        const SizedBox(width: 6),
+                        Flexible(
+                          child: RichText(
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            text: TextSpan(
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                color: Colors.black87,
+                                fontSize: 13,
+                              ),
+                              children: [
+                                const TextSpan(
+                                  text: 'Deliver to ',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.normal,
+                                    color: Colors.black54,
+                                  ),
+                                ),
+                                TextSpan(
+                                  text: displayLocation,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.black87,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                );
+              }).toList();
+            },
             items: state.addresses.map((addr) {
-              final isDefault = addr.isDefault ?? false;
               final isCurrentSelected = addr.id != null && addr.id == selectedValue.id;
-              final displayName = (addr.label?.isNotEmpty ?? false)
-                  ? addr.label!
-                  : (addr.addressLine ?? AppStrings.address.tr());
+              final hasLabel = addr.label?.trim().isNotEmpty == true;
+              final hasAddressLine = addr.addressLine?.trim().isNotEmpty == true;
 
               return DropdownMenuItem<AddressEntity>(
                 value: addr,
                 child: Row(
                   children: [
+
                     Icon(
                       Icons.location_on_outlined,
-                      size: 20,
-                      color: theme.colorScheme.primary,
+                      size: 18,
+                      color: isCurrentSelected ? _primaryPink : Colors.black54,
                     ),
                     const SizedBox(width: 8),
                     Expanded(
-                      child: Text(
-                        displayName,
+                      child: RichText(
+                        maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          fontWeight: isCurrentSelected
-                              ? FontWeight.bold
-                              : FontWeight.normal,
+                        text: TextSpan(
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: isCurrentSelected ? _primaryPink : Colors.black87,
+                            fontSize: 13,
+                          ),
+                          children: [
+                            if (hasLabel) ...[
+                              TextSpan(
+                                text: addr.label!.trim(),
+                                style: const TextStyle(fontWeight: FontWeight.w600),
+                              ),
+                              if (hasAddressLine) const TextSpan(text: ' • '),
+                            ],
+                            if (hasAddressLine)
+                              TextSpan(
+                                text: addr.addressLine!.trim(),
+                                style: TextStyle(
+                                  fontWeight: (!hasLabel) ? FontWeight.w600 : FontWeight.normal,
+                                ),
+                              ),
+                            if (!hasLabel && !hasAddressLine)
+                              TextSpan(
+                                text: addr.areaId?.trim() ?? AppStrings.address.tr(),
+                              ),
+                          ],
                         ),
                       ),
                     ),
-                    if (isDefault)
-                      Container(
-                        margin: const EdgeInsets.only(left: 8.0),
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: theme.colorScheme.primaryContainer,
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Text(
-                          'Default',
-                          style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                            color: theme.colorScheme.onPrimaryContainer,
-                          ),
-                        ),
-                      ),
                   ],
                 ),
               );

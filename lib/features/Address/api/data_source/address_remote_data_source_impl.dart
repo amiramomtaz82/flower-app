@@ -67,4 +67,14 @@ class AddressRemoteDataSourceImpl implements AddressRemoteDataSource {
       return ErrorResponse<AddressDto>(error: e);
     }
   }
+
+  @override
+  Future<CreateAddressResponse> updateAddress(String id, CreateAddressRequest request) {
+    return _apiClient.updateAddress(id, request);
+  }
+
+  @override
+  Future<void> deleteAddress(String id) {
+    return _apiClient.deleteAddress(id);
+  }
 }

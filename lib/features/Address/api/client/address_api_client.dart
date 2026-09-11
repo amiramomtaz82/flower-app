@@ -29,4 +29,15 @@ abstract class AddressApiClient {
 
   @PATCH(Endpoints.defaultAddress)
   Future<AddressDto> setDefaultAddress(@Path('id') String id);
+
+
+  // --- PUT & DELETE Endpoints ---
+  @PUT('${Endpoints.getAddresses}/{id}')
+  Future<CreateAddressResponse> updateAddress(
+      @Path('id') String id,
+      @Body() CreateAddressRequest addressRequest,
+      );
+
+  @DELETE('${Endpoints.getAddresses}/{id}')
+  Future<void> deleteAddress(@Path('id') String id);
 }

@@ -20,6 +20,9 @@ abstract interface class AddressRemoteDataSource {
   Future<BaseResponse<AreasWithCityResponse>> getCities();
 
   Future<BaseResponse<AddressDto>> setDefaultAddress(String id);
+
+  Future<CreateAddressResponse> updateAddress(String id, CreateAddressRequest request);
+  Future<void> deleteAddress(String id);
 }
 
 

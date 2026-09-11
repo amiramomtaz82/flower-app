@@ -13,6 +13,7 @@ class AddressEntity extends Equatable {
   final String? label;
   final bool? isDefault;
   final String? storeId;
+  final bool? isServiceable; // Added property
   final String? createdAt;
 
   const AddressEntity({
@@ -27,6 +28,7 @@ class AddressEntity extends Equatable {
     this.label,
     this.isDefault,
     this.storeId,
+    this.isServiceable, // Added to constructor
     this.createdAt,
   });
 
@@ -42,6 +44,7 @@ class AddressEntity extends Equatable {
     String? label,
     bool? isDefault,
     String? storeId,
+    bool? isServiceable, // Added to copyWith
     String? createdAt,
   }) {
     return AddressEntity(
@@ -56,6 +59,7 @@ class AddressEntity extends Equatable {
       label: label ?? this.label,
       isDefault: isDefault ?? this.isDefault,
       storeId: storeId ?? this.storeId,
+      isServiceable: isServiceable ?? this.isServiceable, // Mapped in copyWith
       createdAt: createdAt ?? this.createdAt,
     );
   }
@@ -73,6 +77,7 @@ class AddressEntity extends Equatable {
     label,
     isDefault,
     storeId,
+    isServiceable, // Added to Equatable props
     createdAt,
   ];
 }

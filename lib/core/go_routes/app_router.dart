@@ -25,10 +25,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/Address/domain/entities/address_entity.dart';
 import '../../features/Address/domain/use_cases/get_saved_address_useacse.dart';
 import '../../features/Address/presentaion/manager/address_cubit.dart';
 import '../../features/Address/presentaion/manager/address_events.dart';
 import '../../features/Address/presentaion/view/add_address_view.dart';
+import '../../features/Address/presentaion/view/edit_address_view.dart';
+import '../../features/Address/presentaion/view/saved_adresses_view.dart';
 import '../../features/auth/presentation/login/views/login_view.dart';
 import '../../features/checkout/domain/usecases/estimated_delivery_usecase.dart';
 import '../../features/checkout/domain/usecases/get_checkout_details_usecase.dart';
@@ -115,7 +118,7 @@ class AppRouter {
                     ),
                     BlocProvider.value(
                       value: getIt<AddressCubit>()
-                        ..doEvents(ResolveHomeAddressEvent()),
+                        ..doEvents(GetSavedAddressesEvent()),
                     ),
                   ],
                   child: const HomeView(),
@@ -186,6 +189,26 @@ class AppRouter {
           value: getIt<AddressCubit>()..doEvents(const GetAreasWithCitiesEvent()),
           child: const AddAddressView(),
         ),
+      ),
+      GoRoute(
+        path: AppRoutes.savedAddresses,
+        name: AppRoutes.savedAddresses,
+        builder: (context, state) => BlocProvider.value(
+          value: getIt<AddressCubit>()..doEvents(GetSavedAddressesEvent()),
+          child: const SavedAddressesView(),
+        ),
+      ),
+
+      GoRoute(
+        path: AppRoutes.editAddress,
+        name: AppRoutes.editAddress,
+        builder: (context, state) {
+          final address = state.extra as AddressEntity;
+          return BlocProvider.value(
+            value: getIt<AddressCubit>(),
+            child: EditAddressView(address: address),
+          );
+        },
       ),
       GoRoute(
         path: AppRoutes.productDetails,

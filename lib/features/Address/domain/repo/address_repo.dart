@@ -13,9 +13,16 @@ abstract interface class AddressRepo {
   Future<BaseResponse<AddressEntity>> setDefaultAddress(String id);
 
   // Added Location methods
-  Future<BaseResponse<LatLng>> getCurrentLocation();
+  Future<BaseResponse<LatLng>> getCurrentLocation({bool requestIfDenied = true});
   Future<BaseResponse<LocationModel>> reverseGeocode({
     required double lat,
     required double lng,
   });
+
+  Future<BaseResponse<AddressEntity>> updateAddress({
+    required String id,
+    required AddressEntity address,
+  });
+
+  Future<BaseResponse<void>> deleteAddress(String id);
 }

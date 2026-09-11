@@ -9,5 +9,7 @@ class GetCurrentLocationUseCase {
   final AddressRepo _repo;
   GetCurrentLocationUseCase(this._repo);
 
-  Future<BaseResponse<LatLng>> call() => _repo.getCurrentLocation();
+  Future<BaseResponse<LatLng>> call({bool requestIfDenied = true}) {
+    return _repo.getCurrentLocation(requestIfDenied: requestIfDenied);
+  }
 }

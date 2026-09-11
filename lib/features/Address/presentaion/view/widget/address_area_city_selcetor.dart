@@ -1,3 +1,4 @@
+// lib/features/Address/presentaion/view/widget/address_area_city_selcetor.dart
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flower_app/core/app_constants/app_strings.dart';
 import 'package:flutter/material.dart';
@@ -24,42 +25,50 @@ class AddressAreaCitySelectors extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        DropdownButtonFormField<AreaEntity>(
-          value: selectedArea,
-          decoration: InputDecoration(
-            labelText: AppStrings.area.tr(),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        // City Selector (Left)
+        Expanded(
+          child: DropdownButtonFormField<CityEntity>(
+            value: selectedCity,
+            isExpanded: true,
+            decoration: InputDecoration(
+              labelText: AppStrings.city.tr(),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            ),
+            items: availableCities.map((city) {
+              return DropdownMenuItem<CityEntity>(
+                value: city,
+                child: Text(city.name ?? '', overflow: TextOverflow.ellipsis),
+              );
+            }).toList(),
+            onChanged: onCityChanged,
+            validator: (val) => val == null ? AppStrings.pleaseSelectCity.tr() : null,
           ),
-          items: areas.map((area) {
-            return DropdownMenuItem<AreaEntity>(
-              value: area,
-              child: Text(area.name ?? ''),
-            );
-          }).toList(),
-          onChanged: onAreaChanged,
-          validator: (val) =>
-          val == null ? AppStrings.pleaseSelectArea.tr() : null,
         ),
-        const SizedBox(height: 16),
-        DropdownButtonFormField<CityEntity>(
-          value: selectedCity,
-          decoration: InputDecoration(
-            labelText: AppStrings.city.tr(),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        const SizedBox(width: 12),
+
+        // Area Selector (Right)
+        Expanded(
+          child: DropdownButtonFormField<AreaEntity>(
+            value: selectedArea,
+            isExpanded: true,
+            decoration: InputDecoration(
+              labelText: AppStrings.area.tr(),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            ),
+            items: areas.map((area) {
+              return DropdownMenuItem<AreaEntity>(
+                value: area,
+                child: Text(area.name ?? '', overflow: TextOverflow.ellipsis),
+              );
+            }).toList(),
+            onChanged: onAreaChanged,
+            validator: (val) => val == null ? AppStrings.pleaseSelectArea.tr() : null,
           ),
-          items: availableCities.map((city) {
-            return DropdownMenuItem<CityEntity>(
-              value: city,
-              child: Text(city.name ?? ''),
-            );
-          }).toList(),
-          onChanged: onCityChanged,
-          validator: (val) =>
-          val == null ? AppStrings.pleaseSelectCity.tr() : null,
         ),
       ],
     );

@@ -102,9 +102,6 @@ class LocationService {
   }
 // ========================= Closest Address =========================
 
-  /// Returns the closest [AddressEntity] within [maxRangeMeters] (defaults to 500m).
-  /// If all addresses exceed [maxRangeMeters] or lack coordinates,
-  /// falls back to the user's default address (or `null` if none is set).
   AddressEntity? getClosestAddress(
       List<AddressEntity> addresses,
       LatLng current, {
@@ -117,6 +114,9 @@ class LocationService {
     double minMeters = double.infinity;
 
     for (final addr in addresses) {
+      // Optional check: skip addresses that aren't serviceable
+      if (addr.isServiceable == false) continue;
+
       final lat = addr.lat;
       final lng = addr.lng;
 
@@ -129,19 +129,10 @@ class LocationService {
       }
     }
 
-    // 1. In range -> return the closest address
     if (closest != null && minMeters <= maxRangeMeters) {
       return closest;
     }
 
-    // 2. Out of range / no valid coordinates -> fallback to default address if it exists
-    for (final addr in addresses) {
-      if (addr.isDefault == true) {
-        return addr;
-      }
-    }
-
-    // 3. Out of range and no default address exists
     return null;
   }
 
