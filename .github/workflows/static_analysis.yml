@@ -8,7 +8,7 @@ on:
 
 jobs:
   analyze:
-    name: Lint & Analyze
+    name: Lint and Analyze
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -17,7 +17,7 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: 'stable'
+          channel: stable
 
       - name: Install dependencies
         run: flutter pub get
@@ -25,5 +25,5 @@ jobs:
       - name: Analyze code
         run: flutter analyze
 
-      - name: Verify Formatting
+      - name: Verify formatting
         run: dart format --output=none --set-exit-if-changed .
