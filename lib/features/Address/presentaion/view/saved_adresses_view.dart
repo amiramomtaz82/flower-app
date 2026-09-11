@@ -31,16 +31,16 @@ class _SavedAddressesViewState extends State<SavedAddressesView> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text("Delete Address"),
+        title: Text(AppStrings.deleteAddress.tr()),
         content: Text(
           address.isDefault == true
-              ? 'This is your default address. Deleting it will automatically assign another address as default.'
-              : 'Are you sure you want to delete this address?',
+              ? AppStrings.deleteDefaultAddressWarning.tr()
+              : AppStrings.deleteAddressConfirm.tr(),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
+            child: Text(AppStrings.cancel.tr()),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
@@ -52,7 +52,10 @@ class _SavedAddressesViewState extends State<SavedAddressesView> {
                 context.read<AddressCubit>().doEvents(DeleteAddressEvent(address.id!));
               }
             },
-            child: const Text('Delete', style: TextStyle(color: Colors.white)),
+            child: Text(
+              AppStrings.delete.tr(),
+              style: const TextStyle(color: Colors.white),
+            ),
           ),
         ],
       ),
@@ -69,8 +72,8 @@ class _SavedAddressesViewState extends State<SavedAddressesView> {
       listener: (context, state) {
         if (state.deleteAddressResource.isSuccess) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Address deleted successfully'),
+            SnackBar(
+              content: Text(AppStrings.addressDeletedSuccessfully.tr()),
               backgroundColor: Colors.green,
             ),
           );
@@ -78,7 +81,8 @@ class _SavedAddressesViewState extends State<SavedAddressesView> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                state.deleteAddressResource.errorMessage ?? 'Failed to delete address',
+                state.deleteAddressResource.errorMessage ??
+                    AppStrings.failedToDeleteAddress.tr(),
               ),
             ),
           );
@@ -90,7 +94,7 @@ class _SavedAddressesViewState extends State<SavedAddressesView> {
             icon: const Icon(Icons.arrow_back_ios_new, size: 20),
             onPressed: () => context.pop(),
           ),
-          title: const Text('Saved address'),
+          title: Text(AppStrings.savedAddresses.tr()),
           centerTitle: false,
         ),
         body: SafeArea(
@@ -158,9 +162,9 @@ class _SavedAddressesViewState extends State<SavedAddressesView> {
                       ),
                     ),
                     onPressed: () => context.push(AppRoutes.addAddress),
-                    child: const Text(
-                      'Add new address',
-                      style: TextStyle(
+                    child: Text(
+                      AppStrings.addNewAddress.tr(),
+                      style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.w600,
                         fontSize: 15,

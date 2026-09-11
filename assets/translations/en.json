@@ -103,7 +103,26 @@
   "address_fallback": "Address",
   "default_badge": "Default","coordinates_format": "Lat: {lat}, Lng: {lng}",
 
-  "set_as_default_address": "Set as default address"
+  "set_as_default_address": "Set as default address",
+  "saved_addresses": "Saved Addresses",
+  "add_new_address": "Add new address",
+  "delete_address": "Delete Address",
+  "delete_default_address_warning": "This is your default address. Deleting it will automatically assign another address as default.",
+  "delete_address_confirm": "Are you sure you want to delete this address?",
+  "address_deleted_successfully": "Address deleted successfully",
+  "failed_to_delete_address": "Failed to delete address",
+  "cancel": "Cancel",
+  "delete": "Delete",
+  "address_updated_successfully": "Address updated successfully",
+  "update_failed": "Update failed",
+  "enable_location_title": "Enable Location",
+  "enable_location_message": "Location services are disabled. Please enable GPS on your device to pinpoint your location.",
+  "open_settings": "Open Settings",
+  "permission_required_title": "Permission Required",
+  "location_permanently_denied_message": "Location access is permanently blocked. Enable it in app settings.",
+  "location_permission_denied": "Location permission was denied.",
+  "default_error": "Something went wrong"
+
 
 
 

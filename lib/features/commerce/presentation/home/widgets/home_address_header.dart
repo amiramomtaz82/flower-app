@@ -178,7 +178,6 @@ class HomeAddressHeader extends StatelessWidget {
                         ),
                       ],
 
-
                 );
               }).toList();
             },
