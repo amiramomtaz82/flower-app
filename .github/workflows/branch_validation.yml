@@ -1,0 +1,35 @@
+﻿name: Branch Name Validation
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  validate-branch-name:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check branch name
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
+            BRANCH="$GITHUB_HEAD_REF"
+          else
+            BRANCH="${GITHUB_REF#refs/heads/}"
+          fi
+
+          echo "Branch name: $BRANCH"
+
+          case "$BRANCH" in
+            main|master|develop|staging)
+              echo "Standard branch is valid."
+              exit 0
+              ;;
+            feat/*|feature/*|fix/*|bugfix/*|hotfix/*|chore/*|release/*|refactor/*|docs/*)
+              echo "Branch name '$BRANCH' is valid."
+              exit 0
+              ;;
+            *)
+              echo "::error::Branch '$BRANCH' is invalid."
+              echo "::error::Must start with: feat/, feature/, fix/, bugfix/, hotfix/, chore/, release/, refactor/, docs/"
+              exit 1
+              ;;
+          esac
