@@ -71,5 +71,14 @@
   "PleaseLoginOrRegisterToContinue": "Please login or register to continue",
   "Login required": "Login required",
   "register": "Register",
-  "forget_password": "forget password ?"
+  "forget_password": "forget password ?",
+  "myOrders": "My orders",
+  "activeOrders": "Active",
+  "completedOrders": "Completed",
+  "noActiveOrders": "No active orders",
+  "noCompletedOrders": "No completed orders",
+  "orderNumber": "Order number",
+  "deliveredOn": "Delivered on",
+  "trackOrder": "Track order",
+  "reorder": "Reorder"
 }

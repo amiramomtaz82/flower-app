@@ -1,0 +1,36 @@
+﻿name: Branch Name Validation
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  validate-branch-name:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Extract branch name
+        id: extract_branch
+        run: |
+          if [[ "${GITHUB_EVENT_NAME}" == "pull_request" ]]; then
+            echo "BRANCH_NAME=${GITHUB_HEAD_REF}" >> $GITHUB_ENV
+          else
+            echo "BRANCH_NAME=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
+          fi
+
+      - name: Check branch name
+        run: |
+          VALID_BRANCH_REGEX="^(feature|fix|bugfix|hotfix|chore|release|refactor|docs)\/[a-zA-Z0-9\-\_\/]+$"
+          
+          if [[ "$BRANCH_NAME" == "main" || "$BRANCH_NAME" == "master" || "$BRANCH_NAME" == "develop" || "$BRANCH_NAME" == "staging" ]]; then
+            echo "Standard branch '$BRANCH_NAME' is valid."
+            exit 0
+          fi
+          
+          if [[ ! "$BRANCH_NAME" =~ $VALID_BRANCH_REGEX ]]; then
+            echo "::error::Branch name '$BRANCH_NAME' is invalid!"
+            echo "::error::Branch names must start with one of: feature/, fix/, bugfix/, hotfix/, chore/, release/, refactor/, docs/"
+            echo "::error::Example of valid names: feature/login, fix/header-bug, chore/update-deps"
+            exit 1
+          fi
+          
+          echo "Branch name '$BRANCH_NAME' is valid."
