@@ -2,39 +2,36 @@
 import 'package:equatable/equatable.dart';
 
 class CheckoutDetailsEntity extends Equatable {
-  final String cartId;
-  final String? addressId;
-  final bool isServiceable;
   final double subtotal;
   final double deliveryFee;
   final double total;
   final String? estimatedDeliveryAt;
   final List<PaymentMethodOptionEntity> paymentMethods;
   final bool isGift;
+  final String? giftRecipientName;
+  final String? giftRecipientPhone;
 
   const CheckoutDetailsEntity({
-    required this.cartId,
-    this.addressId,
-    required this.isServiceable,
     required this.subtotal,
     required this.deliveryFee,
     required this.total,
     this.estimatedDeliveryAt,
     required this.paymentMethods,
     required this.isGift,
+    this.giftRecipientName,
+    this.giftRecipientPhone,
   });
 
   @override
   List<Object?> get props => [
-    cartId,
-    addressId,
-    isServiceable,
     subtotal,
     deliveryFee,
     total,
     estimatedDeliveryAt,
     paymentMethods,
     isGift,
+    giftRecipientName,
+    giftRecipientPhone,
   ];
 }
 

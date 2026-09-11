@@ -27,25 +27,27 @@ class CheckoutRemoteDataSourceImpl implements CheckoutRemoteDataSource {
       await Future.delayed(const Duration(milliseconds: 500));
 
       final mockData = CheckoutDetailsResponse(
-        isSuccess: true,
-        message: 'Success',
-        statusCode: 'Success',
+        success: true,
+        message: 'Request completed successfully',
+        error: null,
         data: CheckoutDetailsDto(
-          cartId: cartId,
-          addressId: 'addr-mock-001',
-          isServiceable: true,
           subtotal: 1095.0,
           deliveryFee: 10.0,
           total: 1105.0,
           estimatedDeliveryAt: '2026-09-02T14:00:00Z',
           paymentMethods: [
-            PaymentMethodOption(method: 'COD'),
-            PaymentMethodOption(
+            PaymentMethodOptionDto(
+              method: 'COD',
+              gateways: [],
+            ),
+            PaymentMethodOptionDto(
               method: 'Card',
               gateways: ['Paymob', 'Stripe'],
             ),
           ],
           isGift: false,
+          giftRecipientName: null,
+          giftRecipientPhone: null,
         ),
       );
 
@@ -59,7 +61,6 @@ class CheckoutRemoteDataSourceImpl implements CheckoutRemoteDataSource {
       return ErrorResponse<CheckoutDetailsResponse>(error: e);
     }
   }
-
   @override
   Future<BaseResponse<EstimateDeliveryResponse>> estimateDelivery(
       String addressId,

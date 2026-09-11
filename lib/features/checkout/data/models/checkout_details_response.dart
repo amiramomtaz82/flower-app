@@ -1,116 +1,134 @@
-
-
 import '../../domain/entities/checkout_details_entity.dart';
-import '../../domain/entities/place_order_request_entity.dart';
 
 class CheckoutDetailsResponse {
-  final CheckoutDetailsDto? data;
-  final bool isSuccess;
-  final String message;
-  final String? messageLocalized;
-  final String statusCode;
-
   CheckoutDetailsResponse({
+    this.success,
+    this.message,
     this.data,
-    required this.isSuccess,
-    required this.message,
-    this.messageLocalized,
-    required this.statusCode,
+    this.error,
   });
 
-  factory CheckoutDetailsResponse.fromJson(Map<String, dynamic> json) {
-    return CheckoutDetailsResponse(
-      data: json['data'] != null ? CheckoutDetailsDto.fromJson(json['data']) : null,
-      isSuccess: json['isSuccess'] ?? false,
-      message: json['message'] ?? '',
-      messageLocalized: json['messageLocalized'],
-      statusCode: json['statusCode'] ?? '',
-    );
+  CheckoutDetailsResponse.fromJson(dynamic json) {
+    success = json['success'];
+    message = json['message'];
+    data = json['data'] != null ? CheckoutDetailsDto.fromJson(json['data']) : null;
+    error = json['error'];
+  }
+
+  bool? success;
+  String? message;
+  CheckoutDetailsDto? data;
+  dynamic error;
+
+  Map<String, dynamic> toJson() {
+    final map = <String, dynamic>{};
+    map['success'] = success;
+    map['message'] = message;
+    if (data != null) {
+      map['data'] = data?.toJson();
+    }
+    map['error'] = error;
+    return map;
   }
 }
 
 class CheckoutDetailsDto {
-  final String cartId;
-  final String? addressId;
-  final bool isServiceable;
-  final double subtotal;
-  final double? deliveryFee;
-  final double total;
-  final String? estimatedDeliveryAt;
-  final List<PaymentMethodOption> paymentMethods;
-  final bool isGift;
-  final String? giftRecipientName;
-  final String? giftRecipientPhone;
-
   CheckoutDetailsDto({
-    required this.cartId,
-    this.addressId,
-    required this.isServiceable,
-    required this.subtotal,
+    this.subtotal,
     this.deliveryFee,
-    required this.total,
+    this.total,
     this.estimatedDeliveryAt,
-    required this.paymentMethods,
-    required this.isGift,
+    this.paymentMethods,
+    this.isGift,
     this.giftRecipientName,
     this.giftRecipientPhone,
   });
 
-  factory CheckoutDetailsDto.fromJson(Map<String, dynamic> json) {
-    return CheckoutDetailsDto(
-      cartId: json['cartId'] ?? '',
-      addressId: json['addressId'],
-      isServiceable: json['isServiceable'] ?? false,
-      subtotal: (json['subtotal'] as num?)?.toDouble() ?? 0.0,
-      deliveryFee: (json['deliveryFee'] as num?)?.toDouble(),
-      total: (json['total'] as num?)?.toDouble() ?? 0.0,
-      estimatedDeliveryAt: json['estimatedDeliveryAt'],
-      paymentMethods: (json['paymentMethods'] as List<dynamic>?)
-          ?.map((item) => PaymentMethodOption.fromJson(item))
-          .toList() ??
-          [],
-      isGift: json['isGift'] ?? false,
-      giftRecipientName: json['giftRecipientName'],
-      giftRecipientPhone: json['giftRecipientPhone'],
-    );
+  CheckoutDetailsDto.fromJson(dynamic json) {
+    subtotal = json['subtotal'];
+    deliveryFee = json['deliveryFee'];
+    total = json['total'];
+    estimatedDeliveryAt = json['estimatedDeliveryAt'];
+    if (json['paymentMethods'] != null) {
+      paymentMethods = [];
+      json['paymentMethods'].forEach((v) {
+        paymentMethods?.add(PaymentMethodOptionDto.fromJson(v));
+      });
+    }
+    isGift = json['isGift'];
+    giftRecipientName = json['giftRecipientName'];
+    giftRecipientPhone = json['giftRecipientPhone'];
+  }
+
+  num? subtotal;
+  num? deliveryFee;
+  num? total;
+  String? estimatedDeliveryAt;
+  List<PaymentMethodOptionDto>? paymentMethods;
+  bool? isGift;
+  String? giftRecipientName;
+  String? giftRecipientPhone;
+
+  Map<String, dynamic> toJson() {
+    final map = <String, dynamic>{};
+    map['subtotal'] = subtotal;
+    map['deliveryFee'] = deliveryFee;
+    map['total'] = total;
+    map['estimatedDeliveryAt'] = estimatedDeliveryAt;
+    if (paymentMethods != null) {
+      map['paymentMethods'] = paymentMethods?.map((v) => v.toJson()).toList();
+    }
+    map['isGift'] = isGift;
+    map['giftRecipientName'] = giftRecipientName;
+    map['giftRecipientPhone'] = giftRecipientPhone;
+    return map;
   }
 
   CheckoutDetailsEntity toEntity() {
     return CheckoutDetailsEntity(
-      cartId: cartId,
-      addressId: addressId,
-      isServiceable: isServiceable,
-      subtotal: subtotal,
-      deliveryFee: deliveryFee ?? 0.0,
-      total: total,
+      subtotal: subtotal?.toDouble() ?? 0.0,
+      deliveryFee: deliveryFee?.toDouble() ?? 0.0,
+      total: total?.toDouble() ?? 0.0,
       estimatedDeliveryAt: estimatedDeliveryAt,
-      paymentMethods: paymentMethods
-          .map((p) => PaymentMethodOptionEntity(
-        method: p.method,
-        gateways: p.gateways,
-      ))
-          .toList(),
-      isGift: isGift,
+      paymentMethods: paymentMethods?.map((p) => p.toEntity()).toList() ?? [],
+      isGift: isGift ?? false,
+      giftRecipientName: giftRecipientName,
+      giftRecipientPhone: giftRecipientPhone,
     );
   }
 }
 
-class PaymentMethodOption {
-  final String method; // 'COD' or 'Card'
-  final List<String> gateways;
-
-  PaymentMethodOption({
-    required this.method,
-    this.gateways = const [],
+class PaymentMethodOptionDto {
+  PaymentMethodOptionDto({
+    this.method,
+    this.gateways,
   });
 
-  factory PaymentMethodOption.fromJson(Map<String, dynamic> json) {
-    return PaymentMethodOption(
-      method: json['method'] ?? '',
-      gateways: (json['gateways'] as List<dynamic>?)
-          ?.map((e) => e.toString())
-          .toList() ??
-          [],
+  PaymentMethodOptionDto.fromJson(dynamic json) {
+    method = json['method'];
+    if (json['gateways'] != null) {
+      gateways = List<String>.from(json['gateways'].map((x) => x.toString()));
+    } else {
+      gateways = [];
+    }
+  }
+
+  String? method;
+  List<String>? gateways;
+
+  Map<String, dynamic> toJson() {
+    final map = <String, dynamic>{};
+    map['method'] = method;
+    if (gateways != null) {
+      map['gateways'] = gateways;
+    }
+    return map;
+  }
+
+  PaymentMethodOptionEntity toEntity() {
+    return PaymentMethodOptionEntity(
+      method: method ?? '',
+      gateways: gateways ?? [],
     );
   }
 }

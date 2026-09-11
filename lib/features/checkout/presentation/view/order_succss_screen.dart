@@ -24,7 +24,7 @@ class OrderSuccessScreen extends StatelessWidget {
             color: Colors.black,
             size: 20,
           ),
-          onPressed: () => context.push(AppRoutes.home),
+          onPressed: () => context.go(AppRoutes.home),
         ),
         title: Text(
           'Track order',
