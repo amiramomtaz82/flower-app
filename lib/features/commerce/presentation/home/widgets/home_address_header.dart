@@ -138,11 +138,7 @@ class HomeAddressHeader extends StatelessWidget {
                     ? addr.label!.trim()
                     : (addr.areaId?.trim() ?? AppStrings.address.tr()));
 
-                return Column(
-                  children: [ InkWell(onTap: (){context.push(AppRoutes.savedAddresses);},child: Text("go to saved addresss "),
-
-
-                  ),
+                return
 
                     Row(
                       children: [
@@ -181,8 +177,8 @@ class HomeAddressHeader extends StatelessWidget {
                           ),
                         ),
                       ],
-                    ),
-                  ],
+
+
                 );
               }).toList();
             },
