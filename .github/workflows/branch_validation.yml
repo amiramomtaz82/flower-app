@@ -1,4 +1,4 @@
-﻿name: Branch Name Validation
+name: Branch Name Validation
 
 on:
   push:
@@ -19,7 +19,7 @@ jobs:
 
       - name: Check branch name
         run: |
-          VALID_BRANCH_REGEX="^(feature|fix|bugfix|hotfix|chore|release|refactor|docs)\/[a-zA-Z0-9\-\_\/]+$"
+          VALID_BRANCH_REGEX="^(feat|feature|fix|bugfix|hotfix|chore|release|refactor|docs)\/[a-zA-Z0-9\-\_\/]+$"
           
           if [[ "$BRANCH_NAME" == "main" || "$BRANCH_NAME" == "master" || "$BRANCH_NAME" == "develop" || "$BRANCH_NAME" == "staging" ]]; then
             echo "Standard branch '$BRANCH_NAME' is valid."
