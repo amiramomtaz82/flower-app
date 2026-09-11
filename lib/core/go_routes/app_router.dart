@@ -21,6 +21,7 @@ import 'package:flower_app/features/commerce/presentation/product_details/view/p
 import 'package:flower_app/features/commerce/presentation/product_details/view_model/product_details_view_model.dart';
 import 'package:flower_app/features/commerce/presentation/search/manager/search_cubit.dart';
 import 'package:flower_app/features/commerce/presentation/search/view/search_view.dart';
+import 'package:flower_app/features/profile/presentation/view/prodfile_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -102,8 +103,7 @@ class AppRouter {
             routes: [
               GoRoute(
                 path: AppRoutes.profile,
-                builder: (context, state) =>
-                    const ComingSoonView(title: 'Profile'),
+                builder: (context, state) => ProfileView(),
               ),
             ],
           ),
@@ -142,8 +142,9 @@ class AppRouter {
           final occasionId =
               state.uri.queryParameters[AppRoutes.occasionIdParam];
           return BlocProvider(
-            create: (_) => getIt<OccasionsCubit>()
-              ..doEvents(OccasionsStarted(initialOccasionId: occasionId)),
+            create: (_) =>
+                getIt<OccasionsCubit>()
+                  ..doEvents(OccasionsStarted(initialOccasionId: occasionId)),
             child: const OccasionsView(),
           );
         },

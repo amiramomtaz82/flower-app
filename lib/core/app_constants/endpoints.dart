@@ -20,6 +20,10 @@ class Endpoints {
 
   static const String bestSellersOccasionId =
       '55555555-5555-5555-5555-555555555555';
+
+  // profile endpoints // TODO: replace with actual endpoints (not implemented yet)
+  static const String profile = '/profile';
+  static const String updateProfile = '/profile/update';
 }
 
 class QueryParams {
