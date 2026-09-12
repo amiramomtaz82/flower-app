@@ -1,9 +1,11 @@
 import 'package:flower_app/features/profile/api/client/profile_api_client.dart';
 import 'package:flower_app/features/profile/data/data_source/remote/profile_remote_data_source.dart';
 import 'package:flower_app/features/profile/data/models/profile_response_model.dart';
+// ignore: unused_import
 import 'package:injectable/injectable.dart';
 
-@Injectable(as: ProfileRemoteDataSource)
+// TODO: Uncomment when backend profile endpoint is ready
+// @Injectable(as: ProfileRemoteDataSource)
 class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
   // dependency injection for the ProfileApiClient
   final ProfileApiClient _profileApiClient;
