@@ -160,6 +160,24 @@ static const String addressAddedSuccessfully='Address added successfully!';
   static const String egyptCurrency = 'Egy';
   static const String isGift = 'It is a gift';
   static const String tapMapToSelectLocation = 'tap_map_to_select_location';
+  static const String savedAddresses = 'saved_addresses';
+  static const String addNewAddress = 'add_new_address';
+  static const String deleteAddress = 'delete_address';
+  static const String deleteDefaultAddressWarning = 'delete_default_address_warning';
+  static const String deleteAddressConfirm = 'delete_address_confirm';
+  static const String addressDeletedSuccessfully = 'address_deleted_successfully';
+  static const String failedToDeleteAddress = 'failed_to_delete_address';
+  static const String cancel = 'cancel';
+  static const String delete = 'delete';
+  static const String addressUpdatedSuccessfully = 'address_updated_successfully';
+  static const String updateFailed = 'update_failed';
+  static const String enableLocationTitle = 'enable_location_title';
+  static const String enableLocationMessage = 'enable_location_message';
+  static const String openSettings = 'open_settings';
+  static const String permissionRequiredTitle = 'permission_required_title';
+  static const String locationPermanentlyDeniedMessage = 'location_permanently_denied_message';
+  static const String locationPermissionDenied = 'location_permission_denied';
+  static const String defaultError = 'default_error';
 
 }
 

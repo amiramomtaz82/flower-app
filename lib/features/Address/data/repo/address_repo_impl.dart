@@ -72,12 +72,14 @@ class AddressRepoImpl implements AddressRepo {
     switch (response) {
       case SuccessResponse<CreateAddressResponse>():
         final addressData = response.data.data;
-        if (addressData != null) {
-          return SuccessResponse<AddressEntity>(addressData.toEntity());
+
+        if (addressData == null) {
+          return ErrorResponse<AddressEntity>(
+            errMessage: 'Missing address data',
+          );
         }
-        return ErrorResponse<AddressEntity>(
-          error: 'Missing address data',
-        );
+
+        return SuccessResponse<AddressEntity>(addressData.toEntity());
 
       case ErrorResponse<CreateAddressResponse>():
         return ErrorResponse<AddressEntity>(

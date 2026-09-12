@@ -1,9 +1,6 @@
-
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flower_app/core/app_constants/app_strings.dart';
-import 'package:flower_app/core/go_routes/routes_name.dart';
 import 'package:flower_app/features/Address/presentaion/view/widget/address_area_city_selcetor.dart';
-
 import 'package:flower_app/features/Address/presentaion/view/widget/address_map_section.dart';
 import 'package:flower_app/features/Address/presentaion/view/widget/adress_form_fileds.dart';
 import 'package:flutter/material.dart';
@@ -32,7 +29,7 @@ class _AddAddressViewState extends State<AddAddressView> {
   final _phoneController = TextEditingController();
   final _addressLineController = TextEditingController();
   final _labelController = TextEditingController();
-  bool _isDefault = false;
+
   bool _isLoadingGps = false;
 
   @override
@@ -63,9 +60,9 @@ class _AddAddressViewState extends State<AddAddressView> {
     if (!serviceEnabled) {
       if (!mounted) return;
       _showPermissionDialog(
-        title: 'Enable Location',
-        message: 'Location services are disabled. Please enable GPS on your device to pinpoint your location.',
-        actionText: 'Open Settings',
+        title: AppStrings.enableLocationTitle.tr(),
+        message: AppStrings.enableLocationMessage.tr(),
+        actionText: AppStrings.openSettings.tr(),
         onConfirm: () => Geolocator.openLocationSettings(),
       );
       return;
@@ -79,7 +76,7 @@ class _AddAddressViewState extends State<AddAddressView> {
     if (permission == LocationPermission.denied) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Location permission was denied.')),
+        SnackBar(content: Text(AppStrings.locationPermissionDenied.tr())),
       );
       return;
     }
@@ -87,9 +84,9 @@ class _AddAddressViewState extends State<AddAddressView> {
     if (permission == LocationPermission.deniedForever) {
       if (!mounted) return;
       _showPermissionDialog(
-        title: 'Permission Required',
-        message: 'Location access is permanently blocked. Enable it in app settings.',
-        actionText: 'App Settings',
+        title: AppStrings.permissionRequiredTitle.tr(),
+        message: AppStrings.locationPermanentlyDeniedMessage.tr(),
+        actionText: AppStrings.openSettings.tr(),
         onConfirm: () => Geolocator.openAppSettings(),
       );
       return;
@@ -124,7 +121,7 @@ class _AddAddressViewState extends State<AddAddressView> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
+            child: Text(AppStrings.cancel.tr()),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -161,7 +158,7 @@ class _AddAddressViewState extends State<AddAddressView> {
       lng: state.selectedLocation?.longitude ?? 0.0,
       label: _labelController.text.trim().isNotEmpty
           ? _labelController.text.trim()
-          : 'Home',
+          : AppStrings.defaultLabelHome.tr(),
     );
 
     context.read<AddressCubit>().doEvents(AddAddressEvent(entity));
@@ -174,7 +171,6 @@ class _AddAddressViewState extends State<AddAddressView> {
       prev.addAddressResource != curr.addAddressResource ||
           prev.locationDetailsResource != curr.locationDetailsResource,
       listener: (context, state) {
-        // Autofill address line once cubit completes reverse geocoding
         if (state.locationDetailsResource.isSuccess &&
             state.selectedLocationDetails?.addressLine != null) {
           _addressLineController.text =
@@ -183,7 +179,7 @@ class _AddAddressViewState extends State<AddAddressView> {
 
         if (state.addAddressResource.isSuccess) {
           final createdAddress = state.addAddressResource.data;
-          if (_isDefault && createdAddress?.id != null) {
+          if ( createdAddress?.id != null) {
             context.read<AddressCubit>().doEvents(
               SetDefaultAddressEvent(createdAddress!.id!),
             );
@@ -202,7 +198,8 @@ class _AddAddressViewState extends State<AddAddressView> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                state.addAddressResource.errorMessage ?? 'Error',
+                state.addAddressResource.errorMessage ??
+                    AppStrings.defaultError.tr(),
               ),
             ),
           );
@@ -210,6 +207,10 @@ class _AddAddressViewState extends State<AddAddressView> {
       },
       child: Scaffold(
         appBar: AppBar(
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new, size: 20),
+            onPressed: () => context.pop(),
+          ),
           title: Text(AppStrings.addAddress.tr()),
           centerTitle: false,
         ),
@@ -221,7 +222,6 @@ class _AddAddressViewState extends State<AddAddressView> {
               key: _formKey,
               child: Column(
                 children: [
-                  // 1. Map Section — ONLY rebuilds on coordinate changes
                   BlocBuilder<AddressCubit, AddressState>(
                     buildWhen: (prev, curr) =>
                     prev.selectedLocation != curr.selectedLocation,
@@ -235,8 +235,6 @@ class _AddAddressViewState extends State<AddAddressView> {
                     },
                   ),
                   const SizedBox(height: 16),
-
-                  // 2. Text Form Fields — Static; never rebuilds with BLoC emits
                   AddressFormFields(
                     nameController: _nameController,
                     phoneController: _phoneController,
@@ -244,8 +242,6 @@ class _AddAddressViewState extends State<AddAddressView> {
                     labelController: _labelController,
                   ),
                   const SizedBox(height: 16),
-
-                  // 3. Dropdowns — ONLY rebuilds when Area/City selection or lists change
                   BlocBuilder<AddressCubit, AddressState>(
                     buildWhen: (prev, curr) =>
                     prev.areas != curr.areas ||
@@ -268,12 +264,7 @@ class _AddAddressViewState extends State<AddAddressView> {
                       );
                     },
                   ),
-                  const SizedBox(height: 12),
-
-
                   const SizedBox(height: 24),
-
-                  // 5. Submit Button — ONLY rebuilds when loading state toggles
                   BlocBuilder<AddressCubit, AddressState>(
                     buildWhen: (prev, curr) =>
                     prev.addAddressResource.isLoading !=
@@ -294,7 +285,6 @@ class _AddAddressViewState extends State<AddAddressView> {
                       );
                     },
                   ),
-
                 ],
               ),
             ),

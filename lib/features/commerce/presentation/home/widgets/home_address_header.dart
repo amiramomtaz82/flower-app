@@ -138,13 +138,7 @@ class HomeAddressHeader extends StatelessWidget {
                     ? addr.label!.trim()
                     : (addr.areaId?.trim() ?? AppStrings.address.tr()));
 
-                return Column(
-                  children: [ InkWell
-                    (onTap: (){context.push(AppRoutes.checkout);},
-                    child: Text("go check out view "),
-
-
-                  ),
+                return
 
                     Row(
                       children: [

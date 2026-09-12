@@ -1,12 +1,10 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flower_app/core/app_constants/app_strings.dart';
 import 'package:flower_app/features/Address/domain/entities/address_entity.dart';
-
 import 'package:flower_app/features/Address/presentaion/manager/address_cubit.dart';
 import 'package:flower_app/features/Address/presentaion/manager/address_events.dart';
 import 'package:flower_app/features/Address/presentaion/manager/address_state.dart';
 import 'package:flower_app/features/Address/presentaion/view/widget/address_area_city_selcetor.dart';
-import 'package:flower_app/features/Address/presentaion/view/widget/address_default_toggel.dart';
 import 'package:flower_app/features/Address/presentaion/view/widget/address_map_section.dart';
 import 'package:flower_app/features/Address/presentaion/view/widget/adress_form_fileds.dart';
 import 'package:flutter/material.dart';
@@ -66,16 +64,16 @@ class _EditAddressViewState extends State<EditAddressView> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text("delete Address"),
+        title: Text(AppStrings.deleteAddress.tr()),
         content: Text(
           widget.address.isDefault == true
-              ? 'This is your default address. Deleting it will automatically assign another address as default.'
-              : 'Are you sure you want to delete this address?',
+              ? AppStrings.deleteDefaultAddressWarning.tr()
+              : AppStrings.deleteAddressConfirm.tr(),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
+            child: Text(AppStrings.cancel.tr()),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
@@ -89,7 +87,10 @@ class _EditAddressViewState extends State<EditAddressView> {
                 );
               }
             },
-            child: const Text('Delete', style: TextStyle(color: Colors.white)),
+            child: Text(
+              AppStrings.delete.tr(),
+              style: const TextStyle(color: Colors.white),
+            ),
           ),
         ],
       ),
@@ -120,7 +121,7 @@ class _EditAddressViewState extends State<EditAddressView> {
       lng: state.selectedLocation?.longitude ?? widget.address.lng ?? 0.0,
       label: _labelController.text.trim().isNotEmpty
           ? _labelController.text.trim()
-          : (widget.address.label ?? 'Home'),
+          : (widget.address.label ?? AppStrings.defaultLabelHome.tr()),
       isDefault: _isDefault,
     );
 
@@ -146,8 +147,8 @@ class _EditAddressViewState extends State<EditAddressView> {
                 );
               }
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Address updated successfully'),
+                SnackBar(
+                  content: Text(AppStrings.addressUpdatedSuccessfully.tr()),
                   backgroundColor: Colors.green,
                 ),
               );
@@ -156,7 +157,8 @@ class _EditAddressViewState extends State<EditAddressView> {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text(
-                    state.updateAddressResource.errorMessage ?? 'Update failed',
+                    state.updateAddressResource.errorMessage ??
+                        AppStrings.updateFailed.tr(),
                   ),
                 ),
               );
@@ -169,8 +171,8 @@ class _EditAddressViewState extends State<EditAddressView> {
           listener: (context, state) {
             if (state.deleteAddressResource.isSuccess) {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Address deleted successfully'),
+                SnackBar(
+                  content: Text(AppStrings.addressDeletedSuccessfully.tr()),
                   backgroundColor: Colors.green,
                 ),
               );
@@ -179,7 +181,8 @@ class _EditAddressViewState extends State<EditAddressView> {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text(
-                    state.deleteAddressResource.errorMessage ?? 'Delete failed',
+                    state.deleteAddressResource.errorMessage ??
+                        AppStrings.failedToDeleteAddress.tr(),
                   ),
                 ),
               );
@@ -267,9 +270,7 @@ class _EditAddressViewState extends State<EditAddressView> {
                       );
                     },
                   ),
-                  const SizedBox(height: 12),
-
-
+                  const SizedBox(height: 24),
                   BlocBuilder<AddressCubit, AddressState>(
                     buildWhen: (prev, curr) =>
                     prev.updateAddressResource.isLoading !=
@@ -296,9 +297,9 @@ class _EditAddressViewState extends State<EditAddressView> {
                               color: Colors.white,
                             ),
                           )
-                              : const Text(
-                            'Save address',
-                            style: TextStyle(
+                              : Text(
+                            AppStrings.saveAddress.tr(),
+                            style: const TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.w600,
                               fontSize: 15,

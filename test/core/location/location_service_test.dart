@@ -336,31 +336,41 @@ void main() {
       expect(result?.id, equals('addr_close'));
     });
 
-    test('returns default Address when all addresses are outside maxRangeMeters', () {
-      final addresses = [farAddress, defaultFarAddress];
+    test(
+      'returns null when all addresses are outside maxRangeMeters even if a default exists',
+          () {
+        final result = locationService.getClosestAddress(
+          [farAddress, defaultFarAddress],
+          currentPoint,
+          maxRangeMeters: 500.0,
+        );
 
-      final result = locationService.getClosestAddress(
-        addresses,
-        currentPoint,
-        maxRangeMeters: 500.0,
-      );
+        expect(result, isNull);
+      },
+    );
+    test(
+      'returns null when all addresses lack coordinates even if a default exists',
+          () {
+        const nullAddress = AddressEntity(
+          id: 'null_1',
+          isDefault: false,
+        );
 
-      expect(result?.id, equals('addr_default_far'));
-    });
+        const nullDefault = AddressEntity(
+          id: 'null_default',
+          isDefault: true,
+        );
 
-    test('returns null when all addresses are outside maxRangeMeters and no default exists', () {
-      final addresses = [farAddress];
+        final result = locationService.getClosestAddress(
+          [nullAddress, nullDefault],
+          currentPoint,
+        );
 
-      final result = locationService.getClosestAddress(
-        addresses,
-        currentPoint,
-        maxRangeMeters: 500.0,
-      );
+        expect(result, isNull);
+      },
+    );
 
-      expect(result, isNull);
-    });
-
-    test('ignores addresses with null coordinates and returns close Address within range', () {
+          test('ignores addresses with null coordinates and returns close Address within range', () {
       const nullCoordAddress = AddressEntity(
         id: 'addr_null_coords',
         lat: null,
@@ -379,7 +389,7 @@ void main() {
       expect(result?.id, equals('addr_close'));
     });
 
-    test('returns default Address if all addresses lack coordinates', () {
+   test('returns null when all addresses lack coordinates',() {
       const nullAddress1 = AddressEntity(id: 'null_1', lat: null, lng: null, isDefault: false);
       const nullDefault = AddressEntity(id: 'null_default', lat: null, lng: null, isDefault: true);
 
@@ -388,7 +398,7 @@ void main() {
         currentPoint,
       );
 
-      expect(result?.id, equals('null_default'));
+      expect(result, isNull);
     });
 
     test('returns null if all coordinates are null and none is marked as default', () {
