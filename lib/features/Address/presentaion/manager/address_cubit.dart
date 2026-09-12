@@ -19,7 +19,7 @@ import '../../domain/use_cases/delete_address_use_case.dart';
 import '../../domain/use_cases/get_areas_with_cities_use_case.dart';
 import '../../domain/use_cases/get_current_location_use_case.dart';
 import '../../domain/use_cases/get_saved_address_use_case.dart';
-import '../../domain/use_cases/resolve_location_with _areas_use_case.dart';
+import '../../domain/use_cases/resolve_location_with_areas_use_case.dart';
 import '../../domain/use_cases/set_default_address_use_case.dart';
 import '../../domain/use_cases/update_address_use_case.dart';
 import 'address_events.dart';

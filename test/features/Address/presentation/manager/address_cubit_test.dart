@@ -14,7 +14,7 @@ import 'package:flower_app/features/Address/domain/use_cases/delete_address_use_
 import 'package:flower_app/features/Address/domain/use_cases/get_areas_with_cities_use_case.dart';
 import 'package:flower_app/features/Address/domain/use_cases/get_current_location_use_case.dart';
 import 'package:flower_app/features/Address/domain/use_cases/get_saved_address_use_case.dart';
-import 'package:flower_app/features/Address/domain/use_cases/resolve_location_with _areas_use_case.dart';
+import 'package:flower_app/features/Address/domain/use_cases/resolve_location_with_areas_use_case.dart';
 import 'package:flower_app/features/Address/domain/use_cases/set_default_address_use_case.dart';
 import 'package:flower_app/features/Address/domain/use_cases/update_address_use_case.dart';
 import 'package:flower_app/features/Address/presentaion/manager/address_cubit.dart';
@@ -247,7 +247,7 @@ void main() {
   // UPDATE ADDRESS
   // ============================================================
   group('UpdateAddressEvent', () {
-    const tUpdatedAddress = AddressEntity(
+    const updatedAddress = AddressEntity(
       id: 'addr_1',
       recipientName: 'Ahmed Updated',
       recipientPhone: '01011111111',
@@ -255,48 +255,103 @@ void main() {
     );
 
     blocTest<AddressCubit, AddressState>(
-      'emits [loading, success] and refreshes saved addresses on success',
+      'updates the address and refreshes saved addresses on success',
       build: () {
-        when(mockUpdateAddressUseCase(id: 'addr_1', address: tUpdatedAddress)).thenAnswer(
-              (_) async => const SuccessResponse<AddressEntity>(tUpdatedAddress),
+        when(
+          mockUpdateAddressUseCase(
+            id: 'addr_1',
+            address: updatedAddress,
+          ),
+        ).thenAnswer(
+              (_) async =>
+          const SuccessResponse<AddressEntity>(updatedAddress),
         );
-        when(mockGuestBrowsingProvider.isGuest()).thenAnswer((_) async => true);
+
+        when(mockGuestBrowsingProvider.isGuest())
+            .thenAnswer((_) async => false);
+
+        when(mockGetSavedAddressesUseCase()).thenAnswer(
+              (_) async => const SuccessResponse<List<AddressEntity>>(
+            [updatedAddress],
+          ),
+        );
+
+        // The refresh also attempts to resolve the home address.
+        when(
+          mockGetCurrentLocationUseCase(requestIfDenied: false),
+        ).thenAnswer(
+              (_) async => ErrorResponse<LatLng>(
+            errMessage: 'Location unavailable',
+          ),
+        );
+
         return cubit;
       },
       act: (cubit) => cubit.doEvents(
-        UpdateAddressEvent(id: 'addr_1', entity: tUpdatedAddress),
+        UpdateAddressEvent(
+          id: 'addr_1',
+          entity: updatedAddress,
+        ),
       ),
       expect: () => [
         AddressState.initial().copyWith(
           updateAddressResource: Resource.loading(),
         ),
         AddressState.initial().copyWith(
-          updateAddressResource: Resource.success(tUpdatedAddress),
+          updateAddressResource: Resource.success(updatedAddress),
         ),
         AddressState.initial().copyWith(
-          isGuest: true,
-          addresses: const [],
-          selectedAddress: null,
-          getAddressesResource: Resource.initial(),
-          updateAddressResource: Resource.success(tUpdatedAddress),
+          updateAddressResource: Resource.success(updatedAddress),
+          isGuest: false,
+          getAddressesResource: Resource.loading(),
+        ),
+        AddressState.initial().copyWith(
+          updateAddressResource: Resource.success(updatedAddress),
+          isGuest: false,
+          addresses: const [updatedAddress],
+          selectedAddress: updatedAddress,
+          getAddressesResource: Resource.success(
+            const [updatedAddress],
+          ),
         ),
       ],
       verify: (_) {
-        verify(mockUpdateAddressUseCase(id: 'addr_1', address: tUpdatedAddress)).called(1);
-        verify(mockGuestBrowsingProvider.isGuest()).called(1);
+        verify(
+          mockUpdateAddressUseCase(
+            id: 'addr_1',
+            address: updatedAddress,
+          ),
+        ).called(1);
+
+        verify(mockGetSavedAddressesUseCase()).called(1);
+
+        verify(
+          mockGetCurrentLocationUseCase(requestIfDenied: false),
+        ).called(1);
       },
     );
 
     blocTest<AddressCubit, AddressState>(
-      'emits [loading, error] when update use case fails',
+      'emits an error and does not refresh when updating fails',
       build: () {
-        when(mockUpdateAddressUseCase(id: 'addr_1', address: tUpdatedAddress)).thenAnswer(
-              (_) async => ErrorResponse<AddressEntity>(errMessage: 'Update failed'),
+        when(
+          mockUpdateAddressUseCase(
+            id: 'addr_1',
+            address: updatedAddress,
+          ),
+        ).thenAnswer(
+              (_) async => ErrorResponse<AddressEntity>(
+            errMessage: 'Update failed',
+          ),
         );
+
         return cubit;
       },
       act: (cubit) => cubit.doEvents(
-        UpdateAddressEvent(id: 'addr_1', entity: tUpdatedAddress),
+        UpdateAddressEvent(
+          id: 'addr_1',
+          entity: updatedAddress,
+        ),
       ),
       expect: () => [
         AddressState.initial().copyWith(
@@ -306,9 +361,75 @@ void main() {
           updateAddressResource: Resource.error('Update failed'),
         ),
       ],
+      verify: (_) {
+        verify(
+          mockUpdateAddressUseCase(
+            id: 'addr_1',
+            address: updatedAddress,
+          ),
+        ).called(1);
+
+        verifyNever(mockGuestBrowsingProvider.isGuest());
+        verifyNever(mockGetSavedAddressesUseCase());
+      },
+    );
+
+    blocTest<AddressCubit, AddressState>(
+      'keeps update success when refreshing saved addresses fails',
+      build: () {
+        when(
+          mockUpdateAddressUseCase(
+            id: 'addr_1',
+            address: updatedAddress,
+          ),
+        ).thenAnswer(
+              (_) async =>
+          const SuccessResponse<AddressEntity>(updatedAddress),
+        );
+
+        when(mockGuestBrowsingProvider.isGuest())
+            .thenAnswer((_) async => false);
+
+        when(mockGetSavedAddressesUseCase()).thenAnswer(
+              (_) async => ErrorResponse<List<AddressEntity>>(
+            errMessage: 'Refresh failed',
+          ),
+        );
+
+        return cubit;
+      },
+      act: (cubit) => cubit.doEvents(
+        UpdateAddressEvent(
+          id: 'addr_1',
+          entity: updatedAddress,
+        ),
+      ),
+      expect: () => [
+        AddressState.initial().copyWith(
+          updateAddressResource: Resource.loading(),
+        ),
+        AddressState.initial().copyWith(
+          updateAddressResource: Resource.success(updatedAddress),
+        ),
+        AddressState.initial().copyWith(
+          updateAddressResource: Resource.success(updatedAddress),
+          isGuest: false,
+          getAddressesResource: Resource.loading(),
+        ),
+        AddressState.initial().copyWith(
+          updateAddressResource: Resource.success(updatedAddress),
+          isGuest: false,
+          getAddressesResource: Resource.error('Refresh failed'),
+        ),
+      ],
+      verify: (_) {
+        verify(mockGetSavedAddressesUseCase()).called(1);
+        verifyNever(
+          mockGetCurrentLocationUseCase(requestIfDenied: false),
+        );
+      },
     );
   });
-
   // ============================================================
   // DELETE ADDRESS
   // ============================================================

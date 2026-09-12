@@ -29,7 +29,7 @@ class _AddAddressViewState extends State<AddAddressView> {
   final _phoneController = TextEditingController();
   final _addressLineController = TextEditingController();
   final _labelController = TextEditingController();
-  final bool _isDefault = false;
+
   bool _isLoadingGps = false;
 
   @override
@@ -179,7 +179,7 @@ class _AddAddressViewState extends State<AddAddressView> {
 
         if (state.addAddressResource.isSuccess) {
           final createdAddress = state.addAddressResource.data;
-          if (_isDefault && createdAddress?.id != null) {
+          if ( createdAddress?.id != null) {
             context.read<AddressCubit>().doEvents(
               SetDefaultAddressEvent(createdAddress!.id!),
             );

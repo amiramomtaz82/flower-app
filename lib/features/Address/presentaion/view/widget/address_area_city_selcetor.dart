@@ -28,7 +28,25 @@ class AddressAreaCitySelectors extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // City Selector (Left)
+        Expanded(
+          child: DropdownButtonFormField<AreaEntity>(
+            value: selectedArea,
+            isExpanded: true,
+            decoration: InputDecoration(
+              labelText: AppStrings.area.tr(),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            ),
+            items: areas.map((area) {
+              return DropdownMenuItem<AreaEntity>(
+                value: area,
+                child: Text(area.name ?? '', overflow: TextOverflow.ellipsis),
+              );
+            }).toList(),
+            onChanged: onAreaChanged,
+            validator: (val) => val == null ? AppStrings.pleaseSelectArea.tr() : null,
+          ),
+        ),const SizedBox(width: 12),
         Expanded(
           child: DropdownButtonFormField<CityEntity>(
             value: selectedCity,
@@ -48,28 +66,10 @@ class AddressAreaCitySelectors extends StatelessWidget {
             validator: (val) => val == null ? AppStrings.pleaseSelectCity.tr() : null,
           ),
         ),
-        const SizedBox(width: 12),
+
 
         // Area Selector (Right)
-        Expanded(
-          child: DropdownButtonFormField<AreaEntity>(
-            value: selectedArea,
-            isExpanded: true,
-            decoration: InputDecoration(
-              labelText: AppStrings.area.tr(),
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-            ),
-            items: areas.map((area) {
-              return DropdownMenuItem<AreaEntity>(
-                value: area,
-                child: Text(area.name ?? '', overflow: TextOverflow.ellipsis),
-              );
-            }).toList(),
-            onChanged: onAreaChanged,
-            validator: (val) => val == null ? AppStrings.pleaseSelectArea.tr() : null,
-          ),
-        ),
+
       ],
     );
   }
