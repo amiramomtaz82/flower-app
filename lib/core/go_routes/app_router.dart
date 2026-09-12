@@ -23,6 +23,8 @@ import 'package:flower_app/features/commerce/presentation/product_details/view/p
 import 'package:flower_app/features/commerce/presentation/product_details/view_model/product_details_view_model.dart';
 import 'package:flower_app/features/commerce/presentation/search/manager/search_cubit.dart';
 import 'package:flower_app/features/commerce/presentation/search/view/search_view.dart';
+import 'package:flower_app/features/profile/presentation/manager/profile_cubit.dart';
+import 'package:flower_app/features/profile/presentation/view/profile_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -145,8 +147,10 @@ class AppRouter {
             routes: [
               GoRoute(
                 path: AppRoutes.profile,
-                builder: (context, state) =>
-                    const ComingSoonView(title: 'Profile'),
+                builder: (context, state) => BlocProvider(
+                  create: (_) => getIt<ProfileCubit>(),
+                  child: const ProfileView(),
+                ),
               ),
             ],
           ),
