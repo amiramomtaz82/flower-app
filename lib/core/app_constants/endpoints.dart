@@ -10,6 +10,10 @@ class Endpoints {
   static const String forgetPassword = '/auth/forgot-password';
   static const String verifyOtp = '/auth/verify-otp';
   static const String resetPassword = '/auth/reset-password';
+  static const String addAddress = '/address/users/me/addresses';
+  static const String getAddresses="/address/users/me/addresses";
+  static const String getAreas = '/address/api/areas';
+  static const String setDefaultAddress= "/address/api/addresses/{id}/default";
 
   // Commerce (routed through the API Gateway's /catalog prefix)
   static const String homeSections = '/catalog/home/sections';
@@ -18,10 +22,9 @@ class Endpoints {
   static const String products = '/catalog/products';
   static const String productsByCategory = '/catalog/products/by-category';
   static const String productById = '/catalog/products/{productId}';
+  static const String defaultAddress='/users/me/addresses/{id}/default';
 
-  // Best sellers has no dedicated endpoint (backend won't add one) — this is
-  // the occasion the backend seeds best-selling products under, so
-  // getBestSellers reuses `products` filtered by this fixed occasionId.
+
   static const String bestSellersOccasionId =
       '55555555-5555-5555-5555-555555555555';
 }
@@ -36,4 +39,8 @@ class QueryParams {
   static const String productId = 'productId';
   static const String pageNumber = 'pageNumber';
   static const String pageSize = 'pageSize';
+
+  static const String addAddress = '/address/users/me/addresses';
+  static const String getAddresses="/address/users/me/addresses";
+  static const String getAreas = '/address/api/areas';
 }

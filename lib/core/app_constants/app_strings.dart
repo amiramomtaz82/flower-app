@@ -91,4 +91,68 @@ class AppStrings {
   static const String loginRequired='Login required';
   static const String register="Register";
   static const String rememberMe="Remember me";
+  static const String areasIsEmpty='Areas response is empty';
+  static const String address='Address';
+  static const String label='label';
+  static const String addAddress='Add Address';
+  static const String pleaseEnterALabel='Please enter a label';
+  static const String recipientName='Recipient Name';
+  static const String pleaseEnterRecipientName='Please enter recipient name';
+  static const String recipientPhone='Recipient phone';
+  static const String pleaseEnterPhoneNumber='Please enter phone number';
+  static const String addressDetailsStreet='Address Details / Street';
+  static const String pleaseEnterAddressDetails='Please enter address details';
+  static const String area = 'area';
+  static const String loadingAreas = 'loading_areas';
+  static const String selectArea = 'select_area';
+  static const String pleaseSelectArea = 'please_select_area';
+  static const String city = 'city';
+  static const String pickAreaFirst = 'pick_area_first';
+  static const String noCities = 'no_cities';
+  static const String selectCity = 'select_city';
+  static const String pleaseSelectCity = 'please_select_city';
+  static const String saveAddress = 'save_address';
+  static const String pleaseSelectLocationOnMap = 'please_select_location_on_map';
+  static const String defaultLabelHome = 'home';
+static const String addressAddedSuccessfully='Address added successfully!';
+  static const String failedToAddAddress = 'failed_to_add_address';
+  static const String pleaseEnterLabel = 'please_enter_label';
+  static const String phoneNumber = 'phone_number';
+
+  static const String setAsDefault = 'sed as default';
+  static const String urlTemplate =  'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+  static const String userAgentPackageName = 'com.example.flower_app';
+  static const String signInToAddAddress = 'sign_in_to_add_address';
+  static const String noAddressFound = 'no_address_found';
+
+  static const String defaultAddressFallback = 'default_address_fallback';
+  static const String addressFallback = 'address_fallback';
+  static const String addLabelTitle = 'add label title';
+  static const String defaultBadge = 'default_badge';
+  static const String addressDetailsRequired = 'Address details is required';
+
+  static const String setAsDefaultAddress = 'set_as_default_address';
+  static const String coordinatesFormat = 'coordinates_format';
+  static const String tapMapToSelectLocation = 'tap_map_to_select_location';
+  static const String savedAddresses = 'saved_addresses';
+  static const String addNewAddress = 'add_new_address';
+  static const String deleteAddress = 'delete_address';
+  static const String deleteDefaultAddressWarning = 'delete_default_address_warning';
+  static const String deleteAddressConfirm = 'delete_address_confirm';
+  static const String addressDeletedSuccessfully = 'address_deleted_successfully';
+  static const String failedToDeleteAddress = 'failed_to_delete_address';
+  static const String cancel = 'cancel';
+  static const String delete = 'delete';
+  static const String addressUpdatedSuccessfully = 'address_updated_successfully';
+  static const String updateFailed = 'update_failed';
+  static const String enableLocationTitle = 'enable_location_title';
+  static const String enableLocationMessage = 'enable_location_message';
+  static const String openSettings = 'open_settings';
+  static const String permissionRequiredTitle = 'permission_required_title';
+  static const String locationPermanentlyDeniedMessage = 'location_permanently_denied_message';
+  static const String locationPermissionDenied = 'location_permission_denied';
+  static const String defaultError = 'default_error';
+
+
 }
+
