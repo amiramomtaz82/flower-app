@@ -37,6 +37,7 @@ import '../../features/Address/presentaion/view/edit_address_view.dart';
 import '../../features/Address/presentaion/view/saved_adresses_view.dart';
 import '../../features/auth/presentation/login/views/login_view.dart';
 
+import '../../features/cart/presentation/views/cart_view.dart';
 import '../../features/checkout/presentation/manager/checkout_cubit.dart';
 import '../../features/checkout/presentation/view/order_succss_screen.dart';
 import '../../features/commerce/presentation/home/view/home_view.dart';
