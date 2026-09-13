@@ -75,7 +75,7 @@ class AppRouter {
               ),
             ],
             child: CheckoutScreen(
-              cartId: "ff618bc5-2b00-4410-8a22-30d05c1c04de",
+              cartId: cartId,
               defaultAddressId: addressId,
             ),
           );

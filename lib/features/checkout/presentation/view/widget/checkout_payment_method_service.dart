@@ -10,6 +10,20 @@ import '../../manager/checkout_state.dart';
 class CheckoutPaymentSection extends StatelessWidget {
   const CheckoutPaymentSection({super.key});
 
+  // UI mapping helper: displays clean labels while keeping backend values
+  String _getDisplayTitle(String method) {
+    switch (method.toUpperCase()) {
+      case 'COD':
+      case 'CASH':
+        return AppStrings.cashOnDelivery;
+      case 'CARD':
+      case 'CREDIT_CARD':
+        return AppStrings.creditCard;
+      default:
+        return method; // Falls back to whatever the backend provides
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final cubit = context.read<CheckoutCubit>();
@@ -33,7 +47,6 @@ class CheckoutPaymentSection extends StatelessWidget {
             builder: (context, state) {
               final checkoutResource = state.checkoutDetailsResource;
 
-              // 1. Loading state
               if (checkoutResource.isLoading) {
                 return const Center(
                   child: Padding(
@@ -47,7 +60,6 @@ class CheckoutPaymentSection extends StatelessWidget {
                 );
               }
 
-              // 2. Error state
               if (checkoutResource.isError) {
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -63,7 +75,6 @@ class CheckoutPaymentSection extends StatelessWidget {
 
               final paymentMethods = checkoutResource.data?.paymentMethods ?? [];
 
-              // 3. Empty state: explicitly inform the user
               if (paymentMethods.isEmpty) {
                 return Container(
                   width: double.infinity,
@@ -74,7 +85,7 @@ class CheckoutPaymentSection extends StatelessWidget {
                     border: Border.all(color: Colors.grey.shade200),
                   ),
                   child: Text(
-                    AppStrings.noPaymentMethodsAvailable, // Or "No payment methods available at the moment."
+                    AppStrings.noPaymentMethodsAvailable,
                     style: TextStyle(
                       color: Colors.grey.shade600,
                       fontSize: 13,
@@ -83,10 +94,10 @@ class CheckoutPaymentSection extends StatelessWidget {
                 );
               }
 
-              // 4. Data state
               return Column(
-                children: paymentMethods.map((method) {
-                  final methodValue = method.toString();
+                children: paymentMethods.map((option) {
+                  final methodValue = option.method; // Extracts "COD" or "Card"
+                  final displayTitle = _getDisplayTitle(methodValue);
 
                   return InkWell(
                     onTap: () => cubit.doEvents(SelectPaymentMethodEvent(methodValue)),
@@ -96,12 +107,12 @@ class CheckoutPaymentSection extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            methodValue,
+                            displayTitle,
                             style: const TextStyle(fontSize: 14),
                           ),
                           Radio<String>(
                             value: methodValue,
-                            groupValue: state.paymentMethod?.toString(),
+                            groupValue: state.paymentMethod,
                             activeColor: primaryColor,
                             materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                             onChanged: (val) {

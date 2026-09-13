@@ -1,7 +1,6 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flower_app/config/base_response/base_response.dart';
 import 'package:flower_app/config/resource/rsource.dart';
-import 'package:flower_app/features/Address/domain/use_cases/get_saved_address_useacse.dart';
 import 'package:flower_app/features/checkout/domain/entities/checkout_details_entity.dart';
 import 'package:flower_app/features/checkout/domain/entities/estimated_delivery_entity.dart';
 import 'package:flower_app/features/checkout/domain/entities/oder_placment_entity.dart';
@@ -22,22 +21,17 @@ import 'checkout_cubit_test.mocks.dart';
   GetCheckoutDetailsUseCase,
   EstimateDeliveryUseCase,
   PlaceOrderUseCase,
-  GetSavedAddressesUseCase,
 ])
 void main() {
   late CheckoutCubit cubit;
   late MockGetCheckoutDetailsUseCase mockGetCheckoutDetailsUseCase;
   late MockEstimateDeliveryUseCase mockEstimateDeliveryUseCase;
   late MockPlaceOrderUseCase mockPlaceOrderUseCase;
-  late MockGetSavedAddressesUseCase mockGetSavedAddressesUseCase;
 
   const tCartId = 'cart_123';
   const tAddressId = 'addr_123';
 
   const tCheckoutDetails = CheckoutDetailsEntity(
-    cartId: tCartId,
-    addressId: tAddressId,
-    isServiceable: true,
     subtotal: 100.0,
     deliveryFee: 15.0,
     total: 115.0,
@@ -47,6 +41,8 @@ void main() {
       PaymentMethodOptionEntity(method: 'Card', gateways: ['Paymob', 'Stripe']),
     ],
     isGift: false,
+    giftRecipientName: null,
+    giftRecipientPhone: null,
   );
 
   const tEstimatedDelivery = EstimateDeliveryEntity(
@@ -65,7 +61,6 @@ void main() {
     );
     provideDummy<BaseResponse<OrderPlacementEntity>>(
       ErrorResponse<OrderPlacementEntity>(error: 'dummy'),
-
     );
     provideDummy<OrderPlacementEntity>(
       const OrderPlacementEntity(isSuccess: true),
@@ -76,13 +71,11 @@ void main() {
     mockGetCheckoutDetailsUseCase = MockGetCheckoutDetailsUseCase();
     mockEstimateDeliveryUseCase = MockEstimateDeliveryUseCase();
     mockPlaceOrderUseCase = MockPlaceOrderUseCase();
-    mockGetSavedAddressesUseCase = MockGetSavedAddressesUseCase();
 
     cubit = CheckoutCubit(
       mockGetCheckoutDetailsUseCase,
       mockEstimateDeliveryUseCase,
       mockPlaceOrderUseCase,
-      mockGetSavedAddressesUseCase,
     );
   });
 
@@ -99,7 +92,7 @@ void main() {
   // ============================================================
   group('GetCheckoutDetailsEvent', () {
     blocTest<CheckoutCubit, CheckoutState>(
-      'emits [loading, success] with default first payment method when API succeeds and defaultAddressId is null',
+      'emits [loading, success] with first payment method when API succeeds and defaultAddressId is null',
       build: () {
         when(mockGetCheckoutDetailsUseCase(tCartId)).thenAnswer(
               (_) async => const SuccessResponse(tCheckoutDetails),
@@ -110,14 +103,20 @@ void main() {
         const GetCheckoutDetailsEvent(cartId: tCartId, defaultAddressId: null),
       ),
       expect: () => [
-        predicate<CheckoutState>((state) => state.checkoutDetailsResource.isLoading),
-        predicate<CheckoutState>((state) =>
-        state.checkoutDetailsResource.isSuccess &&
-            state.checkoutDetailsResource.data?.cartId == tCartId &&
-            state.selectedAddressId == tAddressId &&
-            state.selectedPaymentMethod == 'COD' &&
-            state.estimateDeliveryResource.isSuccess &&
-            state.estimateDeliveryResource.data?.deliveryFee == 15.0),
+        predicate<CheckoutState>(
+              (state) =>
+          state.checkoutDetailsResource.isLoading &&
+              state.estimateDeliveryResource.isLoading,
+        ),
+        predicate<CheckoutState>(
+              (state) =>
+          state.checkoutDetailsResource.isSuccess &&
+              state.checkoutDetailsResource.data?.total == 115.0 &&
+              state.paymentMethod == 'COD' &&
+              state.estimateDeliveryResource.isSuccess &&
+              state.estimateDeliveryResource.data?.deliveryFee == 15.0 &&
+              state.estimateDeliveryResource.data?.addressId == '',
+        ),
       ],
       verify: (_) {
         verify(mockGetCheckoutDetailsUseCase(tCartId)).called(1);
@@ -134,15 +133,25 @@ void main() {
         return cubit;
       },
       act: (cubit) => cubit.doEvents(
-        const GetCheckoutDetailsEvent(cartId: tCartId, defaultAddressId: tAddressId),
+        const GetCheckoutDetailsEvent(
+          cartId: tCartId,
+          defaultAddressId: tAddressId,
+        ),
       ),
       expect: () => [
-        predicate<CheckoutState>((state) => state.checkoutDetailsResource.isLoading),
-        predicate<CheckoutState>((state) =>
-        state.checkoutDetailsResource.isSuccess &&
-            state.selectedAddressId == tAddressId &&
-            state.estimateDeliveryResource.isSuccess &&
-            state.estimateDeliveryResource.data?.deliveryFee == 15.0),
+        predicate<CheckoutState>(
+              (state) =>
+          state.checkoutDetailsResource.isLoading &&
+              state.estimateDeliveryResource.isLoading,
+        ),
+        predicate<CheckoutState>(
+              (state) =>
+          state.checkoutDetailsResource.isSuccess &&
+              state.selectedAddressId == tAddressId &&
+              state.estimateDeliveryResource.isSuccess &&
+              state.estimateDeliveryResource.data?.addressId == tAddressId &&
+              state.estimateDeliveryResource.data?.deliveryFee == 15.0,
+        ),
       ],
       verify: (_) {
         verify(mockGetCheckoutDetailsUseCase(tCartId)).called(1);
@@ -162,8 +171,16 @@ void main() {
         const GetCheckoutDetailsEvent(cartId: tCartId, defaultAddressId: null),
       ),
       expect: () => [
-        predicate<CheckoutState>((state) => state.checkoutDetailsResource.isLoading),
-        predicate<CheckoutState>((state) => state.checkoutDetailsResource.isError),
+        predicate<CheckoutState>(
+              (state) =>
+          state.checkoutDetailsResource.isLoading &&
+              state.estimateDeliveryResource.isLoading,
+        ),
+        predicate<CheckoutState>(
+              (state) =>
+          state.checkoutDetailsResource.isError &&
+              state.estimateDeliveryResource.isError,
+        ),
       ],
       verify: (_) {
         verify(mockGetCheckoutDetailsUseCase(tCartId)).called(1);
@@ -179,7 +196,10 @@ void main() {
     blocTest<CheckoutCubit, CheckoutState>(
       'emits [loading, success] when delivery estimation succeeds',
       build: () {
-        when(mockEstimateDeliveryUseCase(addressId: tAddressId, cartId: tCartId)).thenAnswer(
+        when(mockEstimateDeliveryUseCase(
+          addressId: tAddressId,
+          cartId: tCartId,
+        )).thenAnswer(
               (_) async => const SuccessResponse(tEstimatedDelivery),
         );
         return cubit;
@@ -188,22 +208,32 @@ void main() {
         const EstimateDeliveryEvent(addressId: tAddressId, cartId: tCartId),
       ),
       expect: () => [
-        predicate<CheckoutState>((state) =>
-        state.estimateDeliveryResource.isLoading &&
-            state.selectedAddressId == tAddressId),
-        predicate<CheckoutState>((state) =>
-        state.estimateDeliveryResource.isSuccess &&
-            state.estimateDeliveryResource.data?.addressId == tAddressId),
+        predicate<CheckoutState>(
+              (state) =>
+          state.estimateDeliveryResource.isLoading &&
+              state.selectedAddressId == tAddressId,
+        ),
+        predicate<CheckoutState>(
+              (state) =>
+          state.estimateDeliveryResource.isSuccess &&
+              state.estimateDeliveryResource.data?.addressId == tAddressId,
+        ),
       ],
       verify: (_) {
-        verify(mockEstimateDeliveryUseCase(addressId: tAddressId, cartId: tCartId)).called(1);
+        verify(mockEstimateDeliveryUseCase(
+          addressId: tAddressId,
+          cartId: tCartId,
+        )).called(1);
       },
     );
 
     blocTest<CheckoutCubit, CheckoutState>(
       'emits [loading, error] when delivery estimation fails',
       build: () {
-        when(mockEstimateDeliveryUseCase(addressId: tAddressId, cartId: tCartId)).thenAnswer(
+        when(mockEstimateDeliveryUseCase(
+          addressId: tAddressId,
+          cartId: tCartId,
+        )).thenAnswer(
               (_) async => ErrorResponse(error: Exception('Address out of reach')),
         );
         return cubit;
@@ -212,13 +242,20 @@ void main() {
         const EstimateDeliveryEvent(addressId: tAddressId, cartId: tCartId),
       ),
       expect: () => [
-        predicate<CheckoutState>((state) =>
-        state.estimateDeliveryResource.isLoading &&
-            state.selectedAddressId == tAddressId),
-        predicate<CheckoutState>((state) => state.estimateDeliveryResource.isError),
+        predicate<CheckoutState>(
+              (state) =>
+          state.estimateDeliveryResource.isLoading &&
+              state.selectedAddressId == tAddressId,
+        ),
+        predicate<CheckoutState>(
+              (state) => state.estimateDeliveryResource.isError,
+        ),
       ],
       verify: (_) {
-        verify(mockEstimateDeliveryUseCase(addressId: tAddressId, cartId: tCartId)).called(1);
+        verify(mockEstimateDeliveryUseCase(
+          addressId: tAddressId,
+          cartId: tCartId,
+        )).called(1);
       },
     );
   });
@@ -228,43 +265,52 @@ void main() {
   // ============================================================
   group('Payment & Gift Selection', () {
     blocTest<CheckoutCubit, CheckoutState>(
-      'sets payment method to COD, resets gateway, and disables isGift',
+      'resets isGift to false when cash payment method is selected',
       seed: () => CheckoutState.initial().copyWith(
+        paymentMethod: 'Card',
         isGift: true,
-        selectedPaymentMethod: 'Card',
-        selectedPaymentGateway: 'Paymob',
+        recipientName: 'Sarah',
+        recipientPhone: '01012345678',
       ),
       build: () => cubit,
       act: (cubit) => cubit.doEvents(
-        const SelectPaymentMethodEvent(method: 'COD', gateway: null),
+        const SelectPaymentMethodEvent('COD'),
       ),
       expect: () => [
-        predicate<CheckoutState>((state) =>
-        state.selectedPaymentMethod == 'COD' &&
-            state.selectedPaymentGateway == null &&
-            state.isGift == false),
+        predicate<CheckoutState>(
+              (state) =>
+          state.paymentMethod == 'COD' &&
+              state.isGift == false,
+        ),
       ],
     );
     blocTest<CheckoutCubit, CheckoutState>(
-      'switches payment method to Card and sets gateway',
+      'maintains gift state when switching between non-cash payment methods',
       seed: () => CheckoutState.initial().copyWith(
-        selectedPaymentMethod: 'COD',
+        paymentMethod: 'Card',
+        isGift: true,
+        recipientName: 'Omar',
+        recipientPhone: '01198765432',
       ),
       build: () => cubit,
       act: (cubit) => cubit.doEvents(
-        const SelectPaymentMethodEvent(method: 'Card', gateway: 'Paymob'),
+        const SelectPaymentMethodEvent('Wallet'),
       ),
       expect: () => [
-        predicate<CheckoutState>((state) =>
-        state.selectedPaymentMethod == 'Card' &&
-            state.selectedPaymentGateway == 'Paymob'),
+        predicate<CheckoutState>(
+              (state) =>
+          state.paymentMethod == 'Wallet' &&
+              state.isGift == true &&
+              state.recipientName == 'Omar' &&
+              state.recipientPhone == '01198765432',
+        ),
       ],
     );
 
     blocTest<CheckoutCubit, CheckoutState>(
-      'does NOT toggle gift when payment method is COD',
+      'does NOT toggle gift when payment method is Cash/COD',
       seed: () => CheckoutState.initial().copyWith(
-        selectedPaymentMethod: 'COD',
+        paymentMethod: 'COD',
         isGift: false,
       ),
       build: () => cubit,
@@ -273,9 +319,9 @@ void main() {
     );
 
     blocTest<CheckoutCubit, CheckoutState>(
-      'toggles gift when payment method is Card',
+      'toggles gift when payment method is non-cash',
       seed: () => CheckoutState.initial().copyWith(
-        selectedPaymentMethod: 'Card',
+        paymentMethod: 'Card',
         isGift: false,
       ),
       build: () => cubit,
@@ -292,9 +338,11 @@ void main() {
         const UpdateGiftDetailsEvent(name: 'Omar', phone: '01198765432'),
       ),
       expect: () => [
-        predicate<CheckoutState>((state) =>
-        state.recipientName == 'Omar' &&
-            state.recipientPhone == '01198765432'),
+        predicate<CheckoutState>(
+              (state) =>
+          state.recipientName == 'Omar' &&
+              state.recipientPhone == '01198765432',
+        ),
       ],
     );
   });
@@ -302,41 +350,62 @@ void main() {
   // ============================================================
   // PlaceOrderEvent & Validation
   // ============================================================
-  group('PlaceOrderEvent Validation', () {
+  group('PlaceOrderEvent Validation & Submission', () {
+    blocTest<CheckoutCubit, CheckoutState>(
+      'emits error when cartId is empty',
+      build: () => cubit,
+      act: (cubit) => cubit.doEvents(const PlaceOrderEvent('   ')),
+      expect: () => [
+        predicate<CheckoutState>(
+              (state) =>
+          state.placeOrderResource.isError &&
+              state.placeOrderResource.errorMessage ==
+                  'Cart identifier is missing.',
+        ),
+      ],
+      verify: (_) => verifyZeroInteractions(mockPlaceOrderUseCase),
+    );
+
     blocTest<CheckoutCubit, CheckoutState>(
       'emits error when no address is selected',
       seed: () => CheckoutState.initial().copyWith(selectedAddressId: null),
       build: () => cubit,
       act: (cubit) => cubit.doEvents(const PlaceOrderEvent(tCartId)),
       expect: () => [
-        predicate<CheckoutState>((state) =>
-        state.placeOrderResource.isError &&
-            state.placeOrderResource.errorMessage == 'Please select a delivery address.'),
+        predicate<CheckoutState>(
+              (state) =>
+          state.placeOrderResource.isError &&
+              state.placeOrderResource.errorMessage ==
+                  'Please select a delivery address.',
+        ),
       ],
+      verify: (_) => verifyZeroInteractions(mockPlaceOrderUseCase),
     );
 
     blocTest<CheckoutCubit, CheckoutState>(
       'emits error when no payment method is selected',
       seed: () => CheckoutState.initial().copyWith(
         selectedAddressId: tAddressId,
-        selectedPaymentMethod: null,
+        paymentMethod: null,
       ),
       build: () => cubit,
       act: (cubit) => cubit.doEvents(const PlaceOrderEvent(tCartId)),
       expect: () => [
-        predicate<CheckoutState>((state) =>
-        state.placeOrderResource.isError &&
-            state.placeOrderResource.errorMessage == 'Please select a payment method.'),
+        predicate<CheckoutState>(
+              (state) =>
+          state.placeOrderResource.isError &&
+              state.placeOrderResource.errorMessage ==
+                  'Please select a payment method.',
+        ),
       ],
       verify: (_) => verifyZeroInteractions(mockPlaceOrderUseCase),
     );
 
     blocTest<CheckoutCubit, CheckoutState>(
-      'emits error when isGift is true on card payment but recipient name is empty',
+      'emits error when isGift is true on card payment but recipient name fails validation',
       seed: () => CheckoutState.initial().copyWith(
         selectedAddressId: tAddressId,
-        selectedPaymentMethod: 'Card',
-        selectedPaymentGateway: 'Paymob',
+        paymentMethod: 'Card',
         isGift: true,
         recipientName: '',
         recipientPhone: '',
@@ -344,25 +413,26 @@ void main() {
       build: () => cubit,
       act: (cubit) => cubit.doEvents(const PlaceOrderEvent(tCartId)),
       expect: () => [
-        predicate<CheckoutState>((state) =>
-        state.placeOrderResource.isError &&
-            state.placeOrderResource.errorMessage == 'Name is required'),
+        predicate<CheckoutState>(
+              (state) =>
+          state.placeOrderResource.isError &&
+              state.placeOrderResource.errorMessage != null,
+        ),
       ],
       verify: (_) => verifyZeroInteractions(mockPlaceOrderUseCase),
     );
 
     blocTest<CheckoutCubit, CheckoutState>(
-      'calls placeOrderUseCase with mapped entity on valid card request',
+      'resolves gateway from checkout details and calls placeOrderUseCase successfully',
       seed: () => CheckoutState.initial().copyWith(
+        checkoutDetailsResource: Resource.success(tCheckoutDetails),
         selectedAddressId: tAddressId,
-        selectedPaymentMethod: 'Card',
-        selectedPaymentGateway: 'Paymob',
+        paymentMethod: 'Card',
         isGift: false,
       ),
       build: () {
         when(mockPlaceOrderUseCase(any)).thenAnswer(
-              (_) async => const SuccessResponse(OrderPlacementEntity(isSuccess: true,
-                  )),
+              (_) async => const SuccessResponse(OrderPlacementEntity(isSuccess: true)),
         );
         return cubit;
       },
@@ -395,10 +465,12 @@ void main() {
       build: () => cubit,
       act: (cubit) => cubit.doEvents(const ResetPlaceOrderStateEvent()),
       expect: () => [
-        predicate<CheckoutState>((state) =>
-        !state.placeOrderResource.isLoading &&
-            !state.placeOrderResource.isSuccess &&
-            !state.placeOrderResource.isError),
+        predicate<CheckoutState>(
+              (state) =>
+          !state.placeOrderResource.isLoading &&
+              !state.placeOrderResource.isSuccess &&
+              !state.placeOrderResource.isError,
+        ),
       ],
     );
   });

@@ -112,10 +112,7 @@ class HomeAddressHeader extends StatelessWidget {
 
           return Padding(
             padding: const EdgeInsets.symmetric(vertical: 8.0),
-            child: Column(
-              children: [InkWell(onTap: (){
-                context.push(AppRoutes.checkout);
-                },child: Text("go to check out screen"),),
+            child:
                 Row(
                   children: [
                     Icon(
@@ -134,8 +131,7 @@ class HomeAddressHeader extends StatelessWidget {
                       ),
                     ),
                   ],
-                ),
-              ],
+
             ),
           );
         }

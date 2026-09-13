@@ -46,23 +46,22 @@ void main() {
 
     test('returns SuccessResponse with mapped CheckoutDetailsEntity on success', () async {
       final tDto = CheckoutDetailsDto(
-        cartId: tCartId,
-        addressId: 'addr_123',
-        isServiceable: true,
         subtotal: 1000.0,
         deliveryFee: 50.0,
         total: 1050.0,
         estimatedDeliveryAt: '2026-09-06T12:00:00Z',
         paymentMethods: [
-          PaymentMethodOption(method: 'COD'),
+          PaymentMethodOptionDto(method: 'COD', gateways: []),
         ],
         isGift: false,
+        giftRecipientName: null,
+        giftRecipientPhone: null,
       );
 
       final tResponse = CheckoutDetailsResponse(
-        isSuccess: true,
+        success: true,
         message: 'Success',
-        statusCode: '200',
+        error: null,
         data: tDto,
       );
 
@@ -73,12 +72,11 @@ void main() {
 
       expect(result, isA<SuccessResponse<CheckoutDetailsEntity>>());
       final success = result as SuccessResponse<CheckoutDetailsEntity>;
-      expect(success.data.cartId, equals(tDto.cartId));
-      expect(success.data.addressId, equals(tDto.addressId));
       expect(success.data.subtotal, equals(tDto.subtotal));
       expect(success.data.deliveryFee, equals(tDto.deliveryFee));
       expect(success.data.total, equals(tDto.total));
-      expect(success.data.isServiceable, equals(tDto.isServiceable));
+      expect(success.data.estimatedDeliveryAt, equals(tDto.estimatedDeliveryAt));
+      expect(success.data.isGift, equals(tDto.isGift));
       verify(mockRemoteDataSource.getCheckoutDetails(tCartId)).called(1);
     });
 
@@ -112,9 +110,9 @@ void main() {
       );
 
       final tResponse = EstimateDeliveryResponse(
-        isSuccess: true,
+        success: true,
         message: 'Success',
-        statusCode: '200',
+        error: null,
         data: tDto,
       );
 
@@ -151,7 +149,7 @@ void main() {
   // ============================================================
   group('placeOrder', () {
     test('places order with COD and maps OrderPlacementEntity correctly', () async {
-      final tOrderEntity = PlaceOrderRequestEntity(
+      const tOrderEntity = PlaceOrderRequestEntity(
         cartId: 'cart_1',
         addressId: 'addr_1',
         paymentMethod: 'COD',
@@ -182,8 +180,8 @@ void main() {
       expect(success.data.cardSession, isNull);
     });
 
-    test('maps giftRecipient when isGift is true and paymentMethod is Card', () async {
-      final tOrderEntity = PlaceOrderRequestEntity(
+    test('maps giftRecipient and cardSession on valid Card payment', () async {
+      const tOrderEntity = PlaceOrderRequestEntity(
         cartId: 'cart_2',
         addressId: 'addr_2',
         paymentMethod: 'Card',
@@ -197,12 +195,12 @@ void main() {
 
       final tCardDto = CardPaymentSessionDto(
         orderId: 'ORD-123',
-        status: 'Pending',
+        status: 'PendingPayment',
         gateway: 'Paymob',
         sessionId: 'sess-123',
         sessionUrl: 'https://pay.example.com',
-        successUrl: 'flowery://success',
-        cancelUrl: 'flowery://cancel',
+        successUrl: 'flowery://payment/success',
+        cancelUrl: 'flowery://payment/cancel',
         expiresAt: '2026-09-06T16:00:00Z',
         amount: 1200.0,
         currency: 'EGP',
@@ -237,8 +235,78 @@ void main() {
       expect(success.data.cardSession?.amount, equals(tCardDto.amount));
     });
 
+    test('returns ErrorResponse when payment method is Card but session URLs are missing', () async {
+      const tOrderEntity = PlaceOrderRequestEntity(
+        cartId: 'cart_2',
+        addressId: 'addr_2',
+        paymentMethod: 'Card',
+        paymentGateway: 'Paymob',
+        isGift: false,
+      );
+
+      final tCardDtoWithoutUrls = CardPaymentSessionDto(
+        orderId: 'ORD-123',
+        status: 'PendingPayment',
+        gateway: 'Paymob',
+        sessionId: 'sess-123',
+        sessionUrl: '',
+        successUrl: 'flowery://payment/success',
+        cancelUrl: 'flowery://payment/cancel',
+        expiresAt: '2026-09-06T16:00:00Z',
+        amount: 1200.0,
+        currency: 'EGP',
+        estimatedDeliveryAt: '2026-09-06T18:00:00Z',
+      );
+
+      final tResponse = PlaceOrderResponse(
+        isSuccess: true,
+        message: 'Payment Created',
+        statusCode: '201',
+        data: tCardDtoWithoutUrls,
+      );
+
+      when(mockRemoteDataSource.placeOrder(any))
+          .thenAnswer((_) async => SuccessResponse(tResponse));
+
+      final result = await repository.placeOrder(tOrderEntity);
+
+      expect(result, isA<ErrorResponse<OrderPlacementEntity>>());
+      final error = result as ErrorResponse<OrderPlacementEntity>;
+      expect(
+        error.error,
+        equals('Failed to initiate card payment: Missing payment session URLs.'),
+      );
+    });
+
+    test('returns ErrorResponse when payment method is Card but session data is null', () async {
+      const tOrderEntity = PlaceOrderRequestEntity(
+        cartId: 'cart_2',
+        addressId: 'addr_2',
+        paymentMethod: 'Card',
+      );
+
+      final tResponse = PlaceOrderResponse(
+        isSuccess: true,
+        message: 'Payment Created',
+        statusCode: '201',
+        data: null,
+      );
+
+      when(mockRemoteDataSource.placeOrder(any))
+          .thenAnswer((_) async => SuccessResponse(tResponse));
+
+      final result = await repository.placeOrder(tOrderEntity);
+
+      expect(result, isA<ErrorResponse<OrderPlacementEntity>>());
+      final error = result as ErrorResponse<OrderPlacementEntity>;
+      expect(
+        error.error,
+        equals('Failed to initiate card payment: Missing payment session URLs.'),
+      );
+    });
+
     test('returns ErrorResponse when remote data source returns ErrorResponse', () async {
-      final tOrderEntity = PlaceOrderRequestEntity(
+      const tOrderEntity = PlaceOrderRequestEntity(
         cartId: 'cart_3',
         addressId: 'addr_3',
         paymentMethod: 'COD',

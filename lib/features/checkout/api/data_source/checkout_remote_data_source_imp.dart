@@ -70,14 +70,14 @@ class CheckoutRemoteDataSourceImpl implements CheckoutRemoteDataSource {
       await Future.delayed(const Duration(milliseconds: 350));
 
       final mockData = EstimateDeliveryResponse(
-        isSuccess: true,
-        message: 'Success',
-        statusCode: 'Success',
+        success: true,
+        message: 'Request completed successfully',
+        error: null,
         data: EstimateDeliveryDto(
+          estimatedDeliveryAt: '9/13/2026 10:34 AM',
           addressId: addressId,
           isServiceable: true,
           deliveryFee: 15.0,
-          estimatedDeliveryAt: '2026-09-02T15:30:00Z',
         ),
       );
 
@@ -88,10 +88,10 @@ class CheckoutRemoteDataSourceImpl implements CheckoutRemoteDataSource {
       final response = await _apiClient.estimateDelivery(addressId, cartId);
       return SuccessResponse<EstimateDeliveryResponse>(response);
     } catch (e) {
-      return ErrorResponse<EstimateDeliveryResponse>(error: e);
+      return ErrorResponse<EstimateDeliveryResponse>(
+          error: e);
     }
   }
-
   @override
   Future<BaseResponse<PlaceOrderResponse>> placeOrder
       (PlaceOrderRequest request) async {
