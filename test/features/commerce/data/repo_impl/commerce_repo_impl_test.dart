@@ -154,6 +154,9 @@ void main() {
         when(
           mockRemoteDataSource.getProducts(
             occasionId: 'occ-1',
+            categoryId: null,
+            keyword: null,
+            sortBy: null,
             pageNumber: 1,
             pageSize: 10,
           ),
@@ -191,6 +194,9 @@ void main() {
       when(
         mockRemoteDataSource.getProducts(
           occasionId: 'occ-1',
+          categoryId: null,
+          keyword: null,
+          sortBy: null,
           pageNumber: 1,
           pageSize: 10,
         ),
@@ -206,33 +212,6 @@ void main() {
     });
   });
 
-  group('getProductsByCategory', () {
-    test('returns SuccessResponse with mapped entities on success', () async {
-      when(
-        mockRemoteDataSource.getProductsByCategory(categoryId: 'cat-1'),
-      ).thenAnswer(
-        (_) async => const [ProductDTO(id: 'p1', name: 'Tulip Bunch')],
-      );
-
-      final result = await repo.getProductsByCategory(categoryId: 'cat-1');
-
-      expect(result, isA<SuccessResponse<List<ProductEntity>>>());
-      expect(
-        (result as SuccessResponse<List<ProductEntity>>).data.single.id,
-        'p1',
-      );
-    });
-
-    test('returns ErrorResponse when the remote call throws', () async {
-      when(
-        mockRemoteDataSource.getProductsByCategory(categoryId: 'cat-1'),
-      ).thenThrow(dioException);
-
-      final result = await repo.getProductsByCategory(categoryId: 'cat-1');
-
-      expect(result, isA<ErrorResponse<List<ProductEntity>>>());
-    });
-  });
 
   group('getProductById', () {
     test('returns SuccessResponse with the mapped entity on success', () async {

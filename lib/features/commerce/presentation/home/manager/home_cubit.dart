@@ -12,7 +12,6 @@ import '../../../domain/entities/product_entity.dart';
 import '../../../domain/use_cases/get_categories_use_case.dart';
 import '../../../domain/use_cases/get_home_sections_use_case.dart';
 import '../../../domain/use_cases/get_occasions_use_case.dart';
-import '../../../domain/use_cases/get_products_by_category_use_case.dart';
 import '../../../domain/use_cases/get_products_use_case.dart';
 import 'home_events.dart';
 import 'home_state.dart';
@@ -23,14 +22,12 @@ class HomeCubit extends Cubit<HomeState> {
   final GetCategoriesUseCase _getCategoriesUseCase;
   final GetOccasionsUseCase _getOccasionsUseCase;
   final GetProductsUseCase _getProductsUseCase;
-  final GetProductsByCategoryUseCase _getProductsByCategoryUseCase;
 
   HomeCubit(
     this._getHomeSectionsUseCase,
     this._getCategoriesUseCase,
     this._getOccasionsUseCase,
     this._getProductsUseCase,
-    this._getProductsByCategoryUseCase,
   ) : super(HomeState.initial());
 
   Future<void> doEvents(HomeEvent event) async {
@@ -114,11 +111,13 @@ class HomeCubit extends Cubit<HomeState> {
     }
 
     if (section.categoryId != null) {
-      final result = await _getProductsByCategoryUseCase(
+      final result = await _getProductsUseCase(
         categoryId: section.categoryId!,
+        pageNumber: 1,
+        pageSize: 20,
       );
       _emitCarousel(section.id, switch (result) {
-        SuccessResponse() => Resource.success(result.data),
+        SuccessResponse() => Resource.success(result.data.data),
         ErrorResponse() => Resource.error(result.errMessage),
       });
       return;

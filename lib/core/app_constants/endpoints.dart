@@ -15,7 +15,6 @@ class Endpoints {
   static const String getAreas = '/address/api/areas';
   static const String setDefaultAddress= "/address/api/addresses/{id}/default";
 
-  // Commerce (routed through the API Gateway's /catalog prefix)
   static const String homeSections = '/catalog/home/sections';
   static const String categories = '/catalog/categories';
   static const String occasions = '/catalog/occasions';
@@ -30,10 +29,16 @@ class Endpoints {
 
   static const String bestSellersOccasionId =
       '55555555-5555-5555-5555-555555555555';
+
+  // Cart
+  
+  static const String cart = '/cart/cart';
+  static const String cartItems = '/cart/cart/items';
+  static const String cartItemById = '/cart/cart/items/{id}';
+  static const String updateCartItemQuantity =
+      '/cart/api/cart/items/{productId}';
 }
 
-/// Query/path parameter keys for [Endpoints] — kept alongside them since
-/// retrofit's @Query/@Path annotations need compile-time constant strings.
 class QueryParams {
   QueryParams._();
 

@@ -1,6 +1,5 @@
 import 'package:flower_app/config/di/di.dart';
 import 'package:flower_app/core/go_routes/routes_name.dart';
-
 import 'package:flower_app/features/auth/presentation/forget_password/bloc/forget_password_bloc.dart';
 import 'package:flower_app/features/auth/presentation/forget_password/views/forget_password_flow_view.dart';
 import 'package:flower_app/features/auth/presentation/login/manager/login_cubit.dart';
@@ -8,6 +7,7 @@ import 'package:flower_app/features/auth/presentation/register/view_model/regist
 import 'package:flower_app/features/auth/presentation/register/views/register_view.dart';
 import 'package:flower_app/core/widgets/coming_soon_view.dart';
 import 'package:flower_app/features/checkout/presentation/view/checkout_view.dart';
+import 'package:flower_app/features/cart/presentation/views/cart_view.dart';
 import 'package:flower_app/features/commerce/domain/entities/product_entity.dart';
 import 'package:flower_app/features/commerce/presentation/best_seller/view/best_seller_view.dart';
 import 'package:flower_app/features/commerce/presentation/best_seller/view_model/best_seller_view_model.dart';
@@ -21,6 +21,8 @@ import 'package:flower_app/features/commerce/presentation/occasions/manager/occa
 import 'package:flower_app/features/commerce/presentation/occasions/view/occasions_view.dart';
 import 'package:flower_app/features/commerce/presentation/product_details/view/product_details_view.dart';
 import 'package:flower_app/features/commerce/presentation/product_details/view_model/product_details_view_model.dart';
+import 'package:flower_app/features/commerce/presentation/search/manager/search_cubit.dart';
+import 'package:flower_app/features/commerce/presentation/search/view/search_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -145,8 +147,7 @@ class AppRouter {
             routes: [
               GoRoute(
                 path: AppRoutes.cart,
-                builder: (context, state) =>
-                    const ComingSoonView(title: 'Cart'),
+                builder: (context, state) => const CartView(),
               ),
             ],
           ),
@@ -227,6 +228,13 @@ class AppRouter {
             child: const OccasionsView(),
           );
         },
+      ),
+      GoRoute(
+        path: AppRoutes.search,
+        builder: (context, state) => BlocProvider(
+          create: (_) => getIt<SearchCubit>(),
+          child: const SearchView(),
+        ),
       ),
     ],
   );

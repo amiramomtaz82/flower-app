@@ -11,9 +11,12 @@ class ProductDTO {
   final String? imageUrl;
   final String? currency;
   final num? price;
+  @JsonKey(name: 'discountedPrice')
   final num? originalPrice;
+  @JsonKey(name: 'discountPercent')
   final num? discountPercentage;
   final String? status;
+  @JsonKey(name: 'inStock')
   final bool? isBestSeller;
 
   const ProductDTO({

@@ -13,6 +13,8 @@ class AppRoutes {
 
   static const String bestSeller = '/best-seller';
 
+  static const String search = '/search';
+
   static const String categoryIdParam = 'categoryId';
   static const String checkout = '/checkout';
   static const String orderSuccess = '/orderSuccess';

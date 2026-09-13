@@ -17,11 +17,12 @@ abstract interface class CommerceRemoteDataSource {
 
   Future<ProductsDataModel> getProducts({
     String? occasionId,
+    String? categoryId,
+    String? keyword,
+    String? sortBy,
     required int pageNumber,
     required int pageSize,
   });
-
-  Future<List<ProductDTO>> getProductsByCategory({required String categoryId});
 
   Future<ProductDTO> getProductById({required String productId});
 

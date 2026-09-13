@@ -92,7 +92,7 @@ class _ProductDetailsViewState extends State<ProductDetailsView> {
                           return Image.network(
                             images[index],
                             fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => const Center(
+                            errorBuilder: (context, error, stackTrace) => const Center(
                               child: Icon(Icons.image, size: 50),
                             ),
                           );
