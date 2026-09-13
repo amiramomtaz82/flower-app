@@ -21,7 +21,9 @@ import 'package:flower_app/features/commerce/presentation/product_details/view/p
 import 'package:flower_app/features/commerce/presentation/product_details/view_model/product_details_view_model.dart';
 import 'package:flower_app/features/commerce/presentation/search/manager/search_cubit.dart';
 import 'package:flower_app/features/commerce/presentation/search/view/search_view.dart';
+import 'package:flower_app/features/profile/domain/entities/profile_entity.dart';
 import 'package:flower_app/features/profile/presentation/manager/profile_cubit.dart';
+import 'package:flower_app/features/profile/presentation/view/edit_profile_view.dart';
 import 'package:flower_app/features/profile/presentation/view/profile_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -159,6 +161,16 @@ class AppRouter {
           create: (_) => getIt<SearchCubit>(),
           child: const SearchView(),
         ),
+      ),
+      GoRoute(
+        path: AppRoutes.editProfile,
+        builder: (context, state) {
+          final profile = state.extra as ProfileEntity?;
+          return BlocProvider(
+            create: (_) => getIt<ProfileCubit>(),
+            child: EditProfileView(initialProfile: profile),
+          );
+        },
       ),
     ],
   );
