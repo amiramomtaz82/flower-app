@@ -61,24 +61,20 @@ class AppRouter {
       GoRoute(
         path: AppRoutes.checkout,
         builder: (context, state) {
-          final params = state.extra as Map<String, dynamic>? ?? {};
-          final cartId = params['cartId'] as String? ?? (state.extra as String? ?? '');
-          final addressId = params['addressId'] as String?;
+          final cartId = state.uri.queryParameters['cartId'] ?? '';
+          final addressId = state.uri.queryParameters['addressId'];
 
           return MultiBlocProvider(
             providers: [
-              // 1. Fresh factory instance for screen-scoped Checkout state (auto-disposed on pop)
               BlocProvider<CheckoutCubit>(
                 create: (_) => getIt<CheckoutCubit>(),
               ),
-
-              // 2. Existing singleton instance provided by value (DOES NOT get disposed on pop)
               BlocProvider<AddressCubit>.value(
                 value: getIt<AddressCubit>(),
               ),
             ],
             child: CheckoutScreen(
-              cartId: cartId,
+              cartId: "ff618bc5-2b00-4410-8a22-30d05c1c04de",
               defaultAddressId: addressId,
             ),
           );

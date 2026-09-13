@@ -8,7 +8,6 @@ import '../../../../core/validation/validation.dart';
 import '../../../Address/domain/use_cases/get_saved_address_useacse.dart';
 import '../../domain/entities/checkout_details_entity.dart';
 import '../../domain/entities/estimated_delivery_entity.dart';
-
 import '../../domain/entities/gift_recipient_entity.dart';
 import '../../domain/entities/oder_placment_entity.dart';
 import '../../domain/entities/place_order_request_entity.dart';
@@ -29,7 +28,7 @@ class CheckoutCubit extends Cubit<CheckoutState> {
       this._getCheckoutDetailsUseCase,
       this._estimateDeliveryUseCase,
       this._placeOrderUseCase,
-      this._getSavedAddressesUseCase
+      this._getSavedAddressesUseCase,
       ) : super(CheckoutState.initial());
 
   Future<void> doEvents(CheckoutEvent event) async {
@@ -74,7 +73,6 @@ class CheckoutCubit extends Cubit<CheckoutState> {
       case SuccessResponse<CheckoutDetailsEntity>():
         final details = result.data;
 
-        // Populate initial delivery estimate directly from checkout details
         final initialDeliveryEstimate = EstimateDeliveryEntity(
           addressId: details.addressId ?? defaultAddressId ?? '',
           isServiceable: details.isServiceable,
@@ -82,11 +80,17 @@ class CheckoutCubit extends Cubit<CheckoutState> {
           estimatedDeliveryAt: details.estimatedDeliveryAt,
         );
 
+        // Auto-select the first payment method returned by the API if available
+        final initialPaymentMethod = details.paymentMethods.isNotEmpty
+            ? details.paymentMethods.first
+            : state.paymentMethod;
+
         emit(
           state.copyWith(
             checkoutDetailsResource: Resource.success(details),
             selectedAddressId: defaultAddressId ?? details.addressId,
             estimateDeliveryResource: Resource.success(initialDeliveryEstimate),
+            paymentMethod: initialPaymentMethod,
           ),
         );
 
@@ -137,8 +141,14 @@ class CheckoutCubit extends Cubit<CheckoutState> {
   // FORM & SELECTION ACTIONS
   // ============================================================
 
-  void _selectPaymentMethod(PaymentMethodType paymentMethod) {
-    final isCash = paymentMethod == PaymentMethodType.cash;
+  bool _isCash(String? method) {
+    if (method == null) return false;
+    final normalized = method.trim().toLowerCase();
+    return normalized == 'cash' || normalized == 'cod' || normalized.contains('cash');
+  }
+
+  void _selectPaymentMethod(String paymentMethod) {
+    final isCash = _isCash(paymentMethod);
 
     emit(
       state.copyWith(
@@ -151,7 +161,7 @@ class CheckoutCubit extends Cubit<CheckoutState> {
   }
 
   void _toggleGift(bool isGift) {
-    if (state.paymentMethod == PaymentMethodType.cash) return;
+    if (_isCash(state.paymentMethod)) return;
 
     emit(state.copyWith(isGift: isGift));
   }
@@ -168,8 +178,6 @@ class CheckoutCubit extends Cubit<CheckoutState> {
   // ============================================================
   // PLACE ORDER
   // ============================================================
-
-  // lib/features/checkout/presentation/cubit/checkout_cubit.dart
 
   Future<void> _placeOrder(String cartId) async {
     // 1. Validate Cart ID
@@ -189,8 +197,18 @@ class CheckoutCubit extends Cubit<CheckoutState> {
       return;
     }
 
-    // 3. Validate Gift Fields (only applicable when gift is toggled ON and not cash)
-    final isGiftActive = state.isGift && state.paymentMethod != PaymentMethodType.cash;
+    // 3. Validate Payment Method
+    final paymentMethod = state.paymentMethod?.trim();
+    if (paymentMethod == null || paymentMethod.isEmpty) {
+      emit(state.copyWith(
+        placeOrderResource: Resource.error('Please select a payment method.'),
+      ));
+      return;
+    }
+
+    // 4. Validate Gift Fields (only applicable when gift is toggled ON and not cash)
+    final isCash = _isCash(paymentMethod);
+    final isGiftActive = state.isGift && !isCash;
     final recipientName = state.recipientName?.trim() ?? '';
     final recipientPhone = state.recipientPhone?.trim() ?? '';
 
@@ -211,7 +229,8 @@ class CheckoutCubit extends Cubit<CheckoutState> {
         return;
       }
     }
-    // 4. Emit Loading
+
+    // 5. Emit Loading
     emit(state.copyWith(
       placeOrderResource: Resource.loading(),
     ));
@@ -227,11 +246,11 @@ class CheckoutCubit extends Cubit<CheckoutState> {
         phone: recipientPhone,
       )
           : null,
-      paymentMethod: state.paymentMethod == PaymentMethodType.cash ? 'COD' : 'Card',
-      paymentGateway: state.paymentMethod == PaymentMethodType.card ? 'Paymob' : null,
+      paymentMethod: state.paymentMethod ?? '',
+      paymentGateway:null,
     );
 
-    // 6. Execute Use Case & Handle Response
+    // 7. Execute Use Case & Handle Response
     final result = await _placeOrderUseCase(orderRequest);
 
     switch (result) {

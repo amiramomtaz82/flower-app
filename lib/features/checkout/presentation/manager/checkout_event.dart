@@ -1,7 +1,5 @@
-// lib/features/checkout/presentation/cubit/checkout_events.dart
-import 'package:equatable/equatable.dart';
 
-enum PaymentMethodType { cash, card }
+import 'package:equatable/equatable.dart';
 
 sealed class CheckoutEvent extends Equatable {
   const CheckoutEvent();
@@ -31,7 +29,7 @@ class EstimateDeliveryEvent extends CheckoutEvent {
 }
 
 class SelectPaymentMethodEvent extends CheckoutEvent {
-  final PaymentMethodType paymentMethod;
+  final String paymentMethod;
 
   const SelectPaymentMethodEvent(this.paymentMethod);
 

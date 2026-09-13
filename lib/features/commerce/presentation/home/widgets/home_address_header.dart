@@ -112,22 +112,28 @@ class HomeAddressHeader extends StatelessWidget {
 
           return Padding(
             padding: const EdgeInsets.symmetric(vertical: 8.0),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.location_on,
-                  color: theme.colorScheme.primary,
-                  size: 20,
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    title,
-                    overflow: TextOverflow.ellipsis,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
+            child: Column(
+              children: [InkWell(onTap: (){
+                context.push(AppRoutes.checkout);
+                },child: Text("go to check out screen"),),
+                Row(
+                  children: [
+                    Icon(
+                      Icons.location_on,
+                      color: theme.colorScheme.primary,
+                      size: 20,
                     ),
-                  ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        title,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),

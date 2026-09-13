@@ -136,13 +136,13 @@ static const String addressAddedSuccessfully='Address added successfully!';
   static const String enterRecipientName = 'enter_recipient_name';
   static const String name = 'name';
   static const String enterRecipientPhone = 'enter_recipient_phone';
-
+static const String selectPaymentMethodWarning = 'select_payment_method_warning';
   static const String subTotal = 'sub_total';
   static const String deliveryFee = 'delivery_fee';
   static const String total = 'total';
   static const String placeOrder = 'place_order';
   static const String selectAddressWarning = 'select_address_warning';
   static const String orderFailedFallback = 'order_failed_fallback';
-
+static const String noPaymentMethodsAvailable = 'no_payment_methods_available';
 }
 
