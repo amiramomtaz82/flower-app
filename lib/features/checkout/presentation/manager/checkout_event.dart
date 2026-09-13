@@ -1,6 +1,5 @@
-// lib/features/checkout/presentation/cubit/checkout_events.dart
-import 'package:equatable/equatable.dart';
 
+import 'package:equatable/equatable.dart';
 
 sealed class CheckoutEvent extends Equatable {
   const CheckoutEvent();
@@ -29,16 +28,15 @@ class EstimateDeliveryEvent extends CheckoutEvent {
   List<Object?> get props => [addressId, cartId];
 }
 
-// Event
 class SelectPaymentMethodEvent extends CheckoutEvent {
-  final String method;
-  final String? gateway;
+  final String paymentMethod;
 
-  const SelectPaymentMethodEvent({
-    required this.method,
-    this.gateway,
-  });
+  const SelectPaymentMethodEvent(this.paymentMethod);
+
+  @override
+  List<Object?> get props => [paymentMethod];
 }
+
 class ToggleGiftEvent extends CheckoutEvent {
   final bool isGift;
 

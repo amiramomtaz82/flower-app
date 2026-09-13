@@ -1,8 +1,8 @@
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flower_app/core/app_constants/app_strings.dart';
 import 'package:flower_app/core/app_theme/app_colors.dart';
-import 'package:flower_app/features/checkout/presentation/view/widget/checkout_payment_method_service.dart';
-import 'package:flower_app/features/checkout/presentation/view/widget/checkout_payment_summary.dart';
+import 'package:flower_app/features/checkout/presentation/view/widget/checkout_summery_option.dart';
+import 'package:flower_app/features/checkout/presentation/view/widget/deliver_time%20section.dart';
+import 'package:flower_app/features/checkout/presentation/view/widget/divider_section.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -15,8 +15,8 @@ import '../manager/checkout_state.dart';
 import 'order_succss_screen.dart';
 import 'widget/checkout_address_section.dart';
 
-import 'widget/checkout_delivery_time_section.dart';
 import 'widget/checkout_gift_section.dart';
+import 'widget/checkout_payment_section.dart';
 
 
 class CheckoutScreen extends StatefulWidget {
@@ -35,6 +35,8 @@ class CheckoutScreen extends StatefulWidget {
 
 class _CheckoutScreenState extends State<CheckoutScreen> {
   final _giftFormKey = GlobalKey<FormState>();
+  late final TextEditingController _nameController;
+  late final TextEditingController _phoneController;
 
   @override
   void initState() {
@@ -42,61 +44,51 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     final addressCubit = context.read<AddressCubit>();
     final checkoutCubit = context.read<CheckoutCubit>();
 
+    _nameController = TextEditingController(text: checkoutCubit.state.recipientName ?? '');
+    _phoneController = TextEditingController(text: checkoutCubit.state.recipientPhone ?? '');
+
     addressCubit.doEvents(GetSavedAddressesEvent());
 
-    final currentSelectedId = widget.defaultAddressId ??
+    final initialAddressId = widget.defaultAddressId ??
         addressCubit.state.selectedAddress?.id ??
-        (addressCubit.state.addresses.isNotEmpty
-            ? addressCubit.state.addresses.first.id
-            : null);
+        (addressCubit.state.addresses.isNotEmpty ? addressCubit.state.addresses.first.id : null);
 
-    if (currentSelectedId != null) {
+    if (initialAddressId != null) {
       checkoutCubit.doEvents(
         GetCheckoutDetailsEvent(
           cartId: widget.cartId,
-          defaultAddressId: currentSelectedId,
+          defaultAddressId: initialAddressId,
         ),
       );
     }
   }
 
-  Widget _buildSectionDivider(Color surfaceColor) {
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 20.0),
-      height: 25,
-      width: double.infinity,
-      color: surfaceColor,
-    );
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _phoneController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).extension<AppColors>() ?? LightColors();
-
     return MultiBlocListener(
       listeners: [
         BlocListener<AddressCubit, AddressState>(
-          listenWhen: (prev, curr) {
-            final hadNoAddresses =
-                prev.addresses.isEmpty && curr.addresses.isNotEmpty;
-            final addressSelected =
-                prev.selectedAddress?.id != curr.selectedAddress?.id;
-            return hadNoAddresses || addressSelected;
-          },
+          listenWhen: (prev, curr) =>
+          (prev.addresses.isEmpty && curr.addresses.isNotEmpty) ||
+              prev.selectedAddress?.id != curr.selectedAddress?.id,
           listener: (context, addressState) {
             final checkoutCubit = context.read<CheckoutCubit>();
-
             if (checkoutCubit.state.selectedAddressId == null) {
-              final resolvedAddressId = addressState.selectedAddress?.id ??
-                  (addressState.addresses.isNotEmpty
-                      ? addressState.addresses.first.id
-                      : null);
+              final resolvedId = addressState.selectedAddress?.id ??
+                  (addressState.addresses.isNotEmpty ? addressState.addresses.first.id : null);
 
-              if (resolvedAddressId != null) {
+              if (resolvedId != null) {
                 checkoutCubit.doEvents(
                   GetCheckoutDetailsEvent(
                     cartId: widget.cartId,
-                    defaultAddressId: resolvedAddressId,
+                    defaultAddressId: resolvedId,
                   ),
                 );
               }
@@ -105,12 +97,19 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         ),
         BlocListener<CheckoutCubit, CheckoutState>(
           listenWhen: (prev, curr) =>
-          prev.placeOrderResource != curr.placeOrderResource,
+          prev.recipientName != curr.recipientName ||
+              prev.recipientPhone != curr.recipientPhone,
+          listener: (_, state) {
+            _syncController(_nameController, state.recipientName ?? '');
+            _syncController(_phoneController, state.recipientPhone ?? '');
+          },
+        ),
+        BlocListener<CheckoutCubit, CheckoutState>(
+          listenWhen: (prev, curr) => prev.placeOrderResource != curr.placeOrderResource,
           listener: (context, state) {
             final resource = state.placeOrderResource;
             if (resource.isSuccess) {
-              final orderPlacement = resource.data;
-              if (orderPlacement?.cardSession?.successUrl == null) {
+              if (resource.data?.cardSession?.successUrl == null) {
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(builder: (_) => const OrderSuccessScreen()),
@@ -119,9 +118,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             } else if (resource.isError) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text(
-                    resource.errorMessage ?? AppStrings.orderFailedFallback.tr(),
-                  ),
+                  content: Text(resource.errorMessage ?? AppStrings.orderFailedFallback),
                   backgroundColor: Theme.of(context).colorScheme.error,
                 ),
               );
@@ -131,17 +128,13 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       ],
       child: Scaffold(
         appBar: AppBar(
-          backgroundColor: colors.background,
+          backgroundColor: Colors.white,
           elevation: 0,
           leading: IconButton(
-            icon: Icon(
-              Icons.arrow_back_ios_new,
-              color: colors.black,
-              size: 20,
-            ),
+            icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black, size: 20),
             onPressed: () => Navigator.of(context).pop(),
           ),
-          title: Text(AppStrings.checkoutTitle.tr()),
+          title: const Text(AppStrings.checkoutTitle),
           centerTitle: true,
         ),
         body: SingleChildScrollView(
@@ -149,23 +142,37 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CheckoutDeliveryTimeSection(colors: colors),
-              _buildSectionDivider(colors.surface),
-              CheckoutAddressSection(cartId: widget.cartId, colors: colors),
-              _buildSectionDivider(colors.surface),
-              CheckoutPaymentMethodSection(colors: colors),
-              _buildSectionDivider(colors.surface),
-              CheckoutGiftSection(formKey: _giftFormKey),
-              _buildSectionDivider(colors.surface),
-              CheckoutBottomSummarySection(
+              const CheckoutDeliveryTimeSection(),
+              const CheckoutSectionDivider(),
+              CheckoutAddressSection(cartId: widget.cartId),
+              const CheckoutSectionDivider(),
+              const CheckoutPaymentSection(),
+              const CheckoutSectionDivider(),
+              CheckoutGiftSection(
+                formKey: _giftFormKey,
+                nameController: _nameController,
+                phoneController: _phoneController,
+              ),
+              const CheckoutSectionDivider(),
+              CheckoutSummarySection(
                 cartId: widget.cartId,
-                colors: colors,
                 giftFormKey: _giftFormKey,
+                nameController: _nameController,
+                phoneController: _phoneController,
               ),
             ],
           ),
         ),
       ),
     );
+  }
+
+  void _syncController(TextEditingController controller, String incoming) {
+    if (controller.text != incoming) {
+      controller.value = TextEditingValue(
+        text: incoming,
+        selection: TextSelection.collapsed(offset: incoming.length),
+      );
+    }
   }
 }

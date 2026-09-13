@@ -1,12 +1,11 @@
-import 'package:collection/collection.dart';
+// lib/features/checkout/presentation/cubit/checkout_cubit.dart
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 
 import '../../../../../../config/base_response/base_response.dart';
 import '../../../../../config/resource/rsource.dart';
 import '../../../../core/validation/validation.dart';
-
-import '../../../Address/domain/use_cases/get_saved_address_use_case.dart';
+import '../../../Address/domain/use_cases/get_saved_address_useacse.dart';
 import '../../domain/entities/checkout_details_entity.dart';
 import '../../domain/entities/estimated_delivery_entity.dart';
 import '../../domain/entities/gift_recipient_entity.dart';
@@ -41,7 +40,7 @@ class CheckoutCubit extends Cubit<CheckoutState> {
         await _estimateDelivery(event.addressId, event.cartId);
 
       case SelectPaymentMethodEvent():
-        _selectPaymentMethod(event.method, event.gateway);
+        _selectPaymentMethod(event.paymentMethod);
 
       case ToggleGiftEvent():
         _toggleGift(event.isGift);
@@ -56,9 +55,10 @@ class CheckoutCubit extends Cubit<CheckoutState> {
         _resetPlaceOrderState();
     }
   }
-// ============================================================
-// GET CHECKOUT DETAILS
-// ============================================================
+
+  // ============================================================
+  // GET CHECKOUT DETAILS
+  // ============================================================
 
   Future<void> _getCheckoutDetails(String cartId, String? defaultAddressId) async {
     emit(
@@ -71,36 +71,26 @@ class CheckoutCubit extends Cubit<CheckoutState> {
 
     switch (result) {
       case SuccessResponse<CheckoutDetailsEntity>():
-        final checkoutDetails = result.data;
+        final details = result.data;
 
-        // Populate initial delivery estimate directly from checkout details
         final initialDeliveryEstimate = EstimateDeliveryEntity(
-          addressId: defaultAddressId ?? '',
-          isServiceable: true,
-          deliveryFee: checkoutDetails.deliveryFee,
-          estimatedDeliveryAt: checkoutDetails.estimatedDeliveryAt,
+          addressId: details.addressId ?? defaultAddressId ?? '',
+          isServiceable: details.isServiceable,
+          deliveryFee: details.deliveryFee,
+          estimatedDeliveryAt: details.estimatedDeliveryAt,
         );
 
-        // 1. Resolve available payment methods from the API response
-        final availableMethods = checkoutDetails.paymentMethods;
-        final defaultMethod = state.selectedPaymentMethod ??
-            (availableMethods.isNotEmpty ? availableMethods.first.method : null);
-
-        final cardOption = availableMethods.firstWhereOrNull(
-              (m) => m.method.toUpperCase() == 'CARD',
-        );
-
-        final defaultGateway = defaultMethod?.toUpperCase() == 'CARD'
-            ? cardOption?.gateways.firstOrNull
-            : null;
+        // Auto-select the first payment method returned by the API if available
+        final initialPaymentMethod = details.paymentMethods.isNotEmpty
+            ? details.paymentMethods.first
+            : state.paymentMethod;
 
         emit(
           state.copyWith(
-            checkoutDetailsResource: Resource.success(checkoutDetails),
-            selectedAddressId: defaultAddressId,
-            selectedPaymentMethod: defaultMethod,
-            selectedPaymentGateway: defaultGateway,
+            checkoutDetailsResource: Resource.success(details),
+            selectedAddressId: defaultAddressId ?? details.addressId,
             estimateDeliveryResource: Resource.success(initialDeliveryEstimate),
+            paymentMethod: initialPaymentMethod,
           ),
         );
 
@@ -112,6 +102,7 @@ class CheckoutCubit extends Cubit<CheckoutState> {
         );
     }
   }
+
   // ============================================================
   // ESTIMATE DELIVERY
   // ============================================================
@@ -150,22 +141,27 @@ class CheckoutCubit extends Cubit<CheckoutState> {
   // FORM & SELECTION ACTIONS
   // ============================================================
 
-  // 2. Select Payment Method & Gateway
-  void _selectPaymentMethod(String method, String? gateway) {
-    final isCash = method.toUpperCase() == 'COD';
+  bool _isCash(String? method) {
+    if (method == null) return false;
+    final normalized = method.trim().toLowerCase();
+    return normalized == 'cash' || normalized == 'cod' || normalized.contains('cash');
+  }
+
+  void _selectPaymentMethod(String paymentMethod) {
+    final isCash = _isCash(paymentMethod);
 
     emit(
       state.copyWith(
-        selectedPaymentMethod: method,
-        selectedPaymentGateway: gateway,
-        clearPaymentGateway: isCash || gateway == null, // <--- Clears gateway when null or COD
+        paymentMethod: paymentMethod,
         isGift: isCash ? false : state.isGift,
-        clearRecipient: isCash,
+        recipientName: isCash ? null : state.recipientName,
+        recipientPhone: isCash ? null : state.recipientPhone,
       ),
     );
   }
+
   void _toggleGift(bool isGift) {
-    if (state.selectedPaymentMethod?.toUpperCase() == 'COD') return;
+    if (_isCash(state.paymentMethod)) return;
 
     emit(state.copyWith(isGift: isGift));
   }
@@ -184,6 +180,7 @@ class CheckoutCubit extends Cubit<CheckoutState> {
   // ============================================================
 
   Future<void> _placeOrder(String cartId) async {
+    // 1. Validate Cart ID
     if (cartId.trim().isEmpty) {
       emit(state.copyWith(
         placeOrderResource: Resource.error('Cart identifier is missing.'),
@@ -191,6 +188,7 @@ class CheckoutCubit extends Cubit<CheckoutState> {
       return;
     }
 
+    // 2. Validate Address
     final addressId = state.selectedAddressId?.trim();
     if (addressId == null || addressId.isEmpty) {
       emit(state.copyWith(
@@ -199,7 +197,8 @@ class CheckoutCubit extends Cubit<CheckoutState> {
       return;
     }
 
-    final paymentMethod = state.selectedPaymentMethod?.trim();
+    // 3. Validate Payment Method
+    final paymentMethod = state.paymentMethod?.trim();
     if (paymentMethod == null || paymentMethod.isEmpty) {
       emit(state.copyWith(
         placeOrderResource: Resource.error('Please select a payment method.'),
@@ -207,7 +206,9 @@ class CheckoutCubit extends Cubit<CheckoutState> {
       return;
     }
 
-    final isGiftActive = state.isGift && paymentMethod.toUpperCase() != 'COD';
+    // 4. Validate Gift Fields (only applicable when gift is toggled ON and not cash)
+    final isCash = _isCash(paymentMethod);
+    final isGiftActive = state.isGift && !isCash;
     final recipientName = state.recipientName?.trim() ?? '';
     final recipientPhone = state.recipientPhone?.trim() ?? '';
 
@@ -229,10 +230,12 @@ class CheckoutCubit extends Cubit<CheckoutState> {
       }
     }
 
+    // 5. Emit Loading
     emit(state.copyWith(
       placeOrderResource: Resource.loading(),
     ));
 
+    // 5. Build Complete PlaceOrderRequestEntity
     final orderRequest = PlaceOrderRequestEntity(
       cartId: cartId.trim(),
       addressId: addressId,
@@ -243,10 +246,11 @@ class CheckoutCubit extends Cubit<CheckoutState> {
         phone: recipientPhone,
       )
           : null,
-      paymentMethod: paymentMethod,
-      paymentGateway: state.selectedPaymentGateway,
+      paymentMethod: state.paymentMethod ?? '',
+      paymentGateway:null,
     );
 
+    // 7. Execute Use Case & Handle Response
     final result = await _placeOrderUseCase(orderRequest);
 
     switch (result) {

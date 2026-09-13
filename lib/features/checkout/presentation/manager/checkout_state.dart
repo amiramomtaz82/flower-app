@@ -13,8 +13,7 @@ class CheckoutState extends Equatable {
   final Resource<OrderPlacementEntity> placeOrderResource;
   final List<AddressEntity> addresses;
   final String? selectedAddressId;
-  final String? selectedPaymentMethod;
-  final String? selectedPaymentGateway;
+  final String? paymentMethod;
   final bool isGift;
   final String? recipientName;
   final String? recipientPhone;
@@ -25,8 +24,7 @@ class CheckoutState extends Equatable {
     required this.placeOrderResource,
     required this.addresses,
     this.selectedAddressId,
-    this.selectedPaymentMethod,
-    this.selectedPaymentGateway,
+    this.paymentMethod,
     this.isGift = false,
     this.recipientName,
     this.recipientPhone,
@@ -36,16 +34,13 @@ class CheckoutState extends Equatable {
     checkoutDetailsResource: Resource.initial(),
     estimateDeliveryResource: Resource.initial(),
     placeOrderResource: Resource.initial(),
-    addresses: const [],
     selectedAddressId: null,
-    selectedPaymentMethod: null,
-    selectedPaymentGateway: null,
+    paymentMethod: null,
     isGift: false,
     recipientName: null,
     recipientPhone: null,
+    addresses: const [],
   );
-
-  // lib/features/checkout/presentation/cubit/checkout_state.dart
 
   CheckoutState copyWith({
     Resource<CheckoutDetailsEntity>? checkoutDetailsResource,
@@ -53,14 +48,10 @@ class CheckoutState extends Equatable {
     Resource<OrderPlacementEntity>? placeOrderResource,
     List<AddressEntity>? addresses,
     String? selectedAddressId,
-    bool clearSelectedAddressId = false,
-    String? selectedPaymentMethod,
-    String? selectedPaymentGateway,
-    bool clearPaymentGateway = false, // <--- Add this flag
+    String? paymentMethod,
     bool? isGift,
     String? recipientName,
     String? recipientPhone,
-    bool clearRecipient = false,
   }) {
     return CheckoutState(
       checkoutDetailsResource:
@@ -69,19 +60,12 @@ class CheckoutState extends Equatable {
       estimateDeliveryResource ?? this.estimateDeliveryResource,
       placeOrderResource: placeOrderResource ?? this.placeOrderResource,
       addresses: addresses ?? this.addresses,
-      selectedAddressId: clearSelectedAddressId
-          ? null
-          : (selectedAddressId ?? this.selectedAddressId),
-      selectedPaymentMethod:
-      selectedPaymentMethod ?? this.selectedPaymentMethod,
-      selectedPaymentGateway: clearPaymentGateway
-          ? null
-          : (selectedPaymentGateway ?? this.selectedPaymentGateway), // <--- Use here
+      selectedAddressId: selectedAddressId ?? this.selectedAddressId,
+      paymentMethod: paymentMethod ?? this.paymentMethod,
       isGift: isGift ?? this.isGift,
-      recipientName: clearRecipient ? null : (recipientName ?? this.recipientName),
-      recipientPhone: clearRecipient ? null : (recipientPhone ?? this.recipientPhone),
+      recipientName: recipientName ?? this.recipientName,
+      recipientPhone: recipientPhone ?? this.recipientPhone,
     );
-
   }
 
   @override
@@ -91,8 +75,7 @@ class CheckoutState extends Equatable {
     placeOrderResource,
     addresses,
     selectedAddressId,
-    selectedPaymentMethod,
-    selectedPaymentGateway,
+    paymentMethod,
     isGift,
     recipientName,
     recipientPhone,
