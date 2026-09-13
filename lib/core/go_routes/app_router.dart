@@ -23,6 +23,7 @@ import 'package:flower_app/features/commerce/presentation/product_details/view/p
 import 'package:flower_app/features/commerce/presentation/product_details/view_model/product_details_view_model.dart';
 import 'package:flower_app/features/commerce/presentation/search/manager/search_cubit.dart';
 import 'package:flower_app/features/commerce/presentation/search/view/search_view.dart';
+import 'package:flower_app/features/orders/presentation/view/my_orders_view.dart' as flower_orders;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -235,6 +236,10 @@ class AppRouter {
           create: (_) => getIt<SearchCubit>(),
           child: const SearchView(),
         ),
+      ),
+      GoRoute(
+        path: AppRoutes.myOrders,
+        builder: (context, state) => const flower_orders.MyOrdersView(),
       ),
     ],
   );

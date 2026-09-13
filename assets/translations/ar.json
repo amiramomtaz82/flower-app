@@ -206,4 +206,14 @@
     "product_removed_from_cart":  "تمت إزالة المنتج من السلة",
     "product_out_of_stock_currently":  "المنتج غير متوفر حالياً",
     "egp":  "ج.م"
+  "register": "التسجيل",
+  "myOrders": "طلباتي",
+  "activeOrders": "حالية",
+  "completedOrders": "مكتملة",
+  "noActiveOrders": "لا توجد طلبات حالية",
+  "noCompletedOrders": "لا توجد طلبات مكتملة",
+  "orderNumber": "رقم الطلب",
+  "deliveredOn": "تم التوصيل في",
+  "trackOrder": "تتبع الطلب",
+  "reorder": "إعادة الطلب"
 }

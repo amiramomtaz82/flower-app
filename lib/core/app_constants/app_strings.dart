@@ -208,5 +208,17 @@ static const String noPaymentMethodsAvailable = 'no_payment_methods_available';
   // The cart API sends no currency of its own, so prices are labelled with a
   // fixed one until it does.
   static const String currency = 'egp';
+
+  // Orders
+  static const String myOrders = 'myOrders';
+  static const String activeOrders = 'activeOrders';
+  static const String completedOrders = 'completedOrders';
+  static const String noActiveOrders = 'noActiveOrders';
+  static const String noCompletedOrders = 'noCompletedOrders';
+  static const String orderNumber = 'orderNumber';
+  static const String deliveredOn = 'deliveredOn';
+  static const String trackOrder = 'trackOrder';
+  static const String reorder = 'reorder';
+  static const String retry = 'retry';
 }
 
