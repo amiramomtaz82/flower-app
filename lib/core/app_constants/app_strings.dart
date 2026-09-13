@@ -193,9 +193,7 @@ static const String noPaymentMethodsAvailable = 'no_payment_methods_available';
   // Cart
   static const String cart = 'cart';
   static const String cartItemsCount = 'cart_items_count';
-  static const String subTotal = 'sub_total';
-  static const String deliveryFee = 'delivery_fee';
-  static const String total = 'total';
+
   static const String checkout = 'checkout';
   static const String yourCartIsEmpty = 'your_cart_is_empty';
   static const String cartEmptyHint = 'cart_empty_hint';

@@ -7,7 +7,7 @@ import 'package:flower_app/features/auth/presentation/register/view_model/regist
 import 'package:flower_app/features/auth/presentation/register/views/register_view.dart';
 import 'package:flower_app/core/widgets/coming_soon_view.dart';
 import 'package:flower_app/features/checkout/presentation/view/checkout_view.dart';
-import 'package:flower_app/features/cart/presentation/views/cart_view.dart';
+
 import 'package:flower_app/features/commerce/domain/entities/product_entity.dart';
 import 'package:flower_app/features/commerce/presentation/best_seller/view/best_seller_view.dart';
 import 'package:flower_app/features/commerce/presentation/best_seller/view_model/best_seller_view_model.dart';
