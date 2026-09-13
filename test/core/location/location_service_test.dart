@@ -10,7 +10,7 @@ import 'package:nominatim_flutter/model/response/nominatim_response.dart';
 import 'package:nominatim_flutter/nominatim_flutter.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
-// Concrete Fake Platform matching exact GeolocatorPlatform signatures
+
 class FakeGeolocatorPlatform extends Fake
     with MockPlatformInterfaceMixin
     implements GeolocatorPlatform {

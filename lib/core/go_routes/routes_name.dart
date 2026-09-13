@@ -14,6 +14,8 @@ class AppRoutes {
   static const String bestSeller = '/best-seller';
 
   static const String categoryIdParam = 'categoryId';
+  static const String checkout = '/checkout';
+  static const String orderSuccess = '/orderSuccess';
   static const String savedAddresses = '/saved-addresses';
   static const String editAddress = '/edit-address';
 

@@ -7,6 +7,7 @@ import 'package:flower_app/features/auth/presentation/login/manager/login_cubit.
 import 'package:flower_app/features/auth/presentation/register/view_model/register_view_model.dart';
 import 'package:flower_app/features/auth/presentation/register/views/register_view.dart';
 import 'package:flower_app/core/widgets/coming_soon_view.dart';
+import 'package:flower_app/features/checkout/presentation/view/checkout_view.dart';
 import 'package:flower_app/features/commerce/domain/entities/product_entity.dart';
 import 'package:flower_app/features/commerce/presentation/best_seller/view/best_seller_view.dart';
 import 'package:flower_app/features/commerce/presentation/best_seller/view_model/best_seller_view_model.dart';
@@ -25,12 +26,16 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/Address/domain/entities/address_entity.dart';
+
 import '../../features/Address/presentaion/manager/address_cubit.dart';
 import '../../features/Address/presentaion/manager/address_events.dart';
 import '../../features/Address/presentaion/view/add_address_view.dart';
 import '../../features/Address/presentaion/view/edit_address_view.dart';
 import '../../features/Address/presentaion/view/saved_adresses_view.dart';
 import '../../features/auth/presentation/login/views/login_view.dart';
+
+import '../../features/checkout/presentation/manager/checkout_cubit.dart';
+import '../../features/checkout/presentation/view/order_succss_screen.dart';
 import '../../features/commerce/presentation/home/view/home_view.dart';
 import 'main_shell_view.dart';
 
@@ -51,6 +56,38 @@ class AppRouter {
           create: (_) => getIt<LoginCubit>(),
           child: const LoginView(),
         ),
+      ),
+      // lib/core/go_routes/app_router.dart
+
+      GoRoute(
+        path: AppRoutes.checkout,
+        builder: (context, state) {
+          final cartId = state.uri.queryParameters['cartId'] ?? '';
+          final addressId = state.uri.queryParameters['addressId'];
+
+          return MultiBlocProvider(
+            providers: [
+              BlocProvider<CheckoutCubit>(
+                create: (_) => getIt<CheckoutCubit>(),
+              ),
+              BlocProvider<AddressCubit>.value(
+                value: getIt<AddressCubit>(),
+              ),
+            ],
+            child: CheckoutScreen(
+              cartId: cartId,
+              defaultAddressId: addressId,
+            ),
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.orderSuccess,
+        builder: (context, state) {
+          // Optional: read orderId passed via extra or path params
+          final orderId = state.extra as String?;
+          return OrderSuccessScreen(orderId: orderId);
+        },
       ),
       GoRoute(
         path: AppRoutes.forgotPassword,
