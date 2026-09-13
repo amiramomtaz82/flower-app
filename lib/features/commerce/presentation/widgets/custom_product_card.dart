@@ -1,6 +1,17 @@
 
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flower_app/config/di/di.dart';
+import 'package:flower_app/core/app_constants/app_strings.dart';
+import 'package:flower_app/core/app_theme/app_colors.dart';
 import 'package:flower_app/core/go_routes/routes_name.dart';
+import 'package:flower_app/core/guest_browsing/guest_browsing_provider.dart';
+import 'package:flower_app/core/ui_action/ui_action.dart';
+import 'package:flower_app/core/ui_action/ui_action_dispatcher.dart';
+import 'package:flower_app/features/cart/presentation/manager/cart_cubit.dart';
+import 'package:flower_app/features/cart/presentation/manager/cart_events.dart';
+import 'package:flower_app/features/cart/presentation/manager/cart_state.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flower_app/core/app_constants/app_assets.dart';
 import 'package:go_router/go_router.dart';
 
@@ -11,9 +22,45 @@ class CustomProductCard extends StatelessWidget {
 
   const CustomProductCard({super.key, required this.product});
 
+  // holds the API's inStock value
+  bool get _isInStock => product.isBestSeller == true;
+
+  String _buttonLabel(bool isInCart) {
+    if (!_isInStock) return AppStrings.outOfStock;
+    return isInCart ? AppStrings.addedToCart : AppStrings.addToCart;
+  }
+
+  IconData _buttonIcon(bool isInCart) {
+    if (!_isInStock) return Icons.remove_shopping_cart_outlined;
+    return isInCart ? Icons.check : Icons.shopping_cart_outlined;
+  }
+
+  void _onCartButtonPressed(BuildContext context) {
+    if (!_isInStock) {
+      getIt<UiActionDispatcher>().dispatch(
+        const ShowSnackBarAction.error(AppStrings.productOutOfStockCurrently),
+      );
+      return;
+    }
+
+    final productId = product.id;
+    if (productId == null) return;
+
+    final cartCubit = context.read<CartCubit>();
+    final cartItemId = cartCubit.state.cartItemIdFor(productId);
+
+    getIt<GuestBrowsingProvider>().requireAuth(
+      action: () => cartCubit.doEvents(
+        cartItemId != null
+            ? CartItemRemoved(cartItemId)
+            : CartItemAdded(productId: productId),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    
+
     final originalPrice = product.originalPrice;
     final discount = product.discountPercentage;
     final hasOriginalPrice =
@@ -98,32 +145,46 @@ class CustomProductCard extends StatelessWidget {
                 child: SizedBox(
                   height: 32,
                   width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: Size.zero,
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
-                      textStyle: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                      ),
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    ),
-                    child: const Row(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.shopping_cart_outlined, size: 16),
-                        SizedBox(width: 4),
-                        Flexible(
-                          child: Text(
-                            "Add to cart",
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                  child: BlocBuilder<CartCubit, CartState>(
+                    buildWhen: (previous, current) =>
+                        previous.containsProduct(product.id) !=
+                        current.containsProduct(product.id),
+                    builder: (context, cartState) {
+                      final isInCart = cartState.containsProduct(product.id);
+
+                      return ElevatedButton(
+                        onPressed: () => _onCartButtonPressed(context),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: _isInStock
+                              ? null
+                              : Theme.of(
+                                  context,
+                                ).extension<LightColors>()!.darkGrey,
+                          minimumSize: Size.zero,
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          textStyle: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
                           ),
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                         ),
-                      ],
-                    ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(_buttonIcon(isInCart), size: 16),
+                            const SizedBox(width: 4),
+                            Flexible(
+                              child: Text(
+                                _buttonLabel(isInCart).tr(),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
                   ),
                 ),
               )

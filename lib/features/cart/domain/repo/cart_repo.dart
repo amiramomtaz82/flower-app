@@ -10,14 +10,12 @@ abstract interface class CartRepo {
     required int quantity,
   });
 
-  /// Keyed by `productId`, not by cart item id — that is what the backend's
-  /// PATCH route takes. Passing `0` removes the line.
+  // quantity 0 removes the line
   Future<BaseResponse<CartEntity>> updateCartItemQuantity({
     required String productId,
     required int quantity,
   });
 
-  /// Keyed by the cart item id, unlike [updateCartItemQuantity].
   Future<BaseResponse<CartEntity>> removeCartItem({
     required String cartItemId,
   });

@@ -39,7 +39,10 @@ class _LoginViewState extends State<LoginView> {
       listener: (context, state) async {
         if (state.loginResource.isError) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.loginResource.errorMessage ?? "")),
+            SnackBar(
+              content: Text(state.loginResource.errorMessage ?? ""),
+              backgroundColor: Theme.of(context).colorScheme.error,
+            ),
           );
         }
 

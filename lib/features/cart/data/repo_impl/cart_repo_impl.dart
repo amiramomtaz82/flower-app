@@ -53,7 +53,7 @@ class CartRepoImpl implements CartRepo {
       return ErrorResponse(error: e);
     }
 
-    // PATCH answers with an empty `200`, so the updated cart has to be re-read.
+    // patch returns no body so we read the cart again
     return getCart();
   }
 
@@ -69,8 +69,6 @@ class CartRepoImpl implements CartRepo {
     }
   }
 
-  /// The envelope carries a null `data` when the cart is empty, which is a
-  /// successful read of an empty cart rather than a failure.
   CartEntity _toEntity(CartResponseModel response) =>
       response.data?.toEntity() ?? const CartEntity();
 }

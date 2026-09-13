@@ -11,7 +11,6 @@ class CartItemEntity extends Equatable {
   final bool inStock;
   final int? availableStock;
 
-  /// Only reported by `GET /cart`, which re-checks prices at read time.
   final bool priceChanged;
 
   const CartItemEntity({

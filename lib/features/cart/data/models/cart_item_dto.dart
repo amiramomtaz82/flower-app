@@ -4,10 +4,6 @@ import '../../domain/entities/cart_item_entity.dart';
 
 part 'cart_item_dto.g.dart';
 
-/// Absorbs both shapes the Cart API returns for a line item:
-/// `GetCartItemResponse` (from `GET /cart`) and `CartItemSummaryDto` (from the
-/// write endpoints). Every field is nullable because each shape omits some of
-/// the other's — `priceChanged` is GET-only.
 @JsonSerializable()
 class CartItemDto {
   final String? id;

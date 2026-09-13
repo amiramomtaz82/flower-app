@@ -1,10 +1,8 @@
 import 'package:flower_app/core/app_constants/app_assets.dart';
+import 'package:flower_app/core/app_constants/endpoints.dart';
 import 'package:flutter/material.dart';
 
-/// Renders [path] as a network image when it looks like a URL, otherwise as
-/// a local asset — the backend and local dummy data both hand back a plain
-/// string without indicating which. Falls back to a placeholder asset if the
-/// network image fails to load (offline, dead URL, etc.).
+// handles full urls, paths relative to the base url, and local assets
 class AdaptiveImage extends StatelessWidget {
   const AdaptiveImage({
     super.key,
@@ -21,30 +19,45 @@ class AdaptiveImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (path.isEmpty) {
-      return Image.asset(
-        AppAssets.image,
-        width: width,
-        height: height,
-        fit: fit,
-      );
-    }
+    if (path.isEmpty) return _placeholder();
 
-    if (path.startsWith('http')) {
-      return Image.network(
+    if (path.startsWith('assets/')) {
+      return Image.asset(
         path,
         width: width,
         height: height,
         fit: fit,
-        errorBuilder: (context, error, stackTrace) => Image.asset(
-          AppAssets.image,
-          width: width,
-          height: height,
-          fit: fit,
-        ),
+        errorBuilder: (context, error, stackTrace) => _placeholder(),
       );
     }
 
-    return Image.asset(path, width: width, height: height, fit: fit);
+    return Image.network(
+      path.startsWith('http') ? path : _resolveAgainstBaseUrl(path),
+      width: width,
+      height: height,
+      fit: fit,
+      errorBuilder: (context, error, stackTrace) => _placeholder(),
+    );
+  }
+
+  String _resolveAgainstBaseUrl(String relativePath) {
+    final base = Endpoints.baseUrl;
+    final trimmedBase = base.endsWith('/')
+        ? base.substring(0, base.length - 1)
+        : base;
+    final trimmedPath = relativePath.startsWith('/')
+        ? relativePath.substring(1)
+        : relativePath;
+
+    return '$trimmedBase/$trimmedPath';
+  }
+
+  Widget _placeholder() {
+    return Image.asset(
+      AppAssets.image,
+      width: width,
+      height: height,
+      fit: fit,
+    );
   }
 }
