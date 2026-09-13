@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flower_app/features/profile/data/models/update_profile_dto.dart';
 import 'package:retrofit/retrofit.dart';
 import 'package:flower_app/core/app_constants/endpoints.dart';
 import 'package:flower_app/features/profile/data/models/profile_response_model.dart';
@@ -13,4 +14,9 @@ abstract class ProfileApiClient {
 
   @GET(Endpoints.profile)
   Future<ProfileResponseModel> getProfile();
+
+  @PUT(Endpoints.profile)
+  Future<ProfileResponseModel> updateProfile(
+    @Body() UpdateProfileDto updateProfileDto,
+  );
 }
