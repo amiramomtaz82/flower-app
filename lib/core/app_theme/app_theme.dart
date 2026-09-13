@@ -160,6 +160,7 @@ class AppTheme {
       ),
       //------------------Snack Bar-------------------
       snackBarTheme: SnackBarThemeData(
+        backgroundColor: colors.primary,
         contentTextStyle: TextStyle(
           color: colors.white,
           fontSize: 16,

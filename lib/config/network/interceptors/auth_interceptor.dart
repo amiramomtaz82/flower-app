@@ -12,6 +12,8 @@ class AuthInterceptor extends Interceptor {
 
   static const String _accessTokenKey = AppStrings.accessToken;
 
+  static const String _authorizationHeader = 'Authorization';
+
   @override
   Future<void> onRequest(
     RequestOptions options,
@@ -20,7 +22,7 @@ class AuthInterceptor extends Interceptor {
     final token = await _secureStorage.read(key: _accessTokenKey);
 
     if (token != null && token.isNotEmpty) {
-      options.headers[AppStrings.accessToken] = token;
+      options.headers[_authorizationHeader] = 'Bearer $token';
     }
 
     handler.next(options);
