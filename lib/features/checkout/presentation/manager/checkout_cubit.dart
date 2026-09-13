@@ -5,7 +5,8 @@ import 'package:injectable/injectable.dart';
 import '../../../../../../config/base_response/base_response.dart';
 import '../../../../../config/resource/rsource.dart';
 import '../../../../core/validation/validation.dart';
-import '../../../Address/domain/use_cases/get_saved_address_useacse.dart';
+
+import '../../../Address/domain/use_cases/get_saved_address_use_case.dart';
 import '../../domain/entities/checkout_details_entity.dart';
 import '../../domain/entities/estimated_delivery_entity.dart';
 import '../../domain/entities/gift_recipient_entity.dart';

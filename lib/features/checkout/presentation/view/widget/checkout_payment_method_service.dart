@@ -1,4 +1,3 @@
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flower_app/core/app_constants/app_strings.dart';
 import 'package:flower_app/core/app_theme/app_colors.dart';
 import 'package:flutter/material.dart';
@@ -8,107 +7,106 @@ import '../../manager/checkout_cubit.dart';
 import '../../manager/checkout_event.dart';
 import '../../manager/checkout_state.dart';
 
-
-class CheckoutPaymentMethodSection extends StatelessWidget {
-  final AppColors colors;
-
-  const CheckoutPaymentMethodSection({
-    super.key,
-    required this.colors,
-  });
-
-  String _formatMethodTitle(String method) {
-    switch (method.toUpperCase()) {
-      case 'COD':
-        return AppStrings.cashOnDelivery.tr();
-      case 'CARD':
-        return AppStrings.creditCard.tr();
-      default:
-        return method;
-    }
-  }
+class CheckoutPaymentSection extends StatelessWidget {
+  const CheckoutPaymentSection({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final cubit = context.read<CheckoutCubit>();
+    final colors = Theme.of(context).extension<AppColors>();
+    final primaryColor = colors?.primary ?? Theme.of(context).primaryColor;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            AppStrings.paymentMethod.tr(),
+            AppStrings.paymentMethod,
             style: Theme.of(context).textTheme.labelMedium,
           ),
           const SizedBox(height: 6),
           BlocBuilder<CheckoutCubit, CheckoutState>(
             buildWhen: (prev, curr) =>
-            prev.checkoutDetailsResource != curr.checkoutDetailsResource ||
-                prev.selectedPaymentMethod != curr.selectedPaymentMethod,
+            prev.paymentMethod != curr.paymentMethod ||
+                prev.checkoutDetailsResource != curr.checkoutDetailsResource,
             builder: (context, state) {
-              final cubit = context.read<CheckoutCubit>();
-              final paymentMethods =
-                  state.checkoutDetailsResource.data?.paymentMethods ?? [];
+              final checkoutResource = state.checkoutDetailsResource;
 
-              if (paymentMethods.isEmpty) {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0),
-                  child: Text(
-                    AppStrings.noSavedAddresses.tr(), // or localized "No payment methods available"
-                    style: Theme.of(context).textTheme.bodySmall,
+              // 1. Loading state
+              if (checkoutResource.isLoading) {
+                return const Center(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: 16.0),
+                    child: SizedBox(
+                      width: 22,
+                      height: 22,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
                   ),
                 );
               }
 
-              return ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: paymentMethods.length,
-                itemBuilder: (context, index) {
-                  final option = paymentMethods[index];
-                  final isSelected = state.selectedPaymentMethod == option.method;
+              // 2. Error state
+              if (checkoutResource.isError) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: Text(
+                    checkoutResource.errorMessage ?? AppStrings.somethingWentWrong,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
+                      fontSize: 13,
+                    ),
+                  ),
+                );
+              }
+
+              final paymentMethods = checkoutResource.data?.paymentMethods ?? [];
+
+              // 3. Empty state: explicitly inform the user
+              if (paymentMethods.isEmpty) {
+                return Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 14.0),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade50,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.grey.shade200),
+                  ),
+                  child: Text(
+                    AppStrings.noPaymentMethodsAvailable, // Or "No payment methods available at the moment."
+                    style: TextStyle(
+                      color: Colors.grey.shade600,
+                      fontSize: 13,
+                    ),
+                  ),
+                );
+              }
+
+              // 4. Data state
+              return Column(
+                children: paymentMethods.map((method) {
+                  final methodValue = method.toString();
 
                   return InkWell(
-                    onTap: () {
-                      final gateway = (option.method.toUpperCase() == 'CARD' &&
-                          option.gateways.isNotEmpty)
-                          ? option.gateways.first
-                          : null;
-
-                      cubit.doEvents(
-                        SelectPaymentMethodEvent(
-                          method: option.method,
-                          gateway: gateway,
-                        ),
-                      );
-                    },
+                    onTap: () => cubit.doEvents(SelectPaymentMethodEvent(methodValue)),
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 6.0),
+                      padding: const EdgeInsets.symmetric(vertical: 4.0),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            _formatMethodTitle(option.method),
+                            methodValue,
                             style: const TextStyle(fontSize: 14),
                           ),
                           Radio<String>(
-                            value: option.method,
-                            groupValue: state.selectedPaymentMethod,
-                            activeColor: colors.primary,
-                            materialTapTargetSize:
-                            MaterialTapTargetSize.shrinkWrap,
+                            value: methodValue,
+                            groupValue: state.paymentMethod?.toString(),
+                            activeColor: primaryColor,
+                            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                             onChanged: (val) {
                               if (val != null) {
-                                final gateway = (val.toUpperCase() == 'CARD' &&
-                                    option.gateways.isNotEmpty)
-                                    ? option.gateways.first
-                                    : null;
-
-                                cubit.doEvents(
-                                  SelectPaymentMethodEvent(
-                                    method: val,
-                                    gateway: gateway,
-                                  ),
-                                );
+                                cubit.doEvents(SelectPaymentMethodEvent(val));
                               }
                             },
                           ),
@@ -116,7 +114,7 @@ class CheckoutPaymentMethodSection extends StatelessWidget {
                       ),
                     ),
                   );
-                },
+                }).toList(),
               );
             },
           ),
