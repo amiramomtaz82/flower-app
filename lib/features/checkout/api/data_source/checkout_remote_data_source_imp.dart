@@ -37,11 +37,11 @@ class CheckoutRemoteDataSourceImpl implements CheckoutRemoteDataSource {
           estimatedDeliveryAt: '2026-09-02T14:00:00Z',
           paymentMethods: [
             PaymentMethodOptionDto(
-              method: 'COD',
+              method: 'Cash on delivery',
               gateways: [],
             ),
             PaymentMethodOptionDto(
-              method: 'Card',
+              method: 'CREDIT_CARD',
               gateways: ['Paymob', 'Stripe'],
             ),
           ],

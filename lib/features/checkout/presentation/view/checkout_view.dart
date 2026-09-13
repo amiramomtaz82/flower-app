@@ -1,5 +1,6 @@
 import 'package:flower_app/core/app_constants/app_strings.dart';
-import 'package:flower_app/core/app_theme/app_colors.dart';
+import 'package:flower_app/features/checkout/presentation/view/widget/checkout_payment_method_service.dart' show CheckoutPaymentSection;
+
 import 'package:flower_app/features/checkout/presentation/view/widget/checkout_summery_option.dart';
 import 'package:flower_app/features/checkout/presentation/view/widget/deliver_time%20section.dart';
 import 'package:flower_app/features/checkout/presentation/view/widget/divider_section.dart';
@@ -16,7 +17,7 @@ import 'order_succss_screen.dart';
 import 'widget/checkout_address_section.dart';
 
 import 'widget/checkout_gift_section.dart';
-import 'widget/checkout_payment_section.dart';
+
 
 
 class CheckoutScreen extends StatefulWidget {

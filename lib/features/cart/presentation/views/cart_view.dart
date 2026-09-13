@@ -92,8 +92,9 @@ class _CartBody extends StatelessWidget {
         Expanded(child: _CartItems(state: state, cart: cart)),
         CartSummaryCard(
           cart: cart,
-          onCheckout: () => ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(AppStrings.comingSoon.tr())),
+          onCheckout: () => context.push(
+            AppRoutes.checkout,
+            extra: cart,
           ),
         ),
       ],
