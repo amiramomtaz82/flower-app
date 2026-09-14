@@ -144,13 +144,17 @@ class _ProfileViewState extends State<ProfileView> {
                   icon: Icons.receipt_long_outlined,
                   title: AppStrings.myOrders,
                   colors: colors,
-                  onTap: () {},
+                  onTap: () {
+                    context.push(AppRoutes.myOrders);
+                  },
                 ),
                 ProfileTile(
                   icon: Icons.location_on_outlined,
                   title: AppStrings.savedAddresses,
                   colors: colors,
-                  onTap: () {},
+                  onTap: () {
+                    context.push(AppRoutes.savedAddresses);
+                  },
                 ),
                 const Divider(height: 32),
                 ProfileTile(

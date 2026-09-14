@@ -23,14 +23,12 @@ import 'package:flower_app/features/commerce/presentation/product_details/view/p
 import 'package:flower_app/features/commerce/presentation/product_details/view_model/product_details_view_model.dart';
 import 'package:flower_app/features/commerce/presentation/search/manager/search_cubit.dart';
 import 'package:flower_app/features/commerce/presentation/search/view/search_view.dart';
-<<<<<<< HEAD
-import 'package:flower_app/features/orders/presentation/view/my_orders_view.dart' as flower_orders;
-=======
 import 'package:flower_app/features/profile/domain/entities/profile_entity.dart';
 import 'package:flower_app/features/profile/presentation/manager/profile_cubit.dart';
 import 'package:flower_app/features/profile/presentation/view/edit_profile_view.dart';
 import 'package:flower_app/features/profile/presentation/view/profile_view.dart';
->>>>>>> feature/edit-profile
+import 'package:flower_app/features/orders/presentation/view/my_orders_view.dart'
+    as flower_orders;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -73,8 +71,8 @@ class AppRouter {
           child: const LoginView(),
         ),
       ),
-      // lib/core/go_routes/app_router.dart
 
+      // lib/core/go_routes/app_router.dart
       GoRoute(
         path: AppRoutes.checkout,
         builder: (context, state) {
@@ -86,14 +84,9 @@ class AppRouter {
               BlocProvider<CheckoutCubit>(
                 create: (_) => getIt<CheckoutCubit>(),
               ),
-              BlocProvider<AddressCubit>.value(
-                value: getIt<AddressCubit>(),
-              ),
+              BlocProvider<AddressCubit>.value(value: getIt<AddressCubit>()),
             ],
-            child: CheckoutScreen(
-              cartId: cartId,
-              defaultAddressId: addressId,
-            ),
+            child: CheckoutScreen(cartId: cartId, defaultAddressId: addressId),
           );
         },
       ),
@@ -124,7 +117,7 @@ class AppRouter {
                   providers: [
                     BlocProvider<HomeCubit>(
                       create: (_) =>
-                      getIt<HomeCubit>()..doEvents(HomeStarted()),
+                          getIt<HomeCubit>()..doEvents(HomeStarted()),
                     ),
                     BlocProvider.value(
                       value: getIt<AddressCubit>()
@@ -197,7 +190,8 @@ class AppRouter {
       GoRoute(
         path: AppRoutes.addAddress,
         builder: (context, state) => BlocProvider.value(
-          value: getIt<AddressCubit>()..doEvents(const GetAreasWithCitiesEvent()),
+          value: getIt<AddressCubit>()
+            ..doEvents(const GetAreasWithCitiesEvent()),
           child: const AddAddressView(),
         ),
       ),
@@ -253,10 +247,10 @@ class AppRouter {
         ),
       ),
       GoRoute(
-<<<<<<< HEAD
         path: AppRoutes.myOrders,
         builder: (context, state) => const flower_orders.MyOrdersView(),
-=======
+      ),
+      GoRoute(
         path: AppRoutes.editProfile,
         builder: (context, state) {
           final profile = state.extra as ProfileEntity?;
@@ -265,7 +259,6 @@ class AppRouter {
             child: EditProfileView(initialProfile: profile),
           );
         },
->>>>>>> feature/edit-profile
       ),
     ],
   );

@@ -200,8 +200,6 @@ class AppStrings {
 
   // Profile screen strings
   static const String profileScreenTitle = 'profile';
-  static const String myOrders = 'My Orders';
-  static const String savedAddresses = 'Saved Addresses';
   static const String notification = 'Notification';
   static const String language = 'Language';
   static const String aboutUs = 'About Us';
@@ -247,5 +245,4 @@ class AppStrings {
   static const String deliveredOn = 'deliveredOn';
   static const String trackOrder = 'trackOrder';
   static const String reorder = 'reorder';
-  static const String retry = 'retry';
 }
