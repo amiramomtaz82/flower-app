@@ -22,6 +22,11 @@ class ProfileResponseModel {
 
   Map<String, dynamic> toJson() => _$ProfileResponseModelToJson(this);
 
-  ProfileEntity toEntity() =>
-      ProfileEntity(name: name, email: email, profileImageUrl: profileImageUrl);
+  ProfileEntity toEntity() => ProfileEntity(
+        name: name,
+        email: email,
+        profileImageUrl: profileImageUrl,
+        gender: gender,
+        phoneNumber: phoneNumber,
+      );
 }
