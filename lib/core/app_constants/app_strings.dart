@@ -41,9 +41,7 @@ class AppStrings {
   static const String resetSessionExpired =
       'your reset code expired, please request a new one';
 
-  // Error messages produced by `config/error` when the backend sends no
-  // message of its own. The UI calls `.tr()` on whatever reaches it, so these
-  // localize like any other key.
+  // messages
   static const String somethingWentWrong =
       'something went wrong, please try again';
   static const String checkYourConnection =
@@ -67,6 +65,7 @@ class AppStrings {
       'some fields are invalid, please check your input';
   static const String internalServerError =
       'internal server error, please try again later';
+  static const String retry = 'Retry';
 
   // Empty states on the categories and occasions pages.
   static const String noCategoriesYet = 'no categories yet';
@@ -87,21 +86,23 @@ class AppStrings {
   static const String navCategories = 'Categories';
   static const String navCart = 'Cart';
   static const String navProfile = 'Profile';
-  static const String pleaseLoginOrRegisterToContinue="PleaseLoginOrRegisterToContinue";
-  static const String loginRequired='Login required';
-  static const String register="Register";
-  static const String rememberMe="Remember me";
-  static const String areasIsEmpty='Areas response is empty';
-  static const String address='Address';
-  static const String label='label';
-  static const String addAddress='Add Address';
-  static const String pleaseEnterALabel='Please enter a label';
-  static const String recipientName='Recipient Name';
-  static const String pleaseEnterRecipientName='Please enter recipient name';
-  static const String recipientPhone='Recipient phone';
-  static const String pleaseEnterPhoneNumber='Please enter phone number';
-  static const String addressDetailsStreet='Address Details / Street';
-  static const String pleaseEnterAddressDetails='Please enter address details';
+  static const String pleaseLoginOrRegisterToContinue =
+      "PleaseLoginOrRegisterToContinue";
+  static const String loginRequired = 'Login required';
+  static const String register = "Register";
+  static const String rememberMe = "Remember me";
+  static const String areasIsEmpty = 'Areas response is empty';
+  static const String address = 'Address';
+  static const String label = 'label';
+  static const String addAddress = 'Add Address';
+  static const String pleaseEnterALabel = 'Please enter a label';
+  static const String recipientName = 'Recipient Name';
+  static const String pleaseEnterRecipientName = 'Please enter recipient name';
+  static const String recipientPhone = 'Recipient phone';
+  static const String pleaseEnterPhoneNumber = 'Please enter phone number';
+  static const String addressDetailsStreet = 'Address Details / Street';
+  static const String pleaseEnterAddressDetails =
+      'Please enter address details';
   static const String area = 'area';
   static const String loadingAreas = 'loading_areas';
   static const String selectArea = 'select_area';
@@ -112,9 +113,10 @@ class AppStrings {
   static const String selectCity = 'select_city';
   static const String pleaseSelectCity = 'please_select_city';
   static const String saveAddress = 'save_address';
-  static const String pleaseSelectLocationOnMap = 'please_select_location_on_map';
+  static const String pleaseSelectLocationOnMap =
+      'please_select_location_on_map';
   static const String defaultLabelHome = 'home';
-static const String addressAddedSuccessfully='Address added successfully!';
+  static const String addressAddedSuccessfully = 'Address added successfully!';
   static const String failedToAddAddress = 'failed_to_add_address';
   static const String pleaseEnterLabel = 'please_enter_label';
   static const String phoneNumber = 'phone_number';
@@ -136,16 +138,19 @@ static const String addressAddedSuccessfully='Address added successfully!';
   static const String enterRecipientName = 'enter_recipient_name';
   static const String name = 'name';
   static const String enterRecipientPhone = 'enter_recipient_phone';
-static const String selectPaymentMethodWarning = 'select_payment_method_warning';
+  static const String selectPaymentMethodWarning =
+      'select_payment_method_warning';
   static const String subTotal = 'sub_total';
   static const String deliveryFee = 'delivery_fee';
   static const String total = 'total';
   static const String placeOrder = 'place_order';
   static const String selectAddressWarning = 'select_address_warning';
   static const String orderFailedFallback = 'order_failed_fallback';
-static const String noPaymentMethodsAvailable = 'no_payment_methods_available';
+  static const String noPaymentMethodsAvailable =
+      'no_payment_methods_available';
 
-  static const String urlTemplate =  'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+  static const String urlTemplate =
+      'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
   static const String userAgentPackageName = 'com.example.flower_app';
   static const String signInToAddAddress = 'sign_in_to_add_address';
   static const String noAddressFound = 'no_address_found';
@@ -164,22 +169,25 @@ static const String noPaymentMethodsAvailable = 'no_payment_methods_available';
   static const String savedAddresses = 'saved_addresses';
   static const String addNewAddress = 'add_new_address';
   static const String deleteAddress = 'delete_address';
-  static const String deleteDefaultAddressWarning = 'delete_default_address_warning';
+  static const String deleteDefaultAddressWarning =
+      'delete_default_address_warning';
   static const String deleteAddressConfirm = 'delete_address_confirm';
-  static const String addressDeletedSuccessfully = 'address_deleted_successfully';
+  static const String addressDeletedSuccessfully =
+      'address_deleted_successfully';
   static const String failedToDeleteAddress = 'failed_to_delete_address';
   static const String cancel = 'cancel';
   static const String delete = 'delete';
-  static const String addressUpdatedSuccessfully = 'address_updated_successfully';
+  static const String addressUpdatedSuccessfully =
+      'address_updated_successfully';
   static const String updateFailed = 'update_failed';
   static const String enableLocationTitle = 'enable_location_title';
   static const String enableLocationMessage = 'enable_location_message';
   static const String openSettings = 'open_settings';
   static const String permissionRequiredTitle = 'permission_required_title';
-  static const String locationPermanentlyDeniedMessage = 'location_permanently_denied_message';
+  static const String locationPermanentlyDeniedMessage =
+      'location_permanently_denied_message';
   static const String locationPermissionDenied = 'location_permission_denied';
   static const String defaultError = 'default_error';
-
 
   static const String filter = 'filter';
   static const String sortBy = 'sort_by';
@@ -189,6 +197,26 @@ static const String noPaymentMethodsAvailable = 'no_payment_methods_available';
   static const String oldest = 'oldest';
   static const String discount = 'discount';
   static const String searchForAnyProduct = 'search_for_any_product';
+
+  // Profile screen strings
+  static const String profileScreenTitle = 'profile';
+  static const String myOrders = 'My Orders';
+  static const String savedAddresses = 'Saved Addresses';
+  static const String notification = 'Notification';
+  static const String language = 'Language';
+  static const String aboutUs = 'About Us';
+  static const String termsAndConditions = 'Terms and Conditions';
+  static const String appVersion = 'v 6.3.0 - (446)';
+  static const String changePassword = 'Change Password';
+  static const String logout = 'Logout';
+
+  // Edit profile
+  static const String editProfile = 'Edit Profile';
+  // 'Profile updated successfully!'
+  static const String profileUpdatedSuccessfully =
+      'profile_updated_successfully';
+  // 'Failed to update profile'
+  static const String failedToUpdateProfile = 'failed_to_update_profile';
 
   // Cart
   static const String cart = 'cart';
@@ -221,4 +249,3 @@ static const String noPaymentMethodsAvailable = 'no_payment_methods_available';
   static const String reorder = 'reorder';
   static const String retry = 'retry';
 }
-

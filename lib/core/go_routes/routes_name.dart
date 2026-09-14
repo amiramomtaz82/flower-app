@@ -5,6 +5,7 @@ class AppRoutes {
   static const String categories = '/categories';
   static const String cart = '/cart';
   static const String profile = '/profile';
+  static const String editProfile = '/edit-profile';
   static const String register = '/register';
 
   static const String splashView = '/splash';
