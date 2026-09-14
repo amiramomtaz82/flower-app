@@ -5,10 +5,17 @@ import 'package:injectable/injectable.dart';
 
 @injectable
 class AuthInterceptor extends Interceptor {
-  AuthInterceptor(this.authLocalDataSource, @Named('cleanDio') this._retryDio);
+  AuthInterceptor(this.authLocalDataSource)
+      : _retryDio = Dio(
+    BaseOptions(
+      baseUrl: Endpoints.baseUrl,
+      connectTimeout: const Duration(seconds: 30),
+      receiveTimeout: const Duration(seconds: 30),
+    ),
+  );
 
   final AuthLocalDataSource authLocalDataSource;
-  final Dio _retryDio; // A dedicated Dio instance without AuthInterceptor to avoid loops
+  final Dio _retryDio; // Isolated Dio instance without interceptors to avoid loops
 
   bool _isRefreshing = false;
   final List<RetryRequest> _requestQueue = [];

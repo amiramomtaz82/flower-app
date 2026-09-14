@@ -1,0 +1,14 @@
+flutter_native_splash:
+  color: "#F2F2F7" # Matches your AppColors.white / background
+  image: assets/images/Group 11.png
+
+  color_dark: "#121212" # Matches your AppColors.darkBackground
+  image_dark: assets/images/Group 11.png
+
+  android_12:
+    color: "#F2F2F7"
+    image: assets/images/Group 11.png
+    color_dark: "#121212"
+    image_dark: assets/images/Group 11.png
+
+  web: false

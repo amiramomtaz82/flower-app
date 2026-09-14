@@ -41,6 +41,7 @@ import '../../features/cart/presentation/views/cart_view.dart';
 import '../../features/checkout/presentation/manager/checkout_cubit.dart';
 import '../../features/checkout/presentation/view/order_succss_screen.dart';
 import '../../features/commerce/presentation/home/view/home_view.dart';
+import '../../features/splash/presentation/splash_view.dart';
 import 'main_shell_view.dart';
 
 class AppRouter {
@@ -51,9 +52,13 @@ class AppRouter {
 
   static final GoRouter router = GoRouter(
     navigatorKey: navigatorKey,
-    initialLocation: AppRoutes.login,
+    initialLocation: AppRoutes.splashView,
 
     routes: [
+      GoRoute(
+        path: AppRoutes.splashView,
+        builder: (context, state) => const SplashView(),
+      ),
       GoRoute(
         path: AppRoutes.login,
         builder: (context, state) => BlocProvider(
