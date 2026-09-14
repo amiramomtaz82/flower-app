@@ -41,9 +41,7 @@ class AppStrings {
   static const String resetSessionExpired =
       'your reset code expired, please request a new one';
 
-  // Error messages produced by `config/error` when the backend sends no
-  // message of its own. The UI calls `.tr()` on whatever reaches it, so these
-  // localize like any other key.
+  // messages
   static const String somethingWentWrong =
       'something went wrong, please try again';
   static const String checkYourConnection =
@@ -67,6 +65,7 @@ class AppStrings {
       'some fields are invalid, please check your input';
   static const String internalServerError =
       'internal server error, please try again later';
+  static const String retry = 'Retry';
 
   // Empty states on the categories and occasions pages.
   static const String noCategoriesYet = 'no categories yet';
@@ -87,10 +86,11 @@ class AppStrings {
   static const String navCategories = 'Categories';
   static const String navCart = 'Cart';
   static const String navProfile = 'Profile';
-  static const String pleaseLoginOrRegisterToContinue="PleaseLoginOrRegisterToContinue";
-  static const String loginRequired='Login required';
-  static const String register="Register";
-  static const String rememberMe="Remember me";
+  static const String pleaseLoginOrRegisterToContinue =
+      "PleaseLoginOrRegisterToContinue";
+  static const String loginRequired = 'Login required';
+  static const String register = "Register";
+  static const String rememberMe = "Remember me";
 
   static const String filter = 'filter';
   static const String sortBy = 'sort_by';
@@ -100,4 +100,24 @@ class AppStrings {
   static const String oldest = 'oldest';
   static const String discount = 'discount';
   static const String searchForAnyProduct = 'search_for_any_product';
+
+  // Profile screen strings
+  static const String profileScreenTitle = 'profile';
+  static const String myOrders = 'My Orders';
+  static const String savedAddresses = 'Saved Addresses';
+  static const String notification = 'Notification';
+  static const String language = 'Language';
+  static const String aboutUs = 'About Us';
+  static const String termsAndConditions = 'Terms and Conditions';
+  static const String appVersion = 'v 6.3.0 - (446)';
+  static const String changePassword = 'Change Password';
+  static const String logout = 'Logout';
+
+  // Edit profile
+  static const String editProfile = 'Edit Profile';
+  // 'Profile updated successfully!'
+  static const String profileUpdatedSuccessfully =
+      'profile_updated_successfully';
+  // 'Failed to update profile'
+  static const String failedToUpdateProfile = 'failed_to_update_profile';
 }
