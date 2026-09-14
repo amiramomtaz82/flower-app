@@ -1,7 +1,6 @@
 import 'package:flower_app/config/resource/rsource.dart';
 import 'package:flower_app/core/app_constants/app_strings.dart';
 import 'package:flower_app/core/app_theme/app_colors.dart';
-
 import 'package:flower_app/features/profile/presentation/manager/profile_cubit.dart';
 import 'package:flower_app/features/profile/presentation/manager/profile_event.dart';
 import 'package:flower_app/features/profile/presentation/manager/profile_state.dart';
@@ -10,6 +9,7 @@ import 'package:flower_app/features/profile/presentation/widgets/profile_tile.da
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'dart:io';
 
 class ProfileView extends StatefulWidget {
   const ProfileView({super.key});
@@ -88,7 +88,12 @@ class _ProfileViewState extends State<ProfileView> {
                         radius: 40,
                         backgroundColor: colors.surface,
                         backgroundImage: profile.profileImageUrl.isNotEmpty
-                            ? NetworkImage(profile.profileImageUrl)
+                            ? (profile.profileImageUrl.startsWith('http')
+                                      ? NetworkImage(profile.profileImageUrl)
+                                      : FileImage(
+                                          File(profile.profileImageUrl),
+                                        ))
+                                  as ImageProvider
                             : null,
                         child: profile.profileImageUrl.isEmpty
                             ? Icon(Icons.person, size: 40, color: colors.white)
