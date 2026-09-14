@@ -1,10 +1,15 @@
 import 'package:flower_app/config/resource/rsource.dart';
+import 'package:flower_app/core/app_constants/app_strings.dart';
 import 'package:flower_app/core/app_theme/app_colors.dart';
+
 import 'package:flower_app/features/profile/presentation/manager/profile_cubit.dart';
 import 'package:flower_app/features/profile/presentation/manager/profile_event.dart';
 import 'package:flower_app/features/profile/presentation/manager/profile_state.dart';
+import 'package:flower_app/core/go_routes/routes_name.dart';
+import 'package:flower_app/features/profile/presentation/widgets/profile_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 class ProfileView extends StatefulWidget {
   const ProfileView({super.key});
@@ -28,7 +33,7 @@ class _ProfileViewState extends State<ProfileView> {
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Profile')),
+      appBar: AppBar(title: const Text(AppStrings.profileScreenTitle)),
       body: BlocBuilder<ProfileCubit, ProfileState>(
         builder: (context, state) {
           final resource = state.resource;
@@ -45,7 +50,7 @@ class _ProfileViewState extends State<ProfileView> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      resource.errorMessage ?? 'Something went wrong',
+                      resource.errorMessage ?? AppStrings.somethingWentWrong,
                       textAlign: TextAlign.center,
                       style: textTheme.bodyLarge,
                     ),
@@ -54,7 +59,7 @@ class _ProfileViewState extends State<ProfileView> {
                       onPressed: () {
                         context.read<ProfileCubit>().doEvent(LoadProfile());
                       },
-                      child: const Text('Retry'),
+                      child: const Text(AppStrings.retry),
                     ),
                   ],
                 ),
@@ -75,7 +80,7 @@ class _ProfileViewState extends State<ProfileView> {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               physics: const AlwaysScrollableScrollPhysics(),
               children: [
-                const SizedBox(height: 8),
+                const SizedBox(height: 4),
                 Center(
                   child: Column(
                     children: [
@@ -89,40 +94,63 @@ class _ProfileViewState extends State<ProfileView> {
                             ? Icon(Icons.person, size: 40, color: colors.white)
                             : null,
                       ),
-                      const SizedBox(height: 12),
+                      // const SizedBox(height: 2),
                       Row(
-                        mainAxisSize: MainAxisSize.min,
+                        /// mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
+                          SizedBox(width: 8),
                           Text(profile.name, style: textTheme.titleLarge),
-                          const SizedBox(width: 6),
-                          Icon(Icons.edit_outlined, size: 16, color: colors.darkGrey),
+                          // const SizedBox(width: 2),
+                          IconButton(
+                            icon: Icon(
+                              Icons.edit_outlined,
+                              size: 14,
+                              color: colors.darkGrey,
+                            ),
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints(),
+                            onPressed: () async {
+                              final updated = await context.push<bool>(
+                                AppRoutes.editProfile,
+                                extra: profile,
+                              );
+                              if (updated == true && context.mounted) {
+                                context.read<ProfileCubit>().doEvent(
+                                  LoadProfile(),
+                                );
+                              }
+                            },
+                          ),
                         ],
                       ),
-                      const SizedBox(height: 4),
+                      //const SizedBox(height: 2),
                       Text(
                         profile.email,
-                        style: textTheme.bodyMedium?.copyWith(color: colors.darkGrey),
+                        style: textTheme.titleMedium?.copyWith(
+                          color: colors.darkGrey,
+                        ),
                       ),
                     ],
                   ),
                 ),
                 const SizedBox(height: 24),
-                _ProfileTile(
+                ProfileTile(
                   icon: Icons.receipt_long_outlined,
-                  title: 'My orders',
+                  title: AppStrings.myOrders,
                   colors: colors,
                   onTap: () {},
                 ),
-                _ProfileTile(
+                ProfileTile(
                   icon: Icons.location_on_outlined,
-                  title: 'Saved address',
+                  title: AppStrings.savedAddresses,
                   colors: colors,
                   onTap: () {},
                 ),
                 const Divider(height: 32),
-                _ProfileTile(
+                ProfileTile(
                   icon: Icons.notifications_none_outlined,
-                  title: 'Notification',
+                  title: AppStrings.notification,
                   colors: colors,
                   trailing: Switch(
                     value: _notificationsEnabled,
@@ -132,32 +160,34 @@ class _ProfileViewState extends State<ProfileView> {
                   ),
                 ),
                 const Divider(height: 32),
-                _ProfileTile(
+                ProfileTile(
                   icon: Icons.translate,
-                  title: 'Language',
+                  title: AppStrings.language,
                   colors: colors,
                   trailing: Text(
                     'English',
-                    style: textTheme.bodyMedium?.copyWith(color: colors.primary),
+                    style: textTheme.bodyMedium?.copyWith(
+                      color: colors.primary,
+                    ),
                   ),
                   onTap: () {},
                 ),
-                _ProfileTile(
+                ProfileTile(
                   icon: null,
                   title: 'About us',
                   colors: colors,
                   onTap: () {},
                 ),
-                _ProfileTile(
+                ProfileTile(
                   icon: null,
-                  title: 'Terms & conditions',
+                  title: AppStrings.termsAndConditions,
                   colors: colors,
                   onTap: () {},
                 ),
                 const Divider(height: 32),
-                _ProfileTile(
+                ProfileTile(
                   icon: Icons.logout,
-                  title: 'Logout',
+                  title: AppStrings.logout,
                   colors: colors,
                   trailingIcon: Icons.arrow_forward,
                   onTap: () {},
@@ -165,7 +195,7 @@ class _ProfileViewState extends State<ProfileView> {
                 const SizedBox(height: 24),
                 Center(
                   child: Text(
-                    'v 6.3.0 - (446)',
+                    AppStrings.appVersion,
                     style: textTheme.bodySmall?.copyWith(color: colors.grey),
                   ),
                 ),
@@ -175,37 +205,6 @@ class _ProfileViewState extends State<ProfileView> {
           );
         },
       ),
-    );
-  }
-}
-
-class _ProfileTile extends StatelessWidget {
-  const _ProfileTile({
-    required this.title,
-    required this.colors,
-    this.icon,
-    this.trailing,
-    this.trailingIcon,
-    this.onTap,
-  });
-
-  final String title;
-  final AppColors colors;
-  final IconData? icon;
-  final Widget? trailing;
-  final IconData? trailingIcon;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      contentPadding: EdgeInsets.zero,
-      leading: icon == null ? null : Icon(icon, color: colors.textPrimary),
-      title: Text(title, style: Theme.of(context).textTheme.bodyLarge),
-      trailing:
-          trailing ??
-          Icon(trailingIcon ?? Icons.chevron_right, color: colors.darkGrey),
-      onTap: onTap,
     );
   }
 }
