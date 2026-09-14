@@ -1,6 +1,7 @@
 import 'package:flower_app/features/profile/api/client/profile_api_client.dart';
 import 'package:flower_app/features/profile/data/data_source/remote/profile_remote_data_source.dart';
 import 'package:flower_app/features/profile/data/models/profile_response_model.dart';
+import 'package:flower_app/features/profile/data/models/update_profile_dto.dart';
 // ignore: unused_import
 import 'package:injectable/injectable.dart';
 
@@ -13,6 +14,14 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
   @override
   Future<ProfileResponseModel> getProfile() async {
     final response = await _profileApiClient.getProfile();
+    return response;
+  }
+
+  @override
+  Future<ProfileResponseModel> updateProfile(
+    UpdateProfileDto updateProfileDto,
+  ) async {
+    final response = await _profileApiClient.updateProfile(updateProfileDto);
     return response;
   }
 }
