@@ -5,36 +5,37 @@ import 'package:injectable/injectable.dart';
 
 @Injectable(as: ProfileRemoteDataSource)
 class MockProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
+  // 1. In-memory state holding the current profile
+  static ProfileResponseModel _mockProfile = ProfileResponseModel(
+    name: 'Hadi Heikal',
+    email: 'HadiiRabea@gmail.com',
+    profileImageUrl:
+        'https://images.unsplash.com/photo-1500648767791-00dcc994a43e',
+    gender: 'male',
+    phoneNumber: '+201012345678',
+  );
+
   @override
   Future<ProfileResponseModel> getProfile() async {
-    // Simulate real-world network latency
     await Future.delayed(const Duration(milliseconds: 800));
-
-    // Return realistic dummy profile data
-    return ProfileResponseModel(
-      name: 'Hadi Heikal',
-      email: 'HadiiRabea@gmail.com',
-      profileImageUrl:
-          'https://images.unsplash.com/photo-1500648767791-00dcc994a43e',
-      gender: 'male',
-      phoneNumber: '+201012345678',
-    );
+    return _mockProfile; // Return current in-memory state
   }
 
   @override
   Future<ProfileResponseModel> updateProfile(
     UpdateProfileDto updateProfileDto,
   ) async {
-    // Simulate real-world network latency
     await Future.delayed(const Duration(milliseconds: 800));
 
-    // Return updated profile data
-    return ProfileResponseModel(
+    // 2. Persist the update in memory!
+    _mockProfile = ProfileResponseModel(
       name: updateProfileDto.fullName,
       email: updateProfileDto.email,
       profileImageUrl: updateProfileDto.photoUrl,
       gender: updateProfileDto.gender,
       phoneNumber: updateProfileDto.phoneNumber,
     );
+
+    return _mockProfile;
   }
 }
