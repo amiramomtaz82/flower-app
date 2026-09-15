@@ -67,7 +67,9 @@ class AuthRepoImpl implements AuthRepo {
         if (loginResponse.user != null) {
           await _authLocalDataSource.saveUser(loginResponse.user!);
         }
-
+        await _authLocalDataSource.saveNotificationsEnabled(
+          loginResponse.notificationsEnabled,
+        );
         final loginEntity = loginResponse.toEntity();
 
         return SuccessResponse<LoginEntity>(loginEntity);

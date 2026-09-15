@@ -1,112 +1,55 @@
+import 'package:flower_app/features/auth/data/models/user_dto.dart';
+
 import '../../domain/entities/login_entity.dart';
 
-/// accessToken : "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-/// refreshToken : "d9a8f7c6b5a4..."
-/// expiresIn : 900
-/// role : "Customer"
-/// driverStatus : "Approved"
-/// user : {"id":"018f23a4-1234-7000-8000-000000000001","email":"customer@example.com","fullName":"Ahmed Hassan","role":"Customer","isActive":true,"driverStatus":null}
-
 class LoginResponse {
-  LoginResponse({
-      this.accessToken, 
-      this.refreshToken, 
-      this.expiresIn, 
-      this.role, 
-      this.driverStatus, 
-      this.user,});
+  final String? accessToken;
+  final String? refreshToken;
+  final int? expiresIn;
+  final String? driverStatus;
+  final UserDto? user;
+  final bool notificationsEnabled; // Non-nullable with safe default
 
-  LoginResponse.fromJson(dynamic json) {
-    accessToken = json['accessToken'];
-    refreshToken = json['refreshToken'];
-    expiresIn = json['expiresIn'];
-    role = json['role'];
-    driverStatus = json['driverStatus'];
-    user = json['user'] != null ? User.fromJson(json['user']) : null;
+  LoginResponse({
+    this.accessToken,
+    this.refreshToken,
+    this.expiresIn,
+    this.driverStatus,
+    this.user,
+    this.notificationsEnabled = true,
+  });
+
+  factory LoginResponse.fromJson(Map<String, dynamic> json) {
+    return LoginResponse(
+      accessToken: json['accessToken'] as String?,
+      refreshToken: json['refreshToken'] as String?,
+      expiresIn: json['expiresIn'] as int?,
+      driverStatus: json['driverStatus'] as String?,
+      user: json['user'] != null ? UserDto.fromJson(json['user'] as Map<String, dynamic>) : null,
+      // Safely check root, nested device object, or fallback to true per spec:
+      notificationsEnabled: (json['notificationsEnabled'] ??
+          json['device']?['notificationsEnabled'] ??
+          true) as bool,
+    );
   }
-  String? accessToken;
-  String? refreshToken;
-  num? expiresIn;
-  String? role;
-  String? driverStatus;
-  User? user;
 
   Map<String, dynamic> toJson() {
-    final map = <String, dynamic>{};
-    map['accessToken'] = accessToken;
-    map['refreshToken'] = refreshToken;
-    map['expiresIn'] = expiresIn;
-    map['role'] = role;
-    map['driverStatus'] = driverStatus;
-    if (user != null) {
-      map['user'] = user?.toJson();
-    }
-    return map;
+    return {
+      'accessToken': accessToken,
+      'refreshToken': refreshToken,
+      'expiresIn': expiresIn,
+      'driverStatus': driverStatus,
+      if (user != null) 'user': user!.toJson(),
+      'notificationsEnabled': notificationsEnabled,
+    };
   }
 
   LoginEntity toEntity() {
     return LoginEntity(
       accessToken: accessToken,
       refreshToken: refreshToken,
-      expiresIn: expiresIn,
-      role: role,
-      driverStatus: driverStatus,
       user: user?.toEntity(),
+      notificationsEnabled: notificationsEnabled,
     );
   }
-
-}
-
-/// id : "018f23a4-1234-7000-8000-000000000001"
-/// email : "customer@example.com"
-/// fullName : "Ahmed Hassan"
-/// role : "Customer"
-/// isActive : true
-/// driverStatus : null
-
-class User {
-  User({
-      this.id, 
-      this.email, 
-      this.fullName, 
-      this.role, 
-      this.isActive, 
-      this.driverStatus,});
-
-  User.fromJson(dynamic json) {
-    id = json['id'];
-    email = json['email'];
-    fullName = json['fullName'];
-    role = json['role'];
-    isActive = json['isActive'];
-    driverStatus = json['driverStatus'];
-  }
-  String? id;
-  String? email;
-  String? fullName;
-  String? role;
-  bool? isActive;
-  dynamic driverStatus;
-
-  Map<String, dynamic> toJson() {
-    final map = <String, dynamic>{};
-    map['id'] = id;
-    map['email'] = email;
-    map['fullName'] = fullName;
-    map['role'] = role;
-    map['isActive'] = isActive;
-    map['driverStatus'] = driverStatus;
-    return map;
-  }
-  UserEntity toEntity() {
-    return UserEntity(
-      id: id,
-      email: email,
-      fullName: fullName,
-      role: role,
-      isActive: isActive,
-      driverStatus: driverStatus,
-    );
-  }
-
 }

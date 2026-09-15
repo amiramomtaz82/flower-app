@@ -6,6 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../../config/di/di.dart';
+import '../../../../../config/notificaions/fcm.dart';
+import '../../../../auth/data/data_source/local/auth_local_data_source.dart';
 import '../../../domain/entities/category_entity.dart';
 import '../../../domain/entities/home_section_entity.dart';
 import '../../../domain/entities/home_section_type.dart';
@@ -29,7 +32,20 @@ class HomeView extends StatefulWidget {
 }
 
 class _HomeViewState extends State<HomeView> {
+  @override
+  void initState() {
+    super.initState();
+    _checkNotificationPermission();
+  }
 
+  Future<void> _checkNotificationPermission() async {
+    final authLocal = getIt<AuthLocalDataSource>();
+    final isEnabled = await authLocal.getNotificationsEnabled();
+
+    if (isEnabled) {
+      await getIt<Fcm>().requestPermission();
+    }
+  }
 
   Widget build(BuildContext context) {
     return Scaffold(

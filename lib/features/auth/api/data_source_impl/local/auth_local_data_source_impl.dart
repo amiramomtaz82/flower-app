@@ -6,6 +6,7 @@ import 'package:flower_app/features/auth/data/models/login_response.dart';
 import 'package:injectable/injectable.dart';
 
 import '../../../../../config/secure_storage/secure_storage.dart';
+import '../../../data/models/user_dto.dart';
 
 
 @LazySingleton(as: AuthLocalDataSource)
@@ -17,7 +18,7 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   static const String _accessTokenKey = AppStrings.accessToken;
   static const String _refreshTokenKey = 'refreshToken';
   static const String _userKey = 'user';
-
+  static const String _notificationsEnabledKey = 'notifications_enabled';
   @override
   Future<void> saveToken(String token) {
     return _secureStorage.write(
@@ -49,7 +50,7 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   }
 
   @override
-  Future<void> saveUser(User user) {
+  Future<void> saveUser(UserDto user) {
     return _secureStorage.write(
       key: _userKey,
       value: jsonEncode(user.toJson()),
@@ -57,20 +58,32 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   }
 
   @override
-  Future<User?> getUser() async {
-    final userJson = await _secureStorage.read(
-      key: _userKey,
-    );
+  Future<UserDto?> getUser() async {
+    final userJson = await _secureStorage.read(key: _userKey);
+    if (userJson == null) return null;
 
-    if (userJson == null) {
+    try {
+      return UserDto.fromJson(jsonDecode(userJson) as Map<String, dynamic>);
+    } catch (_) {
+      await _secureStorage.delete(key: _userKey);
       return null;
     }
+  }
 
-    return User.fromJson(
-      jsonDecode(userJson),
+  @override
+  Future<void> saveNotificationsEnabled(bool isEnabled) {
+    return _secureStorage.write(
+      key: _notificationsEnabledKey,
+      value: isEnabled.toString(),
     );
   }
 
+  @override
+  Future<bool> getNotificationsEnabled() async {
+    final value = await _secureStorage.read(key: _notificationsEnabledKey);
+    if (value == null) return true; // Default to true per spec[cite: 1]
+    return value.toLowerCase() == 'true';
+  }
   @override
   Future<void> clearAuthData() async {
     await _secureStorage.delete(

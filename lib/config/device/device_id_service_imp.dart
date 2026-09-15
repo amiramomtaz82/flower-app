@@ -25,7 +25,7 @@ class DeviceIdServiceImp extends DeviceIdService{
   @override
   Future<String> getDeviceId() async {
     final deviceId = await _secureStorage.read(
-      key: AppStrings.deviceId,
+      key: _deviceIdKey,
     );
 
     if (deviceId != null && deviceId.isNotEmpty) {
@@ -35,7 +35,7 @@ class DeviceIdServiceImp extends DeviceIdService{
     final newDeviceId = const Uuid().v4();
 
     await _secureStorage.write(
-      key: AppStrings.deviceId,
+      key: _deviceIdKey,
       value: newDeviceId,
     );
 

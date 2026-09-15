@@ -21,20 +21,21 @@ import 'package:flower_app/features/auth/data/models/register_request.dart'
     as _i12;
 import 'package:flower_app/features/auth/data/models/register_response.dart'
     as _i2;
+import 'package:flower_app/features/auth/data/models/user_dto.dart' as _i17;
 import 'package:flower_app/features/auth/data/models/verify_otp_response_model.dart'
     as _i4;
 import 'package:flower_app/features/auth/domain/core/result.dart' as _i7;
 import 'package:flower_app/features/auth/domain/entities/auth_entity.dart'
     as _i8;
 import 'package:flower_app/features/auth/domain/entities/auth_message_entity.dart'
-    as _i19;
+    as _i20;
 import 'package:flower_app/features/auth/domain/entities/login_entity.dart'
-    as _i18;
+    as _i19;
 import 'package:flower_app/features/auth/domain/entities/register_params.dart'
     as _i9;
 import 'package:flower_app/features/auth/domain/entities/reset_token_entity.dart'
-    as _i20;
-import 'package:flower_app/features/auth/domain/repo/auth_repo.dart' as _i17;
+    as _i21;
+import 'package:flower_app/features/auth/domain/repo/auth_repo.dart' as _i18;
 import 'package:flower_app/features/auth/domain/use_cases/register_use_case.dart'
     as _i5;
 import 'package:mockito/mockito.dart' as _i1;
@@ -236,7 +237,7 @@ class MockAuthLocalDataSource extends _i1.Mock
           as _i6.Future<String?>);
 
   @override
-  _i6.Future<void> saveUser(_i14.User? user) =>
+  _i6.Future<void> saveUser(_i17.UserDto? user) =>
       (super.noSuchMethod(
             Invocation.method(#saveUser, [user]),
             returnValue: _i6.Future<void>.value(),
@@ -245,12 +246,12 @@ class MockAuthLocalDataSource extends _i1.Mock
           as _i6.Future<void>);
 
   @override
-  _i6.Future<_i14.User?> getUser() =>
+  _i6.Future<_i17.UserDto?> getUser() =>
       (super.noSuchMethod(
             Invocation.method(#getUser, []),
-            returnValue: _i6.Future<_i14.User?>.value(),
+            returnValue: _i6.Future<_i17.UserDto?>.value(),
           )
-          as _i6.Future<_i14.User?>);
+          as _i6.Future<_i17.UserDto?>);
 
   @override
   _i6.Future<void> clearAuthData() =>
@@ -260,25 +261,42 @@ class MockAuthLocalDataSource extends _i1.Mock
             returnValueForMissingStub: _i6.Future<void>.value(),
           )
           as _i6.Future<void>);
+
+  @override
+  _i6.Future<void> saveNotificationsEnabled(bool? isEnabled) =>
+      (super.noSuchMethod(
+            Invocation.method(#saveNotificationsEnabled, [isEnabled]),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
+          )
+          as _i6.Future<void>);
+
+  @override
+  _i6.Future<bool> getNotificationsEnabled() =>
+      (super.noSuchMethod(
+            Invocation.method(#getNotificationsEnabled, []),
+            returnValue: _i6.Future<bool>.value(false),
+          )
+          as _i6.Future<bool>);
 }
 
 /// A class which mocks [AuthRepo].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockAuthRepo extends _i1.Mock implements _i17.AuthRepo {
+class MockAuthRepo extends _i1.Mock implements _i18.AuthRepo {
   MockAuthRepo() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i6.Future<_i13.BaseResponse<_i18.LoginEntity>> login({
+  _i6.Future<_i13.BaseResponse<_i19.LoginEntity>> login({
     required String? email,
     required String? password,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#login, [], {#email: email, #password: password}),
-            returnValue: _i6.Future<_i13.BaseResponse<_i18.LoginEntity>>.value(
-              _i10.dummyValue<_i13.BaseResponse<_i18.LoginEntity>>(
+            returnValue: _i6.Future<_i13.BaseResponse<_i19.LoginEntity>>.value(
+              _i10.dummyValue<_i13.BaseResponse<_i19.LoginEntity>>(
                 this,
                 Invocation.method(#login, [], {
                   #email: email,
@@ -287,7 +305,7 @@ class MockAuthRepo extends _i1.Mock implements _i17.AuthRepo {
               ),
             ),
           )
-          as _i6.Future<_i13.BaseResponse<_i18.LoginEntity>>);
+          as _i6.Future<_i13.BaseResponse<_i19.LoginEntity>>);
 
   @override
   _i6.Future<_i7.Result<_i8.RegisterEntity>> signUp(
@@ -305,23 +323,23 @@ class MockAuthRepo extends _i1.Mock implements _i17.AuthRepo {
           as _i6.Future<_i7.Result<_i8.RegisterEntity>>);
 
   @override
-  _i6.Future<_i13.BaseResponse<_i19.AuthMessageEntity>> forgetPassword({
+  _i6.Future<_i13.BaseResponse<_i20.AuthMessageEntity>> forgetPassword({
     required String? email,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#forgetPassword, [], {#email: email}),
             returnValue:
-                _i6.Future<_i13.BaseResponse<_i19.AuthMessageEntity>>.value(
-                  _i10.dummyValue<_i13.BaseResponse<_i19.AuthMessageEntity>>(
+                _i6.Future<_i13.BaseResponse<_i20.AuthMessageEntity>>.value(
+                  _i10.dummyValue<_i13.BaseResponse<_i20.AuthMessageEntity>>(
                     this,
                     Invocation.method(#forgetPassword, [], {#email: email}),
                   ),
                 ),
           )
-          as _i6.Future<_i13.BaseResponse<_i19.AuthMessageEntity>>);
+          as _i6.Future<_i13.BaseResponse<_i20.AuthMessageEntity>>);
 
   @override
-  _i6.Future<_i13.BaseResponse<_i20.ResetToken>> verifyOtp({
+  _i6.Future<_i13.BaseResponse<_i21.ResetToken>> verifyOtp({
     required String? email,
     required String? otpCode,
   }) =>
@@ -330,8 +348,8 @@ class MockAuthRepo extends _i1.Mock implements _i17.AuthRepo {
               #email: email,
               #otpCode: otpCode,
             }),
-            returnValue: _i6.Future<_i13.BaseResponse<_i20.ResetToken>>.value(
-              _i10.dummyValue<_i13.BaseResponse<_i20.ResetToken>>(
+            returnValue: _i6.Future<_i13.BaseResponse<_i21.ResetToken>>.value(
+              _i10.dummyValue<_i13.BaseResponse<_i21.ResetToken>>(
                 this,
                 Invocation.method(#verifyOtp, [], {
                   #email: email,
@@ -340,10 +358,10 @@ class MockAuthRepo extends _i1.Mock implements _i17.AuthRepo {
               ),
             ),
           )
-          as _i6.Future<_i13.BaseResponse<_i20.ResetToken>>);
+          as _i6.Future<_i13.BaseResponse<_i21.ResetToken>>);
 
   @override
-  _i6.Future<_i13.BaseResponse<_i19.AuthMessageEntity>> resetPassword({
+  _i6.Future<_i13.BaseResponse<_i20.AuthMessageEntity>> resetPassword({
     required String? resetToken,
     required String? newPassword,
     required String? confirmNewPassword,
@@ -355,8 +373,8 @@ class MockAuthRepo extends _i1.Mock implements _i17.AuthRepo {
               #confirmNewPassword: confirmNewPassword,
             }),
             returnValue:
-                _i6.Future<_i13.BaseResponse<_i19.AuthMessageEntity>>.value(
-                  _i10.dummyValue<_i13.BaseResponse<_i19.AuthMessageEntity>>(
+                _i6.Future<_i13.BaseResponse<_i20.AuthMessageEntity>>.value(
+                  _i10.dummyValue<_i13.BaseResponse<_i20.AuthMessageEntity>>(
                     this,
                     Invocation.method(#resetPassword, [], {
                       #resetToken: resetToken,
@@ -366,7 +384,7 @@ class MockAuthRepo extends _i1.Mock implements _i17.AuthRepo {
                   ),
                 ),
           )
-          as _i6.Future<_i13.BaseResponse<_i19.AuthMessageEntity>>);
+          as _i6.Future<_i13.BaseResponse<_i20.AuthMessageEntity>>);
 
   @override
   _i6.Future<void> clearAuthData() =>
