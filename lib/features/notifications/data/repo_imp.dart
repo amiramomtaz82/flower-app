@@ -14,12 +14,12 @@ class NotificationRepoImpl implements NotificationRepo {
   @override
   Future<void> updateFcmToken({
     required String deviceId,
-    required String userId,
+
     required String fcmToken,
   }) async {
     final request = UpdateFcmTokenRequest(
       deviceId: deviceId,
-      userId: userId,
+
       fcmToken: fcmToken,
     );
     await _remoteDataSource.updateFcmToken(request);

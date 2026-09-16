@@ -1,3 +1,4 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flower_app/config/resource/rsource.dart';
 import 'package:flower_app/core/app_constants/app_assets.dart';
 import 'package:flower_app/core/go_routes/routes_name.dart';
@@ -8,6 +9,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../../config/di/di.dart';
 import '../../../../../config/notificaions/fcm.dart';
+import '../../../../../config/notificaions/fcm_token_sync_service.dart';
 import '../../../../auth/data/data_source/local/auth_local_data_source.dart';
 import '../../../domain/entities/category_entity.dart';
 import '../../../domain/entities/home_section_entity.dart';
@@ -39,11 +41,25 @@ class _HomeViewState extends State<HomeView> {
   }
 
   Future<void> _checkNotificationPermission() async {
+    final fcm = getIt<Fcm>();
     final authLocal = getIt<AuthLocalDataSource>();
-    final isEnabled = await authLocal.getNotificationsEnabled();
 
-    if (isEnabled) {
-      await getIt<Fcm>().requestPermission();
+    // 1. Check if the user toggled it off explicitly inside your app settings
+    final isAppLevelEnabled = await authLocal.getNotificationsEnabled();
+    if (!isAppLevelEnabled) return;
+
+    // 2. Request / check OS-level permission via FCM
+    final settings = await fcm.requestPermission();
+
+    // 3. Keep local state aligned with OS result
+    final isGranted = settings.authorizationStatus == AuthorizationStatus.authorized ||
+        settings.authorizationStatus == AuthorizationStatus.provisional;
+
+    await authLocal.saveNotificationsEnabled(isGranted);
+
+    // 4. Initialize token sync if granted
+    if (isGranted) {
+      await getIt<FcmTokenSyncService>().initFcmTokenSync();
     }
   }
 

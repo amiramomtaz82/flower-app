@@ -12,18 +12,18 @@ class FcmTokenSyncService {
   final DeviceIdService _deviceIdService;
   final AuthLocalDataSource _authLocalDataSource;
   final SecureStorage _secureStorage;
-  final NotificationRepo _notificationRepo; // Inject repository
+  final NotificationRepo _notificationRepo;
 
   StreamSubscription<String>? _refreshSubscription;
   static const String _lastFcmTokenKey = 'last_fcm_token';
 
   FcmTokenSyncService(
-    this._fcm,
-    this._deviceIdService,
-    this._authLocalDataSource,
-    this._secureStorage,
-    this._notificationRepo,
-  );
+      this._fcm,
+      this._deviceIdService,
+      this._authLocalDataSource,
+      this._secureStorage,
+      this._notificationRepo,
+      );
 
   Future<void> initFcmTokenSync() async {
     final currentToken = await _fcm.getToken();
@@ -40,22 +40,17 @@ class FcmTokenSyncService {
   }
 
   Future<void> _syncToken(String token) async {
-    final user = await _authLocalDataSource.getUser();
     final deviceId = await _deviceIdService.getDeviceId();
 
-    if (user != null) {
-      try {
-        await _notificationRepo.updateFcmToken(
-          deviceId: deviceId,
-          userId: user.id,
-          fcmToken: token,
-        );
-        await _secureStorage.write(key: _lastFcmTokenKey, value: token);
-      } catch (_) {
-        // Leave _lastFcmTokenKey unchanged so the next app start retries the sync
-      }
-    } else {
+    try {
+      await _notificationRepo.updateFcmToken(
+        deviceId: deviceId,
+        fcmToken: token,
+      );
+      // Only persist locally once the backend accepts it
       await _secureStorage.write(key: _lastFcmTokenKey, value: token);
+    } catch (_) {
+      // Intentionally unhandled: keeps last token unwritten so next launch retries
     }
   }
 
