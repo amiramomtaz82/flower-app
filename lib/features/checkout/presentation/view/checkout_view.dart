@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flower_app/core/app_constants/app_strings.dart';
 import 'package:flower_app/features/checkout/presentation/view/widget/checkout_payment_method_service.dart' show CheckoutPaymentSection;
 
@@ -135,7 +136,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black, size: 20),
             onPressed: () => Navigator.of(context).pop(),
           ),
-          title: const Text(AppStrings.checkoutTitle),
+          title:  Text(AppStrings.checkoutTitle.tr()),
           centerTitle: true,
         ),
         body: SingleChildScrollView(

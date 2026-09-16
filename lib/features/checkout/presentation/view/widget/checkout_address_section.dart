@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flower_app/core/app_constants/app_strings.dart';
 import 'package:flower_app/core/app_theme/app_colors.dart';
 import 'package:flower_app/core/go_routes/routes_name.dart';
@@ -30,7 +31,7 @@ class CheckoutAddressSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(AppStrings.deliveryAddress, style: Theme.of(context).textTheme.labelMedium),
+          Text(AppStrings.deliveryAddress.tr(), style: Theme.of(context).textTheme.labelMedium),
           const SizedBox(height: 12),
           BlocBuilder<AddressCubit, AddressState>(
             builder: (context, addressState) {
@@ -51,7 +52,7 @@ class CheckoutAddressSection extends StatelessWidget {
                             border: Border.all(color: Colors.grey.shade300),
                           ),
                           child: Text(
-                            AppStrings.noSavedAddresses,
+                            AppStrings.noSavedAddresses.tr(),
                             style: Theme.of(context).textTheme.titleSmall,
                           ),
                         )
@@ -74,7 +75,7 @@ class CheckoutAddressSection extends StatelessWidget {
                                 context.read<AddressCubit>().doEvents(SelectAddressEvent(addressItem));
                                 checkoutCubit.doEvents(
                                   EstimateDeliveryEvent(
-                                    addressId: addressItem.id ?? '',
+                                    addressId: addressItem.id?? '',
                                     cartId: cartId,
                                   ),
                                 );
@@ -94,7 +95,7 @@ class CheckoutAddressSection extends StatelessWidget {
                           onPressed: () => context.push(AppRoutes.addAddress),
                           icon: Icon(Icons.add, size: 20, color: primaryColor),
                           label: Text(
-                            AppStrings.addNew,
+                            AppStrings.addNew.tr(),
                             style: TextStyle(color: primaryColor, fontWeight: FontWeight.w600),
                           ),
                         ),

@@ -127,7 +127,7 @@ class AppStrings {
   static const String checkoutTitle = 'checkout_title';
   static const String deliveryTime = 'delivery_time';
   static const String instant = 'instant';
-  static const String arriveBy = 'arrive_by';
+  static const String arriveBy = 'arrive by';
   static const String notDetermined = 'not_determined';
   static const String deliveryAddress = 'delivery_address';
   static const String noSavedAddresses = 'no_saved_addresses';

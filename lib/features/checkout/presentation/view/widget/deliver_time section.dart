@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flower_app/core/app_constants/app_strings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -17,13 +18,13 @@ class CheckoutDeliveryTimeSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(AppStrings.deliveryTime, style: Theme.of(context).textTheme.labelMedium),
+          Text(AppStrings.deliveryTime.tr(), style: Theme.of(context).textTheme.labelMedium),
           const SizedBox(height: 8),
           Row(
             children: [
               const Icon(Icons.watch_later_outlined, size: 18),
               const SizedBox(width: 6),
-              Text(AppStrings.instant, style: Theme.of(context).textTheme.bodySmall),
+              Text(AppStrings.instant.tr(), style: Theme.of(context).textTheme.bodySmall),
               const SizedBox(width: 4),
               BlocBuilder<CheckoutCubit, CheckoutState>(
                 buildWhen: (prev, curr) =>

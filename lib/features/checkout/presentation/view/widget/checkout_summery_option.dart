@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flower_app/core/app_constants/app_strings.dart';
 import 'package:flower_app/core/app_theme/app_colors.dart';
 import 'package:flutter/material.dart';
@@ -90,11 +91,11 @@ class CheckoutSummarySection extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Column(
             children: [
-              _SummaryRow(label: AppStrings.subTotal, amount: '${subtotal.toStringAsFixed(2)}\$'),
+              _SummaryRow(label: AppStrings.subTotal.tr(), amount: '${subtotal.toStringAsFixed(2)}\$'),
               const SizedBox(height: 8),
-              _SummaryRow(label: AppStrings.deliveryFee, amount: '${deliveryFee.toStringAsFixed(2)}\$'),
+              _SummaryRow(label: AppStrings.deliveryFee.tr(), amount: '${deliveryFee.toStringAsFixed(2)}\$'),
               const Divider(height: 24, thickness: 0.8),
-              _SummaryRow(label: AppStrings.total, amount: '${total.toStringAsFixed(2)}\$', isTotal: true),
+              _SummaryRow(label: AppStrings.total.tr(), amount: '${total.toStringAsFixed(2)}\$', isTotal: true),
               const SizedBox(height: 24),
               SizedBox(
                 width: double.infinity,
@@ -111,7 +112,7 @@ class CheckoutSummarySection extends StatelessWidget {
                     height: 20,
                     child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                   )
-                      : const Text(AppStrings.placeOrder, style: TextStyle(color: Colors.white)),
+                      : Text(AppStrings.placeOrder.tr(), style: TextStyle(color: Colors.white)),
                 ),
               ),
               const SizedBox(height: 16),

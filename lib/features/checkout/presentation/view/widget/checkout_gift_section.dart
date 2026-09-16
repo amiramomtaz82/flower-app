@@ -1,4 +1,5 @@
 // lib/features/checkout/presentation/view/widget/checkout_gift_section.dart
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flower_app/core/app_constants/app_strings.dart';
 import 'package:flower_app/core/app_theme/app_colors.dart';
 import 'package:flower_app/core/validation/validation.dart';
@@ -84,8 +85,8 @@ class CheckoutGiftSection extends StatelessWidget {
                       TextFormField(
                         controller: nameController,
                         decoration: InputDecoration(
-                          labelText: AppStrings.name,
-                          hintText: AppStrings.enterRecipientName,
+                          labelText: AppStrings.name.tr(),
+                          hintText: AppStrings.enterRecipientName.tr(),
                           labelStyle: TextStyle(color: Colors.grey.shade600, fontSize: 13),
                           hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 13),
                           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -110,8 +111,8 @@ class CheckoutGiftSection extends StatelessWidget {
                         controller: phoneController,
                         keyboardType: TextInputType.phone,
                         decoration: InputDecoration(
-                          labelText: AppStrings.phoneNumber,
-                          hintText: AppStrings.enterRecipientPhone,
+                          labelText: AppStrings.phoneNumber.tr(),
+                          hintText: AppStrings.enterRecipientPhone.tr(),
                           labelStyle: TextStyle(color: Colors.grey.shade600, fontSize: 13),
                           hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 13),
                           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
