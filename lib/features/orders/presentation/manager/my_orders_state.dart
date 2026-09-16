@@ -1,27 +1,22 @@
-﻿import 'package:equatable/equatable.dart';
+import 'package:equatable/equatable.dart';
 import 'package:flower_app/features/orders/domain/entities/order_entity.dart';
 import 'package:flower_app/config/resource/rsource.dart';
 
 class MyOrdersState extends Equatable {
   MyOrdersState({
-    Resource<List<OrderEntity>>? activeOrders,
-    Resource<List<OrderEntity>>? completedOrders,
-  })  : activeOrders = activeOrders ?? Resource.initial(),
-        completedOrders = completedOrders ?? Resource.initial();
+    Resource<List<OrderEntity>>? orders,
+  }) : orders = orders ?? Resource.initial();
 
-  final Resource<List<OrderEntity>> activeOrders;
-  final Resource<List<OrderEntity>> completedOrders;
+  final Resource<List<OrderEntity>> orders;
 
   MyOrdersState copyWith({
-    Resource<List<OrderEntity>>? activeOrders,
-    Resource<List<OrderEntity>>? completedOrders,
+    Resource<List<OrderEntity>>? orders,
   }) {
     return MyOrdersState(
-      activeOrders: activeOrders ?? this.activeOrders,
-      completedOrders: completedOrders ?? this.completedOrders,
+      orders: orders ?? this.orders,
     );
   }
 
   @override
-  List<Object?> get props => [activeOrders, completedOrders];
+  List<Object?> get props => [orders];
 }

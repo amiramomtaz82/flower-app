@@ -1,5 +1,4 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flower_app/config/di/di.dart';
 import 'package:flower_app/config/resource/rsource.dart';
 import 'package:flower_app/core/app_constants/app_strings.dart';
 import 'package:flower_app/core/app_theme/app_colors.dart';
@@ -16,10 +15,7 @@ class MyOrdersView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => getIt<MyOrdersCubit>()..doEvents(MyOrdersStarted()),
-      child: const _MyOrdersContent(),
-    );
+    return const _MyOrdersContent();
   }
 }
 
@@ -76,9 +72,7 @@ class _OrdersTab extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<MyOrdersCubit, MyOrdersState>(
       builder: (context, state) {
-        final resource = status == OrderStatus.active
-            ? state.activeOrders
-            : state.completedOrders;
+        final resource = state.orders;
 
         if (resource.isLoading || resource.status == ApiStatus.initial) {
           return const Center(child: CircularProgressIndicator());
@@ -101,7 +95,8 @@ class _OrdersTab extends StatelessWidget {
           );
         }
 
-        final orders = resource.data ?? <OrderEntity>[];
+        final allOrders = resource.data ?? <OrderEntity>[];
+        final orders = allOrders.where((o) => o.status == status).toList();
 
         if (orders.isEmpty) {
           return Center(

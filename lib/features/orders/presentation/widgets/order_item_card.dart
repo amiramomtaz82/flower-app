@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flower_app/core/app_constants/app_strings.dart';
 import 'package:flower_app/core/app_theme/app_colors.dart';
@@ -27,12 +28,12 @@ class OrderItemCard extends StatelessWidget {
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(8),
-            child: Image.network(
-              order.imageUrl,
+            child: CachedNetworkImage(
+              imageUrl: order.imageUrl,
               width: 80,
               height: 80,
               fit: BoxFit.cover,
-              errorBuilder: (context, _, __) => Container(
+              errorWidget: (context, error, stackTrace) => Container(
                 width: 80,
                 height: 80,
                 color: const Color(0xffFCE4EC),

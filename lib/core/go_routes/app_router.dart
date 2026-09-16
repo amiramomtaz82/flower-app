@@ -19,6 +19,8 @@ import 'package:flower_app/features/commerce/presentation/occasions/manager/occa
 import 'package:flower_app/features/commerce/presentation/occasions/view/occasions_view.dart';
 import 'package:flower_app/features/commerce/presentation/product_details/view/product_details_view.dart';
 import 'package:flower_app/features/commerce/presentation/product_details/view_model/product_details_view_model.dart';
+import 'package:flower_app/features/orders/presentation/manager/my_orders_cubit.dart' as flower_orders_cubit;
+import 'package:flower_app/features/orders/presentation/manager/my_orders_events.dart' as flower_orders_events;
 import 'package:flower_app/features/orders/presentation/view/my_orders_view.dart' as flower_orders;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -149,7 +151,10 @@ class AppRouter {
       ),
       GoRoute(
         path: AppRoutes.myOrders,
-        builder: (context, state) => const flower_orders.MyOrdersView(),
+        builder: (context, state) => BlocProvider(
+          create: (_) => getIt<flower_orders_cubit.MyOrdersCubit>()..doEvents(flower_orders_events.MyOrdersStarted()),
+          child: const flower_orders.MyOrdersView(),
+        ),
       ),
     ],
   );

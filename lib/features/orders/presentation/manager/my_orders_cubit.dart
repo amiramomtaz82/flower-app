@@ -1,14 +1,16 @@
-﻿import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:flower_app/config/resource/rsource.dart';
-import 'package:flower_app/features/orders/domain/entities/order_entity.dart';
 
+import 'package:flower_app/features/orders/domain/use_cases/get_orders_use_case.dart';
 import 'my_orders_events.dart';
 import 'my_orders_state.dart';
 
 @injectable
 class MyOrdersCubit extends Cubit<MyOrdersState> {
-  MyOrdersCubit() : super(MyOrdersState());
+  MyOrdersCubit(this._getOrdersUseCase) : super(MyOrdersState());
+
+  final GetOrdersUseCase _getOrdersUseCase;
 
   Future<void> doEvents(MyOrdersEvent event) async {
     switch (event) {
@@ -19,57 +21,14 @@ class MyOrdersCubit extends Cubit<MyOrdersState> {
 
   Future<void> _loadOrders() async {
     emit(state.copyWith(
-      activeOrders: Resource.loading(),
-      completedOrders: Resource.loading(),
+      orders: Resource.loading(),
     ));
 
-    await Future.delayed(const Duration(milliseconds: 800));
-
-    final active = [
-      const OrderEntity(
-        id: '1',
-        productName: 'Red roses',
-        imageUrl: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=800&q=80',
-        currency: 'EGP',
-        price: 600,
-        status: OrderStatus.active,
-        orderNumber: '123456',
-      ),
-      const OrderEntity(
-        id: '2',
-        productName: 'Red roses',
-        imageUrl: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=800&q=80',
-        currency: 'EGP',
-        price: 600,
-        status: OrderStatus.active,
-        orderNumber: '123456',
-      ),
-    ];
-
-    final completed = [
-      const OrderEntity(
-        id: '3',
-        productName: 'Red roses',
-        imageUrl: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=800&q=80',
-        currency: 'EGP',
-        price: 600,
-        status: OrderStatus.completed,
-        deliveredOn: '3 Sep 2024',
-      ),
-      const OrderEntity(
-        id: '4',
-        productName: 'Red roses',
-        imageUrl: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=800&q=80',
-        currency: 'EGP',
-        price: 600,
-        status: OrderStatus.completed,
-        deliveredOn: '3 Sep 2024',
-      ),
-    ];
-
-    emit(state.copyWith(
-      activeOrders: Resource.success(active),
-      completedOrders: Resource.success(completed),
-    ));
+    try {
+      final data = await _getOrdersUseCase();
+      emit(state.copyWith(orders: Resource.success(data)));
+    } catch (e) {
+      emit(state.copyWith(orders: Resource.error(e.toString())));
+    }
   }
 }
