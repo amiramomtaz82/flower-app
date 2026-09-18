@@ -1,22 +1,22 @@
 import 'package:equatable/equatable.dart';
 import 'package:flower_app/features/orders/domain/entities/order_entity.dart';
-import 'package:flower_app/config/resource/rsource.dart';
+import 'package:flower_app/core/pagination/pagination_state.dart';
 
 class MyOrdersState extends Equatable {
   MyOrdersState({
-    Resource<List<OrderEntity>>? orders,
-  }) : orders = orders ?? Resource.initial();
+    PaginationState<OrderEntity>? paginationState,
+  }) : paginationState = paginationState ?? PaginationState<OrderEntity>.initial();
 
-  final Resource<List<OrderEntity>> orders;
+  final PaginationState<OrderEntity> paginationState;
 
   MyOrdersState copyWith({
-    Resource<List<OrderEntity>>? orders,
+    PaginationState<OrderEntity>? paginationState,
   }) {
     return MyOrdersState(
-      orders: orders ?? this.orders,
+      paginationState: paginationState ?? this.paginationState,
     );
   }
 
   @override
-  List<Object?> get props => [orders];
+  List<Object?> get props => [paginationState];
 }

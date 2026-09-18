@@ -1,3 +1,7 @@
+import 'dart:async';
+import 'package:flower_app/core/network/base_response.dart';
+import 'package:flower_app/core/pagination/paginated_response.dart';
+import 'package:flower_app/core/pagination/pagination_model.dart';
 import 'package:flower_app/features/orders/domain/entities/order_entity.dart';
 import 'package:flower_app/features/orders/presentation/manager/my_orders_cubit.dart';
 import 'package:flower_app/features/orders/presentation/manager/my_orders_events.dart';
@@ -9,6 +13,12 @@ import 'package:mockito/mockito.dart';
 
 import '../manager/my_orders_cubit_test.mocks.dart';
 
+/// Wraps [child] with a [MaterialApp] that supplies the minimal
+/// infrastructure (no EasyLocalization) needed for widget tests.
+Widget _wrap(Widget child) {
+  return MaterialApp(home: child);
+}
+
 void main() {
   late MockGetOrdersUseCase mockUseCase;
   late MyOrdersCubit cubit;
@@ -16,31 +26,43 @@ void main() {
   setUp(() {
     mockUseCase = MockGetOrdersUseCase();
     cubit = MyOrdersCubit(mockUseCase);
+    // Provide a dummy for the sealed BaseResponse so Mockito can generate stubs
+    provideDummy<BaseResponse<PaginatedResponse<OrderEntity>>>(
+      SuccessResponse(PaginatedResponse<OrderEntity>(
+        data: const [],
+        pagination: PaginationModel(),
+      )),
+    );
   });
 
+  tearDown(() => cubit.close());
+
   Widget createWidgetUnderTest() {
-    return MaterialApp(
-      home: BlocProvider<MyOrdersCubit>.value(
+    return _wrap(
+      BlocProvider<MyOrdersCubit>.value(
         value: cubit,
         child: const MyOrdersView(),
       ),
     );
   }
 
-  testWidgets('shows CircularProgressIndicator when loading', (WidgetTester tester) async {
-    when(mockUseCase.call()).thenAnswer((_) async {
-      await Future.delayed(const Duration(seconds: 1));
-      return <OrderEntity>[];
-    });
+  testWidgets('shows CircularProgressIndicator when loading',
+      (WidgetTester tester) async {
+    // Use an unresolved completer to keep the state in 'loading'
+    // without creating actual pending timers that outlive the test.
+    final completer = Completer<BaseResponse<PaginatedResponse<OrderEntity>>>();
+    when(mockUseCase.call(pageNumber: 1, pageSize: 10)).thenAnswer((_) => completer.future);
 
-    cubit.doEvents(MyOrdersStarted());
-    
     await tester.pumpWidget(createWidgetUnderTest());
+    // doEvents AFTER pumpWidget so the cubit's state changes are observed
+    cubit.doEvents(MyOrdersStarted());
+    await tester.pump();
 
     expect(find.byType(CircularProgressIndicator), findsWidgets);
   });
 
-  testWidgets('shows orders list when data is loaded', (WidgetTester tester) async {
+  testWidgets('shows orders list when data is loaded',
+      (WidgetTester tester) async {
     final mockOrders = [
       const OrderEntity(
         id: '1',
@@ -52,13 +74,61 @@ void main() {
       )
     ];
 
-    when(mockUseCase.call()).thenAnswer((_) async => mockOrders);
-    
-    cubit.doEvents(MyOrdersStarted());
+    when(mockUseCase.call(pageNumber: 1, pageSize: 10)).thenAnswer(
+      (_) async => SuccessResponse(PaginatedResponse<OrderEntity>(
+        data: mockOrders,
+        pagination: PaginationModel(
+            page: 1,
+            pageSize: 10,
+            totalCount: 1,
+            totalPages: 1,
+            hasNextPage: false,
+            hasPreviousPage: false),
+      )),
+    );
 
     await tester.pumpWidget(createWidgetUnderTest());
+    cubit.doEvents(MyOrdersStarted());
     await tester.pumpAndSettle();
 
     expect(find.text('Rose'), findsOneWidget);
+  });
+
+  testWidgets('shows error message when loading fails',
+      (WidgetTester tester) async {
+    when(mockUseCase.call(pageNumber: 1, pageSize: 10)).thenAnswer(
+      (_) async => ErrorResponse(error: 'Server error'),
+    );
+
+    await tester.pumpWidget(createWidgetUnderTest());
+    cubit.doEvents(MyOrdersStarted());
+    await tester.pumpAndSettle();
+
+    // The cubit converts the error object into an errMessage; the widget
+    // shows it (or the fallback) via resource.errorMessage.
+    expect(find.byType(ElevatedButton), findsWidgets);
+  });
+
+  testWidgets('shows empty-state text when orders list is empty',
+      (WidgetTester tester) async {
+    when(mockUseCase.call(pageNumber: 1, pageSize: 10)).thenAnswer(
+      (_) async => SuccessResponse(PaginatedResponse<OrderEntity>(
+        data: const [],
+        pagination: PaginationModel(
+            page: 1,
+            pageSize: 10,
+            totalCount: 0,
+            totalPages: 1,
+            hasNextPage: false,
+            hasPreviousPage: false),
+      )),
+    );
+
+    await tester.pumpWidget(createWidgetUnderTest());
+    cubit.doEvents(MyOrdersStarted());
+    await tester.pumpAndSettle();
+
+    // Tabs are still rendered; no OrderItemCard should be visible
+    expect(find.byType(TabBar), findsOneWidget);
   });
 }

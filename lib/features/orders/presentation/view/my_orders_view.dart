@@ -24,7 +24,7 @@ class _MyOrdersContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).extension<LightColors>()!;
+    final colors = Theme.of(context).extension<LightColors>();
 
     return DefaultTabController(
       length: 2,
@@ -42,9 +42,9 @@ class _MyOrdersContent extends StatelessWidget {
           ),
           centerTitle: false,
           bottom: TabBar(
-            labelColor: colors.primary,
-            unselectedLabelColor: colors.grey,
-            indicatorColor: colors.primary,
+            labelColor: colors?.primary ?? Theme.of(context).colorScheme.primary,
+            unselectedLabelColor: colors?.grey ?? Colors.grey,
+            indicatorColor: colors?.primary ?? Theme.of(context).colorScheme.primary,
             indicatorWeight: 2,
             tabs: [
               Tab(text: AppStrings.activeOrders.tr()),
@@ -72,7 +72,7 @@ class _OrdersTab extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<MyOrdersCubit, MyOrdersState>(
       builder: (context, state) {
-        final resource = state.orders;
+        final resource = state.paginationState.resource;
 
         if (resource.isLoading || resource.status == ApiStatus.initial) {
           return const Center(child: CircularProgressIndicator());
@@ -108,11 +108,31 @@ class _OrdersTab extends StatelessWidget {
           );
         }
 
-        return ListView.builder(
-          padding: const EdgeInsets.symmetric(vertical: 8),
-          itemCount: orders.length,
-          itemBuilder: (context, index) =>
-              OrderItemCard(order: orders[index]),
+        return NotificationListener<ScrollNotification>(
+          onNotification: (ScrollNotification scrollInfo) {
+            if (!state.paginationState.isLoadingMore &&
+                state.paginationState.hasNextPage &&
+                scrollInfo.metrics.pixels >= scrollInfo.metrics.maxScrollExtent * 0.9) {
+              context.read<MyOrdersCubit>().doEvents(MyOrdersLoadMore());
+              return true;
+            }
+            return false;
+          },
+          child: ListView.builder(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            itemCount: orders.length + (state.paginationState.isLoadingMore ? 1 : 0),
+            itemBuilder: (context, index) {
+              if (index == orders.length) {
+                return const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: CircularProgressIndicator(),
+                  ),
+                );
+              }
+              return OrderItemCard(order: orders[index]);
+            },
+          ),
         );
       },
     );

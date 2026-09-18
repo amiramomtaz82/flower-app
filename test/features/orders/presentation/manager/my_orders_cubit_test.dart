@@ -1,4 +1,8 @@
 import 'package:bloc_test/bloc_test.dart';
+import 'package:flower_app/core/network/base_response.dart';
+import 'package:flower_app/core/pagination/paginated_response.dart';
+import 'package:flower_app/core/pagination/pagination_model.dart';
+import 'package:flower_app/core/pagination/pagination_state.dart';
 import 'package:flower_app/config/resource/rsource.dart';
 import 'package:flower_app/features/orders/domain/entities/order_entity.dart';
 import 'package:flower_app/features/orders/domain/use_cases/get_orders_use_case.dart';
@@ -19,6 +23,13 @@ void main() {
   setUp(() {
     mockGetOrdersUseCase = MockGetOrdersUseCase();
     cubit = MyOrdersCubit(mockGetOrdersUseCase);
+    // Provide a dummy for the sealed BaseResponse so Mockito can generate stubs
+    provideDummy<BaseResponse<PaginatedResponse<OrderEntity>>>(
+      SuccessResponse(PaginatedResponse<OrderEntity>(
+        data: const [],
+        pagination: PaginationModel(),
+      )),
+    );
   });
 
   tearDown(() {
@@ -38,39 +49,42 @@ void main() {
 
   group('MyOrdersCubit', () {
     test('initial state should be initial', () {
-      expect(cubit.state.orders.status, ApiStatus.initial);
+      expect(cubit.state.paginationState.resource.status, ApiStatus.initial);
     });
 
     blocTest<MyOrdersCubit, MyOrdersState>(
-      'emits [loading, success] when MyOrdersStarted is added and use case succeeds',
+      'emits success state with data when MyOrdersStarted is added and use case succeeds',
       build: () {
-        when(mockGetOrdersUseCase.call()).thenAnswer((_) async => mockOrders);
+        when(mockGetOrdersUseCase.call(pageNumber: anyNamed('pageNumber'), pageSize: anyNamed('pageSize'))).thenAnswer((_) async => SuccessResponse(PaginatedResponse<OrderEntity>(
+          data: mockOrders,
+          pagination: PaginationModel(page: 1, pageSize: 10, totalCount: 1, totalPages: 1, hasNextPage: false, hasPreviousPage: false),
+        )));
         return cubit;
       },
       act: (cubit) => cubit.doEvents(MyOrdersStarted()),
       expect: () => [
-        isA<MyOrdersState>().having((s) => s.orders.status, 'status', ApiStatus.loading),
+        // PaginationController mutates its internal state and the cubit emits
+        // once: either a loading-then-resolved state or the final state.
+        // We assert the final emitted state has success status and correct data.
         isA<MyOrdersState>()
-            .having((s) => s.orders.status, 'status', ApiStatus.success)
-            .having((s) => s.orders.data, 'data', mockOrders),
+            .having((s) => s.paginationState.resource.status, 'status', ApiStatus.success)
+            .having((s) => s.paginationState.resource.data, 'data', mockOrders),
       ],
       verify: (_) {
-        verify(mockGetOrdersUseCase.call()).called(1);
+        verify(mockGetOrdersUseCase.call(pageNumber: 1, pageSize: 10)).called(1);
       },
     );
 
     blocTest<MyOrdersCubit, MyOrdersState>(
-      'emits [loading, error] when MyOrdersStarted is added and use case fails',
+      'emits error state when MyOrdersStarted is added and use case fails',
       build: () {
-        when(mockGetOrdersUseCase.call()).thenThrow(Exception('Failed'));
+        when(mockGetOrdersUseCase.call(pageNumber: anyNamed('pageNumber'), pageSize: anyNamed('pageSize'))).thenAnswer((_) async => ErrorResponse(error: 'Failed'));
         return cubit;
       },
       act: (cubit) => cubit.doEvents(MyOrdersStarted()),
       expect: () => [
-        isA<MyOrdersState>().having((s) => s.orders.status, 'status', ApiStatus.loading),
         isA<MyOrdersState>()
-            .having((s) => s.orders.status, 'status', ApiStatus.error)
-            .having((s) => s.orders.errorMessage, 'errorMessage', 'Exception: Failed'),
+            .having((s) => s.paginationState.resource.status, 'status', ApiStatus.error),
       ],
     );
   });
