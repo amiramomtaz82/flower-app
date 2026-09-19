@@ -94,7 +94,7 @@ class _CartBody extends StatelessWidget {
           cart: cart,
           onCheckout: () => context.push(
             AppRoutes.checkout,
-            extra: cart,
+            extra: cart.id,
           ),
         ),
       ],

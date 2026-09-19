@@ -52,33 +52,35 @@ class _SplashViewState extends State<SplashView> {
     }
   }
 
+  // Future<void> _initializeApp() async {
+  //   // Run FCM setup and minimum display timer in parallel
+  //   await Future.wait([
+  //     getIt<Fcm>().initialize(),
+  //     getIt<FcmTokenSyncService>().initFcmTokenSync(),
+  //     Future.delayed(const Duration(seconds: 2)),
+  //   ]);
+  //
+  //   if (!mounted) return;
+  //
+  //   // Remove the native splash screen
+  //   FlutterNativeSplash.remove();
+  //
+  //   // Always open login for now
+  //   context.go(AppRoutes.login);
+  // }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: context.colors.background,
       body: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 100,
-              height: 100,
-              decoration: BoxDecoration(
-                color: context.colors.primary.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Image.asset(AppAssets.logo),
-            ),
-            const SizedBox(height: 20),
-            Text(
-              'Flowery',
-              style: context.textTheme.headlineLarge?.copyWith(
-                fontWeight: FontWeight.w800,
-                letterSpacing: 1.2,
-                color: context.colors.primary,
-              ),
-            ),
-          ],
+        child: SizedBox(
+          // 160 dp matches Android 12+ native splash icon dimensions exactly
+          width: 160,
+          height: 160,
+          child: Image.asset(
+            AppAssets.flowerImage,
+            fit: BoxFit.contain,
+          ),
         ),
       ),
     );

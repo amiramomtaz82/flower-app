@@ -76,7 +76,10 @@ class AppRouter {
       GoRoute(
         path: AppRoutes.checkout,
         builder: (context, state) {
-          final cartId = state.uri.queryParameters['cartId'] ?? '';
+          final cartId = state.extra as String? ?? '';
+          debugPrint("Checkout cartId: $cartId");
+
+
           final addressId = state.uri.queryParameters['addressId'];
 
           return MultiBlocProvider(
@@ -84,9 +87,14 @@ class AppRouter {
               BlocProvider<CheckoutCubit>(
                 create: (_) => getIt<CheckoutCubit>(),
               ),
-              BlocProvider<AddressCubit>.value(value: getIt<AddressCubit>()),
+              BlocProvider<AddressCubit>.value(
+                value: getIt<AddressCubit>(),
+              ),
             ],
-            child: CheckoutScreen(cartId: cartId, defaultAddressId: addressId),
+            child: CheckoutScreen(
+              cartId: cartId,
+              defaultAddressId: addressId,
+            ),
           );
         },
       ),

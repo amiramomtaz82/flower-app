@@ -12,4 +12,5 @@ abstract class AppAssets {
   static const String categoryTulip = 'assets/images/home/tulip_flower.png';
 
   static const String occasionWedding = 'assets/images/home/wedding.png';
+  static const String flowerImage="assets/images/flowerImage.png";
 }

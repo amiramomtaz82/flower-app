@@ -220,6 +220,7 @@ class AppStrings {
   static const String cart = 'cart';
   static const String cartItemsCount = 'cart_items_count';
 
+
   static const String checkout = 'checkout';
   static const String yourCartIsEmpty = 'your_cart_is_empty';
   static const String cartEmptyHint = 'cart_empty_hint';
