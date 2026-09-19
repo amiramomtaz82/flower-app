@@ -1,12 +1,14 @@
+
+import 'package:flower_app/config/base_response/base_response.dart';
+import 'package:flower_app/core/app_constants/app_strings.dart';
+import 'package:flower_app/features/auth/domain/entities/login_entity.dart';
+import 'package:flower_app/features/auth/domain/use_cases/login_use_case.dart';
 import 'package:flower_app/features/auth/presentation/login/manager/login_cubit.dart';
 import 'package:flower_app/features/auth/presentation/login/manager/login_events.dart';
+import 'package:flower_app/features/auth/presentation/login/manager/login_state.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-
-import 'package:flower_app/config/base_response/base_response.dart';
-import 'package:flower_app/features/auth/domain/entities/login_entity.dart';
-import 'package:flower_app/features/auth/domain/use_cases/login_use_case.dart';
 
 import 'login_cubit_test.mocks.dart';
 
@@ -15,130 +17,139 @@ void main() {
   late MockLoginUseCase mockLoginUseCase;
   late LoginCubit cubit;
 
+  const validEmail = 'customer@example.com';
+  const validPassword = 'Password123';
+
+  final loginEntity = LoginEntity(
+    accessToken: 'access_token',
+    refreshToken: 'refresh_token',
+    expiresIn: 900,
+
+    user: null,
+  );
+
   setUp(() {
     mockLoginUseCase = MockLoginUseCase();
     cubit = LoginCubit(mockLoginUseCase);
+
+    provideDummy<BaseResponse<LoginEntity>>(
+      SuccessResponse<LoginEntity>(loginEntity),
+    );
   });
 
   tearDown(() {
     cubit.close();
   });
 
-  group('LoginCubit login tests', () {
-    test('should emit success when login succeeds', () async {
-      // Arrange
+  group('Initial State', () {
+    test('should have default initial state', () {
+      expect(cubit.state, equals(LoginState.initial()));
+      expect(cubit.state.obscurePassword, true);
+      expect(cubit.state.isValid, false);
+      expect(cubit.state.email, '');
+      expect(cubit.state.password, '');
+    });
+  });
 
-      final loginEntity = LoginEntity(
-        accessToken: 'access_token',
-        refreshToken: 'refresh_token',
-        expiresIn: 900,
-        role: 'Customer',
-        user: null,
-      );
+  group('PasswordVisibilityChanged Event', () {
+    test('should toggle obscurePassword state when triggered', () async {
+      expect(cubit.state.obscurePassword, true);
 
-      provideDummy<BaseResponse<LoginEntity>>(
-        SuccessResponse<LoginEntity>(loginEntity),
-      );
+      await cubit.doEvents(PasswordVisibilityChanged());
+      expect(cubit.state.obscurePassword, false);
 
-      when(
-        mockLoginUseCase(
-          email: 'customer@example.com',
-          password: 'Password123',
-        ),
-      ).thenAnswer(
-            (_) async => SuccessResponse<LoginEntity>(
-          loginEntity,
-        ),
-      );
+      await cubit.doEvents(PasswordVisibilityChanged());
+      expect(cubit.state.obscurePassword, true);
+    });
+  });
 
-      // Check initial state
-      expect(cubit.state.loginResource.isLoading, false);
-      expect(cubit.state.loginResource.isSuccess, false);
+  group('EmailChanged and PasswordChanged Form Validation Events', () {
+    test('should update email and keep isValid false when password is missing', () async {
+      await cubit.doEvents(EmailChanged(validEmail));
 
-      // Set email
-      await cubit.doEvents(
-        EmailChanged('customer@example.com'),
-      );
+      expect(cubit.state.email, validEmail);
+      expect(cubit.state.isValid, false);
+    });
 
-      // Set password
-      await cubit.doEvents(
-        PasswordChanged('Password123'),
-      );
+    test('should update password and keep isValid false when email is invalid', () async {
+      await cubit.doEvents(EmailChanged('invalid-email'));
+      await cubit.doEvents(PasswordChanged(validPassword));
 
-      // Act
-      await cubit.doEvents(
-        LoginSubmitted(),
-      );
+      expect(cubit.state.password, validPassword);
+      expect(cubit.state.isValid, false);
+    });
+
+    test('should set isValid to true when both email and password are valid', () async {
+      await cubit.doEvents(EmailChanged(validEmail));
+      await cubit.doEvents(PasswordChanged(validPassword));
+
+      expect(cubit.state.email, validEmail);
+      expect(cubit.state.password, validPassword);
+      expect(cubit.state.isValid, true);
+    });
+  });
+
+  group('LoginSubmitted Event', () {
+    test('should emit error and not call use case when form is invalid', () async {
+      // Act: Submit without setting valid email and password
+      await cubit.doEvents(LoginSubmitted());
 
       // Assert
-      expect(
-        cubit.state.loginResource.isSuccess,
-        true,
+      expect(cubit.state.loginResource.isError, true);
+      expect(cubit.state.loginResource.errorMessage, AppStrings.pleaseFill);
+      verifyZeroInteractions(mockLoginUseCase);
+    });
+
+    test('should emit loading then success when credentials are valid and login succeeds', () async {
+      when(
+        mockLoginUseCase(
+          email: validEmail,
+          password: validPassword,
+        ),
+      ).thenAnswer(
+            (_) async => SuccessResponse<LoginEntity>(loginEntity),
       );
 
-      expect(
-        cubit.state.loginResource.data,
-        loginEntity,
-      );
+      await cubit.doEvents(EmailChanged(validEmail));
+      await cubit.doEvents(PasswordChanged(validPassword));
+
+      await cubit.doEvents(LoginSubmitted());
+
+      expect(cubit.state.loginResource.isSuccess, true);
+      expect(cubit.state.loginResource.data, loginEntity);
 
       verify(
         mockLoginUseCase(
-          email: anyNamed('email'),
-          password: anyNamed('password'),
+          email: validEmail,
+          password: validPassword,
         ),
       ).called(1);
     });
 
-    test('should emit error when login fails', () async {
-      // Arrange
-
-      provideDummy<BaseResponse<LoginEntity>>(
-        ErrorResponse<LoginEntity>(
-          errMessage: 'Invalid email or password',
-        ),
-      );
+    test('should emit loading then error when credentials are valid but login fails', () async {
+      const errorMessage = 'Invalid email or password';
 
       when(
         mockLoginUseCase(
-          email: 'customer@example.com',
-          password: 'Password123',
+          email: validEmail,
+          password: validPassword,
         ),
       ).thenAnswer(
-            (_) async => ErrorResponse<LoginEntity>(
-          errMessage: 'Invalid email or password',
-        ),
+            (_) async => ErrorResponse<LoginEntity>(errMessage: errorMessage),
       );
 
-      // Set email
-      await cubit.doEvents(
-        EmailChanged('customer@example.com'),
-      );
+      await cubit.doEvents(EmailChanged(validEmail));
+      await cubit.doEvents(PasswordChanged(validPassword));
 
-      // Set valid password
-      await cubit.doEvents(
-        PasswordChanged('Password123'),
-      );
+      await cubit.doEvents(LoginSubmitted());
 
-      // Act
-      await cubit.doEvents(
-        LoginSubmitted(),
-      );
-
-      // Assert
-      expect(
-        cubit.state.loginResource.isError,
-        true,
-      );
-
-      expect(
-        cubit.state.loginResource.errorMessage,
-        'Invalid email or password',
-      );
+      expect(cubit.state.loginResource.isError, true);
+      expect(cubit.state.loginResource.errorMessage, errorMessage);
 
       verify(
         mockLoginUseCase(
-          email: 'customer@example.com',
-          password: 'Password123',
+          email: validEmail,
+          password: validPassword,
         ),
       ).called(1);
     });
