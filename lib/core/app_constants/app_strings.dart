@@ -18,6 +18,7 @@ class AppStrings {
   static const String ar = 'ar';
   static const String deviceId = 'device_id';
   static const String accessToken = 'accessToken';
+  static const String refreshToken = 'refreshToken';
   static const String pleaseFill = 'Please fill in all fields correctly';
   static const String enterEmailAssociatedToAccount =
       'Please enter your email associated to your account';
@@ -91,4 +92,16 @@ class AppStrings {
   static const String loginRequired='Login required';
   static const String register="Register";
   static const String rememberMe="Remember me";
+
+  // Orders
+  static const String myOrders = 'myOrders';
+  static const String activeOrders = 'activeOrders';
+  static const String completedOrders = 'completedOrders';
+  static const String noActiveOrders = 'noActiveOrders';
+  static const String noCompletedOrders = 'noCompletedOrders';
+  static const String orderNumber = 'orderNumber';
+  static const String deliveredOn = 'deliveredOn';
+  static const String trackOrder = 'trackOrder';
+  static const String reorder = 'reorder';
+  static const String retry = 'retry';
 }

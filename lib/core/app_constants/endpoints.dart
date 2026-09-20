@@ -10,6 +10,7 @@ class Endpoints {
   static const String forgetPassword = '/auth/forgot-password';
   static const String verifyOtp = '/auth/verify-otp';
   static const String resetPassword = '/auth/reset-password';
+  static const String refreshToken = '/auth/refresh';
 
   // Commerce (routed through the API Gateway's /catalog prefix)
   static const String homeSections = '/catalog/home/sections';
@@ -18,6 +19,9 @@ class Endpoints {
   static const String products = '/catalog/products';
   static const String productsByCategory = '/catalog/products/by-category';
   static const String productById = '/catalog/products/{productId}';
+  
+  static const String orders = '/orders';
+  static const String orderById = '/orders/{orderId}';
 
   // Best sellers has no dedicated endpoint (backend won't add one) — this is
   // the occasion the backend seeds best-selling products under, so
@@ -36,4 +40,5 @@ class QueryParams {
   static const String productId = 'productId';
   static const String pageNumber = 'pageNumber';
   static const String pageSize = 'pageSize';
+  static const String orderId = 'orderId';
 }

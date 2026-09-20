@@ -53,5 +53,14 @@
   "error": "حدث خطأ ما",
   "PleaseLoginOrRegisterToContinue": "يرجى تسجيل الدخول أو إنشاء حساب للمتابعة.",
   " Login required": "التسجيل مطلوب",
-  "register": "التسجيل"
+  "register": "التسجيل",
+  "myOrders": "طلباتي",
+  "activeOrders": "حالية",
+  "completedOrders": "مكتملة",
+  "noActiveOrders": "لا توجد طلبات حالية",
+  "noCompletedOrders": "لا توجد طلبات مكتملة",
+  "orderNumber": "رقم الطلب",
+  "deliveredOn": "تم التوصيل في",
+  "trackOrder": "تتبع الطلب",
+  "reorder": "إعادة الطلب"
 }

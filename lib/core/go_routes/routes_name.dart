@@ -24,4 +24,6 @@ class AppRoutes {
 
   static String occasionsForOccasion(String occasionId) =>
       '$occasions?$occasionIdParam=${Uri.encodeQueryComponent(occasionId)}';
+
+  static const String myOrders = '/my-orders';
 }
