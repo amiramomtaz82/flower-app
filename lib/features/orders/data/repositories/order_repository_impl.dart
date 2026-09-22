@@ -6,6 +6,8 @@ import 'package:flower_app/core/network/base_response.dart';
 import 'package:flower_app/core/pagination/paginated_response.dart';
 import 'package:flower_app/core/pagination/pagination_model.dart';
 
+import '../../domain/entities/order_tracking_entity.dart';
+
 @Injectable(as: OrderRepository)
 class OrderRepositoryImpl implements OrderRepository {
   OrderRepositoryImpl(this.remoteDataSource);
@@ -38,6 +40,32 @@ class OrderRepositoryImpl implements OrderRepository {
       );
     } catch (e) {
       return ErrorResponse(error: e);
+    }
+  }
+
+
+
+  @override
+  Future<BaseResponse<OrderTrackingEntity>> getLiveTracking(String orderId) async {
+    try {
+      final response = await remoteDataSource.getLiveTracking(orderId);
+      if (response.data != null) {
+        return SuccessResponse<OrderTrackingEntity>(response.data!.toEntity());
+      }
+      return ErrorResponse<OrderTrackingEntity>(
+        errMessage: response.message ?? 'No tracking data available',
+      );
+    } catch (e) {
+      return ErrorResponse<OrderTrackingEntity>(error: e);
+    }
+  }
+  @override
+  Future<BaseResponse<bool>> confirmOrderDelivery(String orderId) async {
+    try {
+      final result = await remoteDataSource.confirmOrderDelivery(orderId);
+      return SuccessResponse<bool>(result);
+    } catch (e) {
+      return ErrorResponse<bool>(error: e);
     }
   }
 }
