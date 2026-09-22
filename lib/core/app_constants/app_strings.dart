@@ -18,6 +18,7 @@ class AppStrings {
   static const String ar = 'ar';
   static const String deviceId = 'device_id';
   static const String accessToken = 'accessToken';
+  static const String refreshToken = 'refreshToken';
   static const String pleaseFill = 'Please fill in all fields correctly';
   static const String enterEmailAssociatedToAccount =
       'Please enter your email associated to your account';
