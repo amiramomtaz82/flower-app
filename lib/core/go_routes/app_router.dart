@@ -48,6 +48,7 @@ import '../../features/checkout/presentation/view/order_succss_screen.dart';
 import '../../features/commerce/presentation/home/view/home_view.dart';
 import '../../features/orders/presentation/manager/my_orders_cubit.dart';
 import '../../features/orders/presentation/manager/my_orders_events.dart';
+import '../../features/orders/presentation/view/order_tracking_view.dart';
 import '../../features/splash/presentation/splash_view.dart';
 import 'main_shell_view.dart';
 
@@ -262,6 +263,13 @@ class AppRouter {
           create: (_) => getIt<MyOrdersCubit>()..doEvents(MyOrdersStarted()),
           child: const flower_orders.MyOrdersView(),
         ),
+      ),
+      GoRoute(
+        path: AppRoutes.orderTracking,
+        builder: (context, state) {
+          final orderId = state.extra as String? ?? 'bbbb2222-0002-0002-0002-000000000002';
+          return OrderTrackingView(orderId: orderId);
+        },
       ),
       GoRoute(
         path: AppRoutes.editProfile,

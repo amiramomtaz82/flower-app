@@ -29,6 +29,8 @@ class Endpoints {
 
   static const String orders = '/orders';
   static const String orderById = '/orders/{orderId}';
+  static const String orderTracking = '/orders/{orderId}/tracking';
+  static const String confirmOrderDelivery = '/orders/{orderId}/confirm-delivery';
 
   static const String bestSellersOccasionId =
       '55555555-5555-5555-5555-555555555555';
