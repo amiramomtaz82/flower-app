@@ -59,6 +59,7 @@ class AppRouter {
     navigatorKey: navigatorKey,
     initialLocation: AppRoutes.splashView,
 
+    initialLocation: AppRoutes.home,
     routes: [
       GoRoute(
         path: AppRoutes.splashView,
@@ -248,7 +249,10 @@ class AppRouter {
       ),
       GoRoute(
         path: AppRoutes.myOrders,
-        builder: (context, state) => const flower_orders.MyOrdersView(),
+        builder: (context, state) => BlocProvider(
+          create: (_) => getIt<MyOrdersCubit>()..doEvents(MyOrdersStarted()),
+          child: const MyOrdersView(),
+        ),
       ),
       GoRoute(
         path: AppRoutes.editProfile,

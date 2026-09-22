@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flower_app/core/app_constants/app_strings.dart';
 import 'package:flower_app/core/app_theme/app_colors.dart';
@@ -11,7 +12,8 @@ class OrderItemCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).extension<LightColors>()!;
+    final colors = Theme.of(context).extension<LightColors>();
+    final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
     final isActive = order.status == OrderStatus.active;
 
@@ -21,22 +23,22 @@ class OrderItemCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: colors.surface),
+        border: Border.all(color: colors?.surface ?? colorScheme.outline),
       ),
       child: Row(
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(8),
-            child: Image.network(
-              order.imageUrl,
+            child: CachedNetworkImage(
+              imageUrl: order.imageUrl,
               width: 80,
               height: 80,
               fit: BoxFit.cover,
-              errorBuilder: (context, _, __) => Container(
+              errorWidget: (context, error, stackTrace) => Container(
                 width: 80,
                 height: 80,
                 color: const Color(0xffFCE4EC),
-                child: Icon(Icons.local_florist, color: colors.primary, size: 32),
+                child: Icon(Icons.local_florist, color: colors?.primary ?? colorScheme.primary, size: 32),
               ),
             ),
           ),
@@ -62,12 +64,12 @@ class OrderItemCard extends StatelessWidget {
                 if (isActive && order.orderNumber != null)
                   Text(
                     '${AppStrings.orderNumber.tr()}# ${order.orderNumber}',
-                    style: textTheme.bodySmall?.copyWith(color: colors.grey),
+                    style: textTheme.bodySmall?.copyWith(color: colors?.grey ?? Colors.grey),
                   )
                 else if (!isActive && order.deliveredOn != null)
                   Text(
                     '${AppStrings.deliveredOn.tr()} ${order.deliveredOn}',
-                    style: textTheme.bodySmall?.copyWith(color: colors.grey),
+                    style: textTheme.bodySmall?.copyWith(color: colors?.grey ?? Colors.grey),
                   ),
                 const SizedBox(height: 8),
                 SizedBox(
@@ -75,7 +77,7 @@ class OrderItemCard extends StatelessWidget {
                   child: ElevatedButton(
                     onPressed: () {},
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: colors.primary,
+                      backgroundColor: colors?.primary ?? colorScheme.primary,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 8),
                       minimumSize: Size.zero,
