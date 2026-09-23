@@ -1,6 +1,5 @@
 
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:injectable/injectable.dart';
 import 'package:latlong2/latlong.dart';
 
@@ -182,7 +181,7 @@ class AddressCubit extends Cubit<AddressState> {
 
     switch (result) {
       case SuccessResponse<List<AddressEntity>>():
-        final addresses = result.data ?? [];
+        final addresses = result.data;
         final defaultAddress = addresses.firstWhere(
               (a) => a.isDefault == true,
           orElse: () => addresses.isNotEmpty ? addresses.first : const AddressEntity(),
@@ -227,7 +226,7 @@ class AddressCubit extends Cubit<AddressState> {
 
     switch (result) {
       case SuccessResponse<List<AreaEntity>>():
-        final areas = result.data ?? [];
+        final areas = result.data;
         emit(
           state.copyWith(
             areas: areas,
@@ -256,14 +255,6 @@ class AddressCubit extends Cubit<AddressState> {
     switch (result) {
       case SuccessResponse<AddressEntity>():
         final newAddress = result.data;
-        if (newAddress == null) {
-          emit(
-            state.copyWith(
-              addAddressResource: Resource.error('Address was not created'),
-            ),
-          );
-          return;
-        }
 
         emit(
           state.copyWith(
@@ -305,8 +296,8 @@ class AddressCubit extends Cubit<AddressState> {
   Future<void> _getCurrentLocation() async {
     final result = await _getCurrentLocationUseCase();
 
-    if (result is SuccessResponse<LatLng> && result.data != null) {
-      await _selectLocation(result.data!);
+    if (result is SuccessResponse<LatLng>) {
+      await _selectLocation(result.data);
     }
   }
 
@@ -449,8 +440,8 @@ class AddressCubit extends Cubit<AddressState> {
     final locResult = await _getCurrentLocationUseCase(requestIfDenied: false);
     if (isClosed) return;
 
-    if (locResult is SuccessResponse<LatLng> && locResult.data != null) {
-      final currentPosition = locResult.data!;
+    if (locResult is SuccessResponse<LatLng>) {
+      final currentPosition = locResult.data;
 
       // 3. Filter to serviceable addresses
       final serviceableAddresses = state.addresses

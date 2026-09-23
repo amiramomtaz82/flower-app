@@ -65,10 +65,7 @@ class FakeGeolocatorPlatform extends Fake
 }
 
 class FakeNominatimResponse extends NominatimResponse {
-  @override
-  final Map<String, dynamic>? address;
-
-  FakeNominatimResponse({this.address});
+  FakeNominatimResponse({super.address});
 }
 
 class FakeNominatimFlutter extends Fake implements NominatimFlutter {

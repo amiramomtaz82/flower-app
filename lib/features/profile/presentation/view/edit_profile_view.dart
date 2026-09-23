@@ -106,7 +106,6 @@ class _EditProfileViewState extends State<EditProfileView> {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).extension<LightColors>()!;
-    final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
       backgroundColor: Colors.white,

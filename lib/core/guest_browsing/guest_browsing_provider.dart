@@ -1,5 +1,4 @@
 
-import 'package:flower_app/core/app_constants/app_strings.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:injectable/injectable.dart';
@@ -45,7 +44,7 @@ import 'auth_required_bottom_sheet.dart';
 
     final context = AppRouter.navigatorKey.currentContext;
 
-    if (context == null) {
+    if (context == null || !context.mounted) {
       return;
     }
 

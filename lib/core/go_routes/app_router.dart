@@ -46,6 +46,8 @@ import '../../features/cart/presentation/views/cart_view.dart';
 import '../../features/checkout/presentation/manager/checkout_cubit.dart';
 import '../../features/checkout/presentation/view/order_succss_screen.dart';
 import '../../features/commerce/presentation/home/view/home_view.dart';
+import '../../features/orders/presentation/manager/my_orders_cubit.dart';
+import '../../features/orders/presentation/manager/my_orders_events.dart';
 import '../../features/splash/presentation/manager/splash_cubit.dart';
 import '../../features/splash/presentation/manager/splash_event.dart';
 import '../../features/splash/presentation/splash_view.dart';
@@ -61,7 +63,7 @@ class AppRouter {
     navigatorKey: navigatorKey,
     initialLocation: AppRoutes.splashView,
 
-    initialLocation: AppRoutes.home,
+
     routes: [
       GoRoute(
         path: AppRoutes.splashView,
@@ -264,7 +266,7 @@ class AppRouter {
         path: AppRoutes.myOrders,
         builder: (context, state) => BlocProvider(
           create: (_) => getIt<MyOrdersCubit>()..doEvents(MyOrdersStarted()),
-          child: const MyOrdersView(),
+          child: const flower_orders.MyOrdersView(),
         ),
       ),
       GoRoute(

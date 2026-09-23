@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:injectable/injectable.dart';
@@ -8,7 +9,7 @@ import 'local_notification_service.dart';
 Future<void> firebaseMessagingBackgroundHandler(
     RemoteMessage message,
     ) async {
-  print('Handling a background message: ${message.messageId}');
+  debugPrint('Handling a background message: ${message.messageId}');
 }
 
 @singleton
@@ -41,7 +42,7 @@ class FcmService {
       final token = await _messaging.getToken();
       return token;
     } catch (e) {
-      print('Failed to get FCM token: $e');
+      debugPrint('Failed to get FCM token: $e');
       return null;
     }
   }
@@ -58,7 +59,7 @@ class FcmService {
       sound: true,
     );
 
-    print('Notification permission: ${settings.authorizationStatus}');
+    debugPrint('Notification permission: ${settings.authorizationStatus}');
     return settings;
   }
 

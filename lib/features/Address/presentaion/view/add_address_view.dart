@@ -152,8 +152,8 @@ class _AddAddressViewState extends State<AddAddressView> {
       recipientName: _nameController.text.trim(),
       recipientPhone: _phoneController.text.trim(),
       addressLine: _addressLineController.text.trim(),
-      area: state.validSelectedArea!.id!,
-      city: state.validSelectedCity!.id!,
+      area: state.validSelectedArea!.id,
+      city: state.validSelectedCity!.id,
       lat: state.selectedLocation?.latitude ?? 0.0,
       lng: state.selectedLocation?.longitude ?? 0.0,
       label: _labelController.text.trim().isNotEmpty

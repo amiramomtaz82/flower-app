@@ -14,7 +14,6 @@ import '../mapper/place_order_entity_mapper.dart';
 import '../models/checkout_details_response.dart';
 
 import '../models/estimated_delivery_response.dart';
-import '../models/place_order_request.dart';
 import '../models/place_order_response.dart';
 
 @Injectable(as: CheckoutRepository)

@@ -55,7 +55,7 @@ class CheckoutGiftSection extends StatelessWidget {
                     scale: 0.85,
                     child: Switch(
                       value: state.isGift,
-                      activeColor: Colors.white,
+                      activeThumbColor: Colors.white,
                       activeTrackColor: primaryColor,
                       inactiveThumbColor: Colors.white,
                       inactiveTrackColor: Colors.grey.shade300,
