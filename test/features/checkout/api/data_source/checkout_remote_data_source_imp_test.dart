@@ -40,7 +40,7 @@ void main() {
       expect(successResult.data.data?.deliveryFee, equals(10.0));
       expect(successResult.data.data?.total, equals(1105.0));
       expect(successResult.data.data?.paymentMethods?.length, equals(2));
-      expect(successResult.data.data?.paymentMethods?.first.method, equals('COD'));
+      expect(successResult.data.data?.paymentMethods?.first.method, equals('Cash on delivery'));
       verifyZeroInteractions(mockApiClient);
     });
   });

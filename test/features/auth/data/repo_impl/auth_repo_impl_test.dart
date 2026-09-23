@@ -36,7 +36,7 @@ void main() {
   late MockAuthLocalDataSource mockAuthLocalDataSource;
   late MockAuthRemoteDataSource mockAuthRemoteDataSource;
   late MockDeviceIdService mockDeviceIdService;
-  late MockFcm mockFcm;
+  late MockFcmService mockFcm;
 
   provideDummy<BaseResponse<LoginResponse>>(
     SuccessResponse<LoginResponse>(
@@ -54,7 +54,7 @@ void main() {
     mockAuthLocalDataSource = MockAuthLocalDataSource();
     mockAuthRemoteDataSource = MockAuthRemoteDataSource();
     mockDeviceIdService = MockDeviceIdService();
-    mockFcm = MockFcm();
+    mockFcm = MockFcmService();
     authRepoImpl = AuthRepoImpl(
       mockAuthRemoteDataSource,
       mockAuthLocalDataSource,
