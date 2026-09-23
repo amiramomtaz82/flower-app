@@ -23,7 +23,7 @@ class AuthRepoImpl implements AuthRepo {
   final AuthRemoteDataSource _authRemoteDataSource;
   final AuthLocalDataSource _authLocalDataSource;
   final DeviceIdService _deviceIdService;
-  final Fcm _fcm;
+  final FcmService _fcm;
 
   AuthRepoImpl(
     this._authRemoteDataSource,
@@ -67,7 +67,9 @@ class AuthRepoImpl implements AuthRepo {
         if (loginResponse.user != null) {
           await _authLocalDataSource.saveUser(loginResponse.user!);
         }
-
+        await _authLocalDataSource.saveNotificationsEnabled(
+          loginResponse.notificationsEnabled,
+        );
         final loginEntity = loginResponse.toEntity();
 
         return SuccessResponse<LoginEntity>(loginEntity);
@@ -154,4 +156,19 @@ class AuthRepoImpl implements AuthRepo {
 
   @override
   Future<void> clearAuthData() => _authLocalDataSource.clearAuthData();
+
+  @override
+  Future<bool> getNotificationsEnabled() {
+    return _authLocalDataSource.getNotificationsEnabled();
+  }
+
+  @override
+  Future<void> saveNotificationsEnabled(bool isEnabled) {
+    return _authLocalDataSource.saveNotificationsEnabled(isEnabled);
+  }
+  @override
+  Future<bool> isAuthenticated() async {
+    final token = await _authLocalDataSource.getToken();
+    return token != null && token.isNotEmpty;
+  }
 }

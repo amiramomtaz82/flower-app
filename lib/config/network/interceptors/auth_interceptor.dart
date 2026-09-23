@@ -1,9 +1,10 @@
+import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:flower_app/core/app_constants/endpoints.dart';
 import 'package:flower_app/features/auth/data/data_source/local/auth_local_data_source.dart';
 import 'package:injectable/injectable.dart';
 
-@injectable
+@lazySingleton // Must be a singleton so all requests share the same queue
 class AuthInterceptor extends Interceptor {
   AuthInterceptor(this.authLocalDataSource)
       : _retryDio = Dio(
@@ -15,7 +16,7 @@ class AuthInterceptor extends Interceptor {
   );
 
   final AuthLocalDataSource authLocalDataSource;
-  final Dio _retryDio; // Isolated Dio instance without interceptors to avoid loops
+  final Dio _retryDio;
 
   bool _isRefreshing = false;
   final List<RetryRequest> _requestQueue = [];
@@ -26,11 +27,9 @@ class AuthInterceptor extends Interceptor {
       RequestInterceptorHandler handler,
       ) async {
     final token = await authLocalDataSource.getToken();
-
     if (token != null && token.isNotEmpty) {
       options.headers['Authorization'] = 'Bearer $token';
     }
-
     handler.next(options);
   }
 
@@ -46,11 +45,9 @@ class AuthInterceptor extends Interceptor {
       return handler.next(err);
     }
 
-    final requestOptions = err.requestOptions;
-
-    // Queue request if a refresh is already in flight
+    // 1. If currently refreshing, enqueue and wait
     if (_isRefreshing) {
-      _requestQueue.add(RetryRequest(requestOptions, handler));
+      _requestQueue.add(RetryRequest(err.requestOptions, handler));
       return;
     }
 
@@ -60,69 +57,90 @@ class AuthInterceptor extends Interceptor {
       final refreshToken = await authLocalDataSource.getRefreshToken();
       if (refreshToken == null || refreshToken.isEmpty) {
         throw DioException(
-          requestOptions: requestOptions,
+          requestOptions: err.requestOptions,
           error: 'No refresh token available',
         );
       }
 
-      // Execute refresh via isolated Dio instance
+      // 2. Call refresh endpoint
       final response = await _retryDio.post(
         '/auth/refresh',
         data: {'refreshToken': refreshToken},
       );
 
-      if (response.statusCode == 200 && response.data != null) {
-        final newAccessToken = response.data['accessToken'] as String?;
-        final newRefreshToken = response.data['refreshToken'] as String?;
+      final newAccessToken = response.data?['accessToken'] as String?;
+      final newRefreshToken = response.data?['refreshToken'] as String?;
 
-        if (newAccessToken == null) {
-          throw DioException(
-            requestOptions: requestOptions,
-            error: 'Access token missing in refresh response',
-          );
-        }
-
-        await authLocalDataSource.saveToken(newAccessToken);
-        if (newRefreshToken != null) {
-          await authLocalDataSource.saveRefreshToken(newRefreshToken);
-        }
-
-        // Retry the initial request that failed
-        requestOptions.headers['Authorization'] = 'Bearer $newAccessToken';
-        final originalResponse = await _retryDio.fetch(requestOptions);
-        handler.resolve(originalResponse);
-
-        // Retry all queued requests with the new token
-        for (final queued in _requestQueue) {
-          queued.requestOptions.headers['Authorization'] = 'Bearer $newAccessToken';
-          try {
-            final res = await _retryDio.fetch(queued.requestOptions);
-            queued.handler.resolve(res);
-          } catch (e) {
-            queued.handler.reject(
-              e is DioException
-                  ? e
-                  : DioException(requestOptions: queued.requestOptions, error: e),
-            );
-          }
-        }
-      } else {
+      if (response.statusCode != 200 || newAccessToken == null) {
         throw DioException(
-          requestOptions: requestOptions,
+          requestOptions: err.requestOptions,
           error: 'Failed to refresh token',
         );
+      }
+
+      await authLocalDataSource.saveToken(newAccessToken);
+      if (newRefreshToken != null) {
+        await authLocalDataSource.saveRefreshToken(newRefreshToken);
+      }
+
+      // 3. Retry initial request and all queued requests
+      err.requestOptions.headers['Authorization'] = 'Bearer $newAccessToken';
+
+      final queueSnapshot = List<RetryRequest>.from(_requestQueue);
+      _requestQueue.clear();
+
+      final retryFutures = <Future<void>>[
+        _retryRequest(err.requestOptions, handler),
+      ];
+
+      for (final queued in queueSnapshot) {
+        queued.requestOptions.headers['Authorization'] = 'Bearer $newAccessToken';
+        retryFutures.add(_retryRequest(queued.requestOptions, queued.handler));
+      }
+
+      // 4. Await all in-flight retries before releasing the lock
+      await Future.wait(retryFutures);
+
+      // 5. Drain any requests that arrived while retries were in flight
+      while (_requestQueue.isNotEmpty) {
+        final remainingQueue = List<RetryRequest>.from(_requestQueue);
+        _requestQueue.clear();
+
+        final remainingFutures = remainingQueue.map((queued) {
+          queued.requestOptions.headers['Authorization'] = 'Bearer $newAccessToken';
+          return _retryRequest(queued.requestOptions, queued.handler);
+        });
+
+        await Future.wait(remainingFutures);
       }
     } catch (e) {
       await authLocalDataSource.clearAuthData();
 
       final rejectError = e is DioException ? e : err;
-      for (final queued in _requestQueue) {
+      final queueSnapshot = List<RetryRequest>.from(_requestQueue);
+      _requestQueue.clear();
+
+      for (final queued in queueSnapshot) {
         queued.handler.reject(rejectError);
       }
       handler.reject(rejectError);
     } finally {
       _isRefreshing = false;
-      _requestQueue.clear();
+    }
+  }
+
+  Future<void> _retryRequest(
+      RequestOptions options,
+      ErrorInterceptorHandler handler,
+      ) async {
+    try {
+      final response = await _retryDio.fetch(options);
+      handler.resolve(response);
+    } catch (error) {
+      final dioError = error is DioException
+          ? error
+          : DioException(requestOptions: options, error: error);
+      handler.reject(dioError);
     }
   }
 }

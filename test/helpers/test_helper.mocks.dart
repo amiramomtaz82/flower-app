@@ -21,20 +21,21 @@ import 'package:flower_app/features/auth/data/models/register_request.dart'
     as _i12;
 import 'package:flower_app/features/auth/data/models/register_response.dart'
     as _i2;
+import 'package:flower_app/features/auth/data/models/user_dto.dart' as _i17;
 import 'package:flower_app/features/auth/data/models/verify_otp_response_model.dart'
     as _i4;
 import 'package:flower_app/features/auth/domain/core/result.dart' as _i7;
 import 'package:flower_app/features/auth/domain/entities/auth_entity.dart'
     as _i8;
 import 'package:flower_app/features/auth/domain/entities/auth_message_entity.dart'
-    as _i19;
+    as _i20;
 import 'package:flower_app/features/auth/domain/entities/login_entity.dart'
-    as _i18;
+    as _i19;
 import 'package:flower_app/features/auth/domain/entities/register_params.dart'
     as _i9;
 import 'package:flower_app/features/auth/domain/entities/reset_token_entity.dart'
-    as _i20;
-import 'package:flower_app/features/auth/domain/repo/auth_repo.dart' as _i17;
+    as _i21;
+import 'package:flower_app/features/auth/domain/repo/auth_repo.dart' as _i18;
 import 'package:flower_app/features/auth/domain/use_cases/register_use_case.dart'
     as _i5;
 import 'package:mockito/mockito.dart' as _i1;
@@ -56,20 +57,35 @@ import 'package:mockito/src/dummies.dart' as _i10;
 // ignore_for_file: invalid_use_of_internal_member
 
 class _FakeAuthResponse_0 extends _i1.SmartFake implements _i2.AuthResponse {
-  _FakeAuthResponse_0(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
+  _FakeAuthResponse_0(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
 }
 
 class _FakeMessageResponseModel_1 extends _i1.SmartFake
     implements _i3.MessageResponseModel {
-  _FakeMessageResponseModel_1(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
+  _FakeMessageResponseModel_1(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
 }
 
 class _FakeVerifyOtpResponseData_2 extends _i1.SmartFake
     implements _i4.VerifyOtpResponseData {
-  _FakeVerifyOtpResponseData_2(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
+  _FakeVerifyOtpResponseData_2(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
 }
 
 /// A class which mocks [RegisterUseCase].
@@ -83,15 +99,19 @@ class MockRegisterUseCase extends _i1.Mock implements _i5.RegisterUseCase {
   @override
   _i6.Future<_i7.Result<_i8.RegisterEntity>> call(_i9.RegisterParams? params) =>
       (super.noSuchMethod(
-            Invocation.method(#call, [params]),
-            returnValue: _i6.Future<_i7.Result<_i8.RegisterEntity>>.value(
-              _i10.dummyValue<_i7.Result<_i8.RegisterEntity>>(
-                this,
-                Invocation.method(#call, [params]),
-              ),
-            ),
-          )
-          as _i6.Future<_i7.Result<_i8.RegisterEntity>>);
+        Invocation.method(
+          #call,
+          [params],
+        ),
+        returnValue: _i6.Future<_i7.Result<_i8.RegisterEntity>>.value(
+            _i10.dummyValue<_i7.Result<_i8.RegisterEntity>>(
+          this,
+          Invocation.method(
+            #call,
+            [params],
+          ),
+        )),
+      ) as _i6.Future<_i7.Result<_i8.RegisterEntity>>);
 }
 
 /// A class which mocks [AuthRemoteDataSource].
@@ -106,43 +126,56 @@ class MockAuthRemoteDataSource extends _i1.Mock
   @override
   _i6.Future<_i2.AuthResponse> signUp(_i12.SignUpRequest? request) =>
       (super.noSuchMethod(
-            Invocation.method(#signUp, [request]),
-            returnValue: _i6.Future<_i2.AuthResponse>.value(
-              _FakeAuthResponse_0(this, Invocation.method(#signUp, [request])),
-            ),
-          )
-          as _i6.Future<_i2.AuthResponse>);
+        Invocation.method(
+          #signUp,
+          [request],
+        ),
+        returnValue: _i6.Future<_i2.AuthResponse>.value(_FakeAuthResponse_0(
+          this,
+          Invocation.method(
+            #signUp,
+            [request],
+          ),
+        )),
+      ) as _i6.Future<_i2.AuthResponse>);
 
   @override
   _i6.Future<_i13.BaseResponse<_i14.LoginResponse>> login(
-    _i15.LoginRequest? request,
-  ) =>
+          _i15.LoginRequest? request) =>
       (super.noSuchMethod(
-            Invocation.method(#login, [request]),
-            returnValue:
-                _i6.Future<_i13.BaseResponse<_i14.LoginResponse>>.value(
-                  _i10.dummyValue<_i13.BaseResponse<_i14.LoginResponse>>(
-                    this,
-                    Invocation.method(#login, [request]),
-                  ),
-                ),
-          )
-          as _i6.Future<_i13.BaseResponse<_i14.LoginResponse>>);
+        Invocation.method(
+          #login,
+          [request],
+        ),
+        returnValue: _i6.Future<_i13.BaseResponse<_i14.LoginResponse>>.value(
+            _i10.dummyValue<_i13.BaseResponse<_i14.LoginResponse>>(
+          this,
+          Invocation.method(
+            #login,
+            [request],
+          ),
+        )),
+      ) as _i6.Future<_i13.BaseResponse<_i14.LoginResponse>>);
 
   @override
-  _i6.Future<_i3.MessageResponseModel> forgetPassword({
-    required String? email,
-  }) =>
+  _i6.Future<_i3.MessageResponseModel> forgetPassword(
+          {required String? email}) =>
       (super.noSuchMethod(
-            Invocation.method(#forgetPassword, [], {#email: email}),
-            returnValue: _i6.Future<_i3.MessageResponseModel>.value(
-              _FakeMessageResponseModel_1(
-                this,
-                Invocation.method(#forgetPassword, [], {#email: email}),
-              ),
-            ),
-          )
-          as _i6.Future<_i3.MessageResponseModel>);
+        Invocation.method(
+          #forgetPassword,
+          [],
+          {#email: email},
+        ),
+        returnValue: _i6.Future<_i3.MessageResponseModel>.value(
+            _FakeMessageResponseModel_1(
+          this,
+          Invocation.method(
+            #forgetPassword,
+            [],
+            {#email: email},
+          ),
+        )),
+      ) as _i6.Future<_i3.MessageResponseModel>);
 
   @override
   _i6.Future<_i4.VerifyOtpResponseData> verifyOtp({
@@ -150,21 +183,27 @@ class MockAuthRemoteDataSource extends _i1.Mock
     required String? otpCode,
   }) =>
       (super.noSuchMethod(
-            Invocation.method(#verifyOtp, [], {
+        Invocation.method(
+          #verifyOtp,
+          [],
+          {
+            #email: email,
+            #otpCode: otpCode,
+          },
+        ),
+        returnValue: _i6.Future<_i4.VerifyOtpResponseData>.value(
+            _FakeVerifyOtpResponseData_2(
+          this,
+          Invocation.method(
+            #verifyOtp,
+            [],
+            {
               #email: email,
               #otpCode: otpCode,
-            }),
-            returnValue: _i6.Future<_i4.VerifyOtpResponseData>.value(
-              _FakeVerifyOtpResponseData_2(
-                this,
-                Invocation.method(#verifyOtp, [], {
-                  #email: email,
-                  #otpCode: otpCode,
-                }),
-              ),
-            ),
-          )
-          as _i6.Future<_i4.VerifyOtpResponseData>);
+            },
+          ),
+        )),
+      ) as _i6.Future<_i4.VerifyOtpResponseData>);
 
   @override
   _i6.Future<_i3.MessageResponseModel> resetPassword({
@@ -173,23 +212,29 @@ class MockAuthRemoteDataSource extends _i1.Mock
     required String? confirmNewPassword,
   }) =>
       (super.noSuchMethod(
-            Invocation.method(#resetPassword, [], {
+        Invocation.method(
+          #resetPassword,
+          [],
+          {
+            #resetToken: resetToken,
+            #newPassword: newPassword,
+            #confirmNewPassword: confirmNewPassword,
+          },
+        ),
+        returnValue: _i6.Future<_i3.MessageResponseModel>.value(
+            _FakeMessageResponseModel_1(
+          this,
+          Invocation.method(
+            #resetPassword,
+            [],
+            {
               #resetToken: resetToken,
               #newPassword: newPassword,
               #confirmNewPassword: confirmNewPassword,
-            }),
-            returnValue: _i6.Future<_i3.MessageResponseModel>.value(
-              _FakeMessageResponseModel_1(
-                this,
-                Invocation.method(#resetPassword, [], {
-                  #resetToken: resetToken,
-                  #newPassword: newPassword,
-                  #confirmNewPassword: confirmNewPassword,
-                }),
-              ),
-            ),
-          )
-          as _i6.Future<_i3.MessageResponseModel>);
+            },
+          ),
+        )),
+      ) as _i6.Future<_i3.MessageResponseModel>);
 }
 
 /// A class which mocks [AuthLocalDataSource].
@@ -202,178 +247,264 @@ class MockAuthLocalDataSource extends _i1.Mock
   }
 
   @override
-  _i6.Future<void> saveToken(String? token) =>
-      (super.noSuchMethod(
-            Invocation.method(#saveToken, [token]),
-            returnValue: _i6.Future<void>.value(),
-            returnValueForMissingStub: _i6.Future<void>.value(),
-          )
-          as _i6.Future<void>);
+  _i6.Future<void> saveToken(String? token) => (super.noSuchMethod(
+        Invocation.method(
+          #saveToken,
+          [token],
+        ),
+        returnValue: _i6.Future<void>.value(),
+        returnValueForMissingStub: _i6.Future<void>.value(),
+      ) as _i6.Future<void>);
 
   @override
-  _i6.Future<String?> getToken() =>
-      (super.noSuchMethod(
-            Invocation.method(#getToken, []),
-            returnValue: _i6.Future<String?>.value(),
-          )
-          as _i6.Future<String?>);
+  _i6.Future<String?> getToken() => (super.noSuchMethod(
+        Invocation.method(
+          #getToken,
+          [],
+        ),
+        returnValue: _i6.Future<String?>.value(),
+      ) as _i6.Future<String?>);
 
   @override
-  _i6.Future<void> saveRefreshToken(String? token) =>
-      (super.noSuchMethod(
-            Invocation.method(#saveRefreshToken, [token]),
-            returnValue: _i6.Future<void>.value(),
-            returnValueForMissingStub: _i6.Future<void>.value(),
-          )
-          as _i6.Future<void>);
+  _i6.Future<void> saveRefreshToken(String? token) => (super.noSuchMethod(
+        Invocation.method(
+          #saveRefreshToken,
+          [token],
+        ),
+        returnValue: _i6.Future<void>.value(),
+        returnValueForMissingStub: _i6.Future<void>.value(),
+      ) as _i6.Future<void>);
 
   @override
-  _i6.Future<String?> getRefreshToken() =>
-      (super.noSuchMethod(
-            Invocation.method(#getRefreshToken, []),
-            returnValue: _i6.Future<String?>.value(),
-          )
-          as _i6.Future<String?>);
+  _i6.Future<String?> getRefreshToken() => (super.noSuchMethod(
+        Invocation.method(
+          #getRefreshToken,
+          [],
+        ),
+        returnValue: _i6.Future<String?>.value(),
+      ) as _i6.Future<String?>);
 
   @override
-  _i6.Future<void> saveUser(_i14.User? user) =>
-      (super.noSuchMethod(
-            Invocation.method(#saveUser, [user]),
-            returnValue: _i6.Future<void>.value(),
-            returnValueForMissingStub: _i6.Future<void>.value(),
-          )
-          as _i6.Future<void>);
+  _i6.Future<void> saveUser(_i17.UserDto? user) => (super.noSuchMethod(
+        Invocation.method(
+          #saveUser,
+          [user],
+        ),
+        returnValue: _i6.Future<void>.value(),
+        returnValueForMissingStub: _i6.Future<void>.value(),
+      ) as _i6.Future<void>);
 
   @override
-  _i6.Future<_i14.User?> getUser() =>
-      (super.noSuchMethod(
-            Invocation.method(#getUser, []),
-            returnValue: _i6.Future<_i14.User?>.value(),
-          )
-          as _i6.Future<_i14.User?>);
+  _i6.Future<_i17.UserDto?> getUser() => (super.noSuchMethod(
+        Invocation.method(
+          #getUser,
+          [],
+        ),
+        returnValue: _i6.Future<_i17.UserDto?>.value(),
+      ) as _i6.Future<_i17.UserDto?>);
 
   @override
-  _i6.Future<void> clearAuthData() =>
+  _i6.Future<void> clearAuthData() => (super.noSuchMethod(
+        Invocation.method(
+          #clearAuthData,
+          [],
+        ),
+        returnValue: _i6.Future<void>.value(),
+        returnValueForMissingStub: _i6.Future<void>.value(),
+      ) as _i6.Future<void>);
+
+  @override
+  _i6.Future<void> saveNotificationsEnabled(bool? isEnabled) =>
       (super.noSuchMethod(
-            Invocation.method(#clearAuthData, []),
-            returnValue: _i6.Future<void>.value(),
-            returnValueForMissingStub: _i6.Future<void>.value(),
-          )
-          as _i6.Future<void>);
+        Invocation.method(
+          #saveNotificationsEnabled,
+          [isEnabled],
+        ),
+        returnValue: _i6.Future<void>.value(),
+        returnValueForMissingStub: _i6.Future<void>.value(),
+      ) as _i6.Future<void>);
+
+  @override
+  _i6.Future<bool> getNotificationsEnabled() => (super.noSuchMethod(
+        Invocation.method(
+          #getNotificationsEnabled,
+          [],
+        ),
+        returnValue: _i6.Future<bool>.value(false),
+      ) as _i6.Future<bool>);
 }
 
 /// A class which mocks [AuthRepo].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockAuthRepo extends _i1.Mock implements _i17.AuthRepo {
+class MockAuthRepo extends _i1.Mock implements _i18.AuthRepo {
   MockAuthRepo() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i6.Future<_i13.BaseResponse<_i18.LoginEntity>> login({
+  _i6.Future<_i13.BaseResponse<_i19.LoginEntity>> login({
     required String? email,
     required String? password,
   }) =>
       (super.noSuchMethod(
-            Invocation.method(#login, [], {#email: email, #password: password}),
-            returnValue: _i6.Future<_i13.BaseResponse<_i18.LoginEntity>>.value(
-              _i10.dummyValue<_i13.BaseResponse<_i18.LoginEntity>>(
-                this,
-                Invocation.method(#login, [], {
-                  #email: email,
-                  #password: password,
-                }),
-              ),
-            ),
-          )
-          as _i6.Future<_i13.BaseResponse<_i18.LoginEntity>>);
+        Invocation.method(
+          #login,
+          [],
+          {
+            #email: email,
+            #password: password,
+          },
+        ),
+        returnValue: _i6.Future<_i13.BaseResponse<_i19.LoginEntity>>.value(
+            _i10.dummyValue<_i13.BaseResponse<_i19.LoginEntity>>(
+          this,
+          Invocation.method(
+            #login,
+            [],
+            {
+              #email: email,
+              #password: password,
+            },
+          ),
+        )),
+      ) as _i6.Future<_i13.BaseResponse<_i19.LoginEntity>>);
 
   @override
   _i6.Future<_i7.Result<_i8.RegisterEntity>> signUp(
-    _i9.RegisterParams? params,
-  ) =>
+          _i9.RegisterParams? params) =>
       (super.noSuchMethod(
-            Invocation.method(#signUp, [params]),
-            returnValue: _i6.Future<_i7.Result<_i8.RegisterEntity>>.value(
-              _i10.dummyValue<_i7.Result<_i8.RegisterEntity>>(
-                this,
-                Invocation.method(#signUp, [params]),
-              ),
-            ),
-          )
-          as _i6.Future<_i7.Result<_i8.RegisterEntity>>);
+        Invocation.method(
+          #signUp,
+          [params],
+        ),
+        returnValue: _i6.Future<_i7.Result<_i8.RegisterEntity>>.value(
+            _i10.dummyValue<_i7.Result<_i8.RegisterEntity>>(
+          this,
+          Invocation.method(
+            #signUp,
+            [params],
+          ),
+        )),
+      ) as _i6.Future<_i7.Result<_i8.RegisterEntity>>);
 
   @override
-  _i6.Future<_i13.BaseResponse<_i19.AuthMessageEntity>> forgetPassword({
-    required String? email,
-  }) =>
+  _i6.Future<_i13.BaseResponse<_i20.AuthMessageEntity>> forgetPassword(
+          {required String? email}) =>
       (super.noSuchMethod(
-            Invocation.method(#forgetPassword, [], {#email: email}),
-            returnValue:
-                _i6.Future<_i13.BaseResponse<_i19.AuthMessageEntity>>.value(
-                  _i10.dummyValue<_i13.BaseResponse<_i19.AuthMessageEntity>>(
-                    this,
-                    Invocation.method(#forgetPassword, [], {#email: email}),
-                  ),
-                ),
-          )
-          as _i6.Future<_i13.BaseResponse<_i19.AuthMessageEntity>>);
+        Invocation.method(
+          #forgetPassword,
+          [],
+          {#email: email},
+        ),
+        returnValue:
+            _i6.Future<_i13.BaseResponse<_i20.AuthMessageEntity>>.value(
+                _i10.dummyValue<_i13.BaseResponse<_i20.AuthMessageEntity>>(
+          this,
+          Invocation.method(
+            #forgetPassword,
+            [],
+            {#email: email},
+          ),
+        )),
+      ) as _i6.Future<_i13.BaseResponse<_i20.AuthMessageEntity>>);
 
   @override
-  _i6.Future<_i13.BaseResponse<_i20.ResetToken>> verifyOtp({
+  _i6.Future<_i13.BaseResponse<_i21.ResetToken>> verifyOtp({
     required String? email,
     required String? otpCode,
   }) =>
       (super.noSuchMethod(
-            Invocation.method(#verifyOtp, [], {
+        Invocation.method(
+          #verifyOtp,
+          [],
+          {
+            #email: email,
+            #otpCode: otpCode,
+          },
+        ),
+        returnValue: _i6.Future<_i13.BaseResponse<_i21.ResetToken>>.value(
+            _i10.dummyValue<_i13.BaseResponse<_i21.ResetToken>>(
+          this,
+          Invocation.method(
+            #verifyOtp,
+            [],
+            {
               #email: email,
               #otpCode: otpCode,
-            }),
-            returnValue: _i6.Future<_i13.BaseResponse<_i20.ResetToken>>.value(
-              _i10.dummyValue<_i13.BaseResponse<_i20.ResetToken>>(
-                this,
-                Invocation.method(#verifyOtp, [], {
-                  #email: email,
-                  #otpCode: otpCode,
-                }),
-              ),
-            ),
-          )
-          as _i6.Future<_i13.BaseResponse<_i20.ResetToken>>);
+            },
+          ),
+        )),
+      ) as _i6.Future<_i13.BaseResponse<_i21.ResetToken>>);
 
   @override
-  _i6.Future<_i13.BaseResponse<_i19.AuthMessageEntity>> resetPassword({
+  _i6.Future<_i13.BaseResponse<_i20.AuthMessageEntity>> resetPassword({
     required String? resetToken,
     required String? newPassword,
     required String? confirmNewPassword,
   }) =>
       (super.noSuchMethod(
-            Invocation.method(#resetPassword, [], {
+        Invocation.method(
+          #resetPassword,
+          [],
+          {
+            #resetToken: resetToken,
+            #newPassword: newPassword,
+            #confirmNewPassword: confirmNewPassword,
+          },
+        ),
+        returnValue:
+            _i6.Future<_i13.BaseResponse<_i20.AuthMessageEntity>>.value(
+                _i10.dummyValue<_i13.BaseResponse<_i20.AuthMessageEntity>>(
+          this,
+          Invocation.method(
+            #resetPassword,
+            [],
+            {
               #resetToken: resetToken,
               #newPassword: newPassword,
               #confirmNewPassword: confirmNewPassword,
-            }),
-            returnValue:
-                _i6.Future<_i13.BaseResponse<_i19.AuthMessageEntity>>.value(
-                  _i10.dummyValue<_i13.BaseResponse<_i19.AuthMessageEntity>>(
-                    this,
-                    Invocation.method(#resetPassword, [], {
-                      #resetToken: resetToken,
-                      #newPassword: newPassword,
-                      #confirmNewPassword: confirmNewPassword,
-                    }),
-                  ),
-                ),
-          )
-          as _i6.Future<_i13.BaseResponse<_i19.AuthMessageEntity>>);
+            },
+          ),
+        )),
+      ) as _i6.Future<_i13.BaseResponse<_i20.AuthMessageEntity>>);
 
   @override
-  _i6.Future<void> clearAuthData() =>
+  _i6.Future<void> clearAuthData() => (super.noSuchMethod(
+        Invocation.method(
+          #clearAuthData,
+          [],
+        ),
+        returnValue: _i6.Future<void>.value(),
+        returnValueForMissingStub: _i6.Future<void>.value(),
+      ) as _i6.Future<void>);
+
+  @override
+  _i6.Future<bool> getNotificationsEnabled() => (super.noSuchMethod(
+        Invocation.method(
+          #getNotificationsEnabled,
+          [],
+        ),
+        returnValue: _i6.Future<bool>.value(false),
+      ) as _i6.Future<bool>);
+
+  @override
+  _i6.Future<void> saveNotificationsEnabled(bool? isEnabled) =>
       (super.noSuchMethod(
-            Invocation.method(#clearAuthData, []),
-            returnValue: _i6.Future<void>.value(),
-            returnValueForMissingStub: _i6.Future<void>.value(),
-          )
-          as _i6.Future<void>);
+        Invocation.method(
+          #saveNotificationsEnabled,
+          [isEnabled],
+        ),
+        returnValue: _i6.Future<void>.value(),
+        returnValueForMissingStub: _i6.Future<void>.value(),
+      ) as _i6.Future<void>);
+
+  @override
+  _i6.Future<bool> isAuthenticated() => (super.noSuchMethod(
+        Invocation.method(
+          #isAuthenticated,
+          [],
+        ),
+        returnValue: _i6.Future<bool>.value(false),
+      ) as _i6.Future<bool>);
 }

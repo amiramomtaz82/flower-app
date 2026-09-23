@@ -30,7 +30,7 @@ class AddressAreaCitySelectors extends StatelessWidget {
       children: [
         Expanded(
           child: DropdownButtonFormField<AreaEntity>(
-            value: selectedArea,
+            initialValue: selectedArea,
             isExpanded: true,
             decoration: InputDecoration(
               labelText: AppStrings.area.tr(),
@@ -40,7 +40,7 @@ class AddressAreaCitySelectors extends StatelessWidget {
             items: areas.map((area) {
               return DropdownMenuItem<AreaEntity>(
                 value: area,
-                child: Text(area.name ?? '', overflow: TextOverflow.ellipsis),
+                child: Text(area.name, overflow: TextOverflow.ellipsis),
               );
             }).toList(),
             onChanged: onAreaChanged,
@@ -49,7 +49,7 @@ class AddressAreaCitySelectors extends StatelessWidget {
         ),const SizedBox(width: 12),
         Expanded(
           child: DropdownButtonFormField<CityEntity>(
-            value: selectedCity,
+            initialValue: selectedCity,
             isExpanded: true,
             decoration: InputDecoration(
               labelText: AppStrings.city.tr(),
@@ -59,7 +59,7 @@ class AddressAreaCitySelectors extends StatelessWidget {
             items: availableCities.map((city) {
               return DropdownMenuItem<CityEntity>(
                 value: city,
-                child: Text(city.name ?? '', overflow: TextOverflow.ellipsis),
+                child: Text(city.name, overflow: TextOverflow.ellipsis),
               );
             }).toList(),
             onChanged: onCityChanged,

@@ -141,7 +141,7 @@ class _LoginViewState extends State<LoginView> {
                         context.push(AppRoutes.forgotPassword);
                       },
                         child: Text(
-                          AppStrings.forget_password.tr(),
+                          AppStrings.forgetPasswordQuestion.tr(),
                           style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             decoration: TextDecoration.underline,
                           ),

@@ -1,3 +1,6 @@
+// ignore_for_file: deprecated_member_use
+
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flower_app/core/app_constants/app_strings.dart';
 import 'package:flower_app/core/app_theme/app_colors.dart';
 import 'package:flutter/material.dart';
@@ -36,7 +39,7 @@ class CheckoutPaymentSection extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            AppStrings.paymentMethod,
+            AppStrings.paymentMethod.tr(),
             style: Theme.of(context).textTheme.labelMedium,
           ),
           const SizedBox(height: 6),
@@ -64,7 +67,7 @@ class CheckoutPaymentSection extends StatelessWidget {
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8.0),
                   child: Text(
-                    checkoutResource.errorMessage ?? AppStrings.somethingWentWrong,
+                    checkoutResource.errorMessage ?? AppStrings.somethingWentWrong.tr(),
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.error,
                       fontSize: 13,
@@ -85,7 +88,7 @@ class CheckoutPaymentSection extends StatelessWidget {
                     border: Border.all(color: Colors.grey.shade200),
                   ),
                   child: Text(
-                    AppStrings.noPaymentMethodsAvailable,
+                    AppStrings.noPaymentMethodsAvailable.tr(),
                     style: TextStyle(
                       color: Colors.grey.shade600,
                       fontSize: 13,
@@ -97,7 +100,7 @@ class CheckoutPaymentSection extends StatelessWidget {
               return Column(
                 children: paymentMethods.map((option) {
                   final methodValue = option.method; // Extracts "COD" or "Card"
-                  final displayTitle = _getDisplayTitle(methodValue);
+                  final displayTitle = _getDisplayTitle(methodValue).tr();
 
                   return InkWell(
                     onTap: () => cubit.doEvents(SelectPaymentMethodEvent(methodValue)),

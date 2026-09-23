@@ -1,6 +1,5 @@
 
 import '../../domain/entities/card_payment_session_entity.dart';
-import '../../domain/entities/place_order_request_entity.dart';
 
 class PlaceOrderResponse {
   final CardPaymentSessionDto? data; // null for COD orders

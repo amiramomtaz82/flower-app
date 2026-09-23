@@ -5,6 +5,7 @@ import '../../../../../config/base_response/base_response.dart';
 import '../../../../../core/app_constants/app_strings.dart';
 import '../../../../../config/resource/rsource.dart';
 import '../../../../../core/pagination/paginated_response.dart';
+import '../../../../notifications/domain/usecase/sync_notification_permission_use_case.dart';
 import '../../../domain/entities/home_section_entity.dart';
 import '../../../domain/entities/home_section_type.dart';
 import '../../../domain/entities/occasion_entity.dart';
@@ -22,11 +23,13 @@ class HomeCubit extends Cubit<HomeState> {
   final GetCategoriesUseCase _getCategoriesUseCase;
   final GetOccasionsUseCase _getOccasionsUseCase;
   final GetProductsUseCase _getProductsUseCase;
+  final SyncNotificationPermissionUseCase _syncNotificationPermissionUseCase;
 
   HomeCubit(
     this._getHomeSectionsUseCase,
     this._getCategoriesUseCase,
     this._getOccasionsUseCase,
+  this._syncNotificationPermissionUseCase,
     this._getProductsUseCase,
   ) : super(HomeState.initial());
 
@@ -34,10 +37,13 @@ class HomeCubit extends Cubit<HomeState> {
     switch (event) {
       case HomeStarted():
         await _loadHome();
+      case NotificationPermissionRequested():
+        await _syncNotificationPermissionUseCase();
     }
   }
 
   Future<void> _loadHome() async {
+    _syncNotificationPermissionUseCase();
     emit(state.copyWith(sectionsResource: Resource.loading()));
 
     final result = await _getHomeSectionsUseCase();

@@ -1,4 +1,4 @@
-import 'package:flower_app/features/auth/data/models/login_response.dart';
+import '../../models/user_dto.dart';
 
 abstract class AuthLocalDataSource {
   Future<void> saveToken(String token);
@@ -9,9 +9,11 @@ abstract class AuthLocalDataSource {
 
   Future<String?> getRefreshToken();
 
-  Future<void> saveUser(User user);
+  Future<void> saveUser(UserDto user);
 
-  Future<User?> getUser();
+  Future<UserDto?> getUser();
 
   Future<void> clearAuthData();
+  Future<void> saveNotificationsEnabled(bool isEnabled);
+  Future<bool> getNotificationsEnabled();
 }

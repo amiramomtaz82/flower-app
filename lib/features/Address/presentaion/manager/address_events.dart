@@ -43,13 +43,13 @@ class GetCurrentLocationEvent extends AddressEvent {
 class SelectLocationEvent extends AddressEvent {
   final LatLng location;
 
-  SelectLocationEvent(this.location);
+  const SelectLocationEvent(this.location);
 }
 
 class SelectCityEvent extends AddressEvent {
-  CityEntity city;
+  final CityEntity city;
 
-  SelectCityEvent(this.city);
+  const SelectCityEvent(this.city);
 }
 
 class SelectAreaEvent extends AddressEvent {
@@ -63,30 +63,31 @@ class SelectAreaEvent extends AddressEvent {
 
 class SetDefaultAddressEvent extends AddressEvent {
   final String addressId;
-  SetDefaultAddressEvent(this.addressId);
+  const SetDefaultAddressEvent(this.addressId);
 }
 
 class ResolveHomeAddressEvent extends AddressEvent {
-
-  ResolveHomeAddressEvent();
-
+  const ResolveHomeAddressEvent();
 }
+
 class GetAreasWithCitiesEvent extends AddressEvent {
   const GetAreasWithCitiesEvent();
 
   @override
   List<Object?> get props => [];
 }
+
 class ResetAddAddressStateEvent extends AddressEvent {
   const ResetAddAddressStateEvent();
 }
+
 class UpdateAddressEvent extends AddressEvent {
   final String id;
   final AddressEntity entity;
-  UpdateAddressEvent({required this.id, required this.entity});
+  const UpdateAddressEvent({required this.id, required this.entity});
 }
 
 class DeleteAddressEvent extends AddressEvent {
   final String id;
-  DeleteAddressEvent(this.id);
+  const DeleteAddressEvent(this.id);
 }

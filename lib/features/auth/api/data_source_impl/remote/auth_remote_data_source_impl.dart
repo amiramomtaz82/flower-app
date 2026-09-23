@@ -12,6 +12,7 @@ import 'package:flower_app/features/auth/data/models/verify_otp_response_model.d
 import 'package:injectable/injectable.dart';
 
 import '../../../data/models/login_response.dart';
+import '../../../data/models/user_dto.dart';
 
 @Injectable(as: AuthRemoteDataSource)
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -33,8 +34,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
             accessToken: "dummy_access_token",
             refreshToken: "dummy_refresh_token",
             expiresIn: 900,
-            role: "Customer",
-            user: User(
+
+            user: UserDto(
               id: "123",
               email: request.email,
               fullName: "Ahmed Hassan",

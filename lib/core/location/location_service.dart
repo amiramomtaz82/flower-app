@@ -5,6 +5,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:nominatim_flutter/model/request/reverse_request.dart';
 import 'package:nominatim_flutter/nominatim_flutter.dart';
 
+
 import '../../features/Address/domain/entities/address_entity.dart';
 import 'location_model.dart';
 

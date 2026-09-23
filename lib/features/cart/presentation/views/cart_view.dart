@@ -94,7 +94,7 @@ class _CartBody extends StatelessWidget {
           cart: cart,
           onCheckout: () => context.push(
             AppRoutes.checkout,
-            extra: cart,
+            extra: cart.id,
           ),
         ),
       ],
@@ -115,7 +115,7 @@ class _CartItems extends StatelessWidget {
     return ListView.separated(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
       itemCount: cart.items.length,
-      separatorBuilder: (_, _) => const SizedBox(height: 12),
+      separatorBuilder: (_, __) => const SizedBox(height: 12),
       itemBuilder: (context, index) {
         final item = cart.items[index];
         final productId = item.productId ?? '';

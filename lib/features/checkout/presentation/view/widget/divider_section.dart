@@ -8,7 +8,7 @@ class CheckoutSectionDivider extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).extension<AppColors>();
-    final surfaceColor = colors?.surface ?? Theme.of(context).colorScheme.surfaceVariant;
+    final surfaceColor = colors?.surface ?? Theme.of(context).colorScheme.surfaceContainerHighest;
 
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 20.0),

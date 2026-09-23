@@ -1,3 +1,4 @@
+
 import 'package:flower_app/config/resource/rsource.dart';
 import 'package:flower_app/core/app_constants/app_assets.dart';
 import 'package:flower_app/core/go_routes/routes_name.dart';
@@ -6,12 +7,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+
 import '../../../domain/entities/category_entity.dart';
 import '../../../domain/entities/home_section_entity.dart';
 import '../../../domain/entities/home_section_type.dart';
 import '../../../domain/entities/occasion_entity.dart';
 import '../../../domain/entities/product_entity.dart';
 import '../manager/home_cubit.dart';
+import '../manager/home_events.dart';
 import '../manager/home_state.dart';
 import '../widgets/best_seller_card.dart';
 import '../widgets/category_chip.dart';
@@ -29,8 +32,16 @@ class HomeView extends StatefulWidget {
 }
 
 class _HomeViewState extends State<HomeView> {
+  @override
+  void initState() {
+    super.initState();
+    context.read<HomeCubit>().doEvents(NotificationPermissionRequested());
+
+  }
 
 
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(

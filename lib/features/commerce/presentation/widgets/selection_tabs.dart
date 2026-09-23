@@ -60,7 +60,7 @@ class _SelectionTabsState extends State<SelectionTabs> {
       scrollDirection: Axis.horizontal,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       itemCount: widget.tabs.length,
-      separatorBuilder: (_, _) => const SizedBox(width: 24),
+      separatorBuilder: (_, __) => const SizedBox(width: 24),
       itemBuilder: (context, index) {
         final tab = widget.tabs[index];
         return _Tab(

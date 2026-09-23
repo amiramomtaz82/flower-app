@@ -1,57 +1,54 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:injectable/injectable.dart';
 
 import 'local_notification_service.dart';
-
+@pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(
     RemoteMessage message,
     ) async {
-  print('Handling a background message: ${message.messageId}');
+  debugPrint('Handling a background message: ${message.messageId}');
 }
 
 @singleton
-class Fcm {
+class FcmService {
   final FirebaseMessaging _messaging;
   final LocalNotificationService _localNotificationService;
 
   StreamSubscription<RemoteMessage>? _foregroundSubscription;
-  StreamSubscription<String>? _tokenRefreshSubscription;
 
-  Fcm(
+  FcmService(
       this._messaging,
       this._localNotificationService,
       );
 
-  Future<void> initialize() async {
-    await requestPermission();
+  // Expose stream for FcmTokenSyncService to handle backend syncing
+  Stream<String> get onTokenRefreshStream => _messaging.onTokenRefresh;
 
+  Future<void> initialize() async {
+    // 1. Initialize local notification display channel
     await _localNotificationService.initialize();
 
+    // 2. Listen to incoming foreground messages
     await onForegroundMessage();
 
-    await onTokenRefresh();
-
-    await getToken();
+    // Note: Do NOT call requestPermission() here per design specification[cite: 1]
   }
 
   Future<String?> getToken() async {
     try {
       final token = await _messaging.getToken();
-
-      print('========== FCM TOKEN ==========');
-      print(token);
-
       return token;
     } catch (e) {
-    //  print('========== FCM TOKEN ERROR ==========');
-      print('Failed to get FCM token: $e');
+      debugPrint('Failed to get FCM token: $e');
       return null;
     }
   }
 
-  Future<void> requestPermission() async {
+  // Trigger this explicitly from HomeScreen or Profile toggle[cite: 1]
+  Future<NotificationSettings> requestPermission() async {
     final settings = await _messaging.requestPermission(
       alert: true,
       announcement: false,
@@ -62,9 +59,8 @@ class Fcm {
       sound: true,
     );
 
-    print(
-      'Notification permission: ${settings.authorizationStatus}',
-    );
+    debugPrint('Notification permission: ${settings.authorizationStatus}');
+    return settings;
   }
 
   Future<void> onForegroundMessage() async {
@@ -72,15 +68,10 @@ class Fcm {
 
     _foregroundSubscription = FirebaseMessaging.onMessage.listen(
           (RemoteMessage message) async {
-        print('====== FOREGROUND MESSAGE ======');
-        print('Notification: ${message.notification}');
-        print('Title: ${message.notification?.title}');
-        print('Body: ${message.notification?.body}');
-        print('Data: ${message.data}');
         final notification = message.notification;
-        final android = notification?.android;
 
-        if (notification != null && android != null) {
+
+        if (notification != null ) {
           await _localNotificationService.showNotification(
             id: notification.hashCode,
             title: notification.title,
@@ -91,25 +82,8 @@ class Fcm {
     );
   }
 
-  Future<void> onTokenRefresh() async {
-    await _tokenRefreshSubscription?.cancel();
-
-    _tokenRefreshSubscription = _messaging.onTokenRefresh.listen(
-          (newToken) {
-        print('========== FCM TOKEN REFRESHED ==========');
-        print(newToken);
-
-        // Save/update token here if you have local storage for it.
-        // Notify backend if required.
-      },
-    );
-  }
-
   Future<void> dispose() async {
     await _foregroundSubscription?.cancel();
-    await _tokenRefreshSubscription?.cancel();
-
     _foregroundSubscription = null;
-    _tokenRefreshSubscription = null;
   }
 }

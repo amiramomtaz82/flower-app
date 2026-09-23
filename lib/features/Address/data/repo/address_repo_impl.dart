@@ -1,6 +1,4 @@
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flower_app/config/base_response/base_response.dart';
-import 'package:flower_app/core/app_constants/app_strings.dart';
 import 'package:flower_app/core/location/location_model.dart';
 import 'package:flower_app/features/Address/data/models/areas_with_city_response.dart';
 import 'package:flower_app/features/Address/data/models/create_address_request.dart';
@@ -36,7 +34,7 @@ class AddressRepoImpl implements AddressRepo {
     switch (response) {
       case SuccessResponse<SavedAddressesResponse>():
         final addressDtos = response.data
-            ?.data; // Safely access inner data list
+            .data; // Safely access inner data list
 
         final addresses = addressDtos
             ?.map((dto) => dto.toEntity())
@@ -89,6 +87,7 @@ class AddressRepoImpl implements AddressRepo {
   }
 
 
+  @override
   Future<BaseResponse<List<AreaEntity>>> getAreasWithCities() async {
     final result = await _remoteDataSource.getCities();
 
@@ -96,7 +95,7 @@ class AddressRepoImpl implements AddressRepo {
       case SuccessResponse<AreasWithCityResponse>():
         final response = result.data;
 
-        if (response == null || response.data == null) {
+        if (response.data == null) {
           return ErrorResponse<List<AreaEntity>>(
             error: 'Areas response is empty',
           );
@@ -121,11 +120,7 @@ class AddressRepoImpl implements AddressRepo {
 
     switch (response) {
       case SuccessResponse<AddressDto>():
-        final dto = response.data;
-        if (dto != null) {
-          return SuccessResponse<AddressEntity>(dto.toEntity());
-        }
-        return ErrorResponse<AddressEntity>(error: 'Missing address data');
+        return SuccessResponse<AddressEntity>(response.data.toEntity());
       case ErrorResponse<AddressDto>():
         return ErrorResponse<AddressEntity>(error: response.error);
     }
