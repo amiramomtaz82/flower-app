@@ -394,4 +394,29 @@ class MockAuthRepo extends _i1.Mock implements _i18.AuthRepo {
             returnValueForMissingStub: _i6.Future<void>.value(),
           )
           as _i6.Future<void>);
+
+  @override
+  _i6.Future<bool> getNotificationsEnabled() =>
+      (super.noSuchMethod(
+            Invocation.method(#getNotificationsEnabled, []),
+            returnValue: _i6.Future<bool>.value(false),
+          )
+          as _i6.Future<bool>);
+
+  @override
+  _i6.Future<void> saveNotificationsEnabled(bool? isEnabled) =>
+      (super.noSuchMethod(
+            Invocation.method(#saveNotificationsEnabled, [isEnabled]),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
+          )
+          as _i6.Future<void>);
+
+  @override
+  _i6.Future<bool> isAuthenticated() =>
+      (super.noSuchMethod(
+            Invocation.method(#isAuthenticated, []),
+            returnValue: _i6.Future<bool>.value(false),
+          )
+          as _i6.Future<bool>);
 }

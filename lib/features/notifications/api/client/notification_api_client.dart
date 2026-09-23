@@ -3,7 +3,8 @@
 import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';
 import 'package:retrofit/retrofit.dart';
-import '../../data/models/update_fecm_token.dart';
+import '../../../../core/app_constants/endpoints.dart';
+import '../../data/models/update_fcm_token.dart';
 
 
 part 'notification_api_client.g.dart';
@@ -14,7 +15,7 @@ abstract class NotificationApiClient {
   @factoryMethod
   factory NotificationApiClient(Dio dio) = _NotificationApiClient;
 
-  @PUT('/devices/fcm-token') // Verify the exact path in your Postman collection
+  @POST(Endpoints.registerDevice)
   Future<void> updateFcmToken(
       @Body() UpdateFcmTokenRequest request,
       );

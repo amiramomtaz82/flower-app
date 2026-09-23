@@ -33,7 +33,7 @@ void main() async {
 
   configureDependencies();
 
-  final fcm = getIt<Fcm>();
+  final fcm = getIt<FcmService>();
   await fcm.initialize();
 
   await EasyLocalization.ensureInitialized();

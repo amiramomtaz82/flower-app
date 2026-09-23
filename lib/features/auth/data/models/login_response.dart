@@ -25,7 +25,7 @@ class LoginResponse {
       refreshToken: json['refreshToken'] as String?,
       expiresIn: json['expiresIn'] as int?,
       driverStatus: json['driverStatus'] as String?,
-      user: json['user'] != null ? UserDto.fromJson(json['user'] as Map<String, dynamic>) : null,
+
       // Safely check root, nested device object, or fallback to true per spec:
       notificationsEnabled: (json['notificationsEnabled'] ??
           json['device']?['notificationsEnabled'] ??
@@ -39,7 +39,7 @@ class LoginResponse {
       'refreshToken': refreshToken,
       'expiresIn': expiresIn,
       'driverStatus': driverStatus,
-      if (user != null) 'user': user!.toJson(),
+
       'notificationsEnabled': notificationsEnabled,
     };
   }

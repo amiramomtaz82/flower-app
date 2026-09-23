@@ -1,4 +1,4 @@
-import 'package:firebase_messaging/firebase_messaging.dart';
+
 import 'package:flower_app/config/resource/rsource.dart';
 import 'package:flower_app/core/app_constants/app_assets.dart';
 import 'package:flower_app/core/go_routes/routes_name.dart';
@@ -7,16 +7,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../../config/di/di.dart';
-import '../../../../../config/notificaions/fcm.dart';
-import '../../../../../config/notificaions/fcm_token_sync_service.dart';
-import '../../../../auth/data/data_source/local/auth_local_data_source.dart';
+
 import '../../../domain/entities/category_entity.dart';
 import '../../../domain/entities/home_section_entity.dart';
 import '../../../domain/entities/home_section_type.dart';
 import '../../../domain/entities/occasion_entity.dart';
 import '../../../domain/entities/product_entity.dart';
 import '../manager/home_cubit.dart';
+import '../manager/home_events.dart';
 import '../manager/home_state.dart';
 import '../widgets/best_seller_card.dart';
 import '../widgets/category_chip.dart';
@@ -37,31 +35,11 @@ class _HomeViewState extends State<HomeView> {
   @override
   void initState() {
     super.initState();
-    _checkNotificationPermission();
+    context.read<HomeCubit>().doEvents(NotificationPermissionRequested());
+
   }
 
-  Future<void> _checkNotificationPermission() async {
-    final fcm = getIt<Fcm>();
-    final authLocal = getIt<AuthLocalDataSource>();
 
-    // 1. Check if the user toggled it off explicitly inside your app settings
-    final isAppLevelEnabled = await authLocal.getNotificationsEnabled();
-    if (!isAppLevelEnabled) return;
-
-    // 2. Request / check OS-level permission via FCM
-    final settings = await fcm.requestPermission();
-
-    // 3. Keep local state aligned with OS result
-    final isGranted = settings.authorizationStatus == AuthorizationStatus.authorized ||
-        settings.authorizationStatus == AuthorizationStatus.provisional;
-
-    await authLocal.saveNotificationsEnabled(isGranted);
-
-    // 4. Initialize token sync if granted
-    if (isGranted) {
-      await getIt<FcmTokenSyncService>().initFcmTokenSync();
-    }
-  }
 
   Widget build(BuildContext context) {
     return Scaffold(

@@ -5,7 +5,7 @@ import 'package:flower_app/features/auth/presentation/forget_password/views/forg
 import 'package:flower_app/features/auth/presentation/login/manager/login_cubit.dart';
 import 'package:flower_app/features/auth/presentation/register/view_model/register_view_model.dart';
 import 'package:flower_app/features/auth/presentation/register/views/register_view.dart';
-import 'package:flower_app/core/widgets/coming_soon_view.dart';
+
 import 'package:flower_app/features/checkout/presentation/view/checkout_view.dart';
 
 import 'package:flower_app/features/commerce/domain/entities/product_entity.dart';
@@ -46,6 +46,8 @@ import '../../features/cart/presentation/views/cart_view.dart';
 import '../../features/checkout/presentation/manager/checkout_cubit.dart';
 import '../../features/checkout/presentation/view/order_succss_screen.dart';
 import '../../features/commerce/presentation/home/view/home_view.dart';
+import '../../features/splash/presentation/manager/splash_cubit.dart';
+import '../../features/splash/presentation/manager/splash_event.dart';
 import '../../features/splash/presentation/splash_view.dart';
 import 'main_shell_view.dart';
 
@@ -62,7 +64,10 @@ class AppRouter {
     routes: [
       GoRoute(
         path: AppRoutes.splashView,
-        builder: (context, state) => const SplashView(),
+        builder: (context, state) => BlocProvider(
+          create: (_) => getIt<SplashCubit>()..doEvents(SplashStarted()),
+          child: const SplashView(),
+        ),
       ),
       GoRoute(
         path: AppRoutes.login,
@@ -77,7 +82,7 @@ class AppRouter {
         path: AppRoutes.checkout,
         builder: (context, state) {
           final cartId = state.extra as String? ?? '';
-          debugPrint("Checkout cartId: $cartId");
+
 
 
           final addressId = state.uri.queryParameters['addressId'];

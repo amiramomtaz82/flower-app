@@ -4,7 +4,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:injectable/injectable.dart';
 
 import 'local_notification_service.dart';
-
+@pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(
     RemoteMessage message,
     ) async {
@@ -12,13 +12,13 @@ Future<void> firebaseMessagingBackgroundHandler(
 }
 
 @singleton
-class Fcm {
+class FcmService {
   final FirebaseMessaging _messaging;
   final LocalNotificationService _localNotificationService;
 
   StreamSubscription<RemoteMessage>? _foregroundSubscription;
 
-  Fcm(
+  FcmService(
       this._messaging,
       this._localNotificationService,
       );
@@ -68,9 +68,9 @@ class Fcm {
     _foregroundSubscription = FirebaseMessaging.onMessage.listen(
           (RemoteMessage message) async {
         final notification = message.notification;
-        final android = notification?.android;
 
-        if (notification != null && android != null) {
+
+        if (notification != null ) {
           await _localNotificationService.showNotification(
             id: notification.hashCode,
             title: notification.title,

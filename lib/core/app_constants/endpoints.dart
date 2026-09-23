@@ -25,6 +25,7 @@ class Endpoints {
   static const String checkoutDetails = '/checkout/details';
   static const String estimateDelivery = '/checkout/estimate-delivery';
   static const String placeOrder = '/orders/place';
+  static const String registerDevice = '/devices/register';
 
   static const String bestSellersOccasionId =
       '55555555-5555-5555-5555-555555555555';

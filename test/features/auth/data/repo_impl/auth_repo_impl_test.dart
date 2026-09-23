@@ -29,7 +29,7 @@ import 'auth_repo_impl_test.mocks.dart';
   AuthLocalDataSource,
   AuthRemoteDataSource,
   DeviceIdService,
-  Fcm,
+  FcmService,
 ])
 void main() {
   late AuthRepoImpl authRepoImpl;
