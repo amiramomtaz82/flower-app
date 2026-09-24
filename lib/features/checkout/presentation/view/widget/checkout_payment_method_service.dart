@@ -97,7 +97,7 @@ class CheckoutPaymentSection extends StatelessWidget {
 
               return Column(
                 children: paymentMethods.map((option) {
-                  final methodValue = option.method.tr(); // Extracts "COD" or "Card"
+                  final methodValue = option.method; // Extracts "COD" or "Card"
                   final displayTitle = _getDisplayTitle(methodValue).tr();
 
                   return InkWell(

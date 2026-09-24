@@ -1,20 +1,31 @@
-
 import 'package:flower_app/config/base_response/base_response.dart';
+import 'package:flower_app/config/resource/rsource.dart';
 import 'package:flower_app/core/app_constants/app_strings.dart';
 import 'package:flower_app/features/auth/domain/entities/login_entity.dart';
 import 'package:flower_app/features/auth/domain/use_cases/login_use_case.dart';
 import 'package:flower_app/features/auth/presentation/login/manager/login_cubit.dart';
 import 'package:flower_app/features/auth/presentation/login/manager/login_events.dart';
 import 'package:flower_app/features/auth/presentation/login/manager/login_state.dart';
+import 'package:flower_app/features/notifications/domain/usecase/sync_fcm_token_use_case.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
 import 'login_cubit_test.mocks.dart';
 
+class FakeSyncFcmTokenUseCase extends Fake implements SyncFcmTokenUseCase {
+  bool wasCalled = false;
+
+  @override
+  Future<void> call() async {
+    wasCalled = true;
+  }
+}
+
 @GenerateMocks([LoginUseCase])
 void main() {
   late MockLoginUseCase mockLoginUseCase;
+  late FakeSyncFcmTokenUseCase fakeSyncFcmTokenUseCase;
   late LoginCubit cubit;
 
   const validEmail = 'customer@example.com';
@@ -24,13 +35,13 @@ void main() {
     accessToken: 'access_token',
     refreshToken: 'refresh_token',
     expiresIn: 900,
-
     user: null,
   );
 
   setUp(() {
     mockLoginUseCase = MockLoginUseCase();
-    cubit = LoginCubit(mockLoginUseCase);
+    fakeSyncFcmTokenUseCase = FakeSyncFcmTokenUseCase();
+    cubit = LoginCubit(mockLoginUseCase, fakeSyncFcmTokenUseCase);
 
     provideDummy<BaseResponse<LoginEntity>>(
       SuccessResponse<LoginEntity>(loginEntity),
@@ -43,22 +54,23 @@ void main() {
 
   group('Initial State', () {
     test('should have default initial state', () {
-      expect(cubit.state, equals(LoginState.initial()));
-      expect(cubit.state.obscurePassword, true);
-      expect(cubit.state.isValid, false);
+      expect(cubit.state, LoginState.initial());
       expect(cubit.state.email, '');
       expect(cubit.state.password, '');
+      expect(cubit.state.isValid, false);
+      expect(cubit.state.obscurePassword, true);
+      expect(cubit.state.loginResource.status, ApiStatus.initial);
     });
   });
 
   group('PasswordVisibilityChanged Event', () {
-    test('should toggle obscurePassword state when triggered', () async {
+    test('should toggle obscurePassword state when triggered', () {
       expect(cubit.state.obscurePassword, true);
 
-      await cubit.doEvents(PasswordVisibilityChanged());
+      cubit.doEvents(PasswordVisibilityChanged());
       expect(cubit.state.obscurePassword, false);
 
-      await cubit.doEvents(PasswordVisibilityChanged());
+      cubit.doEvents(PasswordVisibilityChanged());
       expect(cubit.state.obscurePassword, true);
     });
   });
@@ -75,6 +87,7 @@ void main() {
       await cubit.doEvents(EmailChanged('invalid-email'));
       await cubit.doEvents(PasswordChanged(validPassword));
 
+      expect(cubit.state.email, 'invalid-email');
       expect(cubit.state.password, validPassword);
       expect(cubit.state.isValid, false);
     });
@@ -97,10 +110,11 @@ void main() {
       // Assert
       expect(cubit.state.loginResource.isError, true);
       expect(cubit.state.loginResource.errorMessage, AppStrings.pleaseFill);
+      expect(fakeSyncFcmTokenUseCase.wasCalled, isFalse);
       verifyZeroInteractions(mockLoginUseCase);
     });
 
-    test('should emit loading then success when credentials are valid and login succeeds', () async {
+    test('should emit loading then success and trigger token sync when credentials are valid and login succeeds', () async {
       when(
         mockLoginUseCase(
           email: validEmail,
@@ -117,6 +131,7 @@ void main() {
 
       expect(cubit.state.loginResource.isSuccess, true);
       expect(cubit.state.loginResource.data, loginEntity);
+      expect(fakeSyncFcmTokenUseCase.wasCalled, isTrue);
 
       verify(
         mockLoginUseCase(
@@ -126,7 +141,7 @@ void main() {
       ).called(1);
     });
 
-    test('should emit loading then error when credentials are valid but login fails', () async {
+    test('should emit loading then error and not sync token when credentials are valid but login fails', () async {
       const errorMessage = 'Invalid email or password';
 
       when(
@@ -145,6 +160,7 @@ void main() {
 
       expect(cubit.state.loginResource.isError, true);
       expect(cubit.state.loginResource.errorMessage, errorMessage);
+      expect(fakeSyncFcmTokenUseCase.wasCalled, isFalse);
 
       verify(
         mockLoginUseCase(

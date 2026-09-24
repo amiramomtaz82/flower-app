@@ -1,7 +1,7 @@
 import 'package:injectable/injectable.dart';
 import 'package:nominatim_flutter/nominatim_flutter.dart';
 import 'package:geolocator/geolocator.dart';
-
+import 'package:uuid/uuid.dart';
 @module
 abstract class ThirdPartyModule {
   @lazySingleton
@@ -14,4 +14,6 @@ abstract class ThirdPartyModule {
   }
   @lazySingleton
   GeolocatorPlatform get geolocator => GeolocatorPlatform.instance;
+  @lazySingleton
+  Uuid get uuid => const Uuid();
 }

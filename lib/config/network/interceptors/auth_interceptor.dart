@@ -83,17 +83,35 @@ class AuthInterceptor extends Interceptor {
         await authLocalDataSource.saveRefreshToken(newRefreshToken);
       }
 
-      // 3. Retry the initial request
+      // 3. Retry initial request and all queued requests
       err.requestOptions.headers['Authorization'] = 'Bearer $newAccessToken';
-      _retryRequest(err.requestOptions, handler);
 
-      // 4. Drain existing queue snapshot safely
       final queueSnapshot = List<RetryRequest>.from(_requestQueue);
       _requestQueue.clear();
 
+      final retryFutures = <Future<void>>[
+        _retryRequest(err.requestOptions, handler),
+      ];
+
       for (final queued in queueSnapshot) {
         queued.requestOptions.headers['Authorization'] = 'Bearer $newAccessToken';
-        _retryRequest(queued.requestOptions, queued.handler);
+        retryFutures.add(_retryRequest(queued.requestOptions, queued.handler));
+      }
+
+      // 4. Await all in-flight retries before releasing the lock
+      await Future.wait(retryFutures);
+
+      // 5. Drain any requests that arrived while retries were in flight
+      while (_requestQueue.isNotEmpty) {
+        final remainingQueue = List<RetryRequest>.from(_requestQueue);
+        _requestQueue.clear();
+
+        final remainingFutures = remainingQueue.map((queued) {
+          queued.requestOptions.headers['Authorization'] = 'Bearer $newAccessToken';
+          return _retryRequest(queued.requestOptions, queued.handler);
+        });
+
+        await Future.wait(remainingFutures);
       }
     } catch (e) {
       await authLocalDataSource.clearAuthData();
@@ -111,16 +129,19 @@ class AuthInterceptor extends Interceptor {
     }
   }
 
-  void _retryRequest(RequestOptions options, dynamic handler) {
-    _retryDio.fetch(options).then(
-          (response) => handler.resolve(response),
-      onError: (error) {
-        final dioError = error is DioException
-            ? error
-            : DioException(requestOptions: options, error: error);
-        handler.reject(dioError);
-      },
-    );
+  Future<void> _retryRequest(
+      RequestOptions options,
+      ErrorInterceptorHandler handler,
+      ) async {
+    try {
+      final response = await _retryDio.fetch(options);
+      handler.resolve(response);
+    } catch (error) {
+      final dioError = error is DioException
+          ? error
+          : DioException(requestOptions: options, error: error);
+      handler.reject(dioError);
+    }
   }
 }
 

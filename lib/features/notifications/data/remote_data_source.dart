@@ -1,5 +1,5 @@
-import 'models/update_fecm_token.dart';
+import 'models/update_fcm_token.dart';
 
-abstract class NotificationRemoteDataSource {
+abstract  interface class NotificationRemoteDataSource {
   Future<void> updateFcmToken(UpdateFcmTokenRequest request);
 }

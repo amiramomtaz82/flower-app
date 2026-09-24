@@ -5,12 +5,15 @@ import 'package:uuid/uuid.dart';
 
 import '../secure_storage/secure_storage.dart';
 
-@LazySingleton(as:DeviceIdService)
-
-class DeviceIdServiceImp extends DeviceIdService{
+@LazySingleton(as: DeviceIdService)
+class DeviceIdServiceImp extends DeviceIdService {
   final SecureStorage _secureStorage;
+  final Uuid _uuid; // 👈 1. Injected dependency
 
-  DeviceIdServiceImp(this._secureStorage);
+  DeviceIdServiceImp(
+      this._secureStorage,
+      this._uuid, // 👈 2. Injected in constructor
+      );
 
   static const String _deviceIdKey = AppStrings.deviceId;
 
@@ -32,7 +35,8 @@ class DeviceIdServiceImp extends DeviceIdService{
       return deviceId;
     }
 
-    final newDeviceId = const Uuid().v4();
+    // 👈 3. Uses the injected instance
+    final newDeviceId = _uuid.v4();
 
     await _secureStorage.write(
       key: _deviceIdKey,
@@ -41,5 +45,4 @@ class DeviceIdServiceImp extends DeviceIdService{
 
     return newDeviceId;
   }
-
 }

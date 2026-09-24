@@ -1,20 +1,17 @@
-import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';
 
-import '../../data/models/update_fecm_token.dart';
+import '../../data/models/update_fcm_token.dart';
 import '../../data/remote_data_source.dart';
+import '../client/notification_api_client.dart';
 
 @LazySingleton(as: NotificationRemoteDataSource)
 class NotificationRemoteDataSourceImpl implements NotificationRemoteDataSource {
-  final Dio _dio;
+  final NotificationApiClient _apiClient; // 👈 Inject ApiClient instead of raw Dio
 
-  NotificationRemoteDataSourceImpl(this._dio);
+  NotificationRemoteDataSourceImpl(this._apiClient);
 
   @override
   Future<void> updateFcmToken(UpdateFcmTokenRequest request) async {
-    await _dio.put(
-      '/devices/fcm-token', // Confirm the exact endpoint path in your Postman collection
-      data: request.toJson(),
-    );
+    await _apiClient.updateFcmToken(request);
   }
 }

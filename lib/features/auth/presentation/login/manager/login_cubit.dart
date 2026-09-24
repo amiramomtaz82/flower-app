@@ -6,6 +6,7 @@ import '../../../../../../config/base_response/base_response.dart';
 
 import '../../../../../config/resource/rsource.dart';
 import '../../../../../core/validation/validation.dart';
+import '../../../../notifications/domain/usecase/sync_fcm_token_use_case.dart';
 import '../../../domain/entities/login_entity.dart';
 import '../../../domain/use_cases/login_use_case.dart';
 import 'login_events.dart';
@@ -14,8 +15,8 @@ import 'login_state.dart';
 @injectable
 class LoginCubit extends Cubit<LoginState> {
   final LoginUseCase _loginUseCase;
-
-  LoginCubit(this._loginUseCase)
+  final SyncFcmTokenUseCase _syncFcmTokenUseCase;
+  LoginCubit(this._loginUseCase, this._syncFcmTokenUseCase)
       : super(LoginState.initial());
 
   Future<void> doEvents(LoginEvent event) async {
@@ -98,6 +99,9 @@ class LoginCubit extends Cubit<LoginState> {
 
     switch (result) {
       case SuccessResponse<LoginEntity>():
+   // 4. ACTIVATE FCM SYNC & REFRESH STREAM
+    // Runs in background so it doesn't block the UI navigation
+    _syncFcmTokenUseCase();
         emit(
           state.copyWith(
             loginResource: Resource.success(result.data),
