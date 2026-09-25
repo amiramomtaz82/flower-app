@@ -1,8 +1,8 @@
 import 'package:flower_app/features/orders/data/models/user_address_dto.dart';
 
 import '../../domain/entities/order_tracking_entity.dart';
-import '../../domain/entities/time_line_miles_tone_entity.dart';
-import '../../domain/entities/tracking_setup_status.dart';
+import '../../domain/entities/timeline_milestone_entity.dart';
+import '../../domain/entities/tracking_steps_status.dart';
 import '../../domain/entities/user_address_entity.dart';
 import 'current_location_dto.dart';
 import 'driver_dto.dart';

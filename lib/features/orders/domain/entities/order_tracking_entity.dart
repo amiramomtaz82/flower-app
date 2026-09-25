@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
-import 'package:flower_app/features/orders/domain/entities/time_line_miles_tone_entity.dart';
-import 'package:flower_app/features/orders/domain/entities/tracking_setup_status.dart';
+import 'package:flower_app/features/orders/domain/entities/timeline_milestone_entity.dart';
+import 'package:flower_app/features/orders/domain/entities/tracking_steps_status.dart';
 import 'package:flower_app/features/orders/domain/entities/user_address_entity.dart';
 
 import 'current_location_entity.dart';

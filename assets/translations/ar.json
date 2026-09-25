@@ -159,5 +159,18 @@
   "orderNumber": "رقم الطلب",
   "deliveredOn": "تم التوصيل في",
   "trackOrder": "تتبع الطلب",
-  "reorder": "إعادة الطلب"
+  "reorder": "إعادة الطلب",
+
+  "estimatedArrival": "الوقت المتوقع للوصول",
+  "showMap": "عرض الخريطة",
+  "orderDelivered": "تم استلام الطلب",
+  "orderDetails": "تفاصيل الطلب",
+  "waitingForDriver": "في انتظار تعيين السائق...",
+  "deliveryHeroSubtitle": "هو مندوب التوصيل الخاص بك اليوم",
+  "orderReceived": "تم استلام طلبك",
+  "orderPreparing": "جاري تجهيز طلبك",
+  "outForDelivery": "خرج للتوصيل",
+  "delivered": "تم التوصيل",
+  "liveLocationPaused": "تم إيقاف الموقع المباشر مؤقتاً (منذ {} ث). جاري إعادة الاتصال...",
+  "failedToLoadTracking": "فشل تحميل بيانات التتبع"
 }

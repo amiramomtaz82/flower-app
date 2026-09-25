@@ -247,4 +247,17 @@ class AppStrings {
   static const String deliveredOn = 'deliveredOn';
   static const String trackOrder = 'trackOrder';
   static const String reorder = 'reorder';
+  // Order Tracking Strings
+  static const String estimatedArrival = 'estimatedArrival';
+  static const String showMap = 'showMap';
+  static const String orderDelivered = 'orderDelivered';
+  static const String orderDetails = 'orderDetails';
+  static const String waitingForDriver = 'waitingForDriver';
+  static const String deliveryHeroSubtitle = 'deliveryHeroSubtitle';
+  static const String orderReceived = 'orderReceived';
+  static const String orderPreparing = 'orderPreparing';
+  static const String outForDelivery = 'outForDelivery';
+  static const String delivered = 'delivered';
+  static const String liveLocationPaused = 'liveLocationPaused';
+  static const String failedToLoadTracking = 'failedToLoadTracking';
 }

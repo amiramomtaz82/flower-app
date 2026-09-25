@@ -31,7 +31,7 @@ abstract class OrderApiClient {
       @Path(QueryParams.orderId) String orderId,
       );
   @POST(Endpoints.confirmOrderDelivery)
-  Future<Map<String, dynamic>> confirmOrderDelivery(
+  Future<void> confirmOrderDelivery(
       @Path(QueryParams.orderId) String orderId,
       );
 }

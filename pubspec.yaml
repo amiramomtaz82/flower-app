@@ -60,6 +60,7 @@ dependencies:
   nominatim_flutter: ^0.0.8
   plugin_platform_interface: ^2.1.8
   flutter_native_splash: ^2.4.8
+  url_launcher: ^6.3.1
 
 
 
