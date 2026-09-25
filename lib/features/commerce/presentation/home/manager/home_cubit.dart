@@ -43,7 +43,6 @@ class HomeCubit extends Cubit<HomeState> {
   }
 
   Future<void> _loadHome() async {
-    _syncNotificationPermissionUseCase();
     emit(state.copyWith(sectionsResource: Resource.loading()));
 
     final result = await _getHomeSectionsUseCase();

@@ -16,12 +16,15 @@ class SplashView extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocListener<SplashCubit, SplashState>(
       listener: (context, state) {
-        if (state is SplashAuthenticated) {
-          FlutterNativeSplash.remove();
-          context.go(AppRoutes.home);
-        } else if (state is SplashUnauthenticated) {
-          FlutterNativeSplash.remove();
-          context.go(AppRoutes.login);
+        switch (state) {
+          case SplashAuthenticated():
+            FlutterNativeSplash.remove();
+            context.go(AppRoutes.home);
+          case SplashUnauthenticated():
+            FlutterNativeSplash.remove();
+            context.go(AppRoutes.login);
+          case SplashInitial():
+            break;
         }
       },
       child: Scaffold(
