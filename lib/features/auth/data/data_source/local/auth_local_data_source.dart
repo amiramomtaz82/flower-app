@@ -2,7 +2,7 @@ import 'package:flower_app/features/auth/data/models/login_response.dart';
 
 import '../../models/user_dto.dart';
 
-abstract class AuthLocalDataSource {
+abstract interface class AuthLocalDataSource {
   Future<void> saveToken(String token);
 
   Future<String?> getToken();

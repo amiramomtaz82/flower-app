@@ -4,7 +4,7 @@ import '../../data/models/update_fcm_token.dart';
 import '../../data/remote_data_source.dart';
 import '../client/notification_api_client.dart';
 
-@LazySingleton(as: NotificationRemoteDataSource)
+@Injectable(as: NotificationRemoteDataSource)
 class NotificationRemoteDataSourceImpl implements NotificationRemoteDataSource {
   final NotificationApiClient _apiClient; // 👈 Inject ApiClient instead of raw Dio
 

@@ -9,7 +9,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'config/di/di.dart';
 import 'config/locale/locale_service.dart';
-import 'config/notificaions/fcm.dart';
+
 import 'core/app_theme/app_theme.dart';
 import 'core/ui_action/ui_action.dart';
 import 'core/ui_action/ui_action_dispatcher.dart';
@@ -33,8 +33,7 @@ void main() async {
 
   configureDependencies();
 
-  final fcm = getIt<FcmService>();
-  await fcm.initialize();
+
 
   await EasyLocalization.ensureInitialized();
 

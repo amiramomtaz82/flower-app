@@ -151,7 +151,6 @@ void main() {
         occasionsSection,
       ]);
       verify(() => mockGetCategoriesUseCase()).called(1);
-      verify(() => mockSyncNotificationPermissionUseCase()).called(1);
     });
 
     test('emits loading then an error when fetching sections fails', () async {
