@@ -1,4 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flower_app/core/app_constants/app_assets.dart';
 import 'package:flower_app/core/app_constants/app_strings.dart';
 import 'package:flower_app/core/app_theme/app_colors.dart';
 import 'package:flutter/material.dart';
@@ -10,11 +11,13 @@ import 'driver_info_card.dart';
 class TrackingMapWidget extends StatefulWidget {
   final OrderTrackingEntity data;
   final VoidCallback onSwitchToTimeline;
+  final LatLng? storeLocation;
 
   const TrackingMapWidget({
     super.key,
     required this.data,
     required this.onSwitchToTimeline,
+    this.storeLocation,
   });
 
   @override
@@ -23,6 +26,15 @@ class TrackingMapWidget extends StatefulWidget {
 
 class _TrackingMapWidgetState extends State<TrackingMapWidget> {
   late final MapController _mapController;
+
+  /// Flowery Store pickup location anchor.
+  /// Uses widget.storeLocation if provided, or defaults to an offset (~1.5 km)
+  /// northwest of the destination so the route and courier stay clearly visible.
+  LatLng get _storePoint {
+    if (widget.storeLocation != null) return widget.storeLocation!;
+    final dest = widget.data.userAddress;
+    return LatLng(dest.lat + 0.012, dest.lng - 0.015);
+  }
 
   @override
   void initState() {
@@ -52,23 +64,34 @@ class _TrackingMapWidgetState extends State<TrackingMapWidget> {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
     final primary = colors?.primary ?? colorScheme.primary;
-    final markerBg = colors?.white ?? colorScheme.surface;
-    final shadowColor = colorScheme.shadow;
 
     final destPoint = LatLng(widget.data.userAddress.lat, widget.data.userAddress.lng);
+    final storePoint = _storePoint;
     final driverPoint = widget.data.currentLocation != null
         ? LatLng(widget.data.currentLocation!.lat, widget.data.currentLocation!.lng)
         : null;
 
-    final centerPoint = driverPoint ?? destPoint;
+    final allPoints = [
+      storePoint,
+      destPoint,
+      if (driverPoint != null) driverPoint,
+    ];
+    final bounds = LatLngBounds.fromPoints(allPoints);
 
     return Stack(
       children: [
         FlutterMap(
           mapController: _mapController,
           options: MapOptions(
-            initialCenter: centerPoint,
-            initialZoom: 14.5,
+            initialCameraFit: CameraFit.bounds(
+              bounds: bounds,
+              padding: const EdgeInsets.only(
+                left: 45,
+                right: 45,
+                top: 50,
+                bottom: 220, // Leaves space so markers stay above the bottom card
+              ),
+            ),
             interactionOptions: const InteractionOptions(
               flags: InteractiveFlag.all & ~InteractiveFlag.rotate,
             ),
@@ -78,58 +101,54 @@ class _TrackingMapWidgetState extends State<TrackingMapWidget> {
               urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
               userAgentPackageName: 'com.example.flower_app',
             ),
-            if (driverPoint != null)
-              PolylineLayer(
-                polylines: [
-                  Polyline(
-                    points: [driverPoint, destPoint],
-                    strokeWidth: 4.0,
-                    color: primary,
-                  ),
-                ],
-              ),
+            // Route Polyline: Store -> Driver -> Home
+            PolylineLayer(
+              polylines: [
+                Polyline(
+                  points: [
+                    storePoint,
+                    if (driverPoint != null) driverPoint,
+                    destPoint,
+                  ],
+                  strokeWidth: 4.0,
+                  color: primary,
+                ),
+              ],
+            ),
             MarkerLayer(
               markers: [
+                // 1. Flowery Store Anchor Point
                 Marker(
-                  point: destPoint,
-                  width: 44,
-                  height: 44,
-                  alignment: Alignment.topCenter,
-                  child: Container(
-                    padding: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(
-                      color: markerBg,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: shadowColor.withOpacity(0.18),
-                          blurRadius: 4,
-                        ),
-                      ],
-                    ),
-                    child: Icon(Icons.location_on, color: primary, size: 28),
+                  point: storePoint,
+                  width: 64,
+                  height: 28,
+                  alignment: Alignment.center,
+                  child: Image.asset(
+                    AppAssets.flowery_location,
+                    fit: BoxFit.contain,
                   ),
                 ),
+                // 2. Home Destination Anchor Point
+                Marker(
+                  point: destPoint,
+                  width: 84,
+                  height: 30,
+                  alignment: Alignment.bottomCenter,
+                  child: Image.asset(
+                    AppAssets.user_location,
+                    fit: BoxFit.contain,
+                  ),
+                ),
+                // 3. Driver Point (Motorcycle moving in between)
                 if (driverPoint != null)
                   Marker(
                     point: driverPoint,
-                    width: 46,
-                    height: 46,
+                    width: 44,
+                    height: 44,
                     alignment: Alignment.center,
-                    child: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: primary,
-                        shape: BoxShape.circle,
-                        border: Border.all(color: markerBg, width: 2),
-                        boxShadow: [
-                          BoxShadow(
-                            color: shadowColor.withOpacity(0.25),
-                            blurRadius: 6,
-                          ),
-                        ],
-                      ),
-                      child: Icon(Icons.directions_car, color: markerBg, size: 20),
+                    child: Image.asset(
+                      AppAssets.motorcycle,
+                      fit: BoxFit.contain,
                     ),
                   ),
               ],

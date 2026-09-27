@@ -41,7 +41,7 @@ class ActionButtonsSection extends StatelessWidget {
               onPressed: () => cubit.doEvents(const ToggleMapEvent(true)),
               child: Text(
                 AppStrings.showMap.tr(),
-                style: Theme.of(context).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w600, color: colorScheme.onPrimary),
+
               ),
             ),
           );
@@ -50,17 +50,14 @@ class ActionButtonsSection extends StatelessWidget {
         return Row(
           children: [
             Expanded(
-              child: OutlinedButton(
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: primary,
-                  side: BorderSide(color: primary),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-                  minimumSize: const Size.fromHeight(48),
-                ),
+              child: ElevatedButton(
+
+
+
                 onPressed: () => cubit.doEvents(const ToggleMapEvent(true)),
                 child: Text(
                   AppStrings.showMap.tr(),
-                  style: Theme.of(context).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w600, color: primary),
+
                 ),
               ),
             ),

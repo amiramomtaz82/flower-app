@@ -1,10 +1,10 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flower_app/core/app_constants/app_assets.dart';
 import 'package:flower_app/core/app_constants/app_strings.dart';
 import 'package:flower_app/core/app_theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../domain/entities/driver_entity.dart';
-import '../../../domain/entities/order_tracking_entity.dart';
 
 class DriverInfoCard extends StatelessWidget {
   final DriverEntity? driver;
@@ -95,20 +95,30 @@ class DriverInfoCard extends StatelessWidget {
 
     return Container(
       padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: primary.withOpacity(0.05),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: primary.withOpacity(0.15)),
-      ),
+      decoration: BoxDecoration(color: colors?.background),
+
+
       child: Row(
         children: [
-          CircleAvatar(
-            radius: 22,
-            backgroundColor: primary.withOpacity(0.15),
-            backgroundImage: driver!.photoUrl != null ? NetworkImage(driver!.photoUrl!) : null,
-            child: driver!.photoUrl == null
-                ? Icon(Icons.person, color: primary, size: 26)
-                : null,
+          ClipOval(
+            child: Container(
+              width: 44,
+              height: 44,
+              color: primary.withOpacity(0.08),
+              child: (driver?.photoUrl != null && driver!.photoUrl!.isNotEmpty)
+                  ? Image.network(
+                driver!.photoUrl!,
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => Image.asset(
+                  AppAssets.deleivery_boy,
+                  fit: BoxFit.cover,
+                ),
+              )
+                  : Image.asset(
+                AppAssets.deleivery_boy,
+                fit: BoxFit.cover,
+              ),
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -139,47 +149,22 @@ class DriverInfoCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(20),
               child: Container(
                 padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: colors?.white ?? colorScheme.surface,
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: colorScheme.shadow.withOpacity(0.06),
-                      blurRadius: 6,
-                    ),
-                  ],
-                ),
-                child: Icon(
-                  Icons.chat_bubble_outline_rounded,
-                  color: primary,
-                  size: 20,
-                ),
+
+                child:Image.asset(AppAssets.whatsUp,height:25,width: 25,)
               ),
             ),
-            const SizedBox(width: 8),
+
             // Phone Call Button
             InkWell(
               onTap: () => _makePhoneCall(context, driver!.phone),
               borderRadius: BorderRadius.circular(20),
               child: Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: colors?.white ?? colorScheme.surface,
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: colorScheme.shadow.withOpacity(0.06),
-                      blurRadius: 6,
-                    ),
-                  ],
-                ),
-                child: Icon(
-                  Icons.phone_outlined,
-                  color: primary,
-                  size: 20,
+                padding: const EdgeInsets.all(4),
+
+                child:Image.asset(AppAssets.call,height: 25,width: 25,)
                 ),
               ),
-            ),
+
           ],
         ],
       ),

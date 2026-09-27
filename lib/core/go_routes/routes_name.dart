@@ -36,4 +36,5 @@ class AppRoutes {
 
   static const String myOrders = '/my-orders';
   static const String orderTracking = '/order-tracking';
+  static const String orderDelivered = '/order-delivered';
 }

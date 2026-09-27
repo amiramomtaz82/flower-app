@@ -172,5 +172,13 @@
   "outForDelivery": "خرج للتوصيل",
   "delivered": "تم التوصيل",
   "liveLocationPaused": "تم إيقاف الموقع المباشر مؤقتاً (منذ {} ث). جاري إعادة الاتصال...",
-  "failedToLoadTracking": "فشل تحميل بيانات التتبع"
+  "failedToLoadTracking": "فشل تحميل بيانات التتبع",
+  "enjoyYourOrder": "استمتع بطلبك",
+
+  "payWithCash": "الدفع عند الاستلام",
+  "itemsCount": "{} عناصر",
+  "subTotal": "المجموع الفرعي",
+  "deliveryFee": "رسوم التوصيل",
+
+  "rate": "تقييم"
 }

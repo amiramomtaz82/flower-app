@@ -7,6 +7,7 @@ import 'package:flower_app/core/pagination/paginated_response.dart';
 import 'package:flower_app/core/pagination/pagination_model.dart';
 
 import '../../domain/entities/order_tracking_entity.dart';
+import '../../domain/oredr_details_entity.dart';
 
 @Injectable(as: OrderRepository)
 class OrderRepositoryImpl implements OrderRepository {
@@ -68,4 +69,14 @@ class OrderRepositoryImpl implements OrderRepository {
       return ErrorResponse<bool>(error: e);
     }
   }
+  @override
+  Future<BaseResponse<OrderDetailsEntity>> getOrderById(String orderId) async {
+    try {
+      final response = await remoteDataSource.getOrderById(orderId);
+      return SuccessResponse<OrderDetailsEntity>(response.toEntity());
+    } catch (e) {
+      return ErrorResponse<OrderDetailsEntity>(error: e);
+    }
+  }
+
 }

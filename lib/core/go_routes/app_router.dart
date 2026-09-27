@@ -46,6 +46,9 @@ import '../../features/cart/presentation/views/cart_view.dart';
 import '../../features/checkout/presentation/manager/checkout_cubit.dart';
 import '../../features/checkout/presentation/view/order_succss_screen.dart';
 import '../../features/commerce/presentation/home/view/home_view.dart';
+import '../../features/orders/domain/entities/order_tracking_entity.dart';
+import '../../features/orders/domain/oredr_details_entity.dart';
+import '../../features/orders/presentation/view/order_dlivered_view.dart';
 import '../../features/splash/presentation/manager/splash_cubit.dart';
 import '../../features/splash/presentation/manager/splash_event.dart';
 import '../../features/orders/presentation/manager/my_orders_cubit.dart';
@@ -62,7 +65,7 @@ class AppRouter {
 
   static final GoRouter router = GoRouter(
     navigatorKey: navigatorKey,
-    initialLocation: AppRoutes.splashView,
+    initialLocation: AppRoutes.orderTracking,
 
     routes: [
       GoRoute(
@@ -276,6 +279,18 @@ class AppRouter {
           return OrderTrackingView(orderId: orderId);
         },
       ),
+
+      GoRoute(
+        path: AppRoutes.orderDelivered,
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          return OrderDeliveredView(
+            trackingData: extra?['trackingData'] as OrderTrackingEntity?,
+            orderDetails: extra?['orderDetails'] as OrderDetailsEntity?,
+          );
+        },
+      ),
+
       GoRoute(
         path: AppRoutes.editProfile,
         builder: (context, state) {

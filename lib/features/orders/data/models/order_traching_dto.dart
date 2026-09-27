@@ -1,5 +1,6 @@
 import 'package:flower_app/features/orders/data/models/user_address_dto.dart';
 
+import '../../../../core/app_constants/app_strings.dart';
 import '../../domain/entities/order_tracking_entity.dart';
 import '../../domain/entities/timeline_milestone_entity.dart';
 import '../../domain/entities/tracking_steps_status.dart';
@@ -82,22 +83,22 @@ class OrderTrackingDto {
     }
     final milestones = [
       const TimelineMilestoneEntity(
-        title: 'Received your order',
+        title: AppStrings.orderReceived,
         timestamp: '03 Sep 2024 - 2:10',
         isCompleted: true,
       ),
       TimelineMilestoneEntity(
-        title: 'Preparing your order',
+        title: AppStrings.orderPreparing,
         timestamp: '03 Sep 2024 - 2:25',
         isCompleted: parsedStatus.timelineIndex >= 1,
       ),
       TimelineMilestoneEntity(
-        title: 'Out for delivery',
+        title: AppStrings.outForDelivery,
         timestamp: '03 Sep 2024 - 2:40',
         isCompleted: parsedStatus.timelineIndex >= 2,
       ),
       TimelineMilestoneEntity(
-        title: 'Delivered',
+        title: AppStrings.delivered,
         timestamp: '03 Sep 2024 - 3:00',
         isCompleted: parsedStatus.timelineIndex >= 3,
       ),

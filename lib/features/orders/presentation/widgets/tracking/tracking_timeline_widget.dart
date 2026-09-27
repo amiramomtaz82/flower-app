@@ -1,7 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flower_app/core/app_theme/app_colors.dart';
 import 'package:flutter/material.dart';
-import '../../../domain/entities/order_tracking_entity.dart';
 import '../../../domain/entities/timeline_milestone_entity.dart';
 import '../../../domain/entities/tracking_steps_status.dart';
 
@@ -21,7 +20,7 @@ class TrackingTimelineWidget extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
     final primary = colors?.primary ?? colorScheme.primary;
-    final inactiveBorder = colors?.surface ?? colorScheme.outlineVariant;
+    final inactiveBorder = colors?.darkGrey ?? colorScheme.outlineVariant;
     final inactiveText = colors?.hint ?? colorScheme.outline;
 
     final currentStep = currentStatus.timelineIndex;
@@ -46,14 +45,14 @@ class TrackingTimelineWidget extends StatelessWidget {
                       color: isPassed ? primary : inactiveBorder,
                       width: 2.5,
                     ),
-                    color: isPassed ? primary : (colors?.white ?? colorScheme.surface),
+
                   ),
                   child: isPassed
                       ? Center(
                     child: Icon(
-                      Icons.check,
+                      Icons.circle,
                       size: 11,
-                      color: colors?.white ?? colorScheme.surface,
+                      color: colors?.primary ?? colors?.background,
                     ),
                   )
                       : null,
@@ -78,19 +77,16 @@ class TrackingTimelineWidget extends StatelessWidget {
                     Text(
                       milestone.title.tr(),
                       style: textTheme.bodyMedium?.copyWith(
-                        fontWeight: isPassed ? FontWeight.bold : FontWeight.w500,
-                        color: isPassed
-                            ? (colors?.textPrimary ?? colorScheme.onSurface)
-                            : inactiveText,
+                        fontWeight: FontWeight.bold ,
+                        color:colors?.textPrimary
+
                       ),
                     ),
                     const SizedBox(height: 3),
                     Text(
                       milestone.timestamp,
                       style: textTheme.bodySmall?.copyWith(
-                        color: isPassed
-                            ? (colors?.secondary ?? colorScheme.onSurfaceVariant)
-                            : inactiveText,
+                        color:colors?.secondary
                       ),
                     ),
                     const SizedBox(height: 16),

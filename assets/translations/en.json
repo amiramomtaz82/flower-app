@@ -192,5 +192,13 @@
   "outForDelivery": "Out for delivery",
   "delivered": "Delivered",
   "liveLocationPaused": "Live location paused ({}s ago). Reconnecting...",
-  "failedToLoadTracking": "Failed to load tracking data"
+  "failedToLoadTracking": "Failed to load tracking data",
+  "enjoyYourOrder": "Enjoy your order",
+
+  "payWithCash": "Pay with cash",
+  "itemsCount": "{} items",
+  "subTotal": "Sub Total",
+  "deliveryFee": "Delivery Fee",
+
+  "rate": "Rate"
 }

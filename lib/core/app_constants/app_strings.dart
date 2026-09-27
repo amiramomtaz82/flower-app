@@ -260,4 +260,11 @@ class AppStrings {
   static const String delivered = 'delivered';
   static const String liveLocationPaused = 'liveLocationPaused';
   static const String failedToLoadTracking = 'failedToLoadTracking';
+  static const String enjoyYourOrder = 'enjoyYourOrder';
+
+  static const String payWithCash = 'payWithCash';
+  static const String itemsCount = 'itemsCount';
+
+
+  static const String rate = 'rate';
 }

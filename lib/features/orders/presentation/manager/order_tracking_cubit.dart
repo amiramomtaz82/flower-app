@@ -3,10 +3,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:flower_app/config/resource/rsource.dart';
 import 'package:flower_app/core/network/base_response.dart';
+
 import '../../domain/entities/current_location_entity.dart';
 import '../../domain/entities/order_tracking_entity.dart';
 import '../../domain/entities/tracking_steps_status.dart';
+import '../../domain/oredr_details_entity.dart';
 import '../../domain/use_cases/confirm_order_delivery_use_case.dart';
+import '../../domain/use_cases/get_order_by_id_ue_case.dart';
 import '../../domain/use_cases/get_order_tracking_use_case.dart';
 import 'order_tracking_events.dart';
 import 'order_tracking_states.dart';
@@ -16,6 +19,7 @@ import 'order_tracking_states.dart';
 class OrderTrackingCubit extends Cubit<OrderTrackingState> {
   final GetOrderLiveTrackingUseCase _getLiveTrackingUseCase;
   final ConfirmOrderDeliveryUseCase _confirmOrderDeliveryUseCase;
+  final GetOrderByIdUseCase _getOrderByIdUseCase;
 
   String? _currentOrderId;
   Timer? _pollingTimer;
@@ -28,6 +32,7 @@ class OrderTrackingCubit extends Cubit<OrderTrackingState> {
   OrderTrackingCubit(
       this._getLiveTrackingUseCase,
       this._confirmOrderDeliveryUseCase,
+      this._getOrderByIdUseCase,
       ) : super(OrderTrackingState.initial());
 
   Future<void> doEvents(OrderTrackingEvent event) async {
@@ -73,6 +78,16 @@ class OrderTrackingCubit extends Cubit<OrderTrackingState> {
           secondsSinceLastSync: 0,
         ));
 
+        // When status is delivered: stop polling & automatically fetch full order details
+        if (result.data.status == TrackingStepStatus.delivered) {
+          _pollingTimer?.cancel();
+          _stalenessTimer?.cancel();
+          await _fetchOrderDetails(_currentOrderId!);
+        } else if (result.data.status == TrackingStepStatus.cancelled) {
+          _pollingTimer?.cancel();
+          _stalenessTimer?.cancel();
+        }
+
       case ErrorResponse<OrderTrackingEntity>():
         if (state.trackingResource.isSuccess) {
           emit(state.copyWith(isStale: true));
@@ -81,6 +96,17 @@ class OrderTrackingCubit extends Cubit<OrderTrackingState> {
             trackingResource: Resource.error(result.errMessage),
           ));
         }
+    }
+  }
+
+  Future<void> _fetchOrderDetails(String orderId) async {
+    emit(state.copyWith(orderDetailsResource: Resource.loading()));
+    final result = await _getOrderByIdUseCase(orderId);
+    switch (result) {
+      case SuccessResponse<OrderDetailsEntity>():
+        emit(state.copyWith(orderDetailsResource: Resource.success(result.data)));
+      case ErrorResponse<OrderDetailsEntity>():
+        emit(state.copyWith(orderDetailsResource: Resource.error(result.errMessage)));
     }
   }
 
@@ -124,7 +150,13 @@ class OrderTrackingCubit extends Cubit<OrderTrackingState> {
         secondsSinceLastSync: 0,
       ));
 
-      _startPolling();
+      if (updatedStatus == TrackingStepStatus.delivered) {
+        _pollingTimer?.cancel();
+        _stalenessTimer?.cancel();
+        _fetchOrderDetails(_currentOrderId!);
+      } else {
+        _startPolling();
+      }
     } else {
       _fetchTracking(isInitial: false);
     }

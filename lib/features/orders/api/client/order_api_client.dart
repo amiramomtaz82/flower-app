@@ -3,6 +3,7 @@ import 'package:flower_app/core/app_constants/endpoints.dart';
 import 'package:injectable/injectable.dart';
 import 'package:retrofit/retrofit.dart';
 
+import '../../data/models/order_details_model.dart';
 import '../../data/models/order_tacking_response.dart';
 import '../../data/models/orders_response_model.dart';
 import '../../data/models/order_model.dart';
@@ -22,9 +23,9 @@ abstract class OrderApiClient {
   );
 
   @GET(Endpoints.orderById)
-  Future<OrderModel> getOrderById(
-    @Path(QueryParams.orderId) String orderId,
-  );
+  Future<OrderDetailsModel> getOrderById(
+      @Path(QueryParams.orderId) String orderId,
+      );
 
   @GET(Endpoints.orderTracking)
   Future<OrderTackingResponse> getLiveTracking(

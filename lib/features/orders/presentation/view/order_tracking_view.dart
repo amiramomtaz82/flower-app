@@ -1,19 +1,23 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flower_app/config/di/di.dart';
+import 'package:flower_app/core/app_constants/app_assets.dart';
 import 'package:flower_app/core/app_constants/app_strings.dart';
 import 'package:flower_app/core/app_theme/app_colors.dart';
 import 'package:flower_app/features/orders/domain/entities/order_tracking_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../domain/entities/tracking_steps_status.dart';
 import '../manager/order_tracking_cubit.dart';
 
 import '../manager/order_tracking_events.dart';
 import '../manager/order_tracking_states.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import '../widgets/tracking/actions_buttons.dart';
 import '../widgets/tracking/driver_info_card.dart';
 import '../widgets/tracking/staleness_banner.dart';
 import '../widgets/tracking/tracking_map_widget.dart';
 import '../widgets/tracking/tracking_timeline_widget.dart';
+import 'order_dlivered_view.dart';
 
 class OrderTrackingView extends StatelessWidget {
   final String orderId;
@@ -21,6 +25,7 @@ class OrderTrackingView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    FlutterNativeSplash.remove();
     return BlocProvider(
       create: (_) => getIt<OrderTrackingCubit>()..doEvents(StartTrackingEvent(orderId)),
       child: const _OrderTrackingScaffold(),
@@ -77,7 +82,9 @@ class _OrderTrackingScaffold extends StatelessWidget {
               ),
             );
           }
-          if (state.trackingResource.data == null) return const SizedBox.shrink();
+          if (state.trackingResource.data == null) {
+            return Center(child: CircularProgressIndicator(color: primary));
+          }
           return const _TrackingBody();
         },
       ),
@@ -85,47 +92,67 @@ class _OrderTrackingScaffold extends StatelessWidget {
   }
 }
 
+
+
+
+// 2. Update _TrackingBody to check for delivered status:
 class _TrackingBody extends StatelessWidget {
   const _TrackingBody();
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        // 1. Staleness banner (rebuilds only when staleness changes)
-        BlocBuilder<OrderTrackingCubit, OrderTrackingState>(
-          buildWhen: (prev, curr) =>
-          prev.isStale != curr.isStale ||
-              (curr.isStale && prev.secondsSinceLastSync != curr.secondsSinceLastSync),
-          builder: (context, state) {
-            if (!state.isStale) return const SizedBox.shrink();
-            return StalenessBanner(
-              secondsSinceSync: state.secondsSinceLastSync,
-              onRefresh: () => context.read<OrderTrackingCubit>().doEvents(const RefreshTrackingEvent()),
-            );
-          },
-        ),
+    return BlocBuilder<OrderTrackingCubit, OrderTrackingState>(
+      buildWhen: (prev, curr) =>
+      prev.trackingResource.data?.status != curr.trackingResource.data?.status ||
+          prev.orderDetailsResource != curr.orderDetailsResource,
+      builder: (context, state) {
+        final data = state.trackingResource.data!;
 
-        // 2. View switcher (rebuilds only when switching Map / Timeline)
-        Expanded(
-          child: BlocSelector<OrderTrackingCubit, OrderTrackingState, bool>(
-            selector: (state) => state.showMap,
-            builder: (context, showMap) {
-              final data = context.read<OrderTrackingCubit>().state.trackingResource.data!;
-              if (showMap) {
+        // 🎯 NEW: As soon as the order is delivered, switch to the Delivered Screen!
+        if (data.status == TrackingStepStatus.delivered) {
+          return OrderDeliveredView(
+            trackingData: data,
+            orderDetails: state.orderDetailsResource.data,
+          );
+        }
 
-                ///======================map==============================
-                return TrackingMapWidget(
-                  data: data,
-                  onSwitchToTimeline: () => context.read<OrderTrackingCubit>().doEvents(const ToggleMapEvent(false)),
+        // Active tracking view (Map or Timeline)
+        return Column(
+          children: [
+            // 1. Staleness banner (rebuilds only when staleness changes)
+            BlocBuilder<OrderTrackingCubit, OrderTrackingState>(
+              buildWhen: (prev, curr) =>
+              prev.isStale != curr.isStale ||
+                  (curr.isStale && prev.secondsSinceLastSync != curr.secondsSinceLastSync),
+              builder: (context, state) {
+                if (!state.isStale) return const SizedBox.shrink();
+                return StalenessBanner(
+                  secondsSinceSync: state.secondsSinceLastSync,
+                  onRefresh: () => context.read<OrderTrackingCubit>().doEvents(const RefreshTrackingEvent()),
                 );
-              }
-              ///============or==========Timeline======================
-              return _TimelineSection(data: data);
-            },
-          ),
-        ),
-      ],
+              },
+            ),
+
+            // 2. View switcher (Map / Timeline)
+            Expanded(
+              child: BlocSelector<OrderTrackingCubit, OrderTrackingState, bool>(
+                selector: (state) => state.showMap,
+                builder: (context, showMap) {
+                  final data = context.read<OrderTrackingCubit>().state.trackingResource.data!;
+                  if (showMap) {
+                    return TrackingMapWidget(
+                      data: data,
+                      onSwitchToTimeline: () =>
+                          context.read<OrderTrackingCubit>().doEvents(const ToggleMapEvent(false)),
+                    );
+                  }
+                  return _TimelineSection(data: data);
+                },
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }
@@ -163,12 +190,9 @@ class _TimelineSection extends StatelessWidget {
 
           ///==================car image=============================
           Center(
-            child: Container(
-              height: 86, width: 86,
-              decoration: BoxDecoration(color: primary.withOpacity(0.08), shape: BoxShape.circle),
-              child: Icon(Icons.directions_car_filled_rounded, size: 46, color: primary),
+            child: Image.asset(AppAssets.car,height: 85,width:double.infinity,fit: BoxFit.contain,),
             ),
-          ),
+
           const SizedBox(height: 20),
 
 
