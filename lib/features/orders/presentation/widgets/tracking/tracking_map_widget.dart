@@ -1,10 +1,14 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flower_app/core/app_constants/app_assets.dart';
-import 'package:flower_app/core/app_constants/app_strings.dart';
-import 'package:flower_app/core/app_theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+
+import 'package:flower_app/config/di/di.dart';
+import 'package:flower_app/core/app_constants/app_assets.dart';
+import 'package:flower_app/core/app_constants/app_strings.dart';
+import 'package:flower_app/core/app_constants/endpoints.dart';
+import 'package:flower_app/core/app_theme/app_colors.dart';
+import 'package:flower_app/core/services/road_routing_service.dart';
 import '../../../domain/entities/order_tracking_entity.dart';
 import 'driver_info_card.dart';
 
@@ -12,12 +16,14 @@ class TrackingMapWidget extends StatefulWidget {
   final OrderTrackingEntity data;
   final VoidCallback onSwitchToTimeline;
   final LatLng? storeLocation;
+  final RoadRoutingService? routingService;
 
   const TrackingMapWidget({
     super.key,
     required this.data,
     required this.onSwitchToTimeline,
     this.storeLocation,
+    this.routingService,
   });
 
   @override
@@ -26,10 +32,10 @@ class TrackingMapWidget extends StatefulWidget {
 
 class _TrackingMapWidgetState extends State<TrackingMapWidget> {
   late final MapController _mapController;
+  late final RoadRoutingService _routingService;
+  List<LatLng> _routePoints = [];
+  bool _isLoadingRoute = false;
 
-  /// Flowery Store pickup location anchor.
-  /// Uses widget.storeLocation if provided, or defaults to an offset (~1.5 km)
-  /// northwest of the destination so the route and courier stay clearly visible.
   LatLng get _storePoint {
     if (widget.storeLocation != null) return widget.storeLocation!;
     final dest = widget.data.userAddress;
@@ -40,6 +46,39 @@ class _TrackingMapWidgetState extends State<TrackingMapWidget> {
   void initState() {
     super.initState();
     _mapController = MapController();
+    _routingService = widget.routingService ?? getIt<RoadRoutingService>();
+    _fetchRoadPolyline();
+  }
+
+  /// Calculates actual street-following road path from Store -> Driver -> Home
+  Future<void> _fetchRoadPolyline() async {
+    if (_isLoadingRoute) return;
+    _isLoadingRoute = true;
+
+    final destPoint = LatLng(
+      widget.data.userAddress.lat,
+      widget.data.userAddress.lng,
+    );
+    final storePoint = _storePoint;
+    final driverLoc = widget.data.currentLocation;
+    final driverPoint = driverLoc != null
+        ? LatLng(driverLoc.lat, driverLoc.lng)
+        : null;
+
+    final waypoints = [
+      storePoint,
+      if (driverPoint != null) driverPoint,
+      destPoint,
+    ];
+
+    final roadPoints = await _routingService.getRouteCoordinates(waypoints);
+
+    if (mounted) {
+      setState(() {
+        _routePoints = roadPoints;
+        _isLoadingRoute = false;
+      });
+    }
   }
 
   @override
@@ -47,8 +86,15 @@ class _TrackingMapWidgetState extends State<TrackingMapWidget> {
     super.didUpdateWidget(oldWidget);
     final oldLoc = oldWidget.data.currentLocation;
     final newLoc = widget.data.currentLocation;
-    if (newLoc != null && (oldLoc?.lat != newLoc.lat || oldLoc?.lng != newLoc.lng)) {
-      _mapController.move(LatLng(newLoc.lat, newLoc.lng), _mapController.camera.zoom);
+
+    if (newLoc != null &&
+        (oldLoc?.lat != newLoc.lat || oldLoc?.lng != newLoc.lng)) {
+      _mapController.move(
+        LatLng(newLoc.lat, newLoc.lng),
+        _mapController.camera.zoom,
+      );
+      // Recalculate road path as driver position advances
+      _fetchRoadPolyline();
     }
   }
 
@@ -65,10 +111,16 @@ class _TrackingMapWidgetState extends State<TrackingMapWidget> {
     final textTheme = Theme.of(context).textTheme;
     final primary = colors?.primary ?? colorScheme.primary;
 
-    final destPoint = LatLng(widget.data.userAddress.lat, widget.data.userAddress.lng);
+    final destPoint = LatLng(
+      widget.data.userAddress.lat,
+      widget.data.userAddress.lng,
+    );
     final storePoint = _storePoint;
     final driverPoint = widget.data.currentLocation != null
-        ? LatLng(widget.data.currentLocation!.lat, widget.data.currentLocation!.lng)
+        ? LatLng(
+      widget.data.currentLocation!.lat,
+      widget.data.currentLocation!.lng,
+    )
         : null;
 
     final allPoints = [
@@ -77,6 +129,9 @@ class _TrackingMapWidgetState extends State<TrackingMapWidget> {
       if (driverPoint != null) driverPoint,
     ];
     final bounds = LatLngBounds.fromPoints(allPoints);
+
+    // If OSRM points are still loading, fallback to waypoints to avoid empty map
+    final polylinePoints = _routePoints.isNotEmpty ? _routePoints : allPoints;
 
     return Stack(
       children: [
@@ -89,7 +144,7 @@ class _TrackingMapWidgetState extends State<TrackingMapWidget> {
                 left: 45,
                 right: 45,
                 top: 50,
-                bottom: 220, // Leaves space so markers stay above the bottom card
+                bottom: 220,
               ),
             ),
             interactionOptions: const InteractionOptions(
@@ -97,19 +152,16 @@ class _TrackingMapWidgetState extends State<TrackingMapWidget> {
             ),
           ),
           children: [
+            // 🎯 Solved: Extracted tile URL and package name from Endpoints
             TileLayer(
-              urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-              userAgentPackageName: 'com.example.flower_app',
+              urlTemplate: Endpoints.openStreetMapTileUrl,
+              userAgentPackageName: Endpoints.mapUserAgent,
             ),
-            // Route Polyline: Store -> Driver -> Home
+            // 🎯 Solved: Real road-following polyline instead of straight diagonal lines
             PolylineLayer(
               polylines: [
                 Polyline(
-                  points: [
-                    storePoint,
-                    if (driverPoint != null) driverPoint,
-                    destPoint,
-                  ],
+                  points: polylinePoints,
                   strokeWidth: 4.0,
                   color: primary,
                 ),
@@ -117,7 +169,7 @@ class _TrackingMapWidgetState extends State<TrackingMapWidget> {
             ),
             MarkerLayer(
               markers: [
-                // 1. Flowery Store Anchor Point
+                // 1. Store Marker
                 Marker(
                   point: storePoint,
                   width: 64,
@@ -128,7 +180,7 @@ class _TrackingMapWidgetState extends State<TrackingMapWidget> {
                     fit: BoxFit.contain,
                   ),
                 ),
-                // 2. Home Destination Anchor Point
+                // 2. Home Destination Marker
                 Marker(
                   point: destPoint,
                   width: 84,
@@ -139,7 +191,7 @@ class _TrackingMapWidgetState extends State<TrackingMapWidget> {
                     fit: BoxFit.contain,
                   ),
                 ),
-                // 3. Driver Point (Motorcycle moving in between)
+                // 3. Driver Courier Marker
                 if (driverPoint != null)
                   Marker(
                     point: driverPoint,
@@ -179,7 +231,7 @@ class _TrackingMapWidgetState extends State<TrackingMapWidget> {
                   ),
                   onPressed: widget.onSwitchToTimeline,
                   child: Text(
-                    AppStrings.orderDetails.tr(),
+                    AppStrings.trackOrder.tr(),
                     style: textTheme.labelLarge?.copyWith(
                       fontWeight: FontWeight.w600,
                       color: colorScheme.onPrimary,

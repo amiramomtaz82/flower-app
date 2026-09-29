@@ -54,11 +54,7 @@ class ActionButtonsSection extends StatelessWidget {
             width: double.infinity,
             height: 48,
             child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: primary,
-                foregroundColor: colorScheme.onPrimary,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-              ),
+
               onPressed: handleSwitchView,
               child: Text(
                 switchButtonLabel,
@@ -98,21 +94,16 @@ class ActionButtonsSection extends StatelessWidget {
                   if (data?.awaitingCustomerConfirmation ?? false) {
                     cubit.doEvents(const ConfirmDeliveryPressedEvent());
                   }
+                  final orderId = data?.orderId ?? '';
                   try {
-                    context.push(
+                    context.pushReplacement(
                       AppRoutes.orderDelivered,
-                      extra: {
-                        'trackingData': data,
-                        'orderDetails': state.orderDetailsResource.data,
-                      },
+                      extra: orderId,
                     );
                   } catch (_) {
-                    Navigator.of(context).push(
+                    Navigator.of(context).pushReplacement(
                       MaterialPageRoute(
-                        builder: (_) => OrderDeliveredView(
-                          trackingData: data,
-                          orderDetails: state.orderDetailsResource.data,
-                        ),
+                        builder: (_) => OrderDeliveredView(orderId: orderId),
                       ),
                     );
                   }

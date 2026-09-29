@@ -4,51 +4,33 @@ import 'package:flower_app/core/app_constants/app_strings.dart';
 import 'package:flower_app/core/app_theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../../../../config/di/di.dart';
+import '../../../../../core/services/url_service_launcher.dart';
 import '../../../domain/entities/driver_entity.dart';
 
 class DriverInfoCard extends StatelessWidget {
   final DriverEntity? driver;
-
-  const DriverInfoCard({
+  final UrlLauncherService _urlLauncherService;
+  DriverInfoCard({
     super.key,
     required this.driver,
-  });
+    UrlLauncherService? urlLauncherService,
+  }) : _urlLauncherService = urlLauncherService ?? getIt<UrlLauncherService>();
 
   Future<void> _openWhatsApp(BuildContext context, String phone) async {
-    final cleanPhone = phone.replaceAll(RegExp(r'[^0-9+]'), '');
-    final uri = Uri.parse('https://wa.me/$cleanPhone');
-    try {
-      final launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
-      if (!launched && context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Could not open WhatsApp')),
-        );
-      }
-    } catch (_) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Could not open WhatsApp')),
-        );
-      }
+    final launched = await _urlLauncherService.launchWhatsApp(phone);
+    if (!launched && context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Could not open WhatsApp')),
+      );
     }
   }
-
   Future<void> _makePhoneCall(BuildContext context, String phone) async {
-    final cleanPhone = phone.replaceAll(RegExp(r'[^0-9+]'), '');
-    final uri = Uri(scheme: 'tel', path: cleanPhone);
-    try {
-      final launched = await launchUrl(uri);
-      if (!launched && context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Could not make phone call')),
-        );
-      }
-    } catch (_) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Could not make phone call')),
-        );
-      }
+    final launched = await _urlLauncherService.launchPhoneCall(phone);
+    if (!launched && context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Could not make phone call')),
+      );
     }
   }
 

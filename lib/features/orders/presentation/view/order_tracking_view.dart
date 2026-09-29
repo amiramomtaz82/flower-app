@@ -5,11 +5,11 @@ import 'package:flower_app/core/app_constants/app_strings.dart';
 import 'package:flower_app/core/app_theme/app_colors.dart';
 
 import 'package:flower_app/features/orders/domain/entities/order_tracking_entity.dart';
+import 'package:flower_app/features/orders/domain/entities/tracking_steps_status.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/go_routes/routes_name.dart';
-import '../../../checkout/presentation/view/widget/deliver_time section.dart';
 
 import '../manager/order_tracking_cubit.dart';
 
@@ -33,20 +33,31 @@ class OrderTrackingView extends StatelessWidget {
     return BlocProvider(
       create: (_) =>
           getIt<OrderTrackingCubit>()..doEvents(StartTrackingEvent(orderId)),
-      child: const _OrderTrackingScaffold(),
+      child: _OrderTrackingScaffold(orderId: orderId),
     );
   }
 }
 
 class _OrderTrackingScaffold extends StatelessWidget {
-  const _OrderTrackingScaffold();
+  final String orderId;
+  const _OrderTrackingScaffold({required this.orderId});
 
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).extension<LightColors>();
     final primary = colors?.primary ?? Theme.of(context).colorScheme.primary;
 
-    return Scaffold(
+    return BlocListener<OrderTrackingCubit, OrderTrackingState>(
+      listenWhen: (prev, curr) =>
+          prev.trackingResource.data?.status != TrackingStepStatus.delivered &&
+          curr.trackingResource.data?.status == TrackingStepStatus.delivered,
+      listener: (context, state) {
+        context.pushReplacement(
+          AppRoutes.orderDelivered,
+          extra: orderId,
+        );
+      },
+      child: Scaffold(
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_rounded),
@@ -107,8 +118,9 @@ class _OrderTrackingScaffold extends StatelessWidget {
           return const _TrackingBody();
         },
       ),
-    );
-  }
+    ),
+  );
+}
 }
 
 class _TrackingBody extends StatelessWidget {

@@ -49,6 +49,11 @@ class Endpoints {
   static const String updateProfile = '/profile/update';
 
   static const String deviceNotifications = '/api/v1/devices/notifications';
+  static const String openStreetMapTileUrl =
+      'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+  static const String mapUserAgent = 'com.flowery.flower_app';
+  static const String osrmRouteBaseUrl =
+      'https://router.project-osrm.org/route/v1/driving';
 }
 
 class QueryParams {

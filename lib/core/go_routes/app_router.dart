@@ -283,8 +283,15 @@ class AppRouter {
       GoRoute(
         path: AppRoutes.orderDelivered,
         builder: (context, state) {
+          if (state.extra is String) {
+            return OrderDeliveredView(orderId: state.extra as String);
+          }
           final extra = state.extra as Map<String, dynamic>?;
+          final orderId = extra?['orderId'] as String? ??
+              (extra?['trackingData'] as OrderTrackingEntity?)?.orderId ??
+              '';
           return OrderDeliveredView(
+            orderId: orderId,
             trackingData: extra?['trackingData'] as OrderTrackingEntity?,
             orderDetails: extra?['orderDetails'] as OrderDetailsEntity?,
           );

@@ -6,7 +6,6 @@ import 'package:retrofit/retrofit.dart';
 import '../../data/models/order_details_model.dart';
 import '../../data/models/order_tacking_response.dart';
 import '../../data/models/orders_response_model.dart';
-import '../../data/models/order_model.dart';
 
 part 'order_api_client.g.dart';
 

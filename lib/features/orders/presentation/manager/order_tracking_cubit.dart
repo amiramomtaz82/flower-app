@@ -78,12 +78,9 @@ class OrderTrackingCubit extends Cubit<OrderTrackingState> {
           secondsSinceLastSync: 0,
         ));
 
-        // When status is delivered: stop polling & automatically fetch full order details
-        if (result.data.status == TrackingStepStatus.delivered) {
-          _pollingTimer?.cancel();
-          _stalenessTimer?.cancel();
-          await _fetchOrderDetails(_currentOrderId!);
-        } else if (result.data.status == TrackingStepStatus.cancelled) {
+        // When status is delivered or cancelled: stop timers only
+        if (result.data.status == TrackingStepStatus.delivered ||
+            result.data.status == TrackingStepStatus.cancelled) {
           _pollingTimer?.cancel();
           _stalenessTimer?.cancel();
         }

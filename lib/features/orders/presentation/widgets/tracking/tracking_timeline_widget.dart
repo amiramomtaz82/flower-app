@@ -21,7 +21,6 @@ class TrackingTimelineWidget extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     final primary = colors?.primary ?? colorScheme.primary;
     final inactiveBorder = colors?.darkGrey ?? colorScheme.outlineVariant;
-    final inactiveText = colors?.hint ?? colorScheme.outline;
 
     final currentStep = currentStatus.timelineIndex;
 
