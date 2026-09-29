@@ -1,4 +1,3 @@
-
 import 'package:injectable/injectable.dart';
 
 import '../../../../config/base_response/base_response.dart';
@@ -11,7 +10,7 @@ class GetCheckoutDetailsUseCase {
 
   GetCheckoutDetailsUseCase(this._repository);
 
-  Future<BaseResponse<CheckoutDetailsEntity>> call(String cartId) {
+  Future<BaseResponse<CheckoutDetailsEntity>> call(String? cartId) {
     return _repository.getCheckoutDetails(cartId);
   }
 }

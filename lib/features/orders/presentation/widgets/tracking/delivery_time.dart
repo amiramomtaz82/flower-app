@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../../core/date_time_extension.dart';
-import '../../manager/checkout_cubit.dart';
-import '../../manager/checkout_state.dart';
+import '../../../../checkout/presentation/manager/checkout_cubit.dart';
+import '../../../../checkout/presentation/manager/checkout_state.dart';
 
 class CheckoutDeliveryTimeSection extends StatelessWidget {
   const CheckoutDeliveryTimeSection({super.key});
@@ -66,6 +66,7 @@ class CheckoutDeliveryTimeSection extends StatelessWidget {
                     final formattedDate = estimatedTime.toDeliveryFormat(context);
                     final hasTime = formattedDate.isNotEmpty;
 
+                    // Fallback when delivery time is not yet determined
                     if (!hasTime) {
                       return Text(
                         AppStrings.notDetermined.tr(),
@@ -77,6 +78,7 @@ class CheckoutDeliveryTimeSection extends StatelessWidget {
                       );
                     }
 
+                    // Normalize 'instant' so there's always exactly one comma and space
                     final instantLabel = AppStrings.instant.tr().trimRight();
                     final instantText = instantLabel.endsWith(',') || instantLabel.endsWith('،')
                         ? '$instantLabel '

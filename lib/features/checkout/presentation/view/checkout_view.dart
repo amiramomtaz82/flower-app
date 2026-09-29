@@ -7,10 +7,13 @@ import 'package:flower_app/features/checkout/presentation/view/widget/deliver_ti
 import 'package:flower_app/features/checkout/presentation/view/widget/divider_section.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../../core/go_routes/routes_name.dart';
 import '../../../Address/presentaion/manager/address_cubit.dart';
 import '../../../Address/presentaion/manager/address_events.dart';
 import '../../../Address/presentaion/manager/address_state.dart';
+import 'payment_view.dart';
 import '../manager/checkout_cubit.dart';
 import '../manager/checkout_event.dart';
 import '../manager/checkout_state.dart';
@@ -111,11 +114,24 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           listener: (context, state) {
             final resource = state.placeOrderResource;
             if (resource.isSuccess) {
-              if (resource.data?.cardSession?.successUrl == null) {
-                Navigator.pushReplacement(
+              final cardSession = resource.data?.cardSession;
+
+              if (cardSession != null && cardSession.sessionUrl.isNotEmpty) {
+                // 1. Credit Card: Open Payment WebView
+                Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_) => const OrderSuccessScreen()),
+                  MaterialPageRoute(
+                    builder: (_) => PaymentWebViewScreen(
+                      sessionUrl: cardSession.sessionUrl,
+                      successUrl: cardSession.successUrl,
+                      cancelUrl: cardSession.cancelUrl,
+                      orderId: cardSession.orderId,
+                    ),
+                  ),
                 );
+              } else {
+                // 2. Cash on Delivery (COD): Direct to Order Success
+                context.go(AppRoutes.orderSuccess, extra: cardSession?.orderId);
               }
             } else if (resource.isError) {
               ScaffoldMessenger.of(context).showSnackBar(

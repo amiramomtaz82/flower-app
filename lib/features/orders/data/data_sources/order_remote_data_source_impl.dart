@@ -37,7 +37,7 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
         message: 'Success',
         data: OrderTrackingDto(
           orderId: orderId,
-          status: 'outForDelivery',
+          status: 'preparing',
           isLive: true,
           awaitingCustomerConfirmation: true, // Set to true to test Screen 3 (dual buttons)
           estimatedDeliveryAt: DateTime.now().add(const Duration(minutes: 25)).toIso8601String(),

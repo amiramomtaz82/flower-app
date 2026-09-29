@@ -65,7 +65,7 @@ class AppRouter {
 
   static final GoRouter router = GoRouter(
     navigatorKey: navigatorKey,
-    initialLocation: AppRoutes.orderTracking,
+    initialLocation: AppRoutes.splashView,
 
     routes: [
       GoRoute(

@@ -24,7 +24,7 @@ class CheckoutRepositoryImpl implements CheckoutRepository {
   CheckoutRepositoryImpl(this._remoteDataSource);
 
   @override
-  Future<BaseResponse<CheckoutDetailsEntity>> getCheckoutDetails(String cartId) async {
+  Future<BaseResponse<CheckoutDetailsEntity>> getCheckoutDetails(String? cartId) async{
     final response = await _remoteDataSource.getCheckoutDetails(cartId);
 
     switch (response) {
@@ -43,8 +43,8 @@ class CheckoutRepositoryImpl implements CheckoutRepository {
   @override
   Future<BaseResponse<EstimateDeliveryEntity>> estimateDelivery(
       String addressId,
-      String cartId,
-      ) async {
+      String? cartId,
+      ) async  {
     final response = await _remoteDataSource.estimateDelivery(addressId, cartId);
 
     switch (response) {

@@ -200,5 +200,10 @@
   "subTotal": "Sub Total",
   "deliveryFee": "Delivery Fee",
 
-  "rate": "Rate"
+  "rate": "Rate",
+  "complete_payment": "Complete Payment",
+  "cancel_payment_title": "Cancel Payment?",
+  "cancel_payment_warning": "If you go back now, your payment will not be completed.",
+  "continue_payment": "Continue Payment",
+  "payment_failed_or_cancelled": "Payment was cancelled or failed. Please try again."
 }

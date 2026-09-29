@@ -267,4 +267,10 @@ class AppStrings {
 
 
   static const String rate = 'rate';
+  static const String completePayment = 'complete_payment';
+  static const String cancelPaymentTitle = 'cancel_payment_title';
+  static const String cancelPaymentWarning = 'cancel_payment_warning';
+  static const String continuePayment = 'continue_payment';
+  static const String paymentFailedOrCancelled = 'payment_failed_or_cancelled';
+  static const String notificationsEnabled="notifications enabled";
 }

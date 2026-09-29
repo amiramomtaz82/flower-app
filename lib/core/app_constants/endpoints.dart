@@ -26,7 +26,7 @@ class Endpoints {
   static const String checkoutDetails = '/checkout/details';
   static const String estimateDelivery = '/checkout/estimate-delivery';
   static const String placeOrder = '/orders/place';
-  static const String registerDevice = '/devices/register';
+  static const String registerDevice = '/api/v1/devices/fcm-token';
 
   static const String orders = '/orders';
   static const String orderById = '/orders/{orderId}';
@@ -47,6 +47,8 @@ class Endpoints {
   // TODO: replace with actual endpoints (not implemented yet)
   static const String profile = '/profile';
   static const String updateProfile = '/profile/update';
+
+  static const String deviceNotifications = '/api/v1/devices/notifications';
 }
 
 class QueryParams {
@@ -62,4 +64,5 @@ class QueryParams {
   static const String getAddresses = "/address/users/me/addresses";
   static const String getAreas = '/address/api/areas';
   static const String orderId = 'orderId';
+
 }

@@ -180,5 +180,10 @@
   "subTotal": "المجموع الفرعي",
   "deliveryFee": "رسوم التوصيل",
 
-  "rate": "تقييم"
+  "rate": "تقييم",
+  "complete_payment": "إتمام الدفع",
+  "cancel_payment_title": "إلغاء الدفع؟",
+  "cancel_payment_warning": "إذا عدت الآن، فلن يتم إتمام عملية الدفع.",
+  "continue_payment": "متابعة الدفع",
+  "payment_failed_or_cancelled": "تم إلغاء الدفع أو فشلت العملية. يرجى المحاولة مرة أخرى."
 }
