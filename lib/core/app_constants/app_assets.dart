@@ -13,4 +13,13 @@ abstract class AppAssets {
 
   static const String occasionWedding = 'assets/images/home/wedding.png';
   static const String flowerImage = "assets/images/flowerImage.png";
+
+  static const String user_location = "assets/images/user_location.png";
+  static const String flowery_location = "assets/images/Frame 1000003497.png";
+  static const String motorcycle = "assets/images/Motorcycle Delivery.png";
+  static const String deleivery_boy = "assets/images/Delivery Boy.png";
+  static const String car = "assets/images/Car.png";
+
+  static const String whatsUp = 'assets/images/whatsapp.png';
+  static const String call= 'assets/images/call_24dp_5F6368_FILL0_wght400_GRAD0_opsz24 1.png';
 }

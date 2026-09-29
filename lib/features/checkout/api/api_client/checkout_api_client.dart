@@ -21,13 +21,12 @@ abstract class CheckoutApiClient {
 
   @GET(Endpoints.checkoutDetails)
   Future<CheckoutDetailsResponse> getCheckoutDetails(
-      @Query(AppStrings.cartId) String cartId,
+      @Query(AppStrings.cartId) String? cartId,
       );
-
   @GET(Endpoints.estimateDelivery)
   Future<EstimateDeliveryResponse> estimateDelivery(
       @Query(AppStrings.addressId) String addressId,
-      @Query(AppStrings.cartId) String cartId,
+      @Query(AppStrings.cartId) String? cartId,
       );
 
   @POST(Endpoints.placeOrder)

@@ -3,7 +3,7 @@ import 'package:flower_app/features/profile/data/models/profile_response_model.d
 import 'package:flower_app/features/profile/data/models/update_profile_dto.dart';
 import 'package:injectable/injectable.dart';
 
-@Injectable(as: ProfileRemoteDataSource)
+//@Injectable(as: ProfileRemoteDataSource)
 class MockProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
   // 1. In-memory state holding the current profile
   static ProfileResponseModel _mockProfile = ProfileResponseModel(

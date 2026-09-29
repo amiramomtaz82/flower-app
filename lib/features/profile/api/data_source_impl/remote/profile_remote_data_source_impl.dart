@@ -5,8 +5,8 @@ import 'package:flower_app/features/profile/data/models/update_profile_dto.dart'
 // ignore: unused_import
 import 'package:injectable/injectable.dart';
 
-// TODO: Uncomment when backend profile endpoint is ready
-// @Injectable(as: ProfileRemoteDataSource)
+
+ @Injectable(as: ProfileRemoteDataSource)
 class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
   // dependency injection for the ProfileApiClient
   final ProfileApiClient _profileApiClient;

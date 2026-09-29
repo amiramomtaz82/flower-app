@@ -46,8 +46,14 @@ import '../../features/cart/presentation/views/cart_view.dart';
 import '../../features/checkout/presentation/manager/checkout_cubit.dart';
 import '../../features/checkout/presentation/view/order_succss_screen.dart';
 import '../../features/commerce/presentation/home/view/home_view.dart';
+import '../../features/orders/domain/entities/order_tracking_entity.dart';
+import '../../features/orders/domain/oredr_details_entity.dart';
+import '../../features/orders/presentation/view/order_dlivered_view.dart';
 import '../../features/splash/presentation/manager/splash_cubit.dart';
 import '../../features/splash/presentation/manager/splash_event.dart';
+import '../../features/orders/presentation/manager/my_orders_cubit.dart';
+import '../../features/orders/presentation/manager/my_orders_events.dart';
+import '../../features/orders/presentation/view/order_tracking_view.dart';
 import '../../features/splash/presentation/splash_view.dart';
 import 'main_shell_view.dart';
 
@@ -261,8 +267,37 @@ class AppRouter {
       ),
       GoRoute(
         path: AppRoutes.myOrders,
-        builder: (context, state) => const flower_orders.MyOrdersView(),
+        builder: (context, state) => BlocProvider(
+          create: (_) => getIt<MyOrdersCubit>()..doEvents(MyOrdersStarted()),
+          child: const flower_orders.MyOrdersView(),
+        ),
       ),
+      GoRoute(
+        path: AppRoutes.orderTracking,
+        builder: (context, state) {
+          final orderId = state.extra as String? ?? 'bbbb2222-0002-0002-0002-000000000002';
+          return OrderTrackingView(orderId: orderId);
+        },
+      ),
+
+      GoRoute(
+        path: AppRoutes.orderDelivered,
+        builder: (context, state) {
+          if (state.extra is String) {
+            return OrderDeliveredView(orderId: state.extra as String);
+          }
+          final extra = state.extra as Map<String, dynamic>?;
+          final orderId = extra?['orderId'] as String? ??
+              (extra?['trackingData'] as OrderTrackingEntity?)?.orderId ??
+              '';
+          return OrderDeliveredView(
+            orderId: orderId,
+            trackingData: extra?['trackingData'] as OrderTrackingEntity?,
+            orderDetails: extra?['orderDetails'] as OrderDetailsEntity?,
+          );
+        },
+      ),
+
       GoRoute(
         path: AppRoutes.editProfile,
         builder: (context, state) {

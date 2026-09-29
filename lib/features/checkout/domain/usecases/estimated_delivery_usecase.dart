@@ -13,7 +13,7 @@ class EstimateDeliveryUseCase {
 
   Future<BaseResponse<EstimateDeliveryEntity>> call({
     required String addressId,
-    required String cartId,
+    required String? cartId,
   }) {
     return _repository.estimateDelivery(addressId, cartId);
   }

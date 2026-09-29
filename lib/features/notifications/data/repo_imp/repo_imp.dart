@@ -1,11 +1,12 @@
 import 'dart:async';
-import 'dart:io';
 import 'package:flower_app/core/app_constants/app_strings.dart';
 import 'package:injectable/injectable.dart';
 
+import '../../../../../config/device/device_id_service_.dart';
 import '../../../../../config/notificaions/fcm.dart';
 import '../../../../../config/secure_storage/secure_storage.dart';
 import '../../domain/repo/repo.dart';
+import '../models/set_device_notification_request.dart';
 import '../models/update_fcm_token.dart';
 
 import '../remote_data_source.dart';
@@ -15,15 +16,17 @@ class NotificationRepoImpl implements NotificationRepo {
   final NotificationRemoteDataSource _remoteDataSource;
   final FcmService _fcm;
   final SecureStorage _secureStorage;
+  final DeviceIdService _deviceIdService;
 
   StreamSubscription<String>? _refreshSubscription;
   static const String _lastFcmTokenKey = 'last_fcm_token';
 
   NotificationRepoImpl(
-      this._remoteDataSource,
-      this._fcm,
-      this._secureStorage,
-      );
+    this._remoteDataSource,
+    this._fcm,
+    this._secureStorage,
+    this._deviceIdService,
+  );
 
   @override
   Future<void> syncFcmToken() async {
@@ -60,10 +63,10 @@ class NotificationRepoImpl implements NotificationRepo {
 
   @override
   Future<void> updateFcmToken({required String fcmToken}) async {
-    final platform = Platform.isIOS ? 'iOS' : 'Android';
+    final deviceId = await _deviceIdService.getDeviceId();
     final request = UpdateFcmTokenRequest(
-      token: fcmToken,
-      platform: platform,
+      deviceId: deviceId,
+      fcmToken: fcmToken,
     );
     await _remoteDataSource.updateFcmToken(request);
   }
@@ -71,5 +74,17 @@ class NotificationRepoImpl implements NotificationRepo {
   @override
   void dispose() {
     _refreshSubscription?.cancel();
+  }
+
+  @override
+  Future<void> setDeviceNotifications({required bool enabled}) async {
+    final deviceId = await _deviceIdService.getDeviceId();
+    final request = SetDeviceNotificationsRequest(
+      deviceId: deviceId,
+      enabled: enabled,
+    );
+    await _remoteDataSource.setDeviceNotifications(request);
+    // Persist setting locally so it stays consistent across sessions
+    await _secureStorage.write(key: AppStrings.notificationsEnabled, value: enabled.toString());
   }
 }

@@ -57,7 +57,7 @@ class CheckoutCubit extends Cubit<CheckoutState> {
   // GET CHECKOUT DETAILS
   // ============================================================
 
-  Future<void> _getCheckoutDetails(String cartId, String? defaultAddressId) async {
+  Future<void> _getCheckoutDetails(String? cartId, String? defaultAddressId) async {
     emit(
       state.copyWith(
         checkoutDetailsResource: Resource.loading(),
@@ -65,7 +65,10 @@ class CheckoutCubit extends Cubit<CheckoutState> {
       ),
     );
 
-    final result = await _getCheckoutDetailsUseCase(cartId);
+    // Normalize: convert "" or whitespace to null so Retrofit omits ?cartId=
+    final normalizedCartId = (cartId == null || cartId.trim().isEmpty) ? null : cartId.trim();
+
+    final result = await _getCheckoutDetailsUseCase(normalizedCartId);
 
     switch (result) {
       case SuccessResponse<CheckoutDetailsEntity>():
@@ -108,7 +111,7 @@ class CheckoutCubit extends Cubit<CheckoutState> {
   // ESTIMATE DELIVERY
   // ============================================================
 
-  Future<void> _estimateDelivery(String addressId, String cartId) async {
+  Future<void> _estimateDelivery(String addressId, String? cartId) async {
     emit(
       state.copyWith(
         selectedAddressId: addressId,
@@ -116,9 +119,12 @@ class CheckoutCubit extends Cubit<CheckoutState> {
       ),
     );
 
+    // Normalize: convert "" or whitespace to null so Retrofit omits ?cartId=
+    final normalizedCartId = (cartId == null || cartId.trim().isEmpty) ? null : cartId.trim();
+
     final result = await _estimateDeliveryUseCase(
       addressId: addressId,
-      cartId: cartId,
+      cartId: normalizedCartId,
     );
 
     switch (result) {
@@ -179,15 +185,13 @@ class CheckoutCubit extends Cubit<CheckoutState> {
   // ============================================================
   // PLACE ORDER
   // ============================================================
-
-  Future<void> _placeOrder(String cartId) async {
-    if (cartId.trim().isEmpty) {
+  Future<void> _placeOrder(String? cartId) async {
+    if (cartId == null || cartId.trim().isEmpty) {
       emit(state.copyWith(
-        placeOrderResource: Resource.error('Cart identifier is missing.'),
+        placeOrderResource: Resource.error('Cart is empty. Please add items to cart first.'),
       ));
       return;
     }
-
     final addressId = state.selectedAddressId?.trim();
     if (addressId == null || addressId.isEmpty) {
       emit(state.copyWith(
@@ -195,7 +199,6 @@ class CheckoutCubit extends Cubit<CheckoutState> {
       ));
       return;
     }
-
     final paymentMethod = state.paymentMethod?.trim();
     if (paymentMethod == null || paymentMethod.isEmpty) {
       emit(state.copyWith(
@@ -203,12 +206,10 @@ class CheckoutCubit extends Cubit<CheckoutState> {
       ));
       return;
     }
-
     final isCash = _isCash(paymentMethod);
     final isGiftActive = state.isGift && !isCash;
     final recipientName = state.recipientName?.trim() ?? '';
     final recipientPhone = state.recipientPhone?.trim() ?? '';
-
     if (isGiftActive) {
       final nameError = Validation.validateName(recipientName);
       if (nameError != null) {
@@ -217,7 +218,6 @@ class CheckoutCubit extends Cubit<CheckoutState> {
         ));
         return;
       }
-
       final phoneError = Validation.validatePhoneNumber(recipientPhone);
       if (phoneError != null) {
         emit(state.copyWith(
@@ -226,21 +226,18 @@ class CheckoutCubit extends Cubit<CheckoutState> {
         return;
       }
     }
-
     emit(state.copyWith(
       placeOrderResource: Resource.loading(),
     ));
-
     // Resolve gateway dynamically from the selected backend payment option
     final selectedOption = state.checkoutDetailsResource.data?.paymentMethods
         .firstWhereOrNull((option) => option.method == paymentMethod);
-
     final gateway = selectedOption?.gateways.isNotEmpty == true
         ? selectedOption!.gateways.first
         : null;
-
+    // Build the orderRequest:
     final orderRequest = PlaceOrderRequestEntity(
-      cartId: cartId.trim(),
+      cartId: (cartId != null && cartId.trim().isNotEmpty) ? cartId.trim() : '',
       addressId: addressId,
       isGift: isGiftActive,
       giftRecipient: isGiftActive
@@ -249,29 +246,38 @@ class CheckoutCubit extends Cubit<CheckoutState> {
         phone: recipientPhone,
       )
           : null,
-      paymentMethod: paymentMethod,
+      paymentMethod: _normalizePaymentMethod(paymentMethod),
       paymentGateway: gateway,
     );
-
-    final result = await _placeOrderUseCase(orderRequest);
-
-    switch (result) {
-      case SuccessResponse<OrderPlacementEntity>():
-        emit(state.copyWith(
-          placeOrderResource: Resource.success(result.data),
-        ));
-      case ErrorResponse<OrderPlacementEntity>():
-        emit(state.copyWith(
-          placeOrderResource: Resource.error(result.errMessage),
-        ));
+    try {
+      final result = await _placeOrderUseCase(orderRequest);
+      switch (result) {
+        case SuccessResponse<OrderPlacementEntity>():
+          emit(state.copyWith(
+            placeOrderResource: Resource.success(result.data),
+          ));
+        case ErrorResponse<OrderPlacementEntity>():
+          emit(state.copyWith(
+            placeOrderResource: Resource.error(result.errMessage),
+          ));
+      }
+    } catch (e) {
+      emit(state.copyWith(
+        placeOrderResource: Resource.error(e.toString()),
+      ));
     }
   }
-
   void _resetPlaceOrderState() {
     emit(
       state.copyWith(
         placeOrderResource: Resource.initial(),
       ),
     );
+  }
+  String _normalizePaymentMethod(String method) {
+    final upper = method.trim().toUpperCase();
+    if (upper.contains('CASH') || upper == 'COD') return 'COD';
+    if (upper.contains('CARD')) return 'Card';
+    return method;
   }
 }

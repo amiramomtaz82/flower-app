@@ -1,7 +1,6 @@
-﻿name: Branch Name Validation
+name: Branch Name Validation
 
 on:
-  push:
   pull_request:
 
 jobs:

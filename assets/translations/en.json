@@ -176,8 +176,34 @@
   "noCompletedOrders": "No completed orders",
   "orderNumber": "Order number",
   "deliveredOn": "Delivered on",
-  "trackOrder": "Track order",
+
   "reorder": "Reorder",
   "remember_me": "Remember me",
-  "forgot_password": "Forgot password?"
+  "forgot_password": "Forgot password?",
+  "trackOrder": "Track order",
+  "estimatedArrival": "Estimated arrival",
+  "showMap": "Show map",
+  "orderDelivered": "Order Delivered",
+  "orderDetails": "Order details",
+  "waitingForDriver": "Waiting for driver assignment...",
+  "deliveryHeroSubtitle": "is your delivery hero for today",
+  "orderReceived": "Received your order",
+  "orderPreparing": "Preparing your order",
+  "outForDelivery": "Out for delivery",
+  "delivered": "Delivered",
+  "liveLocationPaused": "Live location paused ({}s ago). Reconnecting...",
+  "failedToLoadTracking": "Failed to load tracking data",
+  "enjoyYourOrder": "Enjoy your order",
+
+  "payWithCash": "Pay with cash",
+  "itemsCount": "{} items",
+  "subTotal": "Sub Total",
+  "deliveryFee": "Delivery Fee",
+
+  "rate": "Rate",
+  "complete_payment": "Complete Payment",
+  "cancel_payment_title": "Cancel Payment?",
+  "cancel_payment_warning": "If you go back now, your payment will not be completed.",
+  "continue_payment": "Continue Payment",
+  "payment_failed_or_cancelled": "Payment was cancelled or failed. Please try again."
 }
