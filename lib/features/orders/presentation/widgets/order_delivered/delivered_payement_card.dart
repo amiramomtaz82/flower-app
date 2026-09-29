@@ -1,5 +1,3 @@
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../../core/app_theme/app_colors.dart';
@@ -10,6 +8,7 @@ class DeliveredPaymentCard extends StatelessWidget {
   final Color cardBorder;
 
   const DeliveredPaymentCard({
+    super.key,
     required this.amount,
     required this.paymentMethod,
     required this.cardBg,

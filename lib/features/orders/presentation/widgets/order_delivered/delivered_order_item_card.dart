@@ -1,5 +1,4 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../../core/app_constants/app_assets.dart';
@@ -15,6 +14,7 @@ class DeliveredOrderItemsCard extends StatelessWidget {
   final Color primary;
 
   const DeliveredOrderItemsCard({
+    super.key,
     required this.items,
     required this.currency,
     required this.cardBg,
@@ -73,7 +73,7 @@ class DeliveredOrderItemsCard extends StatelessWidget {
                     width: 48,
                     height: 48,
                     decoration: BoxDecoration(
-                      color: primary.withOpacity(0.06),
+                      color: primary.withValues(alpha: 0.06),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     padding: const EdgeInsets.all(4),

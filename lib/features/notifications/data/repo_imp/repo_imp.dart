@@ -76,6 +76,7 @@ class NotificationRepoImpl implements NotificationRepo {
     _refreshSubscription?.cancel();
   }
 
+  @override
   Future<void> setDeviceNotifications({required bool enabled}) async {
     final deviceId = await _deviceIdService.getDeviceId();
     final request = SetDeviceNotificationsRequest(

@@ -1,5 +1,4 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../../core/app_constants/app_strings.dart';
@@ -10,6 +9,7 @@ class DeliveryStatusHeader extends StatelessWidget {
   final Color successColor;
 
   const DeliveryStatusHeader({
+    super.key,
     required this.userName,
     required this.successColor,
   });

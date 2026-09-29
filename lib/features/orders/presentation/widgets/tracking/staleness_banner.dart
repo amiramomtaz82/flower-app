@@ -22,7 +22,7 @@ class StalenessBanner extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      color: warningColor.withOpacity(0.08),
+      color: warningColor.withValues(alpha: 0.08),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
         children: [

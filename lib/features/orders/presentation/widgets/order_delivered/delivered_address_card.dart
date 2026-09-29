@@ -1,7 +1,4 @@
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
 
 import '../../../../../core/app_theme/app_colors.dart';
 class DeliveredAddressCard extends StatelessWidget {
@@ -11,6 +8,7 @@ class DeliveredAddressCard extends StatelessWidget {
   final Color cardBorder;
 
   const DeliveredAddressCard({
+    super.key,
     required this.title,
     required this.detail,
     required this.cardBg,

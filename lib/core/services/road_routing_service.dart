@@ -1,14 +1,16 @@
 import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';
 import 'package:latlong2/latlong.dart';
 import '../app_constants/endpoints.dart';
 
 @lazySingleton
 class RoadRoutingService {
-  final http.Client _client;
+  final Dio _dio;
 
-  RoadRoutingService({http.Client? client}) : _client = client ?? http.Client();
+  RoadRoutingService() : _dio = Dio();
+
+  RoadRoutingService.withDio(this._dio);
 
   /// Fetches real turn-by-turn road coordinates between the given waypoints:
   /// Store -> Driver -> User Destination
@@ -20,20 +22,21 @@ class RoadRoutingService {
         .map((p) => '${p.longitude},${p.latitude}')
         .join(';');
 
-    final url = Uri.parse(
-      '${Endpoints.osrmRouteBaseUrl}/$coordsQuery?overview=full&geometries=geojson',
-    );
+    final url =
+        '${Endpoints.osrmRouteBaseUrl}/$coordsQuery?overview=full&geometries=geojson';
 
     try {
-      final response = await _client.get(url);
+      final response = await _dio.get(url);
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        final routes = data['routes'] as List<dynamic>?;
+        final data = response.data is Map<String, dynamic>
+            ? response.data as Map<String, dynamic>
+            : (response.data is String ? json.decode(response.data as String) : null);
+        final routes = data?['routes'] as List<dynamic>?;
         if (routes != null && routes.isNotEmpty) {
           final coordinates =
-          routes[0]['geometry']['coordinates'] as List<dynamic>;
+              routes[0]['geometry']['coordinates'] as List<dynamic>;
           return coordinates
-              .map((c) => LatLng(c[1] as double, c[0] as double))
+              .map((c) => LatLng((c[1] as num).toDouble(), (c[0] as num).toDouble()))
               .toList();
         }
       }

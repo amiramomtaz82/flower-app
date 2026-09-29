@@ -46,7 +46,10 @@ class _TrackingMapWidgetState extends State<TrackingMapWidget> {
   void initState() {
     super.initState();
     _mapController = MapController();
-    _routingService = widget.routingService ?? getIt<RoadRoutingService>();
+    _routingService = widget.routingService ??
+        (getIt.isRegistered<RoadRoutingService>()
+            ? getIt<RoadRoutingService>()
+            : RoadRoutingService());
     _fetchRoadPolyline();
   }
 

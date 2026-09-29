@@ -3,7 +3,6 @@ import 'package:flower_app/core/app_constants/app_assets.dart';
 import 'package:flower_app/core/app_constants/app_strings.dart';
 import 'package:flower_app/core/app_theme/app_colors.dart';
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../../../../../config/di/di.dart';
 import '../../../../../core/services/url_service_launcher.dart';
 import '../../../domain/entities/driver_entity.dart';
@@ -15,7 +14,10 @@ class DriverInfoCard extends StatelessWidget {
     super.key,
     required this.driver,
     UrlLauncherService? urlLauncherService,
-  }) : _urlLauncherService = urlLauncherService ?? getIt<UrlLauncherService>();
+  }) : _urlLauncherService = urlLauncherService ??
+            (getIt.isRegistered<UrlLauncherService>()
+                ? getIt<UrlLauncherService>()
+                : UrlLauncherService());
 
   Future<void> _openWhatsApp(BuildContext context, String phone) async {
     final launched = await _urlLauncherService.launchWhatsApp(phone);
@@ -46,9 +48,9 @@ class DriverInfoCard extends StatelessWidget {
       return Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: errorColor.withOpacity(0.08),
+          color: errorColor.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: errorColor.withOpacity(0.25)),
+          border: Border.all(color: errorColor.withValues(alpha: 0.25)),
         ),
         child: Row(
           children: [
@@ -86,7 +88,7 @@ class DriverInfoCard extends StatelessWidget {
             child: Container(
               width: 44,
               height: 44,
-              color: primary.withOpacity(0.08),
+              color: primary.withValues(alpha: 0.08),
               child: (driver?.photoUrl != null && driver!.photoUrl!.isNotEmpty)
                   ? Image.network(
                 driver!.photoUrl!,

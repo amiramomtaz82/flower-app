@@ -68,6 +68,15 @@ class _OrderDeliveredViewState extends State<OrderDeliveredView> {
       return _buildContent(context, widget.orderDetails!);
     }
 
+    if (_orderDetailsFuture == null) {
+      return Scaffold(
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        body: Center(
+          child: CircularProgressIndicator(color: primary),
+        ),
+      );
+    }
+
     // 2. Fetch using FutureBuilder
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -85,8 +94,7 @@ class _OrderDeliveredViewState extends State<OrderDeliveredView> {
           final response = snapshot.data;
           if (snapshot.hasError ||
               response == null ||
-              response is! SuccessResponse<OrderDetailsEntity> ||
-              response.data == null) {
+              response is! SuccessResponse<OrderDetailsEntity>) {
             final errorMessage = response is ErrorResponse<OrderDetailsEntity>
                 ? response.errMessage
                 : AppStrings.dataNotFound.tr();
@@ -130,7 +138,7 @@ class _OrderDeliveredViewState extends State<OrderDeliveredView> {
           }
 
           //  C. Order details successfully retrieved
-          final details = (response as SuccessResponse<OrderDetailsEntity>).data;
+          final details = response.data;
           return _buildContent(context, details);
         },
       ),
@@ -144,7 +152,7 @@ class _OrderDeliveredViewState extends State<OrderDeliveredView> {
     final colorScheme = Theme.of(context).colorScheme;
     final primary = colors?.primary ?? colorScheme.primary;
     final successColor = colors?.success ?? const Color(0xff0CB359);
-    final cardBorder = (colors?.grey ?? Colors.grey).withOpacity(0.2);
+    final cardBorder = (colors?.grey ?? Colors.grey).withValues(alpha: 0.2);
     final cardBg = colors?.white ?? colorScheme.surface;
 
     final resolvedAddress = details.addressDetail.trim().isNotEmpty

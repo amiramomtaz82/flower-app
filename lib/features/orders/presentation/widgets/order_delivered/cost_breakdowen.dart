@@ -1,5 +1,4 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../../core/app_constants/app_strings.dart';
@@ -11,6 +10,7 @@ class CostBreakdown extends StatelessWidget {
   final String currency;
 
   const CostBreakdown({
+    super.key,
     required this.subTotal,
     required this.deliveryFee,
     required this.total,

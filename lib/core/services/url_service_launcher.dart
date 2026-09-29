@@ -13,10 +13,9 @@ typedef LaunchUrlFn = Future<bool> Function(
 class UrlLauncherService {
   final LaunchUrlFn _launchUrl;
 
-  /// Inject the top-level [launchUrl] into the constructor with default fallback
-  UrlLauncherService({
-    LaunchUrlFn launchUrlFn = launchUrl,
-  }) : _launchUrl = launchUrlFn;
+  UrlLauncherService() : _launchUrl = launchUrl;
+
+  UrlLauncherService.withLauncher(this._launchUrl);
 
   /// Sanitizes phone number and launches WhatsApp chat
   Future<bool> launchWhatsApp(String phone) async {
