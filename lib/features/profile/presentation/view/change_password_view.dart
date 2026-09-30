@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flower_app/core/app_constants/app_strings.dart';
 import 'package:flower_app/core/app_theme/app_colors.dart';
 import 'package:flower_app/core/validation/validation.dart';
@@ -78,9 +79,9 @@ class _ChangePasswordViewState extends State<ChangePasswordView> {
           ),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: const Text(
-          AppStrings.resetPassword,
-          style: TextStyle(
+        title: Text(
+          AppStrings.changePassword.tr(),
+          style: const TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.w600,
             color: Color(0xff0C1015),
@@ -94,9 +95,9 @@ class _ChangePasswordViewState extends State<ChangePasswordView> {
         listener: (context, state) {
           if (state.changePasswordResource.isSuccess) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text(AppStrings.passwordUpdatedSuccessfully),
-                backgroundColor: Color(0xff0CB359),
+              SnackBar(
+                content: Text(AppStrings.passwordUpdatedSuccessfully.tr()),
+                backgroundColor: const Color(0xff0CB359),
               ),
             );
             Navigator.of(context).pop();
@@ -105,7 +106,7 @@ class _ChangePasswordViewState extends State<ChangePasswordView> {
               SnackBar(
                 content: Text(
                   state.changePasswordResource.errorMessage ??
-                      AppStrings.failedToUpdatePassword,
+                      AppStrings.failedToUpdatePassword.tr(),
                 ),
                 backgroundColor: colors.error,
               ),
@@ -121,22 +122,22 @@ class _ChangePasswordViewState extends State<ChangePasswordView> {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
               children: [
                 _OutlinedPasswordField(
-                  label: AppStrings.currentPassword,
-                  hint: AppStrings.currentPassword,
+                  label: AppStrings.currentPassword.tr(),
+                  hint: AppStrings.currentPassword.tr(),
                   controller: _currentPasswordController,
                   validator: Validation.validatePassword,
                 ),
                 const SizedBox(height: 20),
                 _OutlinedPasswordField(
-                  label: AppStrings.newPassword,
-                  hint: AppStrings.newPassword,
+                  label: AppStrings.newPassword.tr(),
+                  hint: AppStrings.newPassword.tr(),
                   controller: _newPasswordController,
                   validator: Validation.validatePassword,
                 ),
                 const SizedBox(height: 20),
                 _OutlinedPasswordField(
-                  label: AppStrings.confirmPassword,
-                  hint: AppStrings.confirmPassword,
+                  label: AppStrings.confirmPassword.tr(),
+                  hint: AppStrings.confirmPassword.tr(),
                   controller: _confirmPasswordController,
                   validator: (value) => Validation.validateConfirmPassword(
                     value,
@@ -168,9 +169,9 @@ class _ChangePasswordViewState extends State<ChangePasswordView> {
                               strokeWidth: 2.5,
                             ),
                           )
-                        : const Text(
-                            AppStrings.update,
-                            style: TextStyle(
+                        : Text(
+                            AppStrings.update.tr(),
+                            style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                             ),
