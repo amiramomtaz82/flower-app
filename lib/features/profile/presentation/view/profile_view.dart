@@ -5,12 +5,14 @@ import 'package:flower_app/core/app_theme/app_colors.dart';
 import 'package:flower_app/features/profile/presentation/manager/profile_cubit.dart';
 import 'package:flower_app/features/profile/presentation/manager/profile_event.dart';
 import 'package:flower_app/features/profile/presentation/manager/profile_state.dart';
+import 'package:flower_app/core/app_constants/app_urls.dart';
 import 'package:flower_app/core/go_routes/routes_name.dart';
 import 'package:flower_app/features/profile/presentation/widgets/change_language_bottom_sheet.dart';
 import 'package:flower_app/features/profile/presentation/widgets/profile_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'dart:io';
 
 class ProfileView extends StatefulWidget {
@@ -22,7 +24,6 @@ class ProfileView extends StatefulWidget {
 
 class _ProfileViewState extends State<ProfileView> {
   bool _notificationsEnabled = true;
-
   @override
   void initState() {
     super.initState();
@@ -201,13 +202,13 @@ class _ProfileViewState extends State<ProfileView> {
                   icon: null,
                   title: AppStrings.aboutUs,
                   colors: colors,
-                  onTap: () {},
+                  onTap: () => _launchWebUrl(AppUrls.aboutUs),
                 ),
                 ProfileTile(
                   icon: null,
                   title: AppStrings.termsAndConditions,
                   colors: colors,
-                  onTap: () {},
+                  onTap: () => _launchWebUrl(AppUrls.termsAndConditions),
                 ),
                 const Divider(height: 32),
                 ProfileTile(
@@ -320,5 +321,37 @@ class _ProfileViewState extends State<ProfileView> {
         ),
       ),
     );
+  }
+
+  Future<void> _launchWebUrl(String urlString) async {
+    final uri = Uri.parse(urlString);
+    try {
+      final canLaunch = await canLaunchUrl(uri);
+      if (!canLaunch) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Cannot launch: $urlString (No browser found)'),
+            ),
+          );
+        }
+        return;
+      }
+
+      final launched = await launchUrl(uri, mode: LaunchMode.platformDefault);
+
+      if (!launched && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Could not open link: $urlString')),
+        );
+      }
+    } catch (e) {
+      debugPrint('🚨 launchUrl error: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
+      }
+    }
   }
 }
