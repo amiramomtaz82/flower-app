@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flower_app/config/resource/rsource.dart';
 import 'package:flower_app/core/app_constants/app_strings.dart';
 import 'package:flower_app/core/app_theme/app_colors.dart';
@@ -122,7 +123,7 @@ class _EditProfileViewState extends State<EditProfileView> {
           ),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: const Text(AppStrings.editProfile),
+        title: Text(AppStrings.editProfile.tr()),
         centerTitle: false,
         actions: [
           Padding(
@@ -173,7 +174,7 @@ class _EditProfileViewState extends State<EditProfileView> {
           if (status == ApiStatus.success) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: const Text(AppStrings.profileUpdatedSuccessfully),
+                content: Text(AppStrings.profileUpdatedSuccessfully.tr()),
                 backgroundColor: colors.success,
               ),
             );
@@ -183,7 +184,7 @@ class _EditProfileViewState extends State<EditProfileView> {
               SnackBar(
                 content: Text(
                   state.updateProfileResource.errorMessage ??
-                      AppStrings.failedToUpdateProfile,
+                      AppStrings.failedToUpdateProfile.tr(),
                 ),
                 backgroundColor: colors.error,
               ),
@@ -270,7 +271,7 @@ class _EditProfileViewState extends State<EditProfileView> {
                   children: [
                     Expanded(
                       child: _OutlinedProfileTextField(
-                        label: AppStrings.firstName,
+                        label: AppStrings.firstName.tr(),
                         controller: _firstNameController,
                         validator: Validation.validateName,
                         keyboardType: TextInputType.name,
@@ -279,7 +280,7 @@ class _EditProfileViewState extends State<EditProfileView> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: _OutlinedProfileTextField(
-                        label: AppStrings.lastName,
+                        label: AppStrings.lastName.tr(),
                         controller: _lastNameController,
                         validator: Validation.validateName,
                         keyboardType: TextInputType.name,
@@ -291,7 +292,7 @@ class _EditProfileViewState extends State<EditProfileView> {
 
                 // Email Field
                 _OutlinedProfileTextField(
-                  label: AppStrings.emailLabel,
+                  label: AppStrings.emailLabel.tr(),
                   controller: _emailController,
                   validator: Validation.validateEmail,
                   keyboardType: TextInputType.emailAddress,
@@ -300,7 +301,7 @@ class _EditProfileViewState extends State<EditProfileView> {
 
                 // Phone Number Field
                 _OutlinedProfileTextField(
-                  label: AppStrings.phoneNumber,
+                  label: AppStrings.phoneNumber.tr(),
                   controller: _phoneController,
                   validator: Validation.validatePhoneNumber,
                   keyboardType: TextInputType.phone,
@@ -309,7 +310,7 @@ class _EditProfileViewState extends State<EditProfileView> {
 
                 // Password Field with Change action
                 _OutlinedProfileTextField(
-                  label: AppStrings.passwordLabel,
+                  label: AppStrings.passwordLabel.tr(),
                   controller: _passwordController,
                   readOnly: true,
                   obscureText: true,
@@ -323,7 +324,7 @@ class _EditProfileViewState extends State<EditProfileView> {
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     ),
                     child: Text(
-                      AppStrings.change,
+                      AppStrings.change.tr(),
                       style: TextStyle(
                         color: colors.primary,
                         fontSize: 14,
@@ -337,9 +338,9 @@ class _EditProfileViewState extends State<EditProfileView> {
                 // Gender Section
                 Row(
                   children: [
-                    const Text(
-                      AppStrings.gender,
-                      style: TextStyle(
+                    Text(
+                      AppStrings.gender.tr(),
+                      style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
                         color: Color(0xff535353),
@@ -347,14 +348,14 @@ class _EditProfileViewState extends State<EditProfileView> {
                     ),
                     const SizedBox(width: 24),
                     _GenderRadio(
-                      label: AppStrings.female,
+                      label: AppStrings.female.tr(),
                       selected: _selectedGender == 'female',
                       color: colors.primary,
                       onTap: () => setState(() => _selectedGender = 'female'),
                     ),
                     const SizedBox(width: 24),
                     _GenderRadio(
-                      label: AppStrings.male,
+                      label: AppStrings.male.tr(),
                       selected: _selectedGender == 'male',
                       color: colors.primary,
                       onTap: () => setState(() => _selectedGender = 'male'),
@@ -384,9 +385,9 @@ class _EditProfileViewState extends State<EditProfileView> {
                               strokeWidth: 2.5,
                             ),
                           )
-                        : const Text(
-                            AppStrings.update,
-                            style: TextStyle(
+                        : Text(
+                            AppStrings.update.tr(),
+                            style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                             ),

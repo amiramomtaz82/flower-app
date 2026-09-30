@@ -36,7 +36,7 @@ class _ProfileViewState extends State<ProfileView> {
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
-      appBar: AppBar(title: const Text(AppStrings.profileScreenTitle)),
+      appBar: AppBar(title: Text(AppStrings.profileScreenTitle.tr())),
       body: BlocConsumer<ProfileCubit, ProfileState>(
         listenWhen: (previous, current) =>
             previous.logoutResource != current.logoutResource,
@@ -161,20 +161,20 @@ class _ProfileViewState extends State<ProfileView> {
                 const SizedBox(height: 24),
                 ProfileTile(
                   icon: Icons.receipt_long_outlined,
-                  title: AppStrings.myOrders,
+                  title: AppStrings.myOrders.tr(),
                   colors: colors,
                   onTap: () {},
                 ),
                 ProfileTile(
                   icon: Icons.location_on_outlined,
-                  title: AppStrings.savedAddresses,
+                  title: AppStrings.savedAddresses.tr(),
                   colors: colors,
                   onTap: () {},
                 ),
                 const Divider(height: 32),
                 ProfileTile(
                   icon: Icons.notifications_none_outlined,
-                  title: AppStrings.notification,
+                  title: AppStrings.notification.tr(),
                   colors: colors,
                   trailing: Switch(
                     value: _notificationsEnabled,
@@ -186,7 +186,7 @@ class _ProfileViewState extends State<ProfileView> {
                 const Divider(height: 32),
                 ProfileTile(
                   icon: Icons.translate,
-                  title: AppStrings.language,
+                  title: AppStrings.language.tr(),
                   colors: colors,
                   trailing: Text(
                     context.locale.languageCode == 'ar'
@@ -200,20 +200,20 @@ class _ProfileViewState extends State<ProfileView> {
                 ),
                 ProfileTile(
                   icon: null,
-                  title: AppStrings.aboutUs,
+                  title: AppStrings.aboutUs.tr(),
                   colors: colors,
                   onTap: () => _launchWebUrl(AppUrls.aboutUs),
                 ),
                 ProfileTile(
                   icon: null,
-                  title: AppStrings.termsAndConditions,
+                  title: AppStrings.termsAndConditions.tr(),
                   colors: colors,
                   onTap: () => _launchWebUrl(AppUrls.termsAndConditions),
                 ),
                 const Divider(height: 32),
                 ProfileTile(
                   icon: Icons.logout,
-                  title: AppStrings.logout,
+                  title: AppStrings.logout.tr(),
                   colors: colors,
                   trailingIcon: Icons.arrow_forward,
                   onTap: () => _showLogoutConfirmationDialog(context),
@@ -248,9 +248,9 @@ class _ProfileViewState extends State<ProfileView> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text(
-                AppStrings.uppercaseLogout,
-                style: TextStyle(
+              Text(
+                AppStrings.uppercaseLogout.tr(),
+                style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
                   color: Colors.black,
@@ -258,9 +258,9 @@ class _ProfileViewState extends State<ProfileView> {
                 ),
               ),
               const SizedBox(height: 12),
-              const Text(
-                AppStrings.confirmLogout,
-                style: TextStyle(
+              Text(
+                AppStrings.confirmLogout.tr(),
+                style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
                   color: Color(0xFF1D1B20),
@@ -279,9 +279,9 @@ class _ProfileViewState extends State<ProfileView> {
                         padding: const EdgeInsets.symmetric(vertical: 12),
                       ),
                       onPressed: () => Navigator.pop(dialogContext),
-                      child: const Text(
-                        AppStrings.cancel,
-                        style: TextStyle(
+                      child: Text(
+                        AppStrings.cancel.tr(),
+                        style: const TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w600,
                           color: Color(0xFF535353),
@@ -304,9 +304,9 @@ class _ProfileViewState extends State<ProfileView> {
                         Navigator.pop(dialogContext);
                         context.read<ProfileCubit>().doEvent(LogoutEvent());
                       },
-                      child: const Text(
-                        AppStrings.logout,
-                        style: TextStyle(
+                      child: Text(
+                        AppStrings.logout.tr(),
+                        style: const TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w600,
                           color: Colors.white,
