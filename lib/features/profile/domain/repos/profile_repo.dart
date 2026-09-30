@@ -10,7 +10,5 @@ abstract interface class ProfileRepo {
     UpdateProfileEntity updateProfileEntity,
   );
 
-  Future<BaseResponse<void>> changePassword(
-    ChangePasswordEntity changePasswordEntity,
-  );
+  Future<BaseResponse<void>> changePassword(ChangePasswordEntity entity);
 }
