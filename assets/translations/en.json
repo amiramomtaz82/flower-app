@@ -79,5 +79,9 @@
     "newest":  "New",
     "oldest":  "Old",
     "discount":  "Discount",
-    "search_for_any_product":  "Search For Any Product You Want"
+    "search_for_any_product":  "Search For Any Product You Want",
+    "change_language": "Change Language",
+    "arabic": "Arabic",
+    "english": "English",
+    "apply": "Apply"
 }
