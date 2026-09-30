@@ -24,6 +24,7 @@ class Endpoints {
   // profile endpoints // TODO: replace with actual endpoints (not implemented yet)
   static const String profile = '/profile';
   static const String updateProfile = '/profile/update';
+  static const String changePassword = '/profile/change-password';
 }
 
 class QueryParams {
