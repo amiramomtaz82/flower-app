@@ -1,6 +1,8 @@
 import 'package:flower_app/config/base_response/base_response.dart';
 import 'package:flower_app/features/profile/data/data_source/remote/profile_remote_data_source.dart';
+import 'package:flower_app/features/profile/data/models/change_password_dto.dart';
 import 'package:flower_app/features/profile/data/models/update_profile_dto.dart';
+import 'package:flower_app/features/profile/domain/entities/change_password_entity.dart';
 import 'package:flower_app/features/profile/domain/entities/profile_entity.dart';
 import 'package:flower_app/features/profile/domain/entities/update_profile_entity.dart';
 import 'package:flower_app/features/profile/domain/repos/profile_repo.dart';
@@ -32,6 +34,19 @@ class ProfileRepoImpl implements ProfileRepo {
         updateProfileDto,
       );
       return SuccessResponse(updatedProfile.toEntity());
+    } catch (e) {
+      return ErrorResponse(error: e);
+    }
+  }
+
+  @override
+  Future<BaseResponse<void>> changePassword(
+    ChangePasswordEntity changePasswordEntity,
+  ) async {
+    try {
+      final dto = ChangePasswordDto.fromEntity(changePasswordEntity);
+      await _profileRemoteDataSource.changePassword(dto);
+      return const SuccessResponse(null);
     } catch (e) {
       return ErrorResponse(error: e);
     }
