@@ -6,6 +6,5 @@ abstract interface class ProfileRemoteDataSource {
   Future<ProfileResponseModel> getProfile();
 
   Future<ProfileResponseModel> updateProfile(UpdateProfileDto updateProfileDto);
-
   Future<void> changePassword(ChangePasswordDto changePasswordDto);
 }

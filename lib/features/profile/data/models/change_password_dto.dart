@@ -5,8 +5,13 @@ part 'change_password_dto.g.dart';
 
 @JsonSerializable()
 class ChangePasswordDto {
+  @JsonKey(name: 'currentPassword')
   final String currentPassword;
+
+  @JsonKey(name: 'newPassword')
   final String newPassword;
+
+  @JsonKey(name: 'confirmPassword')
   final String confirmPassword;
 
   const ChangePasswordDto({
