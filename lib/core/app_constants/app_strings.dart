@@ -113,6 +113,12 @@ class AppStrings {
   static const String changePassword = 'Change Password';
   static const String logout = 'Logout';
 
+  // languages
+  static const String changeLanguage = 'change_language';
+  static const String arabic = 'arabic';
+  static const String english = 'english';
+  static const String apply = 'apply';
+
   // Edit profile
   static const String editProfile = 'Edit Profile';
   // 'Profile updated successfully!'
