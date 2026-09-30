@@ -1,4 +1,5 @@
 import 'package:flower_app/features/profile/data/data_source/remote/profile_remote_data_source.dart';
+import 'package:flower_app/features/profile/data/models/change_password_dto.dart';
 import 'package:flower_app/features/profile/data/models/profile_response_model.dart';
 import 'package:flower_app/features/profile/data/models/update_profile_dto.dart';
 import 'package:injectable/injectable.dart';
@@ -37,5 +38,11 @@ class MockProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
     );
 
     return _mockProfile;
+  }
+
+  @override
+  Future<void> changePassword(ChangePasswordDto changePasswordDto) async {
+    await Future.delayed(const Duration(milliseconds: 800));
+    // Simulated successful password update
   }
 }

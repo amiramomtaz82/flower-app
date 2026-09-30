@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flower_app/features/profile/data/models/change_password_dto.dart';
 import 'package:flower_app/features/profile/data/models/update_profile_dto.dart';
 import 'package:retrofit/retrofit.dart';
 import 'package:flower_app/core/app_constants/endpoints.dart';
@@ -19,4 +20,8 @@ abstract class ProfileApiClient {
   Future<ProfileResponseModel> updateProfile(
     @Body() UpdateProfileDto updateProfileDto,
   );
+
+  // also waiting for backend change password endpoint to be ready
+  @PATCH(Endpoints.changePassword)
+  Future<void> changePassword(@Body() ChangePasswordDto changePasswordDto);
 }
