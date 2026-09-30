@@ -23,6 +23,7 @@ import 'package:flower_app/features/commerce/presentation/search/manager/search_
 import 'package:flower_app/features/commerce/presentation/search/view/search_view.dart';
 import 'package:flower_app/features/profile/domain/entities/profile_entity.dart';
 import 'package:flower_app/features/profile/presentation/manager/profile_cubit.dart';
+import 'package:flower_app/features/profile/presentation/view/change_password_view.dart';
 import 'package:flower_app/features/profile/presentation/view/edit_profile_view.dart';
 import 'package:flower_app/features/profile/presentation/view/profile_view.dart';
 import 'package:flutter/material.dart';
@@ -171,6 +172,13 @@ class AppRouter {
             child: EditProfileView(initialProfile: profile),
           );
         },
+      ),
+      GoRoute(
+        path: AppRoutes.changePassword,
+        builder: (context, state) => BlocProvider(
+          create: (_) => getIt<ProfileCubit>(),
+          child: const ChangePasswordView(),
+        ),
       ),
     ],
   );
