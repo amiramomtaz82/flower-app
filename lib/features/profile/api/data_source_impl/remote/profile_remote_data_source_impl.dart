@@ -1,5 +1,6 @@
 import 'package:flower_app/features/profile/api/client/profile_api_client.dart';
 import 'package:flower_app/features/profile/data/data_source/remote/profile_remote_data_source.dart';
+import 'package:flower_app/features/profile/data/models/change_password_dto.dart';
 import 'package:flower_app/features/profile/data/models/profile_response_model.dart';
 import 'package:flower_app/features/profile/data/models/update_profile_dto.dart';
 // ignore: unused_import
@@ -23,5 +24,10 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
   ) async {
     final response = await _profileApiClient.updateProfile(updateProfileDto);
     return response;
+  }
+
+  @override
+  Future<void> changePassword(ChangePasswordDto changePasswordDto) async {
+    await _profileApiClient.changePassword(changePasswordDto);
   }
 }
