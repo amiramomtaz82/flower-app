@@ -9,3 +9,5 @@ class UpdateProfile extends ProfileEvent {
 
   UpdateProfile(this.updateProfileEntity);
 }
+
+class LogoutEvent extends ProfileEvent {}
