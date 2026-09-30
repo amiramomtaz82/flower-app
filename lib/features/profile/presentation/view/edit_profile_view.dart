@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flower_app/config/resource/rsource.dart';
 import 'package:flower_app/core/app_constants/app_strings.dart';
 import 'package:flower_app/core/app_theme/app_colors.dart';
+import 'package:flower_app/core/go_routes/routes_name.dart';
 import 'package:flower_app/core/validation/validation.dart';
 import 'package:flower_app/features/profile/domain/entities/profile_entity.dart';
 import 'package:flower_app/features/profile/domain/entities/update_profile_entity.dart';
@@ -11,6 +12,7 @@ import 'package:flower_app/features/profile/presentation/manager/profile_event.d
 import 'package:flower_app/features/profile/presentation/manager/profile_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 
 class EditProfileView extends StatefulWidget {
@@ -268,7 +270,7 @@ class _EditProfileViewState extends State<EditProfileView> {
                   children: [
                     Expanded(
                       child: _OutlinedProfileTextField(
-                        label: 'First name',
+                        label: AppStrings.firstName,
                         controller: _firstNameController,
                         validator: Validation.validateName,
                         keyboardType: TextInputType.name,
@@ -277,7 +279,7 @@ class _EditProfileViewState extends State<EditProfileView> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: _OutlinedProfileTextField(
-                        label: 'Last name',
+                        label: AppStrings.lastName,
                         controller: _lastNameController,
                         validator: Validation.validateName,
                         keyboardType: TextInputType.name,
@@ -289,7 +291,7 @@ class _EditProfileViewState extends State<EditProfileView> {
 
                 // Email Field
                 _OutlinedProfileTextField(
-                  label: 'Email',
+                  label: AppStrings.emailLabel,
                   controller: _emailController,
                   validator: Validation.validateEmail,
                   keyboardType: TextInputType.emailAddress,
@@ -298,7 +300,7 @@ class _EditProfileViewState extends State<EditProfileView> {
 
                 // Phone Number Field
                 _OutlinedProfileTextField(
-                  label: 'Phone number',
+                  label: AppStrings.phoneNumber,
                   controller: _phoneController,
                   validator: Validation.validatePhoneNumber,
                   keyboardType: TextInputType.phone,
@@ -307,19 +309,21 @@ class _EditProfileViewState extends State<EditProfileView> {
 
                 // Password Field with Change action
                 _OutlinedProfileTextField(
-                  label: 'Password',
+                  label: AppStrings.passwordLabel,
                   controller: _passwordController,
                   readOnly: true,
                   obscureText: true,
                   suffix: TextButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      context.push(AppRoutes.changePassword);
+                    },
                     style: TextButton.styleFrom(
                       padding: const EdgeInsets.symmetric(horizontal: 12),
                       minimumSize: Size.zero,
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     ),
                     child: Text(
-                      'Change',
+                      AppStrings.change,
                       style: TextStyle(
                         color: colors.primary,
                         fontSize: 14,
@@ -334,7 +338,7 @@ class _EditProfileViewState extends State<EditProfileView> {
                 Row(
                   children: [
                     const Text(
-                      'Gender',
+                      AppStrings.gender,
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
@@ -343,14 +347,14 @@ class _EditProfileViewState extends State<EditProfileView> {
                     ),
                     const SizedBox(width: 24),
                     _GenderRadio(
-                      label: 'Femail',
+                      label: AppStrings.female,
                       selected: _selectedGender == 'female',
                       color: colors.primary,
                       onTap: () => setState(() => _selectedGender = 'female'),
                     ),
                     const SizedBox(width: 24),
                     _GenderRadio(
-                      label: 'Male',
+                      label: AppStrings.male,
                       selected: _selectedGender == 'male',
                       color: colors.primary,
                       onTap: () => setState(() => _selectedGender = 'male'),
@@ -381,7 +385,7 @@ class _EditProfileViewState extends State<EditProfileView> {
                             ),
                           )
                         : const Text(
-                            'Update',
+                            AppStrings.update,
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,

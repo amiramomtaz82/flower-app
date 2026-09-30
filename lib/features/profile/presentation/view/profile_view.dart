@@ -249,7 +249,7 @@ class _ProfileViewState extends State<ProfileView> {
             mainAxisSize: MainAxisSize.min,
             children: [
               const Text(
-                'LOGOUT',
+                AppStrings.uppercaseLogout,
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
@@ -259,7 +259,7 @@ class _ProfileViewState extends State<ProfileView> {
               ),
               const SizedBox(height: 12),
               const Text(
-                'Confirm logout!!',
+                AppStrings.confirmLogout,
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
@@ -280,7 +280,7 @@ class _ProfileViewState extends State<ProfileView> {
                       ),
                       onPressed: () => Navigator.pop(dialogContext),
                       child: const Text(
-                        'Cancle',
+                        AppStrings.cancel,
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w600,
@@ -305,7 +305,7 @@ class _ProfileViewState extends State<ProfileView> {
                         context.read<ProfileCubit>().doEvent(LogoutEvent());
                       },
                       child: const Text(
-                        'Logout',
+                        AppStrings.logout,
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w600,

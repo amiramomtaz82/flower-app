@@ -119,12 +119,10 @@ class AppStrings {
   static const String english = 'english';
   static const String apply = 'apply';
 
-  // Edit profile
+  // Edit profile & Change Password
   static const String editProfile = 'Edit Profile';
-  // 'Profile updated successfully!'
   static const String profileUpdatedSuccessfully =
       'profile_updated_successfully';
-  // 'Failed to update profile'
   static const String failedToUpdateProfile = 'failed_to_update_profile';
   static const String areasIsEmpty = 'Areas response is empty';
   static const String address = 'Address';
@@ -172,4 +170,21 @@ class AppStrings {
   static const String setAsDefaultAddress = 'set_as_default_address';
   static const String coordinatesFormat = 'coordinates_format';
   static const String tapMapToSelectLocation = 'tap_map_to_select_location';
+  static const String change = 'Change';
+  static const String update = 'Update';
+  static const String currentPassword = 'Current password';
+  static const String passwordUpdatedSuccessfully =
+      'Password updated successfully!';
+  static const String failedToUpdatePassword = 'Failed to update password';
+  static const String cancel = 'Cancel';
+  static const String confirmLogout = 'Confirm logout!!';
+  static const String uppercaseLogout = 'LOGOUT';
+  static const String firstName = 'First name';
+  static const String lastName = 'Last name';
+  static const String emailLabel = 'Email';
+  static const String phoneNumber = 'Phone number';
+  static const String passwordLabel = 'Password';
+  static const String gender = 'Gender';
+  static const String female = 'Female';
+  static const String male = 'Male';
 }

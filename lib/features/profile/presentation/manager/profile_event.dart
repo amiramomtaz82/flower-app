@@ -1,3 +1,4 @@
+import 'package:flower_app/features/profile/domain/entities/change_password_entity.dart';
 import 'package:flower_app/features/profile/domain/entities/update_profile_entity.dart';
 
 sealed class ProfileEvent {}
@@ -11,3 +12,9 @@ class UpdateProfile extends ProfileEvent {
 }
 
 class LogoutEvent extends ProfileEvent {}
+
+class ChangePasswordEvent extends ProfileEvent {
+  final ChangePasswordEntity changePasswordEntity;
+
+  ChangePasswordEvent(this.changePasswordEntity);
+}
