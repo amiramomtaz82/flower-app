@@ -205,16 +205,26 @@ class AppStrings {
   static const String language = 'Language';
   static const String aboutUs = 'About Us';
   static const String termsAndConditions = 'Terms and Conditions';
+  static const String myOrders = 'my_orders';
+  static const String savedAddresses = 'saved_addresses';
+  static const String notification = 'notification';
+  static const String language = 'language';
+  static const String aboutUs = 'about_us';
+  static const String termsAndConditions = 'terms_and_conditions';
   static const String appVersion = 'v 6.3.0 - (446)';
-  static const String changePassword = 'Change Password';
-  static const String logout = 'Logout';
+  static const String changePassword = 'change_password';
+  static const String logout = 'logout';
 
-  // Edit profile
-  static const String editProfile = 'Edit Profile';
-  // 'Profile updated successfully!'
+  // languages
+  static const String changeLanguage = 'change_language';
+  static const String arabic = 'arabic';
+  static const String english = 'english';
+  static const String apply = 'apply';
+
+  // Edit profile & Change Password
+  static const String editProfile = 'edit_profile';
   static const String profileUpdatedSuccessfully =
       'profile_updated_successfully';
-  // 'Failed to update profile'
   static const String failedToUpdateProfile = 'failed_to_update_profile';
 
   // Cart
@@ -273,4 +283,21 @@ class AppStrings {
   static const String continuePayment = 'continue_payment';
   static const String paymentFailedOrCancelled = 'payment_failed_or_cancelled';
   static const String notificationsEnabled="notifications enabled";
+  static const String change = 'change';
+  static const String update = 'update';
+  static const String currentPassword = 'current_password';
+  static const String passwordUpdatedSuccessfully =
+      'password_updated_successfully';
+  static const String failedToUpdatePassword = 'failed_to_update_password';
+  static const String cancel = 'cancel';
+  static const String confirmLogout = 'confirm_logout';
+  static const String uppercaseLogout = 'uppercase_logout';
+  static const String firstName = 'first_name';
+  static const String lastName = 'last_name';
+  static const String emailLabel = 'email';
+  static const String phoneNumber = 'phone_number';
+  static const String passwordLabel = 'password';
+  static const String gender = 'gender';
+  static const String female = 'female';
+  static const String male = 'male';
 }

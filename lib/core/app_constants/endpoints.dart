@@ -54,6 +54,7 @@ class Endpoints {
   static const String mapUserAgent = 'com.flowery.flower_app';
   static const String osrmRouteBaseUrl =
       'https://router.project-osrm.org/route/v1/driving';
+  static const String changePassword = '/profile/change-password';
 }
 
 class QueryParams {

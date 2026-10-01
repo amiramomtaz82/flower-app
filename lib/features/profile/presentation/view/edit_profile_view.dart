@@ -1,8 +1,10 @@
 import 'dart:io';
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flower_app/config/resource/rsource.dart';
 import 'package:flower_app/core/app_constants/app_strings.dart';
 import 'package:flower_app/core/app_theme/app_colors.dart';
+import 'package:flower_app/core/go_routes/routes_name.dart';
 import 'package:flower_app/core/validation/validation.dart';
 import 'package:flower_app/features/profile/domain/entities/profile_entity.dart';
 import 'package:flower_app/features/profile/domain/entities/update_profile_entity.dart';
@@ -11,6 +13,7 @@ import 'package:flower_app/features/profile/presentation/manager/profile_event.d
 import 'package:flower_app/features/profile/presentation/manager/profile_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 
 class EditProfileView extends StatefulWidget {
@@ -106,7 +109,6 @@ class _EditProfileViewState extends State<EditProfileView> {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).extension<LightColors>()!;
-    final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -121,7 +123,7 @@ class _EditProfileViewState extends State<EditProfileView> {
           ),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: const Text(AppStrings.editProfile),
+        title: Text(AppStrings.editProfile.tr()),
         centerTitle: false,
         actions: [
           Padding(
@@ -172,7 +174,7 @@ class _EditProfileViewState extends State<EditProfileView> {
           if (status == ApiStatus.success) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: const Text(AppStrings.profileUpdatedSuccessfully),
+                content: Text(AppStrings.profileUpdatedSuccessfully.tr()),
                 backgroundColor: colors.success,
               ),
             );
@@ -182,7 +184,7 @@ class _EditProfileViewState extends State<EditProfileView> {
               SnackBar(
                 content: Text(
                   state.updateProfileResource.errorMessage ??
-                      AppStrings.failedToUpdateProfile,
+                      AppStrings.failedToUpdateProfile.tr(),
                 ),
                 backgroundColor: colors.error,
               ),
@@ -210,7 +212,10 @@ class _EditProfileViewState extends State<EditProfileView> {
                         backgroundImage: _selectedImageFile != null
                             ? FileImage(_selectedImageFile!)
                             : (_photoUrl.isNotEmpty
-                                  ? NetworkImage(_photoUrl) as ImageProvider
+                                  ? (_photoUrl.startsWith('http')
+                                            ? NetworkImage(_photoUrl)
+                                            : FileImage(File(_photoUrl)))
+                                        as ImageProvider
                                   : null),
                         child: _selectedImageFile != null
                             ? null
@@ -266,7 +271,7 @@ class _EditProfileViewState extends State<EditProfileView> {
                   children: [
                     Expanded(
                       child: _OutlinedProfileTextField(
-                        label: 'First name',
+                        label: AppStrings.firstName.tr(),
                         controller: _firstNameController,
                         validator: Validation.validateName,
                         keyboardType: TextInputType.name,
@@ -275,7 +280,7 @@ class _EditProfileViewState extends State<EditProfileView> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: _OutlinedProfileTextField(
-                        label: 'Last name',
+                        label: AppStrings.lastName.tr(),
                         controller: _lastNameController,
                         validator: Validation.validateName,
                         keyboardType: TextInputType.name,
@@ -287,7 +292,7 @@ class _EditProfileViewState extends State<EditProfileView> {
 
                 // Email Field
                 _OutlinedProfileTextField(
-                  label: 'Email',
+                  label: AppStrings.emailLabel.tr(),
                   controller: _emailController,
                   validator: Validation.validateEmail,
                   keyboardType: TextInputType.emailAddress,
@@ -296,7 +301,7 @@ class _EditProfileViewState extends State<EditProfileView> {
 
                 // Phone Number Field
                 _OutlinedProfileTextField(
-                  label: 'Phone number',
+                  label: AppStrings.phoneNumber.tr(),
                   controller: _phoneController,
                   validator: Validation.validatePhoneNumber,
                   keyboardType: TextInputType.phone,
@@ -305,19 +310,21 @@ class _EditProfileViewState extends State<EditProfileView> {
 
                 // Password Field with Change action
                 _OutlinedProfileTextField(
-                  label: 'Password',
+                  label: AppStrings.passwordLabel.tr(),
                   controller: _passwordController,
                   readOnly: true,
                   obscureText: true,
                   suffix: TextButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      context.push(AppRoutes.changePassword);
+                    },
                     style: TextButton.styleFrom(
                       padding: const EdgeInsets.symmetric(horizontal: 12),
                       minimumSize: Size.zero,
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     ),
                     child: Text(
-                      'Change',
+                      AppStrings.change.tr(),
                       style: TextStyle(
                         color: colors.primary,
                         fontSize: 14,
@@ -331,9 +338,9 @@ class _EditProfileViewState extends State<EditProfileView> {
                 // Gender Section
                 Row(
                   children: [
-                    const Text(
-                      'Gender',
-                      style: TextStyle(
+                    Text(
+                      AppStrings.gender.tr(),
+                      style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
                         color: Color(0xff535353),
@@ -341,14 +348,14 @@ class _EditProfileViewState extends State<EditProfileView> {
                     ),
                     const SizedBox(width: 24),
                     _GenderRadio(
-                      label: 'Femail',
+                      label: AppStrings.female.tr(),
                       selected: _selectedGender == 'female',
                       color: colors.primary,
                       onTap: () => setState(() => _selectedGender = 'female'),
                     ),
                     const SizedBox(width: 24),
                     _GenderRadio(
-                      label: 'Male',
+                      label: AppStrings.male.tr(),
                       selected: _selectedGender == 'male',
                       color: colors.primary,
                       onTap: () => setState(() => _selectedGender = 'male'),
@@ -378,9 +385,9 @@ class _EditProfileViewState extends State<EditProfileView> {
                               strokeWidth: 2.5,
                             ),
                           )
-                        : const Text(
-                            'Update',
-                            style: TextStyle(
+                        : Text(
+                            AppStrings.update.tr(),
+                            style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                             ),
