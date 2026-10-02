@@ -17,4 +17,11 @@ class ChangePasswordEvent extends ProfileEvent {
   final ChangePasswordEntity changePasswordEntity;
 
   ChangePasswordEvent(this.changePasswordEntity);
+
+
+}
+//----------------------------------------------------
+class ToggleNotification extends ProfileEvent {
+  final bool enabled;
+  ToggleNotification(this.enabled);
 }

@@ -181,10 +181,11 @@ class _ProfileViewState extends State<ProfileView> {
                   title: AppStrings.notification.tr(),
                   colors: colors,
                   trailing: Switch(
-                    value: _notificationsEnabled,
+                    value:  state.notificationsEnabled, // 👈 Driven entirely by Cubit state,
                     activeThumbColor: colors.primary,
                     onChanged: (value) =>
-                        setState(() => _notificationsEnabled = value),
+                        context.read<ProfileCubit>().doEvent
+                          (ToggleNotification(value))
                   ),
                 ),
                 const Divider(height: 32),

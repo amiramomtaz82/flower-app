@@ -12,18 +12,25 @@ import 'package:flower_app/features/profile/presentation/manager/profile_state.d
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 
+import '../../../auth/domain/repo/auth_repo.dart';
+import '../../../notifications/domain/usecase/set_device_notifications_use_case.dart';
+
 @injectable
 class ProfileCubit extends Cubit<ProfileState> {
   final GetProfileUseCase _getProfileUseCase;
   final UpdateProfileUseCase _updateProfileUseCase;
   final LogoutUseCase _logoutUseCase;
   final ChangePasswordUseCase _changePasswordUseCase;
-
+  //-----------
+  final SetDeviceNotificationsUseCase _setDeviceNotificationsUseCase;
+  final AuthRepo _authRepo;
   ProfileCubit(
     this._getProfileUseCase,
     this._updateProfileUseCase,
     this._logoutUseCase,
     this._changePasswordUseCase,
+      this._setDeviceNotificationsUseCase,
+      this._authRepo,
   ) : super(ProfileState.initial());
 
   void doEvent(ProfileEvent event) {
@@ -36,6 +43,8 @@ class ProfileCubit extends Cubit<ProfileState> {
         _logout();
       case ChangePasswordEvent():
         _changePassword(event.changePasswordEntity);
+      case ToggleNotification():
+        _toggleNotification(event.enabled);
     }
   }
 
@@ -58,7 +67,8 @@ class ProfileCubit extends Cubit<ProfileState> {
 
   Future<void> _updateProfile(UpdateProfileEntity updateProfileEntity) async {
     emit(state.copyWith(updateProfileResource: Resource.loading()));
-
+    // 👈 Read saved preference from local storage here
+    final isEnabled = await _authRepo.getNotificationsEnabled();
     try {
       final result = await _updateProfileUseCase(updateProfileEntity);
 
@@ -68,17 +78,21 @@ class ProfileCubit extends Cubit<ProfileState> {
             state.copyWith(
               updateProfileResource: Resource.success(result.data),
               resource: Resource.success(result.data),
+              notificationsEnabled: isEnabled,
             ),
           );
         case ErrorResponse<ProfileEntity>():
           emit(
             state.copyWith(
               updateProfileResource: Resource.error(result.errMessage),
+              notificationsEnabled: isEnabled,
             ),
           );
       }
     } catch (e) {
-      emit(state.copyWith(updateProfileResource: Resource.error(e.toString())));
+      emit(state.copyWith(updateProfileResource: Resource.error(e.toString()),
+        notificationsEnabled: isEnabled,),
+      );
     }
   }
 
@@ -112,6 +126,24 @@ class ProfileCubit extends Cubit<ProfileState> {
       emit(
         state.copyWith(changePasswordResource: Resource.error(e.toString())),
       );
+    }
+  }
+  //-------------------------
+  Future<void> _toggleNotification(bool enabled) async {
+    emit(state.copyWith(
+      notificationsEnabled: enabled,
+      toggleNotificationResource: Resource.loading(),
+    ));
+    try {
+      await _setDeviceNotificationsUseCase(enabled: enabled);
+      emit(state.copyWith(
+        toggleNotificationResource: Resource.success(null),
+      ));
+    } catch (e) {
+      emit(state.copyWith(
+        notificationsEnabled: !enabled,
+        toggleNotificationResource: Resource.error(e.toString()),
+      ));
     }
   }
 }
