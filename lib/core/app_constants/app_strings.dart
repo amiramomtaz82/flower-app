@@ -206,11 +206,7 @@ class AppStrings {
   static const String aboutUs = 'About Us';
   static const String termsAndConditions = 'Terms and Conditions';
   static const String myOrders = 'my_orders';
-  static const String savedAddresses = 'saved_addresses';
-  static const String notification = 'notification';
-  static const String language = 'language';
-  static const String aboutUs = 'about_us';
-  static const String termsAndConditions = 'terms_and_conditions';
+
   static const String appVersion = 'v 6.3.0 - (446)';
   static const String changePassword = 'change_password';
   static const String logout = 'logout';
@@ -248,7 +244,7 @@ class AppStrings {
   static const String currency = 'egp';
 
   // Orders
-  static const String myOrders = 'myOrders';
+
   static const String activeOrders = 'activeOrders';
   static const String completedOrders = 'completedOrders';
   static const String noActiveOrders = 'noActiveOrders';
@@ -289,14 +285,12 @@ class AppStrings {
   static const String passwordUpdatedSuccessfully =
       'password_updated_successfully';
   static const String failedToUpdatePassword = 'failed_to_update_password';
-  static const String cancel = 'cancel';
+
   static const String confirmLogout = 'confirm_logout';
   static const String uppercaseLogout = 'uppercase_logout';
   static const String firstName = 'first_name';
   static const String lastName = 'last_name';
-  static const String emailLabel = 'email';
-  static const String phoneNumber = 'phone_number';
-  static const String passwordLabel = 'password';
+  static const String emailLabel = 'email';  static const String passwordLabel = 'password';
   static const String gender = 'gender';
   static const String female = 'female';
   static const String male = 'male';
