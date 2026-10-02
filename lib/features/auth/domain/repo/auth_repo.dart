@@ -35,4 +35,6 @@ abstract interface class AuthRepo {
   Future<bool> getNotificationsEnabled();
   Future<void> saveNotificationsEnabled(bool isEnabled);
   Future<bool> isAuthenticated();
+  Future<BaseResponse<void>> logout();
+
 }

@@ -4,7 +4,7 @@ import 'package:flower_app/features/profile/domain/entities/change_password_enti
 import 'package:flower_app/features/profile/domain/entities/profile_entity.dart';
 import 'package:flower_app/features/profile/domain/entities/update_profile_entity.dart';
 import 'package:flower_app/features/profile/domain/use_cases/change_password_use_case.dart';
-import 'package:flower_app/features/profile/domain/use_cases/logout_use_case.dart';
+
 import 'package:flower_app/features/profile/domain/use_cases/profile_use_case.dart';
 import 'package:flower_app/features/profile/domain/use_cases/update_profile_use_case.dart';
 import 'package:flower_app/features/profile/presentation/manager/profile_event.dart';
@@ -13,6 +13,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 
 import '../../../auth/domain/repo/auth_repo.dart';
+import '../../../auth/domain/use_cases/logout_use_case.dart';
 import '../../../notifications/domain/usecase/set_device_notifications_use_case.dart';
 
 @injectable
@@ -96,15 +97,7 @@ class ProfileCubit extends Cubit<ProfileState> {
     }
   }
 
-  Future<void> _logout() async {
-    emit(state.copyWith(logoutResource: Resource.loading()));
-    try {
-      await _logoutUseCase();
-      emit(state.copyWith(logoutResource: Resource.success(null)));
-    } catch (e) {
-      emit(state.copyWith(logoutResource: Resource.error(e.toString())));
-    }
-  }
+
 
   Future<void> _changePassword(
     ChangePasswordEntity changePasswordEntity,
@@ -144,6 +137,21 @@ class ProfileCubit extends Cubit<ProfileState> {
         notificationsEnabled: !enabled,
         toggleNotificationResource: Resource.error(e.toString()),
       ));
+    }
+  }
+
+  Future<void> _logout() async {
+    emit(state.copyWith(logoutResource: Resource.loading()));
+    try {
+      final result = await _logoutUseCase();
+      switch (result) {
+        case SuccessResponse<void>():
+          emit(state.copyWith(logoutResource: Resource.success(null)));
+        case ErrorResponse<void>():
+          emit(state.copyWith(logoutResource: Resource.error(result.errMessage)));
+      }
+    } catch (e) {
+      emit(state.copyWith(logoutResource: Resource.error(e.toString())));
     }
   }
 }

@@ -26,7 +26,7 @@ class Endpoints {
   static const String checkoutDetails = '/checkout/details';
   static const String estimateDelivery = '/checkout/estimate-delivery';
   static const String placeOrder = '/orders/place';
-  static const String registerDevice = '/api/v1/devices/fcm-token';
+  static const String update_fcm_token = '/api/v1/devices/fcm-token';
 
   static const String orders = '/orders';
   static const String orderById = '/orders/{orderId}';
@@ -45,8 +45,8 @@ class Endpoints {
       '/cart/api/cart/items/{productId}';
   // profile endpoints
   // TODO: replace with actual endpoints (not implemented yet)
-  static const String profile = '/profile';
-  static const String updateProfile = '/profile/update';
+  static const String profile = '/api/users/GetProfile';
+  static const String updateProfile = '/api/users/UpdateProfile';
 
   static const String deviceNotifications = '/api/v1/devices/notifications';
   static const String openStreetMapTileUrl =
@@ -54,7 +54,8 @@ class Endpoints {
   static const String mapUserAgent = 'com.flowery.flower_app';
   static const String osrmRouteBaseUrl =
       'https://router.project-osrm.org/route/v1/driving';
-  static const String changePassword = '/profile/change-password';
+  static const String changePassword = '/auth/change-password';
+  static const String logout = '/auth/logout';
 }
 
 class QueryParams {

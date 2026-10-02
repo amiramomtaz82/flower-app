@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 
@@ -27,17 +28,24 @@ class SplashCubit extends Cubit<SplashState> {
   }
 
   Future<void> _initializeApp() async {
-    await Future.wait([
-      _fcm.initialize(),
-      _syncFcmTokenUseCase(),
-      Future.delayed(const Duration(seconds: 2)),
-    ]);
+    try {
+      await Future.wait([
+        _fcm.initialize().catchError((e) => debugPrint('FCM init error: $e')),
+        _syncFcmTokenUseCase().catchError((e) => debugPrint('FCM sync error: $e')),
+        Future.delayed(const Duration(seconds: 2)),
+      ]);
+    } catch (e) {
+      debugPrint('Initialization error: $e');
+    }
 
-    final isAuthenticated = await _getAuthStatusUseCase();
-
-    if (isAuthenticated) {
-      emit(SplashAuthenticated());
-    } else {
+    try {
+      final isAuthenticated = await _getAuthStatusUseCase();
+      if (isAuthenticated) {
+        emit(SplashAuthenticated());
+      } else {
+        emit(SplashUnauthenticated());
+      }
+    } catch (_) {
       emit(SplashUnauthenticated());
     }
   }

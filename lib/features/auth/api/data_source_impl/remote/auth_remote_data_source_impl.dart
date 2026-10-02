@@ -12,6 +12,7 @@ import 'package:flower_app/features/auth/data/models/verify_otp_response_model.d
 import 'package:injectable/injectable.dart';
 
 import '../../../data/models/login_response.dart';
+import '../../../data/models/logout_request.dart';
 import '../../../data/models/user_dto.dart';
 
 @Injectable(as: AuthRemoteDataSource)
@@ -97,5 +98,9 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     );
     final response = await _authApiClient.resetPassword(requestModel);
     return response;
+  }
+  @override
+  Future<void> logout(LogoutRequest request) async {
+    await _authApiClient.logout(request);
   }
 }

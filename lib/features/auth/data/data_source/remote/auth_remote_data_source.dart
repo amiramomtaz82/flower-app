@@ -4,6 +4,7 @@ import 'package:flower_app/features/auth/data/models/login_response.dart';
 import 'package:flower_app/features/auth/data/models/message_response_model.dart';
 import 'package:flower_app/features/auth/data/models/verify_otp_response_model.dart';
 
+import '../../models/logout_request.dart';
 import '../../models/register_request.dart';
 import '../../models/register_response.dart';
 
@@ -26,4 +27,5 @@ abstract interface class AuthRemoteDataSource {
     required String newPassword,
     required String confirmNewPassword,
   });
+  Future<void> logout(LogoutRequest request);
 }

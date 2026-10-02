@@ -53,7 +53,7 @@
   "isGift": "It is a gift",
 
   "set_as_default_address": "Set as default address",
-  "saved_addresses": "Saved Addresses",
+
   "add_new_address": "Add new address",
   "delete_address": "Delete Address",
   "delete_default_address_warning": "This is your default address. Deleting it will automatically assign another address as default.",
@@ -152,7 +152,7 @@
     "newest":  "New",
     "oldest":  "Old",
     "discount":  "Discount",
-    "search_for_any_product":  "Search For Any Product You Want",
+
     "change_language": "Change Language",
     "arabic": "Arabic",
     "english": "English",
@@ -173,9 +173,9 @@
     "current_password": "Current password",
     "password_updated_successfully": "Password updated successfully!",
     "failed_to_update_password": "Failed to update password",
-    "cancel": "Cancel",
+
     "confirm_logout": "Confirm logout!!",
-    "uppercase_logout": "LOGOUT"
+    "uppercase_logout": "LOGOUT",
     "search_for_any_product":  "Search For Any Product You Want",
     "cart":  "Cart",
     "cart_items_count":  "({} items)",

@@ -16,7 +16,7 @@ abstract class NotificationApiClient {
   @factoryMethod
   factory NotificationApiClient(Dio dio) = _NotificationApiClient;
 
-  @POST(Endpoints.registerDevice)
+  @POST(Endpoints.update_fcm_token)
   Future<void> updateFcmToken(
       @Body() UpdateFcmTokenRequest request,
       );

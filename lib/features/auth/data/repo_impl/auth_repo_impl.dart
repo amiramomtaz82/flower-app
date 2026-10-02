@@ -17,6 +17,7 @@ import 'package:injectable/injectable.dart';
 
 import '../../../../config/device/device_id_service_.dart';
 import '../../../../config/notificaions/fcm.dart';
+import '../models/logout_request.dart';
 
 @Injectable(as: AuthRepo)
 class AuthRepoImpl implements AuthRepo {
@@ -76,6 +77,28 @@ class AuthRepoImpl implements AuthRepo {
 
       case ErrorResponse<LoginResponse>():
         return ErrorResponse<LoginEntity>(errMessage: response.errMessage);
+    }
+  }
+  @override
+  Future<BaseResponse<void>> logout() async {
+    try {
+      final deviceId = await _deviceIdService.getDeviceId();
+      // 1. Invalidate session on backend
+      await _authRemoteDataSource.logout(
+        LogoutRequest(deviceId: deviceId),
+      );
+      // 2. Wipe local authentication tokens and user data
+      await _authLocalDataSource.clearAuthData();
+      return const SuccessResponse(null);
+    } on DioException catch (e) {
+      // If token expired (401), session is already gone on server -> clear locally
+      if (e.response?.statusCode == 401) {
+        await _authLocalDataSource.clearAuthData();
+        return const SuccessResponse(null);
+      }
+      return ErrorResponse(error: e);
+    } catch (e) {
+      return ErrorResponse(error: e);
     }
   }
 

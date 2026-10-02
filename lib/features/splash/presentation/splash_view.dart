@@ -9,8 +9,20 @@ import 'package:go_router/go_router.dart';
 import 'manager/splash_cubit.dart';
 import 'manager/splash_state.dart';
 
-class SplashView extends StatelessWidget {
+class SplashView extends StatefulWidget {
   const SplashView({super.key});
+
+  @override
+  State<SplashView> createState() => _SplashViewState();
+}
+
+class _SplashViewState extends State<SplashView> {
+  @override
+  void initState() {
+    super.initState();
+// Dismiss the native splash so the Flutter flower splash is visible
+    FlutterNativeSplash.remove();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -18,10 +30,8 @@ class SplashView extends StatelessWidget {
       listener: (context, state) {
         switch (state) {
           case SplashAuthenticated():
-            FlutterNativeSplash.remove();
             context.go(AppRoutes.home);
           case SplashUnauthenticated():
-            FlutterNativeSplash.remove();
             context.go(AppRoutes.login);
           case SplashInitial():
             break;

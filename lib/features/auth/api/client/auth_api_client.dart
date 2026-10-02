@@ -12,6 +12,7 @@ import 'package:retrofit/retrofit.dart';
 
 import '../../data/models/login_request.dart';
 import '../../data/models/login_response.dart';
+import '../../data/models/logout_request.dart';
 
 part 'auth_api_client.g.dart';
 
@@ -44,4 +45,8 @@ abstract class AuthApiClient {
   Future<MessageResponseModel> resetPassword(
     @Body() ResetPasswordRequestModel body,
   );
+  @POST(Endpoints.logout)
+  Future<void> logout(
+      @Body() LogoutRequest request,
+      );
 }
