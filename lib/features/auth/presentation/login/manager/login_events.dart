@@ -14,3 +14,9 @@ class PasswordChanged extends LoginEvent {
 
 class LoginSubmitted extends LoginEvent {}
 class PasswordVisibilityChanged extends LoginEvent {}
+
+class RememberMeChanged extends LoginEvent {
+  final bool rememberMe;
+
+  RememberMeChanged(this.rememberMe);
+}

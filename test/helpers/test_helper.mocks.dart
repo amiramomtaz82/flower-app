@@ -344,6 +344,25 @@ class MockAuthLocalDataSource extends _i1.Mock
         ),
         returnValue: _i6.Future<bool>.value(false),
       ) as _i6.Future<bool>);
+
+  @override
+  _i6.Future<void> saveRememberMe(bool? rememberMe) => (super.noSuchMethod(
+        Invocation.method(
+          #saveRememberMe,
+          [rememberMe],
+        ),
+        returnValue: _i6.Future<void>.value(),
+        returnValueForMissingStub: _i6.Future<void>.value(),
+      ) as _i6.Future<void>);
+
+  @override
+  _i6.Future<bool> getRememberMe() => (super.noSuchMethod(
+        Invocation.method(
+          #getRememberMe,
+          [],
+        ),
+        returnValue: _i6.Future<bool>.value(false),
+      ) as _i6.Future<bool>);
 }
 
 /// A class which mocks [AuthRepo].
@@ -358,6 +377,7 @@ class MockAuthRepo extends _i1.Mock implements _i19.AuthRepo {
   _i6.Future<_i13.BaseResponse<_i20.LoginEntity>> login({
     required String? email,
     required String? password,
+    bool? rememberMe = false,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -366,6 +386,7 @@ class MockAuthRepo extends _i1.Mock implements _i19.AuthRepo {
           {
             #email: email,
             #password: password,
+            #rememberMe: rememberMe,
           },
         ),
         returnValue: _i6.Future<_i13.BaseResponse<_i20.LoginEntity>>.value(
@@ -377,6 +398,7 @@ class MockAuthRepo extends _i1.Mock implements _i19.AuthRepo {
             {
               #email: email,
               #password: password,
+              #rememberMe: rememberMe,
             },
           ),
         )),

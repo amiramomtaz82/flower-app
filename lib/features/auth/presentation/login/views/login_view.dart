@@ -129,17 +129,46 @@ class _LoginViewState extends State<LoginView> {
                   ),
                   Row(
                     children: [
-                      SizedBox(width: 8),
-                      IconButton(
-                        onPressed: () {},
-                        icon: Icon(Icons.check_box_outline_blank_rounded),
+                      const SizedBox(width: 8),
+                      BlocBuilder<LoginCubit, LoginState>(
+                        buildWhen: (previous, current) =>
+                            previous.rememberMe != current.rememberMe,
+                        builder: (context, state) {
+                          return Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                onPressed: () {
+                                  cubit.doEvents(
+                                    RememberMeChanged(!state.rememberMe),
+                                  );
+                                },
+                                icon: Icon(
+                                  state.rememberMe
+                                      ? Icons.check_box_rounded
+                                      : Icons.check_box_outline_blank_rounded,
+                                  color: state.rememberMe
+                                      ? Theme.of(context).colorScheme.primary
+                                      : null,
+                                ),
+                              ),
+                              GestureDetector(
+                                onTap: () {
+                                  cubit.doEvents(
+                                    RememberMeChanged(!state.rememberMe),
+                                  );
+                                },
+                                child: Text(AppStrings.rememberMe.tr()),
+                              ),
+                            ],
+                          );
+                        },
                       ),
-                      const SizedBox(width: 4),
-                      Text(AppStrings.rememberMe.tr()),
-                    Spacer(),
-                      InkWell(onTap: (){
-                        context.push(AppRoutes.forgotPassword);
-                      },
+                      const Spacer(),
+                      InkWell(
+                        onTap: () {
+                          context.push(AppRoutes.forgotPassword);
+                        },
                         child: Text(
                           AppStrings.forget_password.tr(),
                           style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -147,7 +176,7 @@ class _LoginViewState extends State<LoginView> {
                           ),
                         ),
                       ),
-                      const SizedBox(width: 8,)
+                      const SizedBox(width: 8),
                     ],
                   ),
                   SizedBox(height: 70),

@@ -8,6 +8,7 @@ class LoginState extends Equatable {
   final String password;
   final bool isValid;
   final bool obscurePassword;
+  final bool rememberMe;
   final Resource<LoginEntity> loginResource;
 
   LoginState({
@@ -15,6 +16,7 @@ class LoginState extends Equatable {
     this.email = '',
     this.password = '',
     this.isValid = false,
+    this.rememberMe = false,
     Resource<LoginEntity>? loginResource,
   }) : loginResource = loginResource ?? Resource.initial();
   factory LoginState.initial() {
@@ -25,6 +27,7 @@ class LoginState extends Equatable {
     String? password,
     bool? isValid,
     bool? obscurePassword,
+    bool? rememberMe,
     Resource<LoginEntity>? loginResource,
   }) {
     return LoginState(
@@ -33,6 +36,7 @@ class LoginState extends Equatable {
       isValid: isValid ?? this.isValid,
       loginResource: loginResource ?? this.loginResource,
       obscurePassword: obscurePassword ?? this.obscurePassword,
+      rememberMe: rememberMe ?? this.rememberMe,
     );
   }
 
@@ -43,5 +47,6 @@ class LoginState extends Equatable {
     isValid,
     loginResource,
     obscurePassword,
+    rememberMe,
   ];
 }

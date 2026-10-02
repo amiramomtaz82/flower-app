@@ -11,6 +11,7 @@ abstract interface class AuthRepo {
   Future<BaseResponse<LoginEntity>> login({
     required String email,
     required String password,
+    bool? rememberMe = false,
   });
   Future<Result<RegisterEntity>> signUp(RegisterParams params);
 

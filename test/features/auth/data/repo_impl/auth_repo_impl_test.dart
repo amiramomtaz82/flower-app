@@ -97,6 +97,7 @@ void main() {
         when(mockAuthLocalDataSource.saveRefreshToken(any)).thenAnswer((_) async {});
         when(mockAuthLocalDataSource.saveUser(any)).thenAnswer((_) async {});
         when(mockAuthLocalDataSource.saveNotificationsEnabled(any)).thenAnswer((_) async {});
+        when(mockAuthLocalDataSource.saveRememberMe(any)).thenAnswer((_) async {});
 
         // Act
         final result = await authRepoImpl.login(email: email, password: password);
@@ -113,6 +114,7 @@ void main() {
         verify(mockAuthLocalDataSource.saveRefreshToken('refresh_token')).called(1);
         verify(mockAuthLocalDataSource.saveUser(loginResponse.user!)).called(1);
         verify(mockAuthLocalDataSource.saveNotificationsEnabled(true)).called(1);
+        verify(mockAuthLocalDataSource.saveRememberMe(false)).called(1);
       },
     );
 
@@ -143,6 +145,7 @@ void main() {
         verifyNever(mockAuthLocalDataSource.saveRefreshToken(any));
         verifyNever(mockAuthLocalDataSource.saveUser(any));
         verifyNever(mockAuthLocalDataSource.saveNotificationsEnabled(any));
+        verifyNever(mockAuthLocalDataSource.saveRememberMe(any));
       },
     );
 
@@ -166,6 +169,7 @@ void main() {
               (_) async => SuccessResponse<LoginResponse>(responseWithNulls),
         );
         when(mockAuthLocalDataSource.saveNotificationsEnabled(any)).thenAnswer((_) async {});
+        when(mockAuthLocalDataSource.saveRememberMe(any)).thenAnswer((_) async {});
 
         // Act
         final result = await authRepoImpl.login(email: email, password: password);
@@ -179,6 +183,7 @@ void main() {
         verify(mockFcm.getToken()).called(1);
         verify(mockAuthRemoteDataSource.login(any)).called(1);
         verify(mockAuthLocalDataSource.saveNotificationsEnabled(false)).called(1);
+        verify(mockAuthLocalDataSource.saveRememberMe(false)).called(1);
         verifyNever(mockAuthLocalDataSource.saveToken(any));
         verifyNever(mockAuthLocalDataSource.saveRefreshToken(any));
         verifyNever(mockAuthLocalDataSource.saveUser(any));
@@ -342,6 +347,44 @@ void main() {
       await authRepoImpl.clearAuthData();
 
       verify(mockAuthLocalDataSource.clearAuthData()).called(1);
+    });
+  });
+
+  group('isAuthenticated Function Test', () {
+    test('returns false and clears auth data when rememberMe is false', () async {
+      when(mockAuthLocalDataSource.getRememberMe()).thenAnswer((_) async => false);
+      when(mockAuthLocalDataSource.clearAuthData()).thenAnswer((_) async {});
+
+      final result = await authRepoImpl.isAuthenticated();
+
+      expect(result, isFalse);
+      verify(mockAuthLocalDataSource.getRememberMe()).called(1);
+      verify(mockAuthLocalDataSource.clearAuthData()).called(1);
+      verifyNever(mockAuthLocalDataSource.getToken());
+    });
+
+    test('returns true when rememberMe is true and token is valid', () async {
+      when(mockAuthLocalDataSource.getRememberMe()).thenAnswer((_) async => true);
+      when(mockAuthLocalDataSource.getToken()).thenAnswer((_) async => 'valid_token');
+
+      final result = await authRepoImpl.isAuthenticated();
+
+      expect(result, isTrue);
+      verify(mockAuthLocalDataSource.getRememberMe()).called(1);
+      verify(mockAuthLocalDataSource.getToken()).called(1);
+      verifyNever(mockAuthLocalDataSource.clearAuthData());
+    });
+
+    test('returns false when rememberMe is true but token is empty or null', () async {
+      when(mockAuthLocalDataSource.getRememberMe()).thenAnswer((_) async => true);
+      when(mockAuthLocalDataSource.getToken()).thenAnswer((_) async => null);
+
+      final result = await authRepoImpl.isAuthenticated();
+
+      expect(result, isFalse);
+      verify(mockAuthLocalDataSource.getRememberMe()).called(1);
+      verify(mockAuthLocalDataSource.getToken()).called(1);
+      verifyNever(mockAuthLocalDataSource.clearAuthData());
     });
   });
 }

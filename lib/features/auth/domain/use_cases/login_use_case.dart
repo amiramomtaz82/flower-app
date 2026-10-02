@@ -12,10 +12,12 @@ class LoginUseCase {
   Future<BaseResponse<LoginEntity>> call({
     required String email,
     required String password,
+    bool? rememberMe = false,
   }) async {
     return await _authRepository.login(
       email: email,
       password: password,
+      rememberMe: rememberMe ?? false,
     );
   }
 }

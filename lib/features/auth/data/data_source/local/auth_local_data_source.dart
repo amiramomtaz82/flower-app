@@ -16,6 +16,8 @@ abstract interface class AuthLocalDataSource {
   Future<UserDto?> getUser();
 
   Future<void> clearAuthData();
-  Future<void> saveNotificationsEnabled(bool isEnabled);
+  Future<void> saveNotificationsEnabled(bool? isEnabled);
   Future<bool> getNotificationsEnabled();
+  Future<void> saveRememberMe(bool? rememberMe);
+  Future<bool> getRememberMe();
 }

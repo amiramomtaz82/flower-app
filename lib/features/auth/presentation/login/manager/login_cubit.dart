@@ -32,7 +32,14 @@ class LoginCubit extends Cubit<LoginState> {
 
       case PasswordVisibilityChanged():
         _onPasswordVisibilityChanged();
+
+      case RememberMeChanged():
+        _onRememberMeChanged(event.rememberMe);
     }
+  }
+
+  void _onRememberMeChanged(bool rememberMe) {
+    emit(state.copyWith(rememberMe: rememberMe));
   }
 
   void _onPasswordVisibilityChanged() {
@@ -95,6 +102,7 @@ class LoginCubit extends Cubit<LoginState> {
     final result = await _loginUseCase(
       email: state.email,
       password: state.password,
+      rememberMe: state.rememberMe,
     );
 
     switch (result) {

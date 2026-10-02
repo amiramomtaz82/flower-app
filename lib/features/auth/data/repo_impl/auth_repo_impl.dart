@@ -37,6 +37,7 @@ class AuthRepoImpl implements AuthRepo {
   Future<BaseResponse<LoginEntity>> login({
     required String email,
     required String password,
+    bool? rememberMe = false,
   }) async {
     final deviceId = await _deviceIdService.getDeviceId();
     final fcmToken = await _fcm.getToken();
@@ -54,6 +55,8 @@ class AuthRepoImpl implements AuthRepo {
     switch (response) {
       case SuccessResponse<LoginResponse>():
         final loginResponse = response.data;
+
+        await _authLocalDataSource.saveRememberMe(rememberMe ?? false);
 
         if (loginResponse.accessToken != null) {
           await _authLocalDataSource.saveToken(loginResponse.accessToken!);
@@ -191,6 +194,11 @@ class AuthRepoImpl implements AuthRepo {
   }
   @override
   Future<bool> isAuthenticated() async {
+    final isRemembered = await _authLocalDataSource.getRememberMe();
+    if (!isRemembered) {
+      await _authLocalDataSource.clearAuthData();
+      return false;
+    }
     final token = await _authLocalDataSource.getToken();
     return token != null && token.isNotEmpty;
   }

@@ -75,6 +75,18 @@ void main() {
     });
   });
 
+  group('RememberMeChanged Event', () {
+    test('should update rememberMe state when triggered', () {
+      expect(cubit.state.rememberMe, false);
+
+      cubit.doEvents(RememberMeChanged(true));
+      expect(cubit.state.rememberMe, true);
+
+      cubit.doEvents(RememberMeChanged(false));
+      expect(cubit.state.rememberMe, false);
+    });
+  });
+
   group('EmailChanged and PasswordChanged Form Validation Events', () {
     test('should update email and keep isValid false when password is missing', () async {
       await cubit.doEvents(EmailChanged(validEmail));
@@ -119,6 +131,7 @@ void main() {
         mockLoginUseCase(
           email: validEmail,
           password: validPassword,
+          rememberMe: anyNamed('rememberMe'),
         ),
       ).thenAnswer(
             (_) async => SuccessResponse<LoginEntity>(loginEntity),
@@ -137,6 +150,7 @@ void main() {
         mockLoginUseCase(
           email: validEmail,
           password: validPassword,
+          rememberMe: false,
         ),
       ).called(1);
     });
@@ -148,6 +162,7 @@ void main() {
         mockLoginUseCase(
           email: validEmail,
           password: validPassword,
+          rememberMe: anyNamed('rememberMe'),
         ),
       ).thenAnswer(
             (_) async => ErrorResponse<LoginEntity>(errMessage: errorMessage),
@@ -166,6 +181,7 @@ void main() {
         mockLoginUseCase(
           email: validEmail,
           password: validPassword,
+          rememberMe: false,
         ),
       ).called(1);
     });

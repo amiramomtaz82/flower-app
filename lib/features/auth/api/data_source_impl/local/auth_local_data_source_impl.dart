@@ -19,6 +19,7 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   static const String _refreshTokenKey = 'refreshToken';
   static const String _userKey = 'user';
   static const String _notificationsEnabledKey = 'notifications_enabled';
+  static const String _rememberMeKey = 'remember_me';
   @override
   Future<void> saveToken(String token) {
     return _secureStorage.write(
@@ -71,10 +72,10 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   }
 
   @override
-  Future<void> saveNotificationsEnabled(bool isEnabled) {
+  Future<void> saveNotificationsEnabled(bool? isEnabled) {
     return _secureStorage.write(
       key: _notificationsEnabledKey,
-      value: isEnabled.toString(),
+      value: (isEnabled ?? true).toString(),
     );
   }
 
@@ -97,5 +98,23 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
     await _secureStorage.delete(
       key: _userKey,
     );
+
+    await _secureStorage.delete(
+      key: _rememberMeKey,
+    );
+  }
+
+  @override
+  Future<void> saveRememberMe(bool? rememberMe) {
+    return _secureStorage.write(
+      key: _rememberMeKey,
+      value: (rememberMe ?? false).toString(),
+    );
+  }
+
+  @override
+  Future<bool> getRememberMe() async {
+    final value = await _secureStorage.read(key: _rememberMeKey);
+    return value == 'true';
   }
 }
