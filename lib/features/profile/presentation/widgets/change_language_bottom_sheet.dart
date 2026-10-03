@@ -7,9 +7,17 @@ import 'package:flower_app/features/profile/presentation/widgets/language_card.d
 import 'package:flutter/material.dart';
 
 class ChangeLanguageBottomSheet extends StatefulWidget {
-  const ChangeLanguageBottomSheet({super.key});
+  final LocaleService localeService;
 
-  static Future<void> show(BuildContext context) {
+  ChangeLanguageBottomSheet({
+    super.key,
+    LocaleService? localeService,
+  }) : localeService = localeService ?? getIt<LocaleService>();
+
+  static Future<void> show(
+    BuildContext context, {
+    LocaleService? localeService,
+  }) {
     final colors = Theme.of(context).extension<LightColors>()!;
     return showModalBottomSheet(
       context: context,
@@ -18,7 +26,7 @@ class ChangeLanguageBottomSheet extends StatefulWidget {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      builder: (_) => const ChangeLanguageBottomSheet(),
+      builder: (_) => ChangeLanguageBottomSheet(localeService: localeService),
     );
   }
 
@@ -37,18 +45,24 @@ class _ChangeLanguageBottomSheetState extends State<ChangeLanguageBottomSheet> {
   }
 
   Future<void> _applyLanguage() async {
-    if (_selectedLocale != context.locale.languageCode) {
-      await context.setLocale(Locale(_selectedLocale));
-      getIt<LocaleService>().setLanguageCode(_selectedLocale);
-    }
-    if (mounted) {
-      Navigator.of(context).pop();
+    try {
+      if (_selectedLocale != context.locale.languageCode) {
+        await context.setLocale(Locale(_selectedLocale));
+        widget.localeService.setLanguageCode(_selectedLocale);
+      }
+    } catch (e) {
+      debugPrint('Failed to persist language: $e');
+    } finally {
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).extension<LightColors>()!;
+    final textTheme = Theme.of(context).textTheme;
 
     return SafeArea(
       child: Padding(
@@ -73,7 +87,7 @@ class _ChangeLanguageBottomSheetState extends State<ChangeLanguageBottomSheet> {
             // Title
             Text(
               AppStrings.changeLanguage.tr(),
-              style: TextStyle(
+              style: textTheme.titleMedium?.copyWith(
                 color: colors.primary,
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -113,7 +127,8 @@ class _ChangeLanguageBottomSheetState extends State<ChangeLanguageBottomSheet> {
                 ),
                 child: Text(
                   AppStrings.apply.tr(),
-                  style: const TextStyle(
+                  style: textTheme.titleMedium?.copyWith(
+                    color: colors.white,
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                   ),
