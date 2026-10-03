@@ -1,3 +1,4 @@
+import 'package:flower_app/core/app_theme/app_colors.dart';
 import 'package:flutter/material.dart';
 
 class LanguageCard extends StatelessWidget {
@@ -16,23 +17,25 @@ class LanguageCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).extension<LightColors>()!;
+
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: colors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: selected
                 ? primaryColor
-                : Colors.black.withValues(alpha: 0.08),
+                : colors.black.withValues(alpha: 0.08),
             width: selected ? 1.5 : 1,
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04),
+              color: colors.black.withValues(alpha: 0.04),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -43,10 +46,10 @@ class LanguageCard extends StatelessWidget {
           children: [
             Text(
               title,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: Colors.black,
+                color: colors.black,
               ),
             ),
             // Custom Pink Radio Indicator
