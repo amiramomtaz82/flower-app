@@ -19,11 +19,14 @@ abstract class ProfileApiClient {
   @PUT(Endpoints.updateProfile)
   @MultiPart()
   Future<ProfileResponseModel> updateProfile(
-    @Body() UpdateProfileRequestDto updateProfileDto,
+    @PartMap() UpdateProfileRequestDto updateProfileDto,
   );
 
   @POST(Endpoints.changePassword)
   Future<void> changePassword(
     @Body() ChangePasswordRequestDto changePasswordDto,
   );
+
+  @POST(Endpoints.logout)
+  Future<void> logout();
 }
