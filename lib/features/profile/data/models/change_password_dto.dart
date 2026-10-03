@@ -4,7 +4,7 @@ import '../../domain/entities/change_password_entity.dart';
 part 'change_password_dto.g.dart';
 
 @JsonSerializable()
-class ChangePasswordDto {
+class ChangePasswordRequestDto {
   @JsonKey(name: 'currentPassword')
   final String currentPassword;
 
@@ -14,20 +14,20 @@ class ChangePasswordDto {
   @JsonKey(name: 'confirmPassword')
   final String confirmPassword;
 
-  const ChangePasswordDto({
+  const ChangePasswordRequestDto({
     required this.currentPassword,
     required this.newPassword,
     required this.confirmPassword,
   });
 
-  factory ChangePasswordDto.fromEntity(ChangePasswordEntity entity) =>
-      ChangePasswordDto(
+  factory ChangePasswordRequestDto.fromEntity(ChangePasswordParams entity) =>
+      ChangePasswordRequestDto(
         currentPassword: entity.currentPassword,
         newPassword: entity.newPassword,
         confirmPassword: entity.confirmPassword,
       );
 
-  factory ChangePasswordDto.fromJson(Map<String, dynamic> json) =>
+  factory ChangePasswordRequestDto.fromJson(Map<String, dynamic> json) =>
       _$ChangePasswordDtoFromJson(json);
 
   Map<String, dynamic> toJson() => _$ChangePasswordDtoToJson(this);

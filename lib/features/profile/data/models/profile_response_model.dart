@@ -4,18 +4,43 @@ part 'profile_response_model.g.dart';
 
 @JsonSerializable()
 class ProfileResponseModel {
-  final String name;
+  @JsonKey(name: "id")
+  final String id;
+  @JsonKey(name: "fullName")
+  final String fullName;
+  @JsonKey(name: "email")
   final String email;
-  final String profileImageUrl;
+  @JsonKey(name: "phone")
+  final String phone;
+  @JsonKey(name: "gender")
   final String gender;
-  final String phoneNumber;
+  @JsonKey(name: "photoUrl")
+  final String photoUrl;
+
   ProfileResponseModel({
-    required this.name,
+    required this.id,
+    required this.fullName,
     required this.email,
-    required this.profileImageUrl,
+    required this.phone,
     required this.gender,
-    required this.phoneNumber,
+    required this.photoUrl,
   });
+
+  ProfileResponseModel copyWith({
+    String? id,
+    String? fullName,
+    String? email,
+    String? phone,
+    String? gender,
+    String? photoUrl,
+  }) => ProfileResponseModel(
+    id: id ?? this.id,
+    fullName: fullName ?? this.fullName,
+    email: email ?? this.email,
+    phone: phone ?? this.phone,
+    gender: gender ?? this.gender,
+    photoUrl: photoUrl ?? this.photoUrl,
+  );
 
   factory ProfileResponseModel.fromJson(Map<String, dynamic> json) =>
       _$ProfileResponseModelFromJson(json);
@@ -23,10 +48,10 @@ class ProfileResponseModel {
   Map<String, dynamic> toJson() => _$ProfileResponseModelToJson(this);
 
   ProfileEntity toEntity() => ProfileEntity(
-        name: name,
-        email: email,
-        profileImageUrl: profileImageUrl,
-        gender: gender,
-        phoneNumber: phoneNumber,
-      );
+    name: fullName,
+    email: email,
+    phoneNumber: phone,
+    gender: gender,
+    profileImageUrl: photoUrl,
+  );
 }
