@@ -28,7 +28,7 @@ class ChangePasswordRequestDto {
       );
 
   factory ChangePasswordRequestDto.fromJson(Map<String, dynamic> json) =>
-      _$ChangePasswordDtoFromJson(json);
+      _$ChangePasswordRequestDtoFromJson(json);
 
-  Map<String, dynamic> toJson() => _$ChangePasswordDtoToJson(this);
+  Map<String, dynamic> toJson() => _$ChangePasswordRequestDtoToJson(this);
 }

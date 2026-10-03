@@ -30,4 +30,9 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
   ) async {
     await _profileApiClient.changePassword(changePasswordDto);
   }
+
+  @override
+  Future<void> logout() {
+    return _profileApiClient.logout();
+  }
 }

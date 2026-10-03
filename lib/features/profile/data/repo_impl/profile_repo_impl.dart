@@ -53,4 +53,14 @@ class ProfileRepoImpl implements ProfileRepo {
       return ErrorResponse(error: e);
     }
   }
+
+  @override
+  Future<BaseResponse<void>> logout() async {
+    try {
+      await _profileRemoteDataSource.logout();
+      return const SuccessResponse(null);
+    } catch (e) {
+      return ErrorResponse(error: e);
+    }
+  }
 }

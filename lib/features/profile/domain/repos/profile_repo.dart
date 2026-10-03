@@ -13,4 +13,6 @@ abstract interface class ProfileRepo {
   Future<BaseResponse<void>> changePassword(
     ChangePasswordParams changePasswordEntity,
   );
+
+  Future<BaseResponse<void>> logout();
 }
