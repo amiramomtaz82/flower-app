@@ -5,7 +5,7 @@ class ProfileTile extends StatelessWidget {
   const ProfileTile({
     super.key,
     required this.title,
-    required this.colors,
+    this.colors,
     this.icon,
     this.trailing,
     this.trailingIcon,
@@ -13,7 +13,7 @@ class ProfileTile extends StatelessWidget {
   });
 
   final String title;
-  final AppColors colors;
+  final LightColors? colors;
   final IconData? icon;
   final Widget? trailing;
   final IconData? trailingIcon;
@@ -21,9 +21,14 @@ class ProfileTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final effectiveColors =
+        colors ?? Theme.of(context).extension<LightColors>() ?? LightColors();
+
     return ListTile(
       contentPadding: EdgeInsets.zero,
-      leading: icon == null ? null : Icon(icon, color: colors.textPrimary),
+      leading: icon == null
+          ? null
+          : Icon(icon, color: effectiveColors.textPrimary),
       title: Text(
         title,
         style: Theme.of(
@@ -32,7 +37,10 @@ class ProfileTile extends StatelessWidget {
       ),
       trailing:
           trailing ??
-          Icon(trailingIcon ?? Icons.chevron_right, color: colors.darkGrey),
+          Icon(
+            trailingIcon ?? Icons.chevron_right,
+            color: effectiveColors.darkGrey,
+          ),
       onTap: onTap,
     );
   }
