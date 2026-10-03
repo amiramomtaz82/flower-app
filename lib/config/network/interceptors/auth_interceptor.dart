@@ -1,28 +1,35 @@
+import 'dart:async';
 import 'package:dio/dio.dart';
-import 'package:flower_app/core/app_constants/app_strings.dart';
+import 'package:flower_app/core/app_constants/endpoints.dart';
+import 'package:flower_app/features/auth/data/data_source/local/auth_local_data_source.dart';
 import 'package:injectable/injectable.dart';
 
-import '../../../../config/secure_storage/secure_storage.dart';
-
-@injectable
+@lazySingleton // Must be a singleton so all requests share the same queue
 class AuthInterceptor extends Interceptor {
-  AuthInterceptor(this._secureStorage);
+  AuthInterceptor(this.authLocalDataSource)
+    : _retryDio = Dio(
+        BaseOptions(
+          baseUrl: Endpoints.baseUrl,
+          connectTimeout: const Duration(seconds: 30),
+          receiveTimeout: const Duration(seconds: 30),
+        ),
+      );
 
-  final SecureStorage _secureStorage;
+  final AuthLocalDataSource authLocalDataSource;
+  final Dio _retryDio;
 
-  static const String _accessTokenKey = AppStrings.accessToken;
+  bool _isRefreshing = false;
+  final List<RetryRequest> _requestQueue = [];
 
   @override
   Future<void> onRequest(
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) async {
-    final token = await _secureStorage.read(key: _accessTokenKey);
-
+    final token = await authLocalDataSource.getToken();
     if (token != null && token.isNotEmpty) {
-      options.headers[AppStrings.accessToken] = token;
+      options.headers['Authorization'] = 'Bearer $token';
     }
-
     handler.next(options);
   }
 
@@ -31,10 +38,124 @@ class AuthInterceptor extends Interceptor {
     DioException err,
     ErrorInterceptorHandler handler,
   ) async {
-    if (err.response?.statusCode == 401) {
-      await _secureStorage.delete(key: _accessTokenKey);
+    final isUnauthorized = err.response?.statusCode == 401;
+    final path = err.requestOptions.path;
+    final isAuthEndpoint = path.contains('/auth/login') ||
+        path.contains('/auth/register') ||
+        path.contains('/auth/change-password') ||
+        path.contains('/auth/forgot-password') ||
+        path.contains('/auth/reset-password') ||
+        path.contains('/auth/verify-otp') ||
+        path.contains('/auth/refresh');
+
+    if (!isUnauthorized || isAuthEndpoint) {
+      return handler.next(err);
     }
 
-    handler.next(err);
+    // 1. If currently refreshing, enqueue and wait
+    if (_isRefreshing) {
+      _requestQueue.add(RetryRequest(err.requestOptions, handler));
+      return;
+    }
+
+    _isRefreshing = true;
+
+    try {
+      final refreshToken = await authLocalDataSource.getRefreshToken();
+      if (refreshToken == null || refreshToken.isEmpty) {
+        throw DioException(
+          requestOptions: err.requestOptions,
+          error: 'No refresh token available',
+        );
+      }
+
+      // 2. Call refresh endpoint (Swagger expects 'token': refreshToken)
+      final response = await _retryDio.post(
+        '/auth/refresh',
+        data: {'token': refreshToken},
+      );
+
+      final newAccessToken = response.data?['accessToken'] as String?;
+      final newRefreshToken = response.data?['refreshToken'] as String?;
+
+      if (response.statusCode != 200 || newAccessToken == null) {
+        throw DioException(
+          requestOptions: err.requestOptions,
+          error: 'Failed to refresh token',
+        );
+      }
+
+      await authLocalDataSource.saveToken(newAccessToken);
+      if (newRefreshToken != null) {
+        await authLocalDataSource.saveRefreshToken(newRefreshToken);
+      }
+
+      // 3. Retry initial request and all queued requests
+      err.requestOptions.headers['Authorization'] = 'Bearer $newAccessToken';
+
+      final queueSnapshot = List<RetryRequest>.from(_requestQueue);
+      _requestQueue.clear();
+
+      final retryFutures = <Future<void>>[
+        _retryRequest(err.requestOptions, handler),
+      ];
+
+      for (final queued in queueSnapshot) {
+        queued.requestOptions.headers['Authorization'] =
+            'Bearer $newAccessToken';
+        retryFutures.add(_retryRequest(queued.requestOptions, queued.handler));
+      }
+
+      // 4. Await all in-flight retries before releasing the lock
+      await Future.wait(retryFutures);
+
+      // 5. Drain any requests that arrived while retries were in flight
+      while (_requestQueue.isNotEmpty) {
+        final remainingQueue = List<RetryRequest>.from(_requestQueue);
+        _requestQueue.clear();
+
+        final remainingFutures = remainingQueue.map((queued) {
+          queued.requestOptions.headers['Authorization'] =
+              'Bearer $newAccessToken';
+          return _retryRequest(queued.requestOptions, queued.handler);
+        });
+
+        await Future.wait(remainingFutures);
+      }
+    } catch (_) {
+      await authLocalDataSource.clearAuthData();
+
+      final queueSnapshot = List<RetryRequest>.from(_requestQueue);
+      _requestQueue.clear();
+
+      for (final queued in queueSnapshot) {
+        queued.handler.reject(err);
+      }
+      handler.reject(err);
+    } finally {
+      _isRefreshing = false;
+    }
   }
+
+  Future<void> _retryRequest(
+    RequestOptions options,
+    ErrorInterceptorHandler handler,
+  ) async {
+    try {
+      final response = await _retryDio.fetch(options);
+      handler.resolve(response);
+    } catch (error) {
+      final dioError = error is DioException
+          ? error
+          : DioException(requestOptions: options, error: error);
+      handler.reject(dioError);
+    }
+  }
+}
+
+class RetryRequest {
+  final RequestOptions requestOptions;
+  final ErrorInterceptorHandler handler;
+
+  RetryRequest(this.requestOptions, this.handler);
 }
