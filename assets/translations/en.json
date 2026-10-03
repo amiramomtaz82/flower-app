@@ -102,5 +102,8 @@
     "failed_to_update_password": "Failed to update password",
     "cancel": "Cancel",
     "confirm_logout": "Confirm logout!!",
-    "uppercase_logout": "LOGOUT"
+    "uppercase_logout": "LOGOUT",
+    "could_not_open_link": "Could not open link",
+    "cannot_launch_url": "Cannot launch URL (No browser found)",
+    "error_picking_image": "Failed to pick image"
 }

@@ -141,4 +141,7 @@ class AppStrings {
   static const String gender = 'gender';
   static const String female = 'female';
   static const String male = 'male';
+  static const String couldNotOpenLink = 'could_not_open_link';
+  static const String cannotLaunchUrl = 'cannot_launch_url';
+  static const String errorPickingImage = 'error_picking_image';
 }
