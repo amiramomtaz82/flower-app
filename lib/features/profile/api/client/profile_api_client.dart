@@ -1,6 +1,5 @@
 import 'package:dio/dio.dart';
 import 'package:flower_app/features/profile/data/models/change_password_dto.dart';
-import 'package:flower_app/features/profile/data/models/update_profile_dto.dart';
 import 'package:retrofit/retrofit.dart';
 import 'package:flower_app/core/app_constants/endpoints.dart';
 import 'package:flower_app/features/profile/data/models/profile_response_model.dart';
@@ -17,9 +16,8 @@ abstract class ProfileApiClient {
   Future<ProfileResponseModel> getProfile();
 
   @PUT(Endpoints.updateProfile)
-  @MultiPart()
   Future<ProfileResponseModel> updateProfile(
-    @PartMap() UpdateProfileRequestDto updateProfileDto,
+    @Body() FormData updateProfileDto,
   );
 
   @POST(Endpoints.changePassword)
