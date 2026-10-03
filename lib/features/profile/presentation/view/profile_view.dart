@@ -8,12 +8,12 @@ import 'package:flower_app/features/profile/presentation/manager/profile_state.d
 import 'package:flower_app/core/app_constants/app_urls.dart';
 import 'package:flower_app/core/go_routes/routes_name.dart';
 import 'package:flower_app/features/profile/presentation/widgets/change_language_bottom_sheet.dart';
+import 'package:flower_app/features/profile/presentation/widgets/profile_avatar.dart';
 import 'package:flower_app/features/profile/presentation/widgets/profile_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'dart:io';
 
 class ProfileView extends StatefulWidget {
   const ProfileView({super.key});
@@ -103,20 +103,11 @@ class _ProfileViewState extends State<ProfileView> {
                 Center(
                   child: Column(
                     children: [
-                      CircleAvatar(
+                      ProfileAvatar(
                         radius: 40,
+                        imageUrl: profile.profileImageUrl,
                         backgroundColor: colors.surface,
-                        backgroundImage: profile.profileImageUrl.isNotEmpty
-                            ? (profile.profileImageUrl.startsWith('http')
-                                      ? NetworkImage(profile.profileImageUrl)
-                                      : FileImage(
-                                          File(profile.profileImageUrl),
-                                        ))
-                                  as ImageProvider
-                            : null,
-                        child: profile.profileImageUrl.isEmpty
-                            ? Icon(Icons.person, size: 40, color: colors.white)
-                            : null,
+                        iconColor: colors.white,
                       ),
                       // const SizedBox(height: 2),
                       Row(
@@ -241,7 +232,7 @@ class _ProfileViewState extends State<ProfileView> {
       context: context,
       builder: (dialogContext) => Dialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        backgroundColor: Colors.white,
+        backgroundColor: colors.white,
         insetPadding: const EdgeInsets.symmetric(horizontal: 28),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
@@ -250,20 +241,20 @@ class _ProfileViewState extends State<ProfileView> {
             children: [
               Text(
                 AppStrings.uppercaseLogout.tr(),
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
-                  color: Colors.black,
+                  color: colors.black,
                   letterSpacing: 0.5,
                 ),
               ),
               const SizedBox(height: 12),
               Text(
                 AppStrings.confirmLogout.tr(),
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
-                  color: Color(0xFF1D1B20),
+                  color: colors.border,
                 ),
               ),
               const SizedBox(height: 24),
@@ -275,16 +266,16 @@ class _ProfileViewState extends State<ProfileView> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(24),
                         ),
-                        side: const BorderSide(color: Color(0xFF535353)),
+                        side: BorderSide(color: colors.darkGrey),
                         padding: const EdgeInsets.symmetric(vertical: 12),
                       ),
                       onPressed: () => Navigator.pop(dialogContext),
                       child: Text(
                         AppStrings.cancel.tr(),
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w600,
-                          color: Color(0xFF535353),
+                          color: colors.darkGrey,
                         ),
                       ),
                     ),
@@ -306,10 +297,10 @@ class _ProfileViewState extends State<ProfileView> {
                       },
                       child: Text(
                         AppStrings.logout.tr(),
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w600,
-                          color: Colors.white,
+                          color: colors.white,
                         ),
                       ),
                     ),
@@ -346,7 +337,7 @@ class _ProfileViewState extends State<ProfileView> {
         );
       }
     } catch (e) {
-      debugPrint('🚨 launchUrl error: $e');
+      // debugPrint('🚨 launchUrl error: $e');
       if (mounted) {
         ScaffoldMessenger.of(
           context,
