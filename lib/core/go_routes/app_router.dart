@@ -49,8 +49,7 @@ class AppRouter {
 
   static final GoRouter router = GoRouter(
     navigatorKey: navigatorKey,
-    initialLocation: AppRoutes.orderSuccess,
-
+    initialLocation: AppRoutes.login,
     routes: [
       GoRoute(
         path: AppRoutes.login,
@@ -66,12 +65,8 @@ class AppRouter {
 
           return MultiBlocProvider(
             providers: [
-              BlocProvider(
-                create: (_) => getIt<CheckoutCubit>(),
-              ),
-              BlocProvider(
-                create: (_) => getIt<AddressCubit>(),
-              ),
+              BlocProvider(create: (_) => getIt<CheckoutCubit>()),
+              BlocProvider(create: (_) => getIt<AddressCubit>()),
             ],
             child: CheckoutScreen(cartId: cartId),
           );
@@ -104,7 +99,7 @@ class AppRouter {
                   providers: [
                     BlocProvider<HomeCubit>(
                       create: (_) =>
-                      getIt<HomeCubit>()..doEvents(HomeStarted()),
+                          getIt<HomeCubit>()..doEvents(HomeStarted()),
                     ),
                     BlocProvider.value(
                       value: getIt<AddressCubit>()
@@ -178,7 +173,8 @@ class AppRouter {
       GoRoute(
         path: AppRoutes.addAddress,
         builder: (context, state) => BlocProvider.value(
-          value: getIt<AddressCubit>()..doEvents(const GetAreasWithCitiesEvent()),
+          value: getIt<AddressCubit>()
+            ..doEvents(const GetAreasWithCitiesEvent()),
           child: const AddAddressView(),
         ),
       ),
