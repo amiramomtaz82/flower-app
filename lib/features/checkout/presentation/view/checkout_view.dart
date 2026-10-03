@@ -116,6 +116,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             final resource = state.placeOrderResource;
             if (resource.isSuccess) {
               final cardSession = resource.data?.cardSession;
+              final resolvedOrderId = cardSession?.orderId ?? resource.data?.orderId;
 
               if (cardSession != null && cardSession.sessionUrl.isNotEmpty) {
                 // 1. Credit Card: Open Payment WebView
@@ -131,8 +132,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   ),
                 );
               } else {
-                // 2. Cash on Delivery (COD): Direct to Order Success
-                context.go(AppRoutes.orderSuccess, extra: cardSession?.orderId);
+                // 2. COD: Forward Real Order ID (No longer null!)
+                context.go(AppRoutes.orderSuccess, extra: resolvedOrderId);
               }
             } else if (resource.isError) {
               ScaffoldMessenger.of(context).showSnackBar(

@@ -94,6 +94,7 @@ class CheckoutRepositoryImpl implements CheckoutRepository {
           OrderPlacementEntity(
             isSuccess: response.data.isSuccess,
             cardSession: sessionData?.toEntity(),
+            orderId: response.data.orderId ?? sessionData?.orderId,
           ),
         );
 

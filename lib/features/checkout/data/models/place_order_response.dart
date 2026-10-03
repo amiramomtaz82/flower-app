@@ -8,6 +8,7 @@ class PlaceOrderResponse {
   final String message;
   final String? messageLocalized;
   final String statusCode;
+  final String? orderId;
 
   PlaceOrderResponse({
     this.data,
@@ -15,10 +16,12 @@ class PlaceOrderResponse {
     required this.message,
     this.messageLocalized,
     required this.statusCode,
+    this.orderId
   });
 
   factory PlaceOrderResponse.fromJson(Map<String, dynamic> json) {
     return PlaceOrderResponse(
+      orderId: json['orderId']?.toString() ?? json['data']?['orderId']?.toString(),
       data: json['data'] != null ? CardPaymentSessionDto.fromJson(json['data']) : null,
       isSuccess: json['isSuccess'] ?? false,
       message: json['message'] ?? '',

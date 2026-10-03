@@ -2,8 +2,10 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flower_app/core/app_constants/app_strings.dart';
 import 'package:flower_app/core/app_theme/app_colors.dart';
+import 'package:flower_app/core/go_routes/routes_name.dart';
 import 'package:flower_app/features/orders/domain/entities/order_entity.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class OrderItemCard extends StatelessWidget {
   const OrderItemCard({super.key, required this.order});
@@ -75,7 +77,8 @@ class OrderItemCard extends StatelessWidget {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {isActive?context.push(AppRoutes.orderTracking, extra: order.id):
+                    context.push(AppRoutes.myOrders, extra: order.id);},
                     style: ElevatedButton.styleFrom(
                       backgroundColor: colors?.primary ?? colorScheme.primary,
                       foregroundColor: Colors.white,
