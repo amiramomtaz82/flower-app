@@ -47,4 +47,5 @@ app.*.map.json
 **/*.config.dart
 **/*.gr.dart
 .env
+secrets
 **/*.mocks.dart

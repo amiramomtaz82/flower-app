@@ -6,7 +6,7 @@ sealed class ProfileEvent {}
 class LoadProfile extends ProfileEvent {}
 
 class UpdateProfile extends ProfileEvent {
-  final UpdateProfileEntity updateProfileEntity;
+  final UpdateProfileParams updateProfileEntity;
 
   UpdateProfile(this.updateProfileEntity);
 }
@@ -14,7 +14,7 @@ class UpdateProfile extends ProfileEvent {
 class LogoutEvent extends ProfileEvent {}
 
 class ChangePasswordEvent extends ProfileEvent {
-  final ChangePasswordEntity changePasswordEntity;
+  final ChangePasswordParams changePasswordEntity;
 
   ChangePasswordEvent(this.changePasswordEntity);
 }

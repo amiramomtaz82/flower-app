@@ -26,10 +26,12 @@ class ProfileRepoImpl implements ProfileRepo {
 
   @override
   Future<BaseResponse<ProfileEntity>> updateProfile(
-    UpdateProfileEntity updateProfileEntity,
+    UpdateProfileParams updateProfileEntity,
   ) async {
     try {
-      final updateProfileDto = UpdateProfileDto.fromEntity(updateProfileEntity);
+      final updateProfileDto = UpdateProfileRequestDto.fromEntity(
+        updateProfileEntity,
+      );
       final updatedProfile = await _profileRemoteDataSource.updateProfile(
         updateProfileDto,
       );
@@ -41,10 +43,10 @@ class ProfileRepoImpl implements ProfileRepo {
 
   @override
   Future<BaseResponse<void>> changePassword(
-    ChangePasswordEntity changePasswordEntity,
+    ChangePasswordParams changePasswordEntity,
   ) async {
     try {
-      final dto = ChangePasswordDto.fromEntity(changePasswordEntity);
+      final dto = ChangePasswordRequestDto.fromEntity(changePasswordEntity);
       await _profileRemoteDataSource.changePassword(dto);
       return const SuccessResponse(null);
     } catch (e) {

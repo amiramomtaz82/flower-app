@@ -9,8 +9,8 @@ class UpdateProfileUseCase {
   final ProfileRepo _profileRepo;
   UpdateProfileUseCase(this._profileRepo);
   Future<BaseResponse<ProfileEntity>> call(
-    UpdateProfileEntity updateProfileEntity,
+    UpdateProfileParams updateProfileParams,
   ) {
-    return _profileRepo.updateProfile(updateProfileEntity);
+    return _profileRepo.updateProfile(updateProfileParams);
   }
 }
