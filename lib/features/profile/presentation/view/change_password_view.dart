@@ -22,7 +22,7 @@ class _ChangePasswordViewState extends State<ChangePasswordView> {
   final _newPasswordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
 
-  bool _isFormValid = false;
+  final ValueNotifier<bool> _isFormValidNotifier = ValueNotifier<bool>(false);
 
   @override
   void initState() {
@@ -37,17 +37,18 @@ class _ChangePasswordViewState extends State<ChangePasswordView> {
     final hasNew = _newPasswordController.text.isNotEmpty;
     final hasConfirm = _confirmPasswordController.text.isNotEmpty;
 
-    final isValid = hasCurrent && hasNew && hasConfirm;
-    if (isValid != _isFormValid) {
-      setState(() => _isFormValid = isValid);
-    }
+    _isFormValidNotifier.value = hasCurrent && hasNew && hasConfirm;
   }
 
   @override
   void dispose() {
+    _currentPasswordController.removeListener(_checkFormValidation);
+    _newPasswordController.removeListener(_checkFormValidation);
+    _confirmPasswordController.removeListener(_checkFormValidation);
     _currentPasswordController.dispose();
     _newPasswordController.dispose();
     _confirmPasswordController.dispose();
+    _isFormValidNotifier.dispose();
     super.dispose();
   }
 
@@ -65,6 +66,7 @@ class _ChangePasswordViewState extends State<ChangePasswordView> {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).extension<LightColors>()!;
+    final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
       backgroundColor: colors.white,
@@ -81,7 +83,7 @@ class _ChangePasswordViewState extends State<ChangePasswordView> {
         ),
         title: Text(
           AppStrings.changePassword.tr(),
-          style: TextStyle(
+          style: textTheme.titleLarge?.copyWith(
             fontSize: 20,
             fontWeight: FontWeight.w600,
             color: colors.textPrimary,
@@ -89,7 +91,7 @@ class _ChangePasswordViewState extends State<ChangePasswordView> {
         ),
         centerTitle: false,
       ),
-      body: BlocConsumer<ProfileCubit, ProfileState>(
+      body: BlocListener<ProfileCubit, ProfileState>(
         listenWhen: (previous, current) =>
             previous.changePasswordResource != current.changePasswordResource,
         listener: (context, state) {
@@ -113,75 +115,86 @@ class _ChangePasswordViewState extends State<ChangePasswordView> {
             );
           }
         },
-        builder: (context, state) {
-          final isLoading = state.changePasswordResource.isLoading;
+        child: Form(
+          key: _formKey,
+          child: ListView(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+            children: [
+              _OutlinedPasswordField(
+                label: AppStrings.currentPassword.tr(),
+                hint: AppStrings.currentPassword.tr(),
+                controller: _currentPasswordController,
+                validator: Validation.validatePassword,
+              ),
+              const SizedBox(height: 20),
+              _OutlinedPasswordField(
+                label: AppStrings.newPassword.tr(),
+                hint: AppStrings.newPassword.tr(),
+                controller: _newPasswordController,
+                validator: Validation.validatePassword,
+              ),
+              const SizedBox(height: 20),
+              _OutlinedPasswordField(
+                label: AppStrings.confirmPassword.tr(),
+                hint: AppStrings.confirmPassword.tr(),
+                controller: _confirmPasswordController,
+                validator: (value) => Validation.validateConfirmPassword(
+                  value,
+                  _newPasswordController.text,
+                ),
+              ),
+              const SizedBox(height: 36),
+              BlocBuilder<ProfileCubit, ProfileState>(
+                buildWhen: (previous, current) =>
+                    previous.changePasswordResource.isLoading !=
+                    current.changePasswordResource.isLoading,
+                builder: (context, state) {
+                  final isLoading = state.changePasswordResource.isLoading;
 
-          return Form(
-            key: _formKey,
-            child: ListView(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-              children: [
-                _OutlinedPasswordField(
-                  label: AppStrings.currentPassword.tr(),
-                  hint: AppStrings.currentPassword.tr(),
-                  controller: _currentPasswordController,
-                  validator: Validation.validatePassword,
-                ),
-                const SizedBox(height: 20),
-                _OutlinedPasswordField(
-                  label: AppStrings.newPassword.tr(),
-                  hint: AppStrings.newPassword.tr(),
-                  controller: _newPasswordController,
-                  validator: Validation.validatePassword,
-                ),
-                const SizedBox(height: 20),
-                _OutlinedPasswordField(
-                  label: AppStrings.confirmPassword.tr(),
-                  hint: AppStrings.confirmPassword.tr(),
-                  controller: _confirmPasswordController,
-                  validator: (value) => Validation.validateConfirmPassword(
-                    value,
-                    _newPasswordController.text,
-                  ),
-                ),
-                const SizedBox(height: 36),
-                SizedBox(
-                  width: double.infinity,
-                  height: 52,
-                  child: ElevatedButton(
-                    onPressed: (isLoading || !_isFormValid)
-                        ? null
-                        : _onUpdatePressed,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: colors.primary,
-                      disabledBackgroundColor: colors.disabled,
-                      foregroundColor: colors.white,
-                      disabledForegroundColor: colors.white,
-                      elevation: 0,
-                      shape: const StadiumBorder(),
-                    ),
-                    child: isLoading
-                        ? SizedBox(
-                            width: 24,
-                            height: 24,
-                            child: CircularProgressIndicator(
-                              color: colors.white,
-                              strokeWidth: 2.5,
-                            ),
-                          )
-                        : Text(
-                            AppStrings.update.tr(),
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
+                  return ValueListenableBuilder<bool>(
+                    valueListenable: _isFormValidNotifier,
+                    builder: (context, isFormValid, _) {
+                      return SizedBox(
+                        width: double.infinity,
+                        height: 52,
+                        child: ElevatedButton(
+                          onPressed: (isLoading || !isFormValid)
+                              ? null
+                              : _onUpdatePressed,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: colors.primary,
+                            disabledBackgroundColor: colors.disabled,
+                            foregroundColor: colors.white,
+                            disabledForegroundColor: colors.white,
+                            elevation: 0,
+                            shape: const StadiumBorder(),
                           ),
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
+                          child: isLoading
+                              ? SizedBox(
+                                  width: 24,
+                                  height: 24,
+                                  child: CircularProgressIndicator(
+                                    color: colors.white,
+                                    strokeWidth: 2.5,
+                                  ),
+                                )
+                              : Text(
+                                  AppStrings.update.tr(),
+                                  style: textTheme.titleMedium?.copyWith(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: colors.white,
+                                  ),
+                                ),
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -203,12 +216,13 @@ class _OutlinedPasswordField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).extension<LightColors>()!;
+    final textTheme = Theme.of(context).textTheme;
 
     return TextFormField(
       controller: controller,
       validator: validator,
       obscureText: true,
-      style: TextStyle(
+      style: textTheme.bodyMedium?.copyWith(
         fontSize: 15,
         fontWeight: FontWeight.w500,
         color: colors.textPrimary,
@@ -216,11 +230,11 @@ class _OutlinedPasswordField extends StatelessWidget {
       decoration: InputDecoration(
         labelText: label,
         hintText: hint,
-        hintStyle: TextStyle(
+        hintStyle: textTheme.bodyMedium?.copyWith(
           color: colors.grey.withValues(alpha: 0.8),
           fontSize: 14,
         ),
-        labelStyle: TextStyle(
+        labelStyle: textTheme.bodyMedium?.copyWith(
           color: colors.darkGrey,
           fontSize: 14,
           fontWeight: FontWeight.w400,
@@ -251,7 +265,7 @@ class _OutlinedPasswordField extends StatelessWidget {
           borderRadius: BorderRadius.circular(8),
           borderSide: BorderSide(color: colors.error, width: 1.5),
         ),
-        errorStyle: TextStyle(
+        errorStyle: textTheme.bodySmall?.copyWith(
           color: colors.error,
           fontSize: 12,
           fontWeight: FontWeight.w500,
