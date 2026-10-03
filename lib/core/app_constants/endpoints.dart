@@ -56,6 +56,10 @@ class Endpoints {
       'https://router.project-osrm.org/route/v1/driving';
   static const String changePassword = '/auth/change-password';
   static const String logout = '/auth/logout';
+  static const String createCardCheckoutSession = '/payments/checkout-session';
+  static const String createCodPayment = '/payments/cod';
+  static const String paymentStatusByOrderId = '/payments/orders/{orderId}/status';
+  static const String retryPayment = '/payments/orders/{orderId}/retry';
 }
 
 class QueryParams {

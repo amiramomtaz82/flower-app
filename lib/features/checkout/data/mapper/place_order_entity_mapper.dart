@@ -1,8 +1,6 @@
 
-
-import 'package:flower_app/features/checkout/data/models/place_order_request.dart';
-
 import '../../domain/entities/place_order_request_entity.dart';
+import '../models/place_order_request.dart';
 
 extension PlaceOrderEntityMapper on PlaceOrderRequestEntity {
   PlaceOrderRequest toDto() {
@@ -10,12 +8,8 @@ extension PlaceOrderEntityMapper on PlaceOrderRequestEntity {
       cartId: cartId,
       addressId: addressId,
       isGift: isGift,
-      giftRecipient: isGift && giftRecipient != null
-          ? GiftRecipientRequest(
-        recipientName: giftRecipient!.name,
-        recipientPhone: giftRecipient!.phone,
-      )
-          : null,
+      giftRecipientName: isGift ? giftRecipient?.name : null,
+      giftRecipientPhone: isGift ? giftRecipient?.phone : null,
       paymentMethod: paymentMethod,
       paymentGateway: paymentGateway,
     );

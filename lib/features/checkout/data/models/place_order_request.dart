@@ -1,20 +1,22 @@
-
-
 class PlaceOrderRequest {
   final String cartId;
   final String addressId;
   final bool isGift;
-  final GiftRecipientRequest? giftRecipient;
+  final String? giftRecipientName;
+  final String? giftRecipientPhone;
   final String paymentMethod;
   final String? paymentGateway;
+  final String? notes;
 
   PlaceOrderRequest({
     required this.cartId,
     required this.addressId,
     this.isGift = false,
-    this.giftRecipient,
+    this.giftRecipientName,
+    this.giftRecipientPhone,
     required this.paymentMethod,
     this.paymentGateway,
+    this.notes,
   });
 
   Map<String, dynamic> toJson() {
@@ -22,28 +24,11 @@ class PlaceOrderRequest {
       'cartId': cartId,
       'addressId': addressId,
       'isGift': isGift,
-      if (isGift && giftRecipient != null)
-        'giftRecipient': giftRecipient!.toJson(),
+      if (isGift && giftRecipientName != null) 'giftRecipientName': giftRecipientName,
+      if (isGift && giftRecipientPhone != null) 'giftRecipientPhone': giftRecipientPhone,
       'paymentMethod': paymentMethod,
-      if (paymentGateway != null)
-        'paymentGateway': paymentGateway,
-    };
-  }
-}
-
-class GiftRecipientRequest {
-  final String recipientName;
-  final String recipientPhone;
-
-  GiftRecipientRequest({
-    required this.recipientName,
-    required this.recipientPhone,
-  });
-
-  Map<String, dynamic> toJson() {
-    return {
-      'recipientName': recipientName,
-      'recipientPhone': recipientPhone,
+      if (paymentGateway != null) 'paymentGateway': paymentGateway,
+      if (notes != null) 'notes': notes,
     };
   }
 }

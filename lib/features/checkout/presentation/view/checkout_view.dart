@@ -13,11 +13,12 @@ import '../../../../core/go_routes/routes_name.dart';
 import '../../../Address/presentaion/manager/address_cubit.dart';
 import '../../../Address/presentaion/manager/address_events.dart';
 import '../../../Address/presentaion/manager/address_state.dart';
-import 'payment_view.dart';
+import '../../../payment/presentation/view/payment_web_view_screen.dart';
+
 import '../manager/checkout_cubit.dart';
 import '../manager/checkout_event.dart';
 import '../manager/checkout_state.dart';
-import 'order_succss_screen.dart';
+
 import 'widget/checkout_address_section.dart';
 
 import 'widget/checkout_gift_section.dart';
