@@ -6,10 +6,8 @@ import 'package:flower_app/features/profile/data/models/update_profile_dto.dart'
 // ignore: unused_import
 import 'package:injectable/injectable.dart';
 
-// TODO: Uncomment when backend profile endpoint is ready
-// @Injectable(as: ProfileRemoteDataSource)
+@Injectable(as: ProfileRemoteDataSource)
 class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
-  // dependency injection for the ProfileApiClient
   final ProfileApiClient _profileApiClient;
   ProfileRemoteDataSourceImpl(this._profileApiClient);
   @override
@@ -20,14 +18,16 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
 
   @override
   Future<ProfileResponseModel> updateProfile(
-    UpdateProfileDto updateProfileDto,
+    UpdateProfileRequestDto updateProfileDto,
   ) async {
     final response = await _profileApiClient.updateProfile(updateProfileDto);
     return response;
   }
 
   @override
-  Future<void> changePassword(ChangePasswordDto changePasswordDto) async {
+  Future<void> changePassword(
+    ChangePasswordRequestDto changePasswordDto,
+  ) async {
     await _profileApiClient.changePassword(changePasswordDto);
   }
 }
