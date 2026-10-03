@@ -6,20 +6,28 @@ import 'package:flower_app/core/app_constants/app_strings.dart';
 import 'package:flower_app/core/app_theme/app_colors.dart';
 import 'package:flower_app/core/go_routes/routes_name.dart';
 import 'package:flower_app/core/validation/validation.dart';
+import 'package:flower_app/core/widgets/custom_text_field.dart';
 import 'package:flower_app/features/profile/domain/entities/profile_entity.dart';
 import 'package:flower_app/features/profile/domain/entities/update_profile_entity.dart';
 import 'package:flower_app/features/profile/presentation/manager/profile_cubit.dart';
 import 'package:flower_app/features/profile/presentation/manager/profile_event.dart';
 import 'package:flower_app/features/profile/presentation/manager/profile_state.dart';
+import 'package:flower_app/features/profile/presentation/widgets/profile_avatar.dart';
+import 'package:flower_app/config/di/di.dart';
+import 'package:flower_app/core/services/image_picker_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:image_picker/image_picker.dart';
 
 class EditProfileView extends StatefulWidget {
   final ProfileEntity? initialProfile;
+  final ImagePickerService imagePickerService;
 
-  const EditProfileView({super.key, this.initialProfile});
+  EditProfileView({
+    super.key,
+    this.initialProfile,
+    ImagePickerService? imagePickerService,
+  }) : imagePickerService = imagePickerService ?? getIt<ImagePickerService>();
 
   @override
   State<EditProfileView> createState() => _EditProfileViewState();
@@ -36,34 +44,81 @@ class _EditProfileViewState extends State<EditProfileView> {
 
   late String _selectedGender;
   late String _photoUrl;
+  late final ValueNotifier<File?> _selectedImageNotifier;
+  late final ValueNotifier<bool> _hasChangesNotifier;
 
   @override
   void initState() {
     super.initState();
     final profile = widget.initialProfile;
-    final nameParts = (profile?.name ?? '').trim().split(RegExp(r'\s+'));
-    final firstName = nameParts.isNotEmpty ? nameParts.first : '';
-    final lastName = nameParts.length > 1 ? nameParts.sublist(1).join(' ') : '';
 
-    _firstNameController = TextEditingController(text: firstName);
-    _lastNameController = TextEditingController(text: lastName);
+    _firstNameController = TextEditingController(
+      text: profile?.firstName ?? '',
+    );
+    _lastNameController = TextEditingController(text: profile?.lastName ?? '');
     _emailController = TextEditingController(text: profile?.email ?? '');
     _phoneController = TextEditingController(text: profile?.phoneNumber ?? '');
-    _passwordController = TextEditingController(text: '••••••••');
+    _passwordController = TextEditingController();
     _selectedGender = (profile?.gender?.isNotEmpty ?? false)
         ? profile!.gender!.toLowerCase()
         : 'female';
     _photoUrl = profile?.profileImageUrl ?? '';
+    _selectedImageNotifier = ValueNotifier<File?>(null);
+    _hasChangesNotifier = ValueNotifier<bool>(false);
+
+    _firstNameController.addListener(_onFieldChanged);
+    _lastNameController.addListener(_onFieldChanged);
+    _emailController.addListener(_onFieldChanged);
+    _phoneController.addListener(_onFieldChanged);
+    _selectedImageNotifier.addListener(_onFieldChanged);
   }
 
   @override
   void dispose() {
+    _firstNameController.removeListener(_onFieldChanged);
+    _lastNameController.removeListener(_onFieldChanged);
+    _emailController.removeListener(_onFieldChanged);
+    _phoneController.removeListener(_onFieldChanged);
+    _selectedImageNotifier.removeListener(_onFieldChanged);
+    _hasChangesNotifier.dispose();
     _firstNameController.dispose();
     _lastNameController.dispose();
     _emailController.dispose();
     _phoneController.dispose();
     _passwordController.dispose();
+    _selectedImageNotifier.dispose();
     super.dispose();
+  }
+
+  void _onFieldChanged() {
+    _hasChangesNotifier.value = _computeHasChanges();
+  }
+
+  bool _computeHasChanges() {
+    final profile = widget.initialProfile;
+    final initialFirstName = profile?.firstName ?? '';
+    final initialLastName = profile?.lastName ?? '';
+    final initialEmail = profile?.email ?? '';
+    final initialPhone = profile?.phoneNumber ?? '';
+    final initialGender = (profile?.gender?.isNotEmpty ?? false)
+        ? profile!.gender!.toLowerCase()
+        : 'female';
+
+    final isFirstNameChanged =
+        _firstNameController.text.trim() != initialFirstName.trim();
+    final isLastNameChanged =
+        _lastNameController.text.trim() != initialLastName.trim();
+    final isEmailChanged = _emailController.text.trim() != initialEmail.trim();
+    final isPhoneChanged = _phoneController.text.trim() != initialPhone.trim();
+    final isGenderChanged = _selectedGender.trim() != initialGender.trim();
+    final isPhotoChanged = _selectedImageNotifier.value != null;
+
+    return isFirstNameChanged ||
+        isLastNameChanged ||
+        isEmailChanged ||
+        isPhoneChanged ||
+        isGenderChanged ||
+        isPhotoChanged;
   }
 
   void _onSavePressed() {
@@ -77,7 +132,7 @@ class _EditProfileViewState extends State<EditProfileView> {
         email: _emailController.text.trim(),
         phoneNumber: _phoneController.text.trim(),
         gender: _selectedGender,
-        photoUrl: _selectedImageFile?.path ?? _photoUrl,
+        photoUrl: _selectedImageNotifier.value?.path ?? _photoUrl,
       );
 
       context.read<ProfileCubit>().doEvent(UpdateProfile(updateEntity));
@@ -85,42 +140,34 @@ class _EditProfileViewState extends State<EditProfileView> {
   }
 
   // Upload image from gallery and return the file
-  File? _selectedImageFile;
   Future<void> uploadImage() async {
     try {
-      // debugPrint('📷 Camera tapped, launching gallery...');
-      final picker = ImagePicker();
-      final XFile? pickedFile = await picker.pickImage(
-        source: ImageSource.gallery,
-      );
-      // debugPrint('📷 Picked file: ${pickedFile?.path}');
+      final pickedPath = await widget.imagePickerService.pickImageFromGallery();
 
-      if (pickedFile != null) {
-        setState(() {
-          _selectedImageFile = File(pickedFile.path);
-          _photoUrl = pickedFile.path;
-        });
+      if (pickedPath != null) {
+        _selectedImageNotifier.value = File(pickedPath);
       }
     } catch (e) {
-      // debugPrint('🚨 Error picking image: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(AppStrings.errorPickingImage.tr())),
+        );
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).extension<LightColors>()!;
+    final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back_ios_new,
-            size: 20,
-            color: Color(0xff0C1015),
-          ),
+          icon: Icon(Icons.arrow_back_ios_new, size: 20, color: colors.black),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(AppStrings.editProfile.tr()),
@@ -132,10 +179,10 @@ class _EditProfileViewState extends State<EditProfileView> {
               alignment: Alignment.topRight,
               children: [
                 IconButton(
-                  icon: const Icon(
+                  icon: Icon(
                     Icons.notifications_none_outlined,
                     size: 28,
-                    color: Color(0xff0C1015),
+                    color: colors.black,
                   ),
                   onPressed: () {},
                 ),
@@ -144,14 +191,14 @@ class _EditProfileViewState extends State<EditProfileView> {
                   top: 8,
                   child: Container(
                     padding: const EdgeInsets.all(4),
-                    decoration: const BoxDecoration(
-                      color: Color(0xffCC1010),
+                    decoration: BoxDecoration(
+                      color: colors.error,
                       shape: BoxShape.circle,
                     ),
-                    child: const Text(
+                    child: Text(
                       '3',
-                      style: TextStyle(
-                        color: Colors.white,
+                      style: textTheme.bodySmall?.copyWith(
+                        color: colors.white,
                         fontSize: 10,
                         fontWeight: FontWeight.bold,
                         height: 1,
@@ -164,7 +211,7 @@ class _EditProfileViewState extends State<EditProfileView> {
           ),
         ],
       ),
-      body: BlocConsumer<ProfileCubit, ProfileState>(
+      body: BlocListener<ProfileCubit, ProfileState>(
         listenWhen: (previous, current) =>
             previous.updateProfileResource.status !=
             current.updateProfileResource.status,
@@ -191,289 +238,233 @@ class _EditProfileViewState extends State<EditProfileView> {
             );
           }
         },
-        builder: (context, state) {
-          final isLoading = state.updateProfileResource.isLoading;
+        child: Form(
+          key: _formKey,
+          child: ListView(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            children: [
+              const SizedBox(height: 8),
 
-          return Form(
-            key: _formKey,
-            child: ListView(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              children: [
-                const SizedBox(height: 8),
-
-                // ------------- Avatar with Camera Icon Overlay -------------------
-                Center(
-                  child: Stack(
-                    clipBehavior: Clip.none,
-                    children: [
-                      CircleAvatar(
-                        radius: 46,
-                        backgroundColor: colors.surface,
-                        backgroundImage: _selectedImageFile != null
-                            ? FileImage(_selectedImageFile!)
-                            : (_photoUrl.isNotEmpty
-                                  ? (_photoUrl.startsWith('http')
-                                            ? NetworkImage(_photoUrl)
-                                            : FileImage(File(_photoUrl)))
-                                        as ImageProvider
-                                  : null),
-                        child: _selectedImageFile != null
-                            ? null
-                            : (_photoUrl.isEmpty
-                                  ? Icon(
-                                      Icons.person,
-                                      size: 46,
-                                      color: colors.white,
-                                    )
-                                  : null),
-                      ),
-                      Positioned(
-                        right: 0,
-                        bottom: 0,
-                        child: GestureDetector(
-                          onTap: () async {
-                            await uploadImage();
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.all(5),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(6),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.12),
-                                  blurRadius: 4,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
-                              border: Border.all(
-                                color: colors.grey.withValues(alpha: 0.3),
-                                width: 1,
+              // ------------- Avatar with Camera Icon Overlay -------------------
+              Center(
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    ValueListenableBuilder<File?>(
+                      valueListenable: _selectedImageNotifier,
+                      builder: (context, imageFile, _) {
+                        return ProfileAvatar(
+                          radius: 46,
+                          imageUrl: _photoUrl,
+                          imageFile: imageFile,
+                          backgroundColor: colors.surface,
+                          iconColor: colors.white,
+                        );
+                      },
+                    ),
+                    Positioned(
+                      right: 0,
+                      bottom: 0,
+                      child: GestureDetector(
+                        onTap: uploadImage,
+                        child: Container(
+                          padding: const EdgeInsets.all(5),
+                          decoration: BoxDecoration(
+                            color: colors.white,
+                            borderRadius: BorderRadius.circular(6),
+                            boxShadow: [
+                              BoxShadow(
+                                color: colors.black.withValues(alpha: 0.12),
+                                blurRadius: 4,
+                                offset: const Offset(0, 2),
                               ),
+                            ],
+                            border: Border.all(
+                              color: colors.grey.withValues(alpha: 0.3),
+                              width: 1,
                             ),
-                            child: const Icon(
-                              Icons.camera_alt_outlined,
-                              size: 16,
-                              color: Color(0xff535353),
-                            ),
+                          ),
+                          child: Icon(
+                            Icons.camera_alt_outlined,
+                            size: 16,
+                            color: colors.darkGrey,
                           ),
                         ),
                       ),
-                    ],
-                  ),
-                ),
-                // ----------------------------------------------------------------
-                const SizedBox(height: 28),
-
-                // First Name and Last Name Row
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: _OutlinedProfileTextField(
-                        label: AppStrings.firstName.tr(),
-                        controller: _firstNameController,
-                        validator: Validation.validateName,
-                        keyboardType: TextInputType.name,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: _OutlinedProfileTextField(
-                        label: AppStrings.lastName.tr(),
-                        controller: _lastNameController,
-                        validator: Validation.validateName,
-                        keyboardType: TextInputType.name,
-                      ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 18),
+              ),
+              // ----------------------------------------------------------------
+              const SizedBox(height: 28),
 
-                // Email Field
-                _OutlinedProfileTextField(
-                  label: AppStrings.emailLabel.tr(),
-                  controller: _emailController,
-                  validator: Validation.validateEmail,
-                  keyboardType: TextInputType.emailAddress,
+              // First Name and Last Name Row
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: CustomTextField(
+                      label: AppStrings.firstName.tr(),
+                      controller: _firstNameController,
+                      validator: Validation.validateName,
+                      keyboardType: TextInputType.name,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: CustomTextField(
+                      label: AppStrings.lastName.tr(),
+                      controller: _lastNameController,
+                      validator: Validation.validateName,
+                      keyboardType: TextInputType.name,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 18),
+
+              // Email Field
+              CustomTextField(
+                label: AppStrings.emailLabel.tr(),
+                controller: _emailController,
+                validator: Validation.validateEmail,
+                keyboardType: TextInputType.emailAddress,
+              ),
+              const SizedBox(height: 18),
+
+              // Phone Number Field
+              CustomTextField(
+                label: AppStrings.phoneNumber.tr(),
+                controller: _phoneController,
+                validator: Validation.validatePhoneNumber,
+                keyboardType: TextInputType.phone,
+              ),
+              const SizedBox(height: 18),
+
+              // Password Field with Change action
+              CustomTextField(
+                label: AppStrings.passwordLabel.tr(),
+                controller: _passwordController,
+                readOnly: true,
+                hint: '••••••••',
+                hintStyle: textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: colors.black,
+                  letterSpacing: 2.0,
                 ),
-                const SizedBox(height: 18),
-
-                // Phone Number Field
-                _OutlinedProfileTextField(
-                  label: AppStrings.phoneNumber.tr(),
-                  controller: _phoneController,
-                  validator: Validation.validatePhoneNumber,
-                  keyboardType: TextInputType.phone,
+                onTap: () {
+                  context.push(AppRoutes.changePassword);
+                },
+                suffix: TextButton(
+                  onPressed: () {
+                    context.push(AppRoutes.changePassword);
+                  },
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    minimumSize: Size.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                  child: Text(
+                    AppStrings.change.tr(),
+                    style: textTheme.bodyLarge?.copyWith(
+                      color: colors.primary,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ),
-                const SizedBox(height: 18),
+              ),
+              const SizedBox(height: 24),
 
-                // Password Field with Change action
-                _OutlinedProfileTextField(
-                  label: AppStrings.passwordLabel.tr(),
-                  controller: _passwordController,
-                  readOnly: true,
-                  obscureText: true,
-                  suffix: TextButton(
-                    onPressed: () {
-                      context.push(AppRoutes.changePassword);
+              // Gender Section
+              Row(
+                children: [
+                  Text(
+                    AppStrings.gender.tr(),
+                    style: textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: colors.darkGrey,
+                    ),
+                  ),
+                  const SizedBox(width: 24),
+                  _GenderRadio(
+                    label: AppStrings.female.tr(),
+                    selected: _selectedGender == 'female',
+                    color: colors.primary,
+                    onTap: () {
+                      if (_selectedGender != 'female') {
+                        setState(() => _selectedGender = 'female');
+                        _onFieldChanged();
+                      }
                     },
-                    style: TextButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      minimumSize: Size.zero,
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    ),
-                    child: Text(
-                      AppStrings.change.tr(),
-                      style: TextStyle(
-                        color: colors.primary,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
                   ),
-                ),
-                const SizedBox(height: 24),
+                  const SizedBox(width: 24),
+                  _GenderRadio(
+                    label: AppStrings.male.tr(),
+                    selected: _selectedGender == 'male',
+                    color: colors.primary,
+                    onTap: () {
+                      if (_selectedGender != 'male') {
+                        setState(() => _selectedGender = 'male');
+                        _onFieldChanged();
+                      }
+                    },
+                  ),
+                ],
+              ),
+              const SizedBox(height: 36),
 
-                // Gender Section
-                Row(
-                  children: [
-                    Text(
-                      AppStrings.gender.tr(),
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xff535353),
-                      ),
-                    ),
-                    const SizedBox(width: 24),
-                    _GenderRadio(
-                      label: AppStrings.female.tr(),
-                      selected: _selectedGender == 'female',
-                      color: colors.primary,
-                      onTap: () => setState(() => _selectedGender = 'female'),
-                    ),
-                    const SizedBox(width: 24),
-                    _GenderRadio(
-                      label: AppStrings.male.tr(),
-                      selected: _selectedGender == 'male',
-                      color: colors.primary,
-                      onTap: () => setState(() => _selectedGender = 'male'),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 36),
+              // Update Button
+              BlocBuilder<ProfileCubit, ProfileState>(
+                buildWhen: (previous, current) =>
+                    previous.updateProfileResource.isLoading !=
+                    current.updateProfileResource.isLoading,
+                builder: (context, state) {
+                  final isLoading = state.updateProfileResource.isLoading;
 
-                // Update Button
-                SizedBox(
-                  width: double.infinity,
-                  height: 52,
-                  child: ElevatedButton(
-                    onPressed: isLoading ? null : _onSavePressed,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: colors.primary,
-                      foregroundColor: Colors.white,
-                      elevation: 0,
-                      shape: const StadiumBorder(),
-                    ),
-                    child: isLoading
-                        ? const SizedBox(
-                            height: 22,
-                            width: 22,
-                            child: CircularProgressIndicator(
-                              color: Colors.white,
-                              strokeWidth: 2.5,
-                            ),
-                          )
-                        : Text(
-                            AppStrings.update.tr(),
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
+                  return ValueListenableBuilder<bool>(
+                    valueListenable: _hasChangesNotifier,
+                    builder: (context, hasChanges, _) {
+                      final isButtonEnabled = !isLoading && hasChanges;
+
+                      return SizedBox(
+                        width: double.infinity,
+                        height: 52,
+                        child: ElevatedButton(
+                          onPressed: isButtonEnabled ? _onSavePressed : null,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: colors.primary,
+                            disabledBackgroundColor: colors.disabled,
+                            foregroundColor: colors.white,
+                            disabledForegroundColor: colors.white,
+                            elevation: 0,
+                            shape: const StadiumBorder(),
                           ),
-                  ),
-                ),
-                const SizedBox(height: 24),
-              ],
-            ),
-          );
-        },
-      ),
-    );
-  }
-}
-
-class _OutlinedProfileTextField extends StatelessWidget {
-  final String label;
-  final TextEditingController? controller;
-  final String? Function(String?)? validator;
-  final TextInputType keyboardType;
-  final bool readOnly;
-  final bool obscureText;
-  final Widget? suffix;
-
-  const _OutlinedProfileTextField({
-    required this.label,
-    this.controller,
-    this.validator,
-    this.keyboardType = TextInputType.text,
-    this.readOnly = false,
-    this.obscureText = false,
-    this.suffix,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = Theme.of(context).extension<LightColors>()!;
-
-    return TextFormField(
-      controller: controller,
-      validator: validator,
-      keyboardType: keyboardType,
-      readOnly: readOnly,
-      obscureText: obscureText,
-      style: const TextStyle(
-        fontSize: 16,
-        fontWeight: FontWeight.w500,
-        color: Color(0xff0C1015),
-      ),
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: TextStyle(
-          color: colors.darkGrey,
-          fontSize: 14,
-          fontWeight: FontWeight.w400,
-        ),
-        floatingLabelBehavior: FloatingLabelBehavior.always,
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 14,
-        ),
-        suffixIcon: suffix != null
-            ? Padding(padding: const EdgeInsets.only(right: 8), child: suffix)
-            : null,
-        suffixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
-        filled: true,
-        fillColor: Colors.white,
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(
-            color: colors.border.withValues(alpha: 0.6),
-            width: 1.2,
+                          child: isLoading
+                              ? SizedBox(
+                                  height: 22,
+                                  width: 22,
+                                  child: CircularProgressIndicator(
+                                    color: colors.white,
+                                    strokeWidth: 2.5,
+                                  ),
+                                )
+                              : Text(
+                                  AppStrings.update.tr(),
+                                  style: textTheme.bodyLarge?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: colors.white,
+                                  ),
+                                ),
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+              const SizedBox(height: 24),
+            ],
           ),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: colors.primary, width: 1.5),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: colors.error, width: 1.2),
-        ),
-        focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: colors.error, width: 1.5),
         ),
       ),
     );
@@ -495,6 +486,9 @@ class _GenderRadio extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).extension<LightColors>()!;
+    final textTheme = Theme.of(context).textTheme;
+
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
@@ -524,10 +518,9 @@ class _GenderRadio extends StatelessWidget {
           const SizedBox(width: 8),
           Text(
             label,
-            style: const TextStyle(
-              fontSize: 16,
+            style: textTheme.bodyLarge?.copyWith(
               fontWeight: FontWeight.w500,
-              color: Color(0xff535353),
+              color: colors.darkGrey,
             ),
           ),
         ],

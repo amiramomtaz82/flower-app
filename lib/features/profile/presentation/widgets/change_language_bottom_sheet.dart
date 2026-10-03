@@ -10,9 +10,10 @@ class ChangeLanguageBottomSheet extends StatefulWidget {
   const ChangeLanguageBottomSheet({super.key});
 
   static Future<void> show(BuildContext context) {
+    final colors = Theme.of(context).extension<LightColors>()!;
     return showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: colors.white,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
@@ -63,7 +64,7 @@ class _ChangeLanguageBottomSheetState extends State<ChangeLanguageBottomSheet> {
                 height: 4,
                 margin: const EdgeInsets.only(bottom: 16),
                 decoration: BoxDecoration(
-                  color: const Color(0xff2A2A2A),
+                  color: colors.darkGrey,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -106,7 +107,7 @@ class _ChangeLanguageBottomSheetState extends State<ChangeLanguageBottomSheet> {
                 onPressed: _applyLanguage,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: colors.primary,
-                  foregroundColor: Colors.white,
+                  foregroundColor: colors.white,
                   elevation: 0,
                   shape: const StadiumBorder(),
                 ),
