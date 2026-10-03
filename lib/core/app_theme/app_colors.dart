@@ -30,6 +30,8 @@ abstract class AppColors {
   Color get divider;
 
   Color get hint;
+
+  Color get disabled;
 }
 
 /// Registered as a [ThemeExtension] in [AppTheme] so widgets read colors via
@@ -82,12 +84,72 @@ class LightColors extends ThemeExtension<LightColors> implements AppColors {
   Color get textSecondary => const Color(0xffF2F2F7);
 
   @override
-  Color get white => const Color(0xffF2F2F7);
+  Color get white => const Color(0xffFFFFFF);
+
+  @override
+  Color get disabled => const Color(0xff878787);
 
   @override
   LightColors copyWith() => LightColors();
 
   @override
   LightColors lerp(covariant ThemeExtension<LightColors>? other, double t) =>
+      this;
+}
+
+class DarkColors extends ThemeExtension<DarkColors> implements AppColors {
+  @override
+  Color get background => const Color(0xff121212);
+
+  @override
+  Color get black => const Color(0xff000000);
+
+  @override
+  Color get border => const Color(0xff383838);
+
+  @override
+  Color get darkGrey => const Color(0xff878787);
+
+  @override
+  Color get divider => const Color(0xff2A2A2A);
+
+  @override
+  Color get error => const Color(0xffE53935);
+
+  @override
+  Color get grey => const Color(0xff757575);
+
+  @override
+  Color get hint => const Color(0xff757575);
+
+  @override
+  Color get primary => const Color(0xffD21E6A);
+
+  @override
+  Color get secondary => const Color(0xffA6A6A6);
+
+  @override
+  Color get success => const Color(0xff0CB359);
+
+  @override
+  Color get surface => const Color(0xff1E1E1E);
+
+  @override
+  Color get textPrimary => const Color(0xffFFFFFF);
+
+  @override
+  Color get textSecondary => const Color(0xffB0B0B0);
+
+  @override
+  Color get white => const Color(0xffFFFFFF);
+
+  @override
+  Color get disabled => const Color(0xff535353);
+
+  @override
+  DarkColors copyWith() => DarkColors();
+
+  @override
+  DarkColors lerp(covariant ThemeExtension<DarkColors>? other, double t) =>
       this;
 }

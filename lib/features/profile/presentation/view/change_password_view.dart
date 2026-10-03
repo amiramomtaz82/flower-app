@@ -67,24 +67,24 @@ class _ChangePasswordViewState extends State<ChangePasswordView> {
     final colors = Theme.of(context).extension<LightColors>()!;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(
+          icon: Icon(
             Icons.arrow_back_ios_new,
             size: 20,
-            color: Color(0xff0C1015),
+            color: colors.textPrimary,
           ),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
           AppStrings.changePassword.tr(),
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.w600,
-            color: Color(0xff0C1015),
+            color: colors.textPrimary,
           ),
         ),
         centerTitle: false,
@@ -97,7 +97,7 @@ class _ChangePasswordViewState extends State<ChangePasswordView> {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(AppStrings.passwordUpdatedSuccessfully.tr()),
-                backgroundColor: const Color(0xff0CB359),
+                backgroundColor: colors.success,
               ),
             );
             Navigator.of(context).pop();
@@ -154,18 +154,18 @@ class _ChangePasswordViewState extends State<ChangePasswordView> {
                         : _onUpdatePressed,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: colors.primary,
-                      disabledBackgroundColor: const Color(0xff878787),
-                      foregroundColor: Colors.white,
-                      disabledForegroundColor: Colors.white,
+                      disabledBackgroundColor: colors.disabled,
+                      foregroundColor: colors.white,
+                      disabledForegroundColor: colors.white,
                       elevation: 0,
                       shape: const StadiumBorder(),
                     ),
                     child: isLoading
-                        ? const SizedBox(
+                        ? SizedBox(
                             width: 24,
                             height: 24,
                             child: CircularProgressIndicator(
-                              color: Colors.white,
+                              color: colors.white,
                               strokeWidth: 2.5,
                             ),
                           )
@@ -208,10 +208,10 @@ class _OutlinedPasswordField extends StatelessWidget {
       controller: controller,
       validator: validator,
       obscureText: true,
-      style: const TextStyle(
+      style: TextStyle(
         fontSize: 15,
         fontWeight: FontWeight.w500,
-        color: Color(0xff0C1015),
+        color: colors.textPrimary,
       ),
       decoration: InputDecoration(
         labelText: label,
@@ -231,7 +231,7 @@ class _OutlinedPasswordField extends StatelessWidget {
           vertical: 14,
         ),
         filled: true,
-        fillColor: Colors.white,
+        fillColor: colors.white,
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
           borderSide: BorderSide(

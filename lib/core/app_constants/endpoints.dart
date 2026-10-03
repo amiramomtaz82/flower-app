@@ -21,10 +21,10 @@ class Endpoints {
   static const String bestSellersOccasionId =
       '55555555-5555-5555-5555-555555555555';
 
-  // profile endpoints // TODO: replace with actual endpoints (not implemented yet)
-  static const String profile = '/profile';
-  static const String updateProfile = '/profile/update';
-  static const String changePassword = '/profile/change-password';
+  static const String profile = '/api/users/GetProfile';
+  static const String updateProfile = '/api/users/UpdateProfile';
+  static const String changePassword = '/auth/change-password';
+  static const String logout = '/auth/logout';
 }
 
 class QueryParams {
