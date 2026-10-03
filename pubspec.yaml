@@ -63,6 +63,7 @@ dependencies:
   
   image_picker: ^1.2.3
   url_launcher: ^6.3.2
+  cached_network_image: ^4.0.3
 
 
 dev_dependencies:

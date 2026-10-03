@@ -102,5 +102,8 @@
     "failed_to_update_password": "فشل تحديث كلمة المرور",
     "cancel": "إلغاء",
     "confirm_logout": "تأكيد تسجيل الخروج!!",
-    "uppercase_logout": "تسجيل الخروج"
+    "uppercase_logout": "تسجيل الخروج",
+    "could_not_open_link": "تعذر فتح الرابط",
+    "cannot_launch_url": "تعذر تشغيل الرابط (لا يوجد متصفح)",
+    "error_picking_image": "فشل اختيار الصورة"
 }
