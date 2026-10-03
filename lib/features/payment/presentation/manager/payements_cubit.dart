@@ -77,7 +77,7 @@ class PaymentCubit extends Cubit<PaymentState> {
     ));
 
     int attempts = 0;
-    const maxAttempts = 4;
+    const maxAttempts = 6;
 
     while (attempts < maxAttempts) {
       attempts++;
@@ -121,7 +121,10 @@ class PaymentCubit extends Cubit<PaymentState> {
   }
 
   Future<void> _retryPayment(String orderId) async {
-    emit(state.copyWith(retrySessionResource: const Resource.loading()));
+    emit(state.copyWith(
+      paymentStatusResource: const Resource.initial(),
+      retrySessionResource: const Resource.loading(),
+    ));
     final result = await _retryPaymentUseCase(orderId);
     switch (result) {
       case SuccessResponse<CardPaymentSessionEntity>():

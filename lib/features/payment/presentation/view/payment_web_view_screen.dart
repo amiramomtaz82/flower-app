@@ -94,11 +94,14 @@ class _PaymentWebViewContentState extends State<_PaymentWebViewContent> {
 
     final isSuccess = (widget.successUrl.isNotEmpty && url.startsWith(widget.successUrl)) ||
         url.contains('status=success') ||
-        url.contains('status=paid');
+        url.contains('status=paid') ||
+        url.contains('success=true') ||
+        url.contains('txn_response_code=APPROVED');
 
     final isCancel = (widget.cancelUrl.isNotEmpty && url.startsWith(widget.cancelUrl)) ||
         url.contains('status=cancel') ||
-        url.contains('status=failed');
+        url.contains('status=failed') ||
+        url.contains('success=false');
 
     if (isSuccess || isCancel) {
       _isNavigating = true;
@@ -141,7 +144,7 @@ class _PaymentWebViewContentState extends State<_PaymentWebViewContent> {
   Widget build(BuildContext context) {
     return BlocConsumer<PaymentCubit, PaymentState>(
       listenWhen: (prev, curr) =>
-      prev.paymentStatusResource != curr.paymentStatusResource ||
+          prev.paymentStatusResource != curr.paymentStatusResource ||
           prev.retrySessionResource != curr.retrySessionResource,
       listener: (context, state) {
         // 1. Success Verified by Server
@@ -149,8 +152,8 @@ class _PaymentWebViewContentState extends State<_PaymentWebViewContent> {
           context.go(AppRoutes.orderSuccess, extra: widget.orderId);
         }
 
-        // 2. Failed or Timeout
-        if (state.paymentStatusResource.isError) {
+        // 2. Failed or Timeout (Only show dialog if NOT currently loading a retry session)
+        if (state.paymentStatusResource.isError && !state.retrySessionResource.isLoading) {
           _isNavigating = false;
           _showFailureDialog(context, state.paymentStatusResource.errorMessage ?? 'Payment failed.');
         }
@@ -162,6 +165,14 @@ class _PaymentWebViewContentState extends State<_PaymentWebViewContent> {
             _isNavigating = false;
             _controller.loadRequest(Uri.parse(newSession.sessionUrl));
           }
+        } else if (state.retrySessionResource.isError) {
+          _isNavigating = false;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(state.retrySessionResource.errorMessage ?? 'Failed to retry payment session.'),
+              backgroundColor: Colors.red,
+            ),
+          );
         }
       },
       builder: (context, state) {
@@ -178,9 +189,14 @@ class _PaymentWebViewContentState extends State<_PaymentWebViewContent> {
           body: Stack(
             children: [
               WebViewWidget(controller: _controller),
+              if (_progress < 1.0)
+                LinearProgressIndicator(
+                  value: _progress,
+                  backgroundColor: Colors.transparent,
+                ),
               if (isVerifying)
                 Container(
-                  color: Colors.white.withOpacity(0.94),
+                  color: Colors.white.withValues(alpha: 0.94),
                   child: Center(
                     child: Column(
                       mainAxisSize: MainAxisSize.min,

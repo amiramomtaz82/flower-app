@@ -16,7 +16,7 @@ abstract class ProfileApiClient {
   @GET(Endpoints.profile)
   Future<ProfileResponseModel> getProfile();
 
-  @PUT(Endpoints.profile)
+  @PUT(Endpoints.updateProfile)
   Future<ProfileResponseModel> updateProfile(
     @Body() UpdateProfileDto updateProfileDto,
   );

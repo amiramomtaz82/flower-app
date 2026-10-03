@@ -51,7 +51,6 @@ import '../../features/commerce/presentation/home/view/home_view.dart';
 import '../../features/orders/domain/entities/order_tracking_entity.dart';
 import '../../features/orders/domain/oredr_details_entity.dart';
 import '../../features/orders/presentation/view/order_dlivered_view.dart';
-import '../../features/payment/presentation/manager/payements_cubit.dart';
 import '../../features/payment/presentation/view/payment_web_view_screen.dart';
 import '../../features/splash/presentation/manager/splash_cubit.dart';
 import '../../features/splash/presentation/manager/splash_event.dart';
@@ -324,14 +323,11 @@ class AppRouter {
         builder: (context, state) {
           final session = state.extra as CardPaymentSessionEntity;
 
-          return BlocProvider(
-            create: (_) => getIt<PaymentCubit>(), // Injected cleanly for this route
-            child: PaymentWebViewScreen(
-              sessionUrl: session.sessionUrl,
-              successUrl: session.successUrl,
-              cancelUrl: session.cancelUrl,
-              orderId: session.orderId,
-            ),
+          return PaymentWebViewScreen(
+            sessionUrl: session.sessionUrl,
+            successUrl: session.successUrl,
+            cancelUrl: session.cancelUrl,
+            orderId: session.orderId,
           );
         },
       ),
