@@ -16,12 +16,14 @@ abstract class ProfileApiClient {
   @GET(Endpoints.profile)
   Future<ProfileResponseModel> getProfile();
 
-  @PUT(Endpoints.profile)
+  @PUT(Endpoints.updateProfile)
+  @MultiPart()
   Future<ProfileResponseModel> updateProfile(
-    @Body() UpdateProfileDto updateProfileDto,
+    @Body() UpdateProfileRequestDto updateProfileDto,
   );
 
-  // also waiting for backend change password endpoint to be ready
-  @PATCH(Endpoints.changePassword)
-  Future<void> changePassword(@Body() ChangePasswordDto changePasswordDto);
+  @POST(Endpoints.changePassword)
+  Future<void> changePassword(
+    @Body() ChangePasswordRequestDto changePasswordDto,
+  );
 }
