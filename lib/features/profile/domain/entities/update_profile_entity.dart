@@ -1,13 +1,13 @@
 import 'package:equatable/equatable.dart';
 
-class UpdateProfileEntity extends Equatable {
+class UpdateProfileParams extends Equatable {
   final String fullName;
   final String email;
   final String photoUrl;
   final String gender;
   final String phoneNumber;
 
-  const UpdateProfileEntity({
+  const UpdateProfileParams({
     required this.fullName,
     required this.email,
     required this.photoUrl,
