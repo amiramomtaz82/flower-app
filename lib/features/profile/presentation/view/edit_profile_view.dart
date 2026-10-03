@@ -72,7 +72,7 @@ class _EditProfileViewState extends State<EditProfileView> {
       final lastName = _lastNameController.text.trim();
       final fullName = lastName.isNotEmpty ? '$firstName $lastName' : firstName;
 
-      final updateEntity = UpdateProfileEntity(
+      final updateEntity = UpdateProfileParams(
         fullName: fullName,
         email: _emailController.text.trim(),
         phoneNumber: _phoneController.text.trim(),

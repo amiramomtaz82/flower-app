@@ -53,7 +53,7 @@ class _ChangePasswordViewState extends State<ChangePasswordView> {
 
   void _onUpdatePressed() {
     if (_formKey.currentState?.validate() ?? false) {
-      final entity = ChangePasswordEntity(
+      final entity = ChangePasswordParams(
         currentPassword: _currentPasswordController.text,
         newPassword: _newPasswordController.text,
         confirmPassword: _confirmPasswordController.text,

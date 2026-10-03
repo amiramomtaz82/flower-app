@@ -56,7 +56,7 @@ class ProfileCubit extends Cubit<ProfileState> {
     }
   }
 
-  Future<void> _updateProfile(UpdateProfileEntity updateProfileEntity) async {
+  Future<void> _updateProfile(UpdateProfileParams updateProfileEntity) async {
     emit(state.copyWith(updateProfileResource: Resource.loading()));
 
     try {
@@ -93,7 +93,7 @@ class ProfileCubit extends Cubit<ProfileState> {
   }
 
   Future<void> _changePassword(
-    ChangePasswordEntity changePasswordEntity,
+    ChangePasswordParams changePasswordEntity,
   ) async {
     emit(state.copyWith(changePasswordResource: Resource.loading()));
 
@@ -104,9 +104,11 @@ class ProfileCubit extends Cubit<ProfileState> {
         case SuccessResponse<void>():
           emit(state.copyWith(changePasswordResource: Resource.success(null)));
         case ErrorResponse<void>():
-          emit(state.copyWith(
-            changePasswordResource: Resource.error(result.errMessage),
-          ));
+          emit(
+            state.copyWith(
+              changePasswordResource: Resource.error(result.errMessage),
+            ),
+          );
       }
     } catch (e) {
       emit(
