@@ -20,7 +20,8 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
   Future<ProfileResponseModel> updateProfile(
     UpdateProfileRequestDto updateProfileDto,
   ) async {
-    final response = await _profileApiClient.updateProfile(updateProfileDto);
+    final formData = await updateProfileDto.toFormData();
+    final response = await _profileApiClient.updateProfile(formData);
     return response;
   }
 

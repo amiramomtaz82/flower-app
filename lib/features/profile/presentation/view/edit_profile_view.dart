@@ -146,6 +146,7 @@ class _EditProfileViewState extends State<EditProfileView> {
 
       if (pickedPath != null) {
         _selectedImageNotifier.value = File(pickedPath);
+        _onFieldChanged();
       }
     } catch (e) {
       if (mounted) {

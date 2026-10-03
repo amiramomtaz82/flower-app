@@ -11,7 +11,7 @@ class ChangePasswordRequestDto {
   @JsonKey(name: 'newPassword')
   final String newPassword;
 
-  @JsonKey(name: 'confirmPassword')
+  @JsonKey(name: 'confirmNewPassword')
   final String confirmPassword;
 
   const ChangePasswordRequestDto({

@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flower_app/core/app_constants/endpoints.dart';
 import 'package:flower_app/core/app_theme/app_colors.dart';
 import 'package:flutter/material.dart';
 
@@ -29,7 +30,13 @@ class ProfileAvatar extends StatelessWidget {
       if (path.startsWith('http://') || path.startsWith('https://')) {
         return CachedNetworkImageProvider(path);
       }
-      return FileImage(File(path));
+      if (File(path).existsSync()) {
+        return FileImage(File(path));
+      }
+      final fullUrl = path.startsWith('/')
+          ? '${Endpoints.baseUrl}$path'
+          : '${Endpoints.baseUrl}/$path';
+      return CachedNetworkImageProvider(fullUrl);
     }
     return null;
   }

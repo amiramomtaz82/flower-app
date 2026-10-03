@@ -124,14 +124,26 @@ class _ChangePasswordViewState extends State<ChangePasswordView> {
                 label: AppStrings.currentPassword.tr(),
                 hint: AppStrings.currentPassword.tr(),
                 controller: _currentPasswordController,
-                validator: Validation.validatePassword,
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Password is required';
+                  }
+                  return null;
+                },
               ),
               const SizedBox(height: 20),
               _OutlinedPasswordField(
                 label: AppStrings.newPassword.tr(),
                 hint: AppStrings.newPassword.tr(),
                 controller: _newPasswordController,
-                validator: Validation.validatePassword,
+                validator: (value) {
+                  final passwordErr = Validation.validatePassword(value);
+                  if (passwordErr != null) return passwordErr;
+                  if (value == _currentPasswordController.text) {
+                    return 'New password must be different from current password';
+                  }
+                  return null;
+                },
               ),
               const SizedBox(height: 20),
               _OutlinedPasswordField(
@@ -200,7 +212,7 @@ class _ChangePasswordViewState extends State<ChangePasswordView> {
   }
 }
 
-class _OutlinedPasswordField extends StatelessWidget {
+class _OutlinedPasswordField extends StatefulWidget {
   final String label;
   final String hint;
   final TextEditingController controller;
@@ -214,22 +226,29 @@ class _OutlinedPasswordField extends StatelessWidget {
   });
 
   @override
+  State<_OutlinedPasswordField> createState() => _OutlinedPasswordFieldState();
+}
+
+class _OutlinedPasswordFieldState extends State<_OutlinedPasswordField> {
+  bool _obscureText = true;
+
+  @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).extension<LightColors>()!;
     final textTheme = Theme.of(context).textTheme;
 
     return TextFormField(
-      controller: controller,
-      validator: validator,
-      obscureText: true,
+      controller: widget.controller,
+      validator: widget.validator,
+      obscureText: _obscureText,
       style: textTheme.bodyMedium?.copyWith(
         fontSize: 15,
         fontWeight: FontWeight.w500,
         color: colors.textPrimary,
       ),
       decoration: InputDecoration(
-        labelText: label,
-        hintText: hint,
+        labelText: widget.label,
+        hintText: widget.hint,
         hintStyle: textTheme.bodyMedium?.copyWith(
           color: colors.grey.withValues(alpha: 0.8),
           fontSize: 14,
@@ -243,6 +262,18 @@ class _OutlinedPasswordField extends StatelessWidget {
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
           vertical: 14,
+        ),
+        suffixIcon: IconButton(
+          icon: Icon(
+            _obscureText ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+            color: colors.grey,
+            size: 20,
+          ),
+          onPressed: () {
+            setState(() {
+              _obscureText = !_obscureText;
+            });
+          },
         ),
         filled: true,
         fillColor: colors.white,
