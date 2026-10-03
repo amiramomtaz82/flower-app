@@ -160,6 +160,7 @@ void main() {
         isSuccess: true,
         message: 'Order Placed',
         statusCode: '201',
+        orderId: 'ORD-COD-123',
         data: null,
       );
 
@@ -169,7 +170,8 @@ void main() {
             .having((r) => r.addressId, 'addressId', 'addr_1')
             .having((r) => r.paymentMethod, 'paymentMethod', 'COD')
             .having((r) => r.isGift, 'isGift', false)
-            .having((r) => r.giftRecipient, 'giftRecipient', isNull),
+            .having((r) => r.giftRecipientName, 'giftRecipientName', isNull)
+            .having((r) => r.giftRecipientPhone, 'giftRecipientPhone', isNull),
       ))).thenAnswer((_) async => SuccessResponse(tResponse));
 
       final result = await repository.placeOrder(tOrderEntity);
@@ -178,6 +180,7 @@ void main() {
       final success = result as SuccessResponse<OrderPlacementEntity>;
       expect(success.data.isSuccess, isTrue);
       expect(success.data.cardSession, isNull);
+      expect(success.data.orderId, equals('ORD-COD-123'));
     });
 
     test('maps giftRecipient and cardSession on valid Card payment', () async {
@@ -211,6 +214,7 @@ void main() {
         isSuccess: true,
         message: 'Payment Created',
         statusCode: '201',
+        orderId: 'ORD-123',
         data: tCardDto,
       );
 
@@ -219,8 +223,8 @@ void main() {
             .having((r) => r.cartId, 'cartId', 'cart_2')
             .having((r) => r.isGift, 'isGift', true)
             .having((r) => r.paymentGateway, 'paymentGateway', 'Paymob')
-            .having((r) => r.giftRecipient?.recipientName, 'recipientName', 'Ahmed')
-            .having((r) => r.giftRecipient?.recipientPhone, 'recipientPhone', '01000000000'),
+            .having((r) => r.giftRecipientName, 'giftRecipientName', 'Ahmed')
+            .having((r) => r.giftRecipientPhone, 'giftRecipientPhone', '01000000000'),
       ))).thenAnswer((_) async => SuccessResponse(tResponse));
 
       final result = await repository.placeOrder(tOrderEntity);
@@ -228,6 +232,7 @@ void main() {
       expect(result, isA<SuccessResponse<OrderPlacementEntity>>());
       final success = result as SuccessResponse<OrderPlacementEntity>;
       expect(success.data.isSuccess, isTrue);
+      expect(success.data.orderId, equals(tCardDto.orderId));
       expect(success.data.cardSession?.orderId, equals(tCardDto.orderId));
       expect(success.data.cardSession?.sessionId, equals(tCardDto.sessionId));
       expect(success.data.cardSession?.gateway, equals(tCardDto.gateway));
