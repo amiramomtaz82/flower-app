@@ -14,6 +14,7 @@ import 'package:flower_app/features/orders/presentation/manager/order_tracking_e
 import 'package:flower_app/features/orders/presentation/view/order_dlivered_view.dart';
 import 'package:flower_app/features/orders/presentation/view/order_tracking_view.dart';
 import 'package:flower_app/features/orders/presentation/widgets/tracking/actions_buttons.dart';
+import 'package:flower_app/features/orders/presentation/widgets/tracking/tracking_map_widget.dart';
 import 'package:flower_app/features/orders/presentation/widgets/tracking/tracking_timeline_widget.dart';
 import 'package:flower_app/core/go_routes/routes_name.dart';
 import 'package:flower_app/features/orders/domain/use_cases/get_order_by_id_ue_case.dart';
@@ -297,6 +298,60 @@ void main() {
 
       // Both Show map and Order Delivered buttons should be visible
       expect(find.text('showMap'), findsOneWidget);
+      expect(find.text('orderDelivered'), findsOneWidget);
+    });
+
+    testWidgets('toggles from timeline to map view when showMap button is tapped and toggles back',
+        (WidgetTester tester) async {
+      when(mockGetOrderLiveTrackingUseCase.call(tOrderId))
+          .thenAnswer((_) async => SuccessResponse(tTrackingEntity));
+
+      await tester.pumpWidget(_wrap(const OrderTrackingView(orderId: tOrderId)));
+      await tester.pumpAndSettle();
+
+      // Initially timeline view
+      expect(find.byType(TrackingTimelineWidget), findsOneWidget);
+      expect(find.byType(TrackingMapWidget), findsNothing);
+      expect(find.text('showMap'), findsOneWidget);
+
+      // Tap showMap button
+      await tester.tap(find.text('showMap'));
+      await tester.pumpAndSettle();
+
+      // Now TrackingMapWidget should be rendered
+      expect(find.byType(TrackingMapWidget), findsOneWidget);
+      expect(find.byType(TrackingTimelineWidget), findsNothing);
+      expect(find.text('Mohamed'), findsOneWidget);
+      expect(find.text('orderDetails'), findsOneWidget);
+
+      // Tap orderDetails to toggle back to timeline
+      await tester.tap(find.text('orderDetails'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(TrackingTimelineWidget), findsOneWidget);
+      expect(find.byType(TrackingMapWidget), findsNothing);
+    });
+
+    testWidgets('renders both orderDetails and orderDelivered buttons on map when awaitingConfirmation',
+        (WidgetTester tester) async {
+      final tAwaitingConfirmationEntity = tTrackingEntity.copyWith(
+        status: TrackingStepStatus.awaitingConfirmation,
+        awaitingCustomerConfirmation: true,
+      );
+
+      when(mockGetOrderLiveTrackingUseCase.call(tOrderId))
+          .thenAnswer((_) async => SuccessResponse(tAwaitingConfirmationEntity));
+
+      await tester.pumpWidget(_wrap(const OrderTrackingView(orderId: tOrderId)));
+      await tester.pumpAndSettle();
+
+      // Tap showMap button
+      await tester.tap(find.text('showMap'));
+      await tester.pumpAndSettle();
+
+      // Now on the map, both orderDetails and orderDelivered should be visible
+      expect(find.byType(TrackingMapWidget), findsOneWidget);
+      expect(find.text('orderDetails'), findsOneWidget);
       expect(find.text('orderDelivered'), findsOneWidget);
     });
   });

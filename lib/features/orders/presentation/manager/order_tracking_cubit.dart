@@ -31,7 +31,7 @@ class OrderTrackingCubit extends Cubit<OrderTrackingState> {
   DateTime? _lastSyncTimestamp;
 
   static const int staleThresholdSeconds = 45;
-  static const int pollingIntervalSeconds = 15;
+  static const int pollingIntervalSeconds = 5;
 
   OrderTrackingCubit(
       this._getLiveTrackingUseCase,

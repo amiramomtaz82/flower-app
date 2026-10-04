@@ -4,6 +4,8 @@ import '../../../checkout/domain/entities/card_payment_session_entity.dart';
 import '../../domain/entities/cod_payment_entity.dart';
 import '../../domain/entities/payment_status_entity.dart';
 
+const Object _sentinel = Object();
+
 class PaymentState extends Equatable {
   final Resource<CardPaymentSessionEntity> cardSessionResource;
   final Resource<CodPaymentEntity> codPaymentResource;
@@ -32,14 +34,16 @@ class PaymentState extends Equatable {
     Resource<CodPaymentEntity>? codPaymentResource,
     Resource<PaymentStatusEntity>? paymentStatusResource,
     Resource<CardPaymentSessionEntity>? retrySessionResource,
-    String? verificationMessage,
+    Object? verificationMessage = _sentinel,
   }) {
     return PaymentState(
       cardSessionResource: cardSessionResource ?? this.cardSessionResource,
       codPaymentResource: codPaymentResource ?? this.codPaymentResource,
       paymentStatusResource: paymentStatusResource ?? this.paymentStatusResource,
       retrySessionResource: retrySessionResource ?? this.retrySessionResource,
-      verificationMessage: verificationMessage ?? this.verificationMessage,
+      verificationMessage: identical(verificationMessage, _sentinel)
+          ? this.verificationMessage
+          : verificationMessage as String?,
     );
   }
 

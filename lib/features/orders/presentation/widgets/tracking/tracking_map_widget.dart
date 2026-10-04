@@ -1,15 +1,14 @@
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
 import 'package:flower_app/config/di/di.dart';
 import 'package:flower_app/core/app_constants/app_assets.dart';
-import 'package:flower_app/core/app_constants/app_strings.dart';
 import 'package:flower_app/core/app_constants/endpoints.dart';
 import 'package:flower_app/core/app_theme/app_colors.dart';
 import 'package:flower_app/core/services/road_routing_service.dart';
 import '../../../domain/entities/order_tracking_entity.dart';
+import 'actions_buttons.dart';
 import 'driver_info_card.dart';
 
 class TrackingMapWidget extends StatefulWidget {
@@ -91,7 +90,7 @@ class _TrackingMapWidgetState extends State<TrackingMapWidget> {
     final newLoc = widget.data.currentLocation;
 
     if (newLoc != null &&
-        (oldLoc?.lat != newLoc.lat || oldLoc?.lng != newLoc.lng)) {
+        (oldLoc == null || oldLoc.lat != newLoc.lat || oldLoc.lng != newLoc.lng)) {
       _mapController.move(
         LatLng(newLoc.lat, newLoc.lng),
         _mapController.camera.zoom,
@@ -112,7 +111,6 @@ class _TrackingMapWidgetState extends State<TrackingMapWidget> {
     final theme = Theme.of(context);
     final colors = theme.extension<LightColors>();
     final colorScheme = theme.colorScheme;
-    final textTheme = theme.textTheme;
     final primary = colors?.primary ?? colorScheme.primary;
 
     final destPoint = LatLng(
@@ -122,9 +120,9 @@ class _TrackingMapWidgetState extends State<TrackingMapWidget> {
     final storePoint = _storePoint;
     final driverPoint = widget.data.currentLocation != null
         ? LatLng(
-      widget.data.currentLocation!.lat,
-      widget.data.currentLocation!.lng,
-    )
+            widget.data.currentLocation!.lat,
+            widget.data.currentLocation!.lng,
+          )
         : null;
 
     final allPoints = [
@@ -156,12 +154,10 @@ class _TrackingMapWidgetState extends State<TrackingMapWidget> {
             ),
           ),
           children: [
-            // 🎯 Solved: Extracted tile URL and package name from Endpoints
             TileLayer(
               urlTemplate: Endpoints.openStreetMapTileUrl,
               userAgentPackageName: Endpoints.mapUserAgent,
             ),
-            // 🎯 Solved: Real road-following polyline instead of straight diagonal lines
             PolylineLayer(
               polylines: [
                 Polyline(
@@ -222,26 +218,9 @@ class _TrackingMapWidgetState extends State<TrackingMapWidget> {
                 driver: widget.data.driver,
               ),
               const SizedBox(height: 12),
-              SizedBox(
-                width: double.infinity,
-                height: 48,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: primary,
-                    foregroundColor: colorScheme.onPrimary,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(24),
-                    ),
-                  ),
-                  onPressed: widget.onSwitchToTimeline,
-                  child: Text(
-                    AppStrings.trackOrder.tr(),
-                    style: textTheme.labelLarge?.copyWith(
-                      fontWeight: FontWeight.w600,
-                      color: colorScheme.onPrimary,
-                    ),
-                  ),
-                ),
+              ActionButtonsSection(
+                isMap: true,
+                onSwitchView: widget.onSwitchToTimeline,
               ),
             ],
           ),
