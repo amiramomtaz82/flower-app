@@ -31,13 +31,17 @@ class ActionButtonsSection extends StatelessWidget {
 
     return BlocBuilder<OrderTrackingCubit, OrderTrackingState>(
       buildWhen: (prev, curr) =>
-      prev.trackingResource.data?.status != curr.trackingResource.data?.status ||
+          prev.trackingResource.data?.status != curr.trackingResource.data?.status ||
+          prev.trackingResource.data?.awaitingCustomerConfirmation != curr.trackingResource.data?.awaitingCustomerConfirmation ||
           prev.confirmationResource != curr.confirmationResource ||
           prev.orderDetailsResource != curr.orderDetailsResource,
       builder: (context, state) {
         final data = state.trackingResource.data;
-        // ✅ Only appears when status is strictly delivered
-        final isDelivered = data?.status == TrackingStepStatus.delivered;
+        // Show confirm delivery button when status is awaiting delivery confirmation or awaiting customer confirmation
+        final showConfirmDelivery =
+            data?.status == TrackingStepStatus.awaitingConfirmation ||
+            (data?.awaitingCustomerConfirmation ?? false) ||
+            data?.status == TrackingStepStatus.delivered;
 
         final switchButtonLabel = isMap ? AppStrings.orderDetails.tr() : AppStrings.showMap.tr();
         void handleSwitchView() {
@@ -48,8 +52,8 @@ class ActionButtonsSection extends StatelessWidget {
           }
         }
 
-        // 🔘 State 1: When NOT delivered -> Full Width Button
-        if (!isDelivered) {
+        // 🔘 State 1: When NOT awaiting confirmation -> Full Width Button
+        if (!showConfirmDelivery) {
           return SizedBox(
             width: double.infinity,
             height: 48,
@@ -67,7 +71,7 @@ class ActionButtonsSection extends StatelessWidget {
           );
         }
 
-        // 🔘 State 2: When DELIVERED -> Two buttons side-by-side
+        // 🔘 State 2: When Awaiting Delivery Confirmation -> Two buttons side-by-side
         return Row(
           children: [
             Expanded(
@@ -91,21 +95,28 @@ class ActionButtonsSection extends StatelessWidget {
                 ),
                 onPressed: () {
                   if (state.confirmationResource.isLoading) return;
-                  if (data?.awaitingCustomerConfirmation ?? false) {
+                  if (data?.status == TrackingStepStatus.delivered) {
+                    final orderId = data?.orderId ?? '';
+                    try {
+                      context.pushReplacement(
+                        AppRoutes.orderDelivered,
+                        extra: {
+                          'orderId': orderId,
+                          'trackingData': data,
+                        },
+                      );
+                    } catch (_) {
+                      Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(
+                          builder: (_) => OrderDeliveredView(
+                            orderId: orderId,
+                            trackingData: data,
+                          ),
+                        ),
+                      );
+                    }
+                  } else {
                     cubit.doEvents(const ConfirmDeliveryPressedEvent());
-                  }
-                  final orderId = data?.orderId ?? '';
-                  try {
-                    context.pushReplacement(
-                      AppRoutes.orderDelivered,
-                      extra: orderId,
-                    );
-                  } catch (_) {
-                    Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(
-                        builder: (_) => OrderDeliveredView(orderId: orderId),
-                      ),
-                    );
                   }
                 },
                 child: state.confirmationResource.isLoading

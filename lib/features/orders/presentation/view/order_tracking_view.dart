@@ -30,6 +30,47 @@ class OrderTrackingView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     FlutterNativeSplash.remove();
+    if (orderId.trim().isEmpty) {
+      final colors = Theme.of(context).extension<LightColors>();
+      final primary = colors?.primary ?? Theme.of(context).colorScheme.primary;
+
+      return Scaffold(
+        appBar: AppBar(
+          title: Text(
+            AppStrings.trackOrder.tr(),
+            style: Theme.of(context)
+                .textTheme
+                .titleMedium
+                ?.copyWith(fontWeight: FontWeight.bold),
+          ),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new_rounded),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+        ),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                AppStrings.failedToLoadTracking.tr(),
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: primary,
+                  foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                ),
+                onPressed: () => context.go(AppRoutes.myOrders),
+                child: Text(AppStrings.myOrders.tr()),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return BlocProvider(
       create: (_) =>
           getIt<OrderTrackingCubit>()..doEvents(StartTrackingEvent(orderId)),
@@ -47,16 +88,39 @@ class _OrderTrackingScaffold extends StatelessWidget {
     final colors = Theme.of(context).extension<LightColors>();
     final primary = colors?.primary ?? Theme.of(context).colorScheme.primary;
 
-    return BlocListener<OrderTrackingCubit, OrderTrackingState>(
-      listenWhen: (prev, curr) =>
-          prev.trackingResource.data?.status != TrackingStepStatus.delivered &&
-          curr.trackingResource.data?.status == TrackingStepStatus.delivered,
-      listener: (context, state) {
-        context.pushReplacement(
-          AppRoutes.orderDelivered,
-          extra: orderId,
-        );
-      },
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<OrderTrackingCubit, OrderTrackingState>(
+          listenWhen: (prev, curr) =>
+              (prev.trackingResource.data?.status != TrackingStepStatus.delivered &&
+                  curr.trackingResource.data?.status == TrackingStepStatus.delivered) ||
+              (!prev.confirmationResource.isSuccess &&
+                  curr.confirmationResource.isSuccess),
+          listener: (context, state) {
+            context.pushReplacement(
+              AppRoutes.orderDelivered,
+              extra: {
+                'orderId': orderId,
+                'trackingData': state.trackingResource.data,
+                'orderDetails': state.orderDetailsResource.data,
+              },
+            );
+          },
+        ),
+        BlocListener<OrderTrackingCubit, OrderTrackingState>(
+          listenWhen: (prev, curr) =>
+              !prev.confirmationResource.isError &&
+              curr.confirmationResource.isError,
+          listener: (context, state) {
+            final error = state.confirmationResource.errorMessage;
+            if (error != null && error.isNotEmpty && context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(error)),
+              );
+            }
+          },
+        ),
+      ],
       child: Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -149,15 +213,14 @@ class _TrackingBody extends StatelessWidget {
 
         // 2. View switcher (Map / Timeline)
         Expanded(
-          child: BlocSelector<OrderTrackingCubit, OrderTrackingState, bool>(
-            selector: (state) => state.showMap,
-            builder: (context, showMap) {
-              final data = context
-                  .read<OrderTrackingCubit>()
-                  .state
-                  .trackingResource
-                  .data!;
-              if (showMap) {
+          child: BlocBuilder<OrderTrackingCubit, OrderTrackingState>(
+            buildWhen: (prev, curr) =>
+                prev.showMap != curr.showMap ||
+                prev.trackingResource.data != curr.trackingResource.data,
+            builder: (context, state) {
+              final data = state.trackingResource.data;
+              if (data == null) return const SizedBox.shrink();
+              if (state.showMap) {
                 return TrackingMapWidget(
                   data: data,
                   onSwitchToTimeline: () => context

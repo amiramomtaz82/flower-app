@@ -37,20 +37,37 @@ class OrdersResponseModel {
   });
 
   factory OrdersResponseModel.fromJson(Map<String, dynamic> json) {
-    if (json.containsKey('orders')) {
-      return _$OrdersResponseModelFromJson(json);
-    } else if (json.containsKey('data') && json['data'] is Map && json['data'].containsKey('orders')) {
-      return _$OrdersResponseModelFromJson(json['data']);
-    } else if (json.containsKey('data') && json['data'] is List) {
-       return OrdersResponseModel(
-         orders: (json['data'] as List).map((e) => OrderModel.fromJson(e as Map<String, dynamic>)).toList(),
-         pageNumber: json['pageNumber'] as int?,
-         pageSize: json['pageSize'] as int?,
-         totalCount: json['totalCount'] as int?,
-         totalPages: json['totalPages'] as int?,
-         hasNextPage: json['hasNextPage'] as bool?,
-         hasPreviousPage: json['hasPreviousPage'] as bool?,
-       );
+    List<dynamic>? rawOrders;
+    if (json['orders'] is List) {
+      rawOrders = json['orders'] as List;
+    } else if (json['data'] is Map && (json['data'] as Map)['orders'] is List) {
+      rawOrders = (json['data'] as Map)['orders'] as List;
+    } else if (json['data'] is Map && (json['data'] as Map)['items'] is List) {
+      rawOrders = (json['data'] as Map)['items'] as List;
+    } else if (json['data'] is List) {
+      rawOrders = json['data'] as List;
+    } else if (json['items'] is List) {
+      rawOrders = json['items'] as List;
+    }
+
+    if (rawOrders != null) {
+      final parsedOrders = rawOrders
+          .whereType<Map>()
+          .map((e) => OrderModel.fromJson(Map<String, dynamic>.from(e)))
+          .toList();
+      final paginationMap = (json['data'] is Map && (json['data'] as Map)['pagination'] is Map)
+          ? (json['data'] as Map)['pagination'] as Map
+          : (json['pagination'] is Map ? json['pagination'] as Map : null);
+
+      return OrdersResponseModel(
+        orders: parsedOrders,
+        pageNumber: (paginationMap?['page'] ?? json['pageNumber'] ?? json['page']) as int?,
+        pageSize: (paginationMap?['pageSize'] ?? json['pageSize'] ?? json['limit']) as int?,
+        totalCount: (paginationMap?['totalCount'] ?? json['totalCount'] ?? json['total']) as int?,
+        totalPages: (paginationMap?['totalPages'] ?? json['totalPages']) as int?,
+        hasNextPage: (paginationMap?['hasNextPage'] ?? json['hasNextPage']) as bool?,
+        hasPreviousPage: (paginationMap?['hasPreviousPage'] ?? json['hasPreviousPage']) as bool?,
+      );
     }
     return _$OrdersResponseModelFromJson(json);
   }

@@ -18,14 +18,45 @@ class OrderItemModel {
     this.imageUrl,
   });
 
-  factory OrderItemModel.fromJson(Map<String, dynamic> json) => OrderItemModel(
-    id: json['_id'] ?? json['id'] ?? '',
-    productName: json['productName'] ?? '',
-    description: json['description'] ?? '',
-    price: json['price'] ?? 0,
-    quantity: json['quantity'] ?? 1,
-    imageUrl: json['imageUrl'],
-  );
+  factory OrderItemModel.fromJson(Map<String, dynamic> json) {
+    final productMap = json['product'] is Map ? json['product'] as Map : null;
+    final id = json['_id']?.toString() ??
+        json['id']?.toString() ??
+        json['productId']?.toString() ??
+        productMap?['_id']?.toString() ??
+        productMap?['id']?.toString() ??
+        '';
+    final name = json['productName']?.toString() ??
+        json['name']?.toString() ??
+        json['title']?.toString() ??
+        productMap?['productName']?.toString() ??
+        productMap?['title']?.toString() ??
+        productMap?['name']?.toString() ??
+        'Product';
+    final desc = json['description']?.toString() ??
+        productMap?['description']?.toString() ??
+        '';
+    final price = (json['price'] as num?) ??
+        (json['unitPrice'] as num?) ??
+        (productMap?['price'] as num?) ??
+        0;
+    final qty = (json['quantity'] as num?)?.toInt() ??
+        (json['count'] as num?)?.toInt() ??
+        1;
+    final image = json['imageUrl']?.toString() ??
+        json['image']?.toString() ??
+        productMap?['imageUrl']?.toString() ??
+        productMap?['image']?.toString();
+
+    return OrderItemModel(
+      id: id,
+      productName: name,
+      description: desc,
+      price: price,
+      quantity: qty,
+      imageUrl: image,
+    );
+  }
 
   Map<String, dynamic> toJson() => {
     '_id': id,

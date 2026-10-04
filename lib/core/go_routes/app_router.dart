@@ -115,8 +115,8 @@ class AppRouter {
       GoRoute(
         path: AppRoutes.orderSuccess,
         builder: (context, state) {
-          // Optional: read orderId passed via extra or path params
-          final orderId = state.extra as String?;
+          final orderId = (state.extra as String?) ??
+              state.uri.queryParameters['orderId'];
           return OrderSuccessScreen(orderId: orderId);
         },
       ),
@@ -278,7 +278,9 @@ class AppRouter {
       GoRoute(
         path: AppRoutes.orderTracking,
         builder: (context, state) {
-          final orderId = state.extra as String? ?? 'bbbb2222-0002-0002-0002-000000000002';
+          final orderId = (state.extra as String?) ??
+              state.uri.queryParameters['orderId'] ??
+              '';
           return OrderTrackingView(orderId: orderId);
         },
       ),

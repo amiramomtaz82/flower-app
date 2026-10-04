@@ -61,15 +61,18 @@ class OrderTrackingDto {
   }
   OrderTrackingEntity toEntity() {
     TrackingStepStatus parsedStatus;
-    switch ((status ?? '').toLowerCase()) {
+    final normalized = (status ?? '').toLowerCase().replaceAll('_', '').replaceAll(' ', '');
+    switch (normalized) {
       case 'preparing':
         parsedStatus = TrackingStepStatus.preparing;
         break;
+      case 'pickup':
       case 'pickedup':
       case 'outfordelivery':
         parsedStatus = TrackingStepStatus.outForDelivery;
         break;
       case 'awaitingdeliveryconfirmation':
+      case 'awaitingconfirmation':
         parsedStatus = TrackingStepStatus.awaitingConfirmation;
         break;
       case 'delivered':

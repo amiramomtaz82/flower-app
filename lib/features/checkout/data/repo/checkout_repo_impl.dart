@@ -2,6 +2,8 @@
 import 'package:injectable/injectable.dart';
 
 import '../../../../config/base_response/base_response.dart';
+import '../../../../config/di/di.dart';
+import '../../../orders/data/data_sources/order_remote_data_source.dart';
 import '../data_source/checkout_remote_data_source.dart';
 import '../../domain/entities/checkout_details_entity.dart';
 import '../../domain/entities/estimated_delivery_entity.dart';
@@ -14,7 +16,6 @@ import '../mapper/place_order_entity_mapper.dart';
 import '../models/checkout_details_response.dart';
 
 import '../models/estimated_delivery_response.dart';
-import '../models/place_order_request.dart';
 import '../models/place_order_response.dart';
 
 @Injectable(as: CheckoutRepository)
@@ -90,11 +91,27 @@ class CheckoutRepositoryImpl implements CheckoutRepository {
           }
         }
 
+        var resolvedOrderId = response.data.orderId ?? sessionData?.orderId;
+
+        if (resolvedOrderId == null || resolvedOrderId.isEmpty) {
+          try {
+            if (getIt.isRegistered<OrderRemoteDataSource>()) {
+              final ordersResponse = await getIt<OrderRemoteDataSource>().getOrders(
+                pageNumber: 1,
+                pageSize: 1,
+              );
+              if (ordersResponse.orders.isNotEmpty) {
+                resolvedOrderId = ordersResponse.orders.first.id;
+              }
+            }
+          } catch (_) {}
+        }
+
         return SuccessResponse<OrderPlacementEntity>(
           OrderPlacementEntity(
             isSuccess: response.data.isSuccess,
             cardSession: sessionData?.toEntity(),
-            orderId: response.data.orderId ?? sessionData?.orderId,
+            orderId: resolvedOrderId,
           ),
         );
 

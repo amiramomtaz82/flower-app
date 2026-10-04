@@ -10,6 +10,7 @@ import 'package:flower_app/features/orders/domain/entities/tracking_steps_status
 import 'package:flower_app/features/orders/domain/entities/user_address_entity.dart';
 import 'package:flower_app/features/orders/domain/oredr_details_entity.dart';
 import 'package:flower_app/features/orders/presentation/manager/order_tracking_cubit.dart';
+import 'package:flower_app/features/orders/presentation/manager/order_tracking_events.dart';
 import 'package:flower_app/features/orders/presentation/view/order_dlivered_view.dart';
 import 'package:flower_app/features/orders/presentation/view/order_tracking_view.dart';
 import 'package:flower_app/features/orders/presentation/widgets/tracking/actions_buttons.dart';
@@ -232,6 +233,71 @@ void main() {
       expect(find.byType(OrderDeliveredView), findsOneWidget);
       expect(find.text('269VP+Q2 - Sheikh Zayed'), findsOneWidget);
       expect(find.text('Red roses'), findsOneWidget);
+    });
+
+    testWidgets('renders waiting for driver status when driver is not yet assigned',
+        (WidgetTester tester) async {
+      when(mockGetOrderLiveTrackingUseCase.call(tOrderId))
+          .thenAnswer((_) async => ErrorResponse(
+                errMessage: 'Tracking is only available once a driver accepts the order.',
+              ));
+      when(mockGetOrderByIdUseCase.call(tOrderId))
+          .thenAnswer((_) async => const SuccessResponse(tOrderDetails));
+
+      await tester.pumpWidget(_wrap(const OrderTrackingView(orderId: tOrderId)));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 200));
+
+      // Should render the tracking screen, NOT an error screen
+      expect(find.byType(TrackingTimelineWidget), findsOneWidget);
+      expect(find.text('waitingForDriver'), findsOneWidget);
+      expect(find.text('showMap'), findsOneWidget);
+    });
+
+    testWidgets('updates and renders driver card when transitioning from waiting state to driver assigned',
+        (WidgetTester tester) async {
+      when(mockGetOrderLiveTrackingUseCase.call(tOrderId))
+          .thenAnswer((_) async => ErrorResponse(
+                errMessage: 'Tracking is only available once a driver accepts the order.',
+              ));
+      when(mockGetOrderByIdUseCase.call(tOrderId))
+          .thenAnswer((_) async => const SuccessResponse(tOrderDetails));
+
+      await tester.pumpWidget(_wrap(const OrderTrackingView(orderId: tOrderId)));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 200));
+
+      expect(find.text('waitingForDriver'), findsOneWidget);
+      expect(find.text('Mohamed'), findsNothing);
+
+      // Now driver accepts order
+      when(mockGetOrderLiveTrackingUseCase.call(tOrderId))
+          .thenAnswer((_) async => SuccessResponse(tTrackingEntity));
+
+      cubit.doEvents(const RefreshTrackingEvent());
+      await tester.pumpAndSettle();
+
+      // View should now display driver name
+      expect(find.text('waitingForDriver'), findsNothing);
+      expect(find.text('Mohamed'), findsOneWidget);
+    });
+
+    testWidgets('renders both showMap and orderDelivered buttons when status is awaitingConfirmation',
+        (WidgetTester tester) async {
+      final tAwaitingConfirmationEntity = tTrackingEntity.copyWith(
+        status: TrackingStepStatus.awaitingConfirmation,
+        awaitingCustomerConfirmation: true,
+      );
+
+      when(mockGetOrderLiveTrackingUseCase.call(tOrderId))
+          .thenAnswer((_) async => SuccessResponse(tAwaitingConfirmationEntity));
+
+      await tester.pumpWidget(_wrap(const OrderTrackingView(orderId: tOrderId)));
+      await tester.pumpAndSettle();
+
+      // Both Show map and Order Delivered buttons should be visible
+      expect(find.text('showMap'), findsOneWidget);
+      expect(find.text('orderDelivered'), findsOneWidget);
     });
   });
 }

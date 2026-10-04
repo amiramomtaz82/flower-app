@@ -44,13 +44,12 @@ class DriverInfoCard extends StatelessWidget {
     final primary = colors?.primary ?? colorScheme.primary;
 
     if (driver == null) {
-      final errorColor = colors?.error ?? colorScheme.error;
       return Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: errorColor.withValues(alpha: 0.08),
+          color: primary.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: errorColor.withValues(alpha: 0.25)),
+          border: Border.all(color: primary.withValues(alpha: 0.25)),
         ),
         child: Row(
           children: [
@@ -68,7 +67,7 @@ class DriverInfoCard extends StatelessWidget {
                 AppStrings.waitingForDriver.tr(),
                 style: textTheme.bodyMedium?.copyWith(
                   fontWeight: FontWeight.w600,
-                  color: errorColor,
+                  color: primary,
                 ),
               ),
             ),

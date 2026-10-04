@@ -227,5 +227,32 @@ void main() {
         verify(mockGetOrderLiveTrackingUseCase.call(tOrderId)).called(2);
       },
     );
+
+    blocTest<OrderTrackingCubit, OrderTrackingState>(
+      'emits [loading, success] with waiting-for-driver entity when tracking is awaiting driver acceptance',
+      build: () {
+        when(mockGetOrderLiveTrackingUseCase.call(tOrderId))
+            .thenAnswer((_) async => ErrorResponse(
+                  errMessage: 'Tracking is only available once a driver accepts the order.',
+                ));
+        when(mockGetOrderByIdUseCase.call(tOrderId))
+            .thenAnswer((_) async => const SuccessResponse(tOrderDetails));
+        return cubit;
+      },
+      act: (cubit) => cubit.doEvents(const StartTrackingEvent(tOrderId)),
+      expect: () => [
+        isA<OrderTrackingState>()
+            .having((s) => s.trackingResource.isLoading, 'isLoading', isTrue),
+        isA<OrderTrackingState>()
+            .having((s) => s.trackingResource.isSuccess, 'isSuccess', isTrue)
+            .having((s) => s.trackingResource.data?.driver, 'driver', isNull)
+            .having((s) => s.trackingResource.data?.status, 'status', TrackingStepStatus.received)
+            .having((s) => s.trackingResource.data?.isLive, 'isLive', isFalse)
+            .having((s) => s.isStale, 'isStale', isFalse),
+      ],
+      verify: (_) {
+        verify(mockGetOrderLiveTrackingUseCase.call(tOrderId)).called(1);
+      },
+    );
   });
 }

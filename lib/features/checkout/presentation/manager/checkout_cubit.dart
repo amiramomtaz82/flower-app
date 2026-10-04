@@ -237,7 +237,7 @@ class CheckoutCubit extends Cubit<CheckoutState> {
         : null;
     // Build the orderRequest:
     final orderRequest = PlaceOrderRequestEntity(
-      cartId: (cartId != null && cartId.trim().isNotEmpty) ? cartId.trim() : '',
+      cartId: cartId.trim(),
       addressId: addressId,
       isGift: isGiftActive,
       giftRecipient: isGiftActive

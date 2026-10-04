@@ -77,8 +77,14 @@ class OrderItemCard extends StatelessWidget {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: () {isActive?context.push(AppRoutes.orderTracking, extra: order.id):
-                    context.push(AppRoutes.myOrders, extra: order.id);},
+                    onPressed: () {
+                      isActive
+                          ? context.push(
+                              '${AppRoutes.orderTracking}?orderId=${order.id}',
+                              extra: order.id,
+                            )
+                          : context.push(AppRoutes.myOrders, extra: order.id);
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: colors?.primary ?? colorScheme.primary,
                       foregroundColor: Colors.white,

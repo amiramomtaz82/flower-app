@@ -109,9 +109,10 @@ class _TrackingMapWidgetState extends State<TrackingMapWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).extension<LightColors>();
-    final colorScheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
+    final theme = Theme.of(context);
+    final colors = theme.extension<LightColors>();
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
     final primary = colors?.primary ?? colorScheme.primary;
 
     final destPoint = LatLng(

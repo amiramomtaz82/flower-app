@@ -4,9 +4,13 @@ import 'package:injectable/injectable.dart';
 import 'package:flower_app/config/resource/rsource.dart';
 import 'package:flower_app/core/network/base_response.dart';
 
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flower_app/core/app_constants/app_strings.dart';
 import '../../domain/entities/current_location_entity.dart';
 import '../../domain/entities/order_tracking_entity.dart';
+import '../../domain/entities/timeline_milestone_entity.dart';
 import '../../domain/entities/tracking_steps_status.dart';
+import '../../domain/entities/user_address_entity.dart';
 import '../../domain/oredr_details_entity.dart';
 import '../../domain/use_cases/confirm_order_delivery_use_case.dart';
 import '../../domain/use_cases/get_order_by_id_ue_case.dart';
@@ -63,7 +67,7 @@ class OrderTrackingCubit extends Cubit<OrderTrackingState> {
   Future<void> _fetchTracking({required bool isInitial}) async {
     if (_currentOrderId == null) return;
 
-    if (isInitial) {
+    if (isInitial && !state.trackingResource.isSuccess) {
       emit(state.copyWith(trackingResource: Resource.loading()));
     }
 
@@ -86,14 +90,100 @@ class OrderTrackingCubit extends Cubit<OrderTrackingState> {
         }
 
       case ErrorResponse<OrderTrackingEntity>():
-        if (state.trackingResource.isSuccess) {
-          emit(state.copyWith(isStale: true));
+        if (_isWaitingForDriverError(result.errMessage)) {
+          // If already in waiting-for-driver state, keep state and do not mark stale
+          if (state.trackingResource.isSuccess &&
+              state.trackingResource.data != null &&
+              state.trackingResource.data!.driver == null) {
+            return;
+          }
+          final waitingEntity = await _buildWaitingForDriverEntity(_currentOrderId!);
+          _lastSyncTimestamp = DateTime.now();
+          emit(state.copyWith(
+            trackingResource: Resource.success(waitingEntity),
+            isStale: false,
+            secondsSinceLastSync: 0,
+          ));
+        } else if (state.trackingResource.isSuccess) {
+          if (state.trackingResource.data?.driver != null) {
+            emit(state.copyWith(isStale: true));
+          }
         } else {
           emit(state.copyWith(
             trackingResource: Resource.error(result.errMessage),
           ));
         }
     }
+  }
+
+  bool _isWaitingForDriverError(String? message) {
+    if (message == null) return false;
+    final lower = message.toLowerCase();
+    return lower.contains('driver') ||
+        lower.contains('accept') ||
+        lower.contains('waiting') ||
+        lower.contains('not assigned') ||
+        lower.contains('unassigned') ||
+        lower.contains('only available') ||
+        lower.contains('سائق') ||
+        lower.contains('قبول') ||
+        lower.contains('تعيين');
+  }
+
+  Future<OrderTrackingEntity> _buildWaitingForDriverEntity(String orderId) async {
+    UserAddressEntity address = const UserAddressEntity(
+      lat: 30.0444,
+      lng: 31.2357,
+      addressLine: '',
+    );
+
+    try {
+      final detailsRes = await _getOrderByIdUseCase(orderId);
+      if (detailsRes is SuccessResponse<OrderDetailsEntity>) {
+        address = UserAddressEntity(
+          lat: 30.0444,
+          lng: 31.2357,
+          addressLine: detailsRes.data.addressDetail,
+        );
+      }
+    } catch (_) {}
+
+    final nowFormatted = DateFormat('dd MMM yyyy - hh:mm a').format(DateTime.now());
+
+    final milestones = [
+      TimelineMilestoneEntity(
+        title: AppStrings.orderReceived,
+        timestamp: nowFormatted,
+        isCompleted: true,
+      ),
+      const TimelineMilestoneEntity(
+        title: AppStrings.orderPreparing,
+        timestamp: '--:--',
+        isCompleted: false,
+      ),
+      const TimelineMilestoneEntity(
+        title: AppStrings.outForDelivery,
+        timestamp: '--:--',
+        isCompleted: false,
+      ),
+      const TimelineMilestoneEntity(
+        title: AppStrings.delivered,
+        timestamp: '--:--',
+        isCompleted: false,
+      ),
+    ];
+
+    return OrderTrackingEntity(
+      orderId: orderId,
+      status: TrackingStepStatus.received,
+      isLive: false,
+      awaitingCustomerConfirmation: false,
+      estimatedDeliveryAt: null,
+      driver: null,
+      currentLocation: null,
+      userAddress: address,
+      milestones: milestones,
+    );
   }
 
   Future<void> _fetchOrderDetails(String orderId) async {
@@ -125,10 +215,10 @@ class OrderTrackingCubit extends Cubit<OrderTrackingState> {
 
       TrackingStepStatus updatedStatus = currentData.status;
       if (payload['status'] != null) {
-        final st = payload['status'].toString().toLowerCase();
+        final st = payload['status'].toString().toLowerCase().replaceAll('_', '').replaceAll(' ', '');
         if (st == 'preparing') updatedStatus = TrackingStepStatus.preparing;
-        if (st == 'pickedup' || st == 'outfordelivery') updatedStatus = TrackingStepStatus.outForDelivery;
-        if (st == 'awaitingdeliveryconfirmation') updatedStatus = TrackingStepStatus.awaitingConfirmation;
+        if (st == 'pickup' || st == 'pickedup' || st == 'outfordelivery') updatedStatus = TrackingStepStatus.outForDelivery;
+        if (st == 'awaitingdeliveryconfirmation' || st == 'awaitingconfirmation') updatedStatus = TrackingStepStatus.awaitingConfirmation;
         if (st == 'delivered') updatedStatus = TrackingStepStatus.delivered;
       }
 
@@ -177,6 +267,9 @@ class OrderTrackingCubit extends Cubit<OrderTrackingState> {
 
   void _evaluateStaleness() {
     if (_lastSyncTimestamp == null || !state.trackingResource.isSuccess) return;
+
+    final data = state.trackingResource.data;
+    if (data == null || !data.isLive || data.driver == null) return;
 
     final diff = DateTime.now().difference(_lastSyncTimestamp!).inSeconds;
     final shouldBeStale = diff > staleThresholdSeconds;

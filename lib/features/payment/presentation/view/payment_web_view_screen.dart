@@ -149,7 +149,12 @@ class _PaymentWebViewContentState extends State<_PaymentWebViewContent> {
       listener: (context, state) {
         // 1. Success Verified by Server
         if (state.paymentStatusResource.isSuccess) {
-          context.go(AppRoutes.orderSuccess, extra: widget.orderId);
+          context.go(
+            widget.orderId.isNotEmpty
+                ? '${AppRoutes.orderSuccess}?orderId=${widget.orderId}'
+                : AppRoutes.orderSuccess,
+            extra: widget.orderId,
+          );
         }
 
         // 2. Failed or Timeout (Only show dialog if NOT currently loading a retry session)

@@ -133,7 +133,12 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 );
               } else {
                 // 2. COD: Forward Real Order ID (No longer null!)
-                context.go(AppRoutes.orderSuccess, extra: resolvedOrderId);
+                context.go(
+                  resolvedOrderId != null && resolvedOrderId.isNotEmpty
+                      ? '${AppRoutes.orderSuccess}?orderId=$resolvedOrderId'
+                      : AppRoutes.orderSuccess,
+                  extra: resolvedOrderId,
+                );
               }
             } else if (resource.isError) {
               ScaffoldMessenger.of(context).showSnackBar(

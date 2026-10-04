@@ -1,6 +1,5 @@
 
 import '../../domain/entities/card_payment_session_entity.dart';
-import '../../domain/entities/place_order_request_entity.dart';
 
 class PlaceOrderResponse {
   final CardPaymentSessionDto? data; // null for COD orders
@@ -20,13 +19,37 @@ class PlaceOrderResponse {
   });
 
   factory PlaceOrderResponse.fromJson(Map<String, dynamic> json) {
+    final dataMap = json['data'] is Map ? json['data'] as Map<String, dynamic> : null;
+    final orderMap = json['order'] is Map ? json['order'] as Map<String, dynamic> : null;
+
+    final resolvedOrderId = json['orderId']?.toString() ??
+        json['id']?.toString() ??
+        json['_id']?.toString() ??
+        dataMap?['orderId']?.toString() ??
+        dataMap?['id']?.toString() ??
+        dataMap?['_id']?.toString() ??
+        orderMap?['orderId']?.toString() ??
+        orderMap?['id']?.toString() ??
+        orderMap?['_id']?.toString() ??
+        (json['data'] is String ? json['data'] as String : null);
+
+    final uuidRegex = RegExp(r'[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}');
+    final messageUuid = json['message'] != null
+        ? uuidRegex.firstMatch(json['message'].toString())?.group(0)
+        : null;
+
+    final finalOrderId = resolvedOrderId ?? messageUuid;
+
+    final isCardSession = dataMap != null &&
+        (dataMap.containsKey('sessionUrl') || dataMap.containsKey('sessionId'));
+
     return PlaceOrderResponse(
-      orderId: json['orderId']?.toString() ?? json['data']?['orderId']?.toString(),
-      data: json['data'] != null ? CardPaymentSessionDto.fromJson(json['data']) : null,
-      isSuccess: json['isSuccess'] ?? false,
-      message: json['message'] ?? '',
-      messageLocalized: json['messageLocalized'],
-      statusCode: json['statusCode'] ?? '',
+      orderId: finalOrderId,
+      data: isCardSession ? CardPaymentSessionDto.fromJson(dataMap) : null,
+      isSuccess: json['isSuccess'] == true || json['success'] == true,
+      message: json['message']?.toString() ?? '',
+      messageLocalized: json['messageLocalized']?.toString(),
+      statusCode: json['statusCode']?.toString() ?? '',
     );
   }
 }
