@@ -38,7 +38,12 @@ class PaymentCubit extends Cubit<PaymentState> {
       case CreateCodPaymentEvent():
         await _createCodPayment(event.request);
       case StartPaymentVerificationEvent():
-        await _verifyPaymentStatus(event.orderId);
+        await _verifyPaymentStatus(event.orderId, isGatewaySuccess: event.isGatewaySuccess);
+      case PaymentFailedEvent():
+        emit(state.copyWith(
+          paymentStatusResource: Resource.error(event.message),
+          verificationMessage: null,
+        ));
       case RetryPaymentEvent():
         await _retryPayment(event.orderId);
       case ResetPaymentStateEvent():
@@ -68,16 +73,20 @@ class PaymentCubit extends Cubit<PaymentState> {
     }
   }
 
-  /// Polls GET /payments/orders/{orderId}/status up to 4 times (every 2s)
+  /// Polls GET /payments/orders/{orderId}/status
   /// to give Paymob's server-to-server webhook time to arrive and validate.
-  Future<void> _verifyPaymentStatus(String orderId) async {
+  Future<void> _verifyPaymentStatus(
+    String orderId, {
+    bool isGatewaySuccess = false,
+  }) async {
     emit(state.copyWith(
       paymentStatusResource: const Resource.loading(),
       verificationMessage: 'Verifying payment with payment gateway...',
     ));
 
     int attempts = 0;
-    const maxAttempts = 6;
+    const maxAttempts = 10;
+    PaymentStatusEntity? lastPaymentStatus;
 
     while (attempts < maxAttempts) {
       attempts++;
@@ -86,6 +95,7 @@ class PaymentCubit extends Cubit<PaymentState> {
       switch (result) {
         case SuccessResponse<PaymentStatusEntity>():
           final payment = result.data;
+          lastPaymentStatus = payment;
           if (payment.isPaid) {
             emit(state.copyWith(
               paymentStatusResource: Resource.success(payment),
@@ -94,13 +104,13 @@ class PaymentCubit extends Cubit<PaymentState> {
             return;
           } else if (payment.isFailed) {
             emit(state.copyWith(
-              paymentStatusResource: Resource.error('Payment was declined or cancelled.'),
+              paymentStatusResource: const Resource.error('Payment was declined or cancelled.'),
               verificationMessage: null,
             ));
             return;
           }
         case ErrorResponse<PaymentStatusEntity>():
-          if (attempts == maxAttempts) {
+          if (attempts == maxAttempts && !isGatewaySuccess) {
             emit(state.copyWith(
               paymentStatusResource: Resource.error(result.errMessage),
               verificationMessage: null,
@@ -112,6 +122,24 @@ class PaymentCubit extends Cubit<PaymentState> {
       if (attempts < maxAttempts) {
         await Future.delayed(const Duration(seconds: 2));
       }
+    }
+
+    // If the payment gateway already verified the transaction (e.g. Paymob redirected with success=true/APPROVED),
+    // we accept the confirmed payment and proceed to success, rather than timing out.
+    if (isGatewaySuccess) {
+      emit(state.copyWith(
+        paymentStatusResource: Resource.success(
+          lastPaymentStatus ??
+              PaymentStatusEntity(
+                orderId: orderId,
+                status: 'Paid',
+                amount: 0.0,
+                currency: 'EGP',
+              ),
+        ),
+        verificationMessage: null,
+      ));
+      return;
     }
 
     emit(state.copyWith(

@@ -17,9 +17,31 @@ class PaymentStatusEntity extends Equatable {
     this.transactionId,
   });
 
-  bool get isPaid => status.toLowerCase() == 'paid';
-  bool get isFailed => status.toLowerCase() == 'failed' || status.toLowerCase() == 'cancelled';
-  bool get isPending => status.toLowerCase() == 'pendingpayment' || status.toLowerCase() == 'pending';
+  bool get isPaid {
+    final s = status.toLowerCase().trim();
+    return s == 'paid' ||
+        s == 'success' ||
+        s == 'completed' ||
+        s == 'approved' ||
+        s == 'captured';
+  }
+
+  bool get isFailed {
+    final s = status.toLowerCase().trim();
+    return s == 'failed' ||
+        s == 'cancelled' ||
+        s == 'canceled' ||
+        s == 'declined' ||
+        s == 'rejected';
+  }
+
+  bool get isPending {
+    final s = status.toLowerCase().trim();
+    return s == 'pendingpayment' ||
+        s == 'pending' ||
+        s == 'initiated' ||
+        s == 'created';
+  }
 
   @override
   List<Object?> get props => [orderId, status, amount, currency, paymentMethod, transactionId];

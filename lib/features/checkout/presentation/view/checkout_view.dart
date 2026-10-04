@@ -13,7 +13,6 @@ import '../../../../core/go_routes/routes_name.dart';
 import '../../../Address/presentaion/manager/address_cubit.dart';
 import '../../../Address/presentaion/manager/address_events.dart';
 import '../../../Address/presentaion/manager/address_state.dart';
-import '../../../payment/presentation/view/payment_web_view_screen.dart';
 
 import '../manager/checkout_cubit.dart';
 import '../manager/checkout_event.dart';
@@ -119,17 +118,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               final resolvedOrderId = cardSession?.orderId ?? resource.data?.orderId;
 
               if (cardSession != null && cardSession.sessionUrl.isNotEmpty) {
-                // 1. Credit Card: Open Payment WebView
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => PaymentWebViewScreen(
-                      sessionUrl: cardSession.sessionUrl,
-                      successUrl: cardSession.successUrl,
-                      cancelUrl: cardSession.cancelUrl,
-                      orderId: cardSession.orderId,
-                    ),
-                  ),
+                // 1. Credit Card: Open Payment WebView via GoRouter
+                context.push(
+                  AppRoutes.paymentWebView,
+                  extra: cardSession,
                 );
               } else {
                 // 2. COD: Forward Real Order ID (No longer null!)

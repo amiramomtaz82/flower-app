@@ -92,21 +92,34 @@ class _PaymentWebViewContentState extends State<_PaymentWebViewContent> {
   bool _interceptUrl(String url) {
     if (_isNavigating) return true;
 
+    final lowerUrl = url.toLowerCase();
+
     final isSuccess = (widget.successUrl.isNotEmpty && url.startsWith(widget.successUrl)) ||
-        url.contains('status=success') ||
-        url.contains('status=paid') ||
-        url.contains('success=true') ||
-        url.contains('txn_response_code=APPROVED');
+        lowerUrl.contains('status=success') ||
+        lowerUrl.contains('status=paid') ||
+        lowerUrl.contains('success=true') ||
+        lowerUrl.contains('txn_response_code=approved');
 
     final isCancel = (widget.cancelUrl.isNotEmpty && url.startsWith(widget.cancelUrl)) ||
-        url.contains('status=cancel') ||
-        url.contains('status=failed') ||
-        url.contains('success=false');
+        lowerUrl.contains('status=cancel') ||
+        lowerUrl.contains('status=failed') ||
+        lowerUrl.contains('success=false') ||
+        lowerUrl.contains('txn_response_code=declined');
 
-    if (isSuccess || isCancel) {
+    if (isSuccess) {
       _isNavigating = true;
-      // Dispatches verification event to Cubit to poll server status!
-      context.read<PaymentCubit>().doEvents(StartPaymentVerificationEvent(widget.orderId));
+      // Dispatches verification event to Cubit with isGatewaySuccess = true
+      context.read<PaymentCubit>().doEvents(
+            StartPaymentVerificationEvent(widget.orderId, isGatewaySuccess: true),
+          );
+      return true;
+    }
+
+    if (isCancel) {
+      _isNavigating = true;
+      context.read<PaymentCubit>().doEvents(
+            const PaymentFailedEvent('Payment was declined or cancelled.'),
+          );
       return true;
     }
 
@@ -149,6 +162,9 @@ class _PaymentWebViewContentState extends State<_PaymentWebViewContent> {
       listener: (context, state) {
         // 1. Success Verified by Server
         if (state.paymentStatusResource.isSuccess) {
+          if (Navigator.of(context).canPop()) {
+            Navigator.of(context).pop();
+          }
           context.go(
             widget.orderId.isNotEmpty
                 ? '${AppRoutes.orderSuccess}?orderId=${widget.orderId}'

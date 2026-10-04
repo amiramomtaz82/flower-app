@@ -30,7 +30,10 @@ class OrderModel {
     final lowerStatus = statusString.toLowerCase();
     final isCompleted = lowerStatus == 'completed' ||
         lowerStatus == 'delivered' ||
-        lowerStatus == 'cancelled';
+        lowerStatus == 'cancelled' ||
+        lowerStatus == 'canceled' ||
+        lowerStatus == 'failed' ||
+        lowerStatus == 'declined';
     return OrderEntity(
       id: id,
       productName: productName,

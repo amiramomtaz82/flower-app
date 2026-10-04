@@ -27,10 +27,22 @@ class CreateCodPaymentEvent extends PaymentEvent {
 
 class StartPaymentVerificationEvent extends PaymentEvent {
   final String orderId;
-  const StartPaymentVerificationEvent(this.orderId);
+  final bool isGatewaySuccess;
+  const StartPaymentVerificationEvent(
+    this.orderId, {
+    this.isGatewaySuccess = false,
+  });
 
   @override
-  List<Object?> get props => [orderId];
+  List<Object?> get props => [orderId, isGatewaySuccess];
+}
+
+class PaymentFailedEvent extends PaymentEvent {
+  final String message;
+  const PaymentFailedEvent([this.message = 'Payment was declined or cancelled.']);
+
+  @override
+  List<Object?> get props => [message];
 }
 
 class RetryPaymentEvent extends PaymentEvent {
