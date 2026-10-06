@@ -25,7 +25,8 @@ class FcmService {
 
   // Expose stream for FcmTokenSyncService to handle backend syncing
   Stream<String> get onTokenRefreshStream => _messaging.onTokenRefresh;
-
+  // Expose stream for incoming foreground messages to handle real-time feature updates
+  Stream<RemoteMessage> get onMessageStream => FirebaseMessaging.onMessage;
   Future<void> initialize() async {
     // 1. Initialize local notification display channel
     await _localNotificationService.initialize();

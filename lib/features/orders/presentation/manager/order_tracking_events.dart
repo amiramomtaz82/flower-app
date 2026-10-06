@@ -1,5 +1,7 @@
 import 'package:equatable/equatable.dart';
 
+import '../../domain/entities/order_tracking_update_entity.dart';
+
 sealed class OrderTrackingEvent extends Equatable {
   const OrderTrackingEvent();
 
@@ -27,13 +29,7 @@ class ToggleMapEvent extends OrderTrackingEvent {
   List<Object?> get props => [showMap];
 }
 
-class FcmTrackingPayloadReceivedEvent extends OrderTrackingEvent {
-  final Map<String, dynamic> payload;
-  const FcmTrackingPayloadReceivedEvent(this.payload);
 
-  @override
-  List<Object?> get props => [payload];
-}
 
 class CheckStalenessTickEvent extends OrderTrackingEvent {
   const CheckStalenessTickEvent();
@@ -41,4 +37,10 @@ class CheckStalenessTickEvent extends OrderTrackingEvent {
 
 class ConfirmDeliveryPressedEvent extends OrderTrackingEvent {
   const ConfirmDeliveryPressedEvent();
+}
+class TrackingUpdateReceivedEvent extends OrderTrackingEvent {
+  final OrderTrackingUpdateEntity update;
+  const TrackingUpdateReceivedEvent(this.update);
+  @override
+  List<Object?> get props => [update];
 }

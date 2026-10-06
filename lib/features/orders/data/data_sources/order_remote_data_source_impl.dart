@@ -16,7 +16,7 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
   OrderRemoteDataSourceImpl(this._apiClient);
   
   final OrderApiClient _apiClient;
-  final bool _isTrackingMockMode = false;
+
 
   @override
   Future<OrdersResponseModel> getOrders({
@@ -34,10 +34,7 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
   }
   @override
   Future<bool> confirmOrderDelivery(String orderId) async {
-    if (_isTrackingMockMode) {
-      await Future.delayed(const Duration(milliseconds: 300));
-      return true;
-    }
+
     await _apiClient.confirmOrderDelivery(orderId);
     return true;
   }

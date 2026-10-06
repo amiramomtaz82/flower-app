@@ -8,6 +8,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flower_app/core/app_constants/app_strings.dart';
 import '../../domain/entities/current_location_entity.dart';
 import '../../domain/entities/order_tracking_entity.dart';
+import '../../domain/entities/order_tracking_update_entity.dart';
 import '../../domain/entities/timeline_milestone_entity.dart';
 import '../../domain/entities/tracking_steps_status.dart';
 import '../../domain/entities/user_address_entity.dart';
@@ -15,6 +16,7 @@ import '../../domain/oredr_details_entity.dart';
 import '../../domain/use_cases/confirm_order_delivery_use_case.dart';
 import '../../domain/use_cases/get_order_by_id_ue_case.dart';
 import '../../domain/use_cases/get_order_tracking_use_case.dart';
+import '../../domain/use_cases/order_tracking_use_case.dart';
 import 'order_tracking_events.dart';
 import 'order_tracking_states.dart';
 
@@ -32,11 +34,13 @@ class OrderTrackingCubit extends Cubit<OrderTrackingState> {
 
   static const int staleThresholdSeconds = 45;
   static const int pollingIntervalSeconds = 5;
-
+  final GetOrderTrackingUpdatesUseCase _getOrderTrackingUpdatesUseCase;
+  StreamSubscription<OrderTrackingUpdateEntity>? _trackingSubscription;
   OrderTrackingCubit(
       this._getLiveTrackingUseCase,
       this._confirmOrderDeliveryUseCase,
       this._getOrderByIdUseCase,
+      this._getOrderTrackingUpdatesUseCase,
       ) : super(OrderTrackingState.initial());
 
   Future<void> doEvents(OrderTrackingEvent event) async {
@@ -46,6 +50,7 @@ class OrderTrackingCubit extends Cubit<OrderTrackingState> {
         await _fetchTracking(isInitial: true);
         _startPolling();
         _startStalenessTicker();
+        _listenToTrackingUpdates(event.orderId);
 
       case RefreshTrackingEvent():
         await _fetchTracking(isInitial: false);
@@ -53,8 +58,8 @@ class OrderTrackingCubit extends Cubit<OrderTrackingState> {
       case ToggleMapEvent():
         emit(state.copyWith(showMap: event.showMap));
 
-      case FcmTrackingPayloadReceivedEvent():
-        _handleFcmPayload(event.payload);
+      case TrackingUpdateReceivedEvent():
+        _applyTrackingUpdate(event.update);
 
       case CheckStalenessTickEvent():
         _evaluateStaleness();
@@ -63,7 +68,52 @@ class OrderTrackingCubit extends Cubit<OrderTrackingState> {
         await _confirmDelivery();
     }
   }
-
+  void _listenToTrackingUpdates(String orderId) {
+    _trackingSubscription?.cancel();
+    _trackingSubscription = _getOrderTrackingUpdatesUseCase(orderId).listen(
+          (update) => doEvents(TrackingUpdateReceivedEvent(update)),
+    );
+  }
+  void _applyTrackingUpdate(OrderTrackingUpdateEntity update) {
+    if (_currentOrderId == null || update.orderId != _currentOrderId) return;
+    final currentData = state.trackingResource.data;
+    if (currentData != null) {
+      CurrentLocationEntity? updatedLocation = currentData.currentLocation;
+      if (update.currentLocation != null) {
+        updatedLocation = (updatedLocation != null)
+            ? updatedLocation.copyWith(
+          lat: update.currentLocation!.lat,
+          lng: update.currentLocation!.lng,
+          recordedAt: update.currentLocation!.recordedAt,
+          isStale: false,
+        )
+            : update.currentLocation;
+      }
+      final TrackingStepStatus updatedStatus = update.status ?? currentData.status;
+      _lastSyncTimestamp = DateTime.now();
+      emit(state.copyWith(
+        trackingResource: Resource.success(
+          currentData.copyWith(
+            currentLocation: updatedLocation,
+            status: updatedStatus,
+            awaitingCustomerConfirmation:
+            updatedStatus == TrackingStepStatus.awaitingConfirmation,
+          ),
+        ),
+        isStale: false,
+        secondsSinceLastSync: 0,
+      ));
+      if (updatedStatus == TrackingStepStatus.delivered) {
+        _pollingTimer?.cancel();
+        _stalenessTimer?.cancel();
+        _fetchOrderDetails(_currentOrderId!);
+      } else {
+        _startPolling();
+      }
+    } else {
+      _fetchTracking(isInitial: false);
+    }
+  }
   Future<void> _fetchTracking({required bool isInitial}) async {
     if (_currentOrderId == null) return;
 
@@ -197,57 +247,6 @@ class OrderTrackingCubit extends Cubit<OrderTrackingState> {
     }
   }
 
-  void _handleFcmPayload(Map<String, dynamic> payload) {
-    if (_currentOrderId == null) return;
-    if (payload['orderId'] != null && payload['orderId'] != _currentOrderId) return;
-
-    final currentData = state.trackingResource.data;
-    if (currentData != null) {
-      final double? lat = double.tryParse(payload['lat']?.toString() ?? '');
-      final double? lng = double.tryParse(payload['lng']?.toString() ?? '');
-
-      CurrentLocationEntity? updatedLocation = currentData.currentLocation;
-      if (lat != null && lng != null) {
-        updatedLocation = (updatedLocation != null)
-            ? updatedLocation.copyWith(lat: lat, lng: lng, recordedAt: DateTime.now(), isStale: false)
-            : CurrentLocationEntity(lat: lat, lng: lng, recordedAt: DateTime.now(), isStale: false);
-      }
-
-      TrackingStepStatus updatedStatus = currentData.status;
-      if (payload['status'] != null) {
-        final st = payload['status'].toString().toLowerCase().replaceAll('_', '').replaceAll(' ', '');
-        if (st == 'preparing') updatedStatus = TrackingStepStatus.preparing;
-        if (st == 'pickup' || st == 'pickedup' || st == 'outfordelivery') updatedStatus = TrackingStepStatus.outForDelivery;
-        if (st == 'awaitingdeliveryconfirmation' || st == 'awaitingconfirmation') updatedStatus = TrackingStepStatus.awaitingConfirmation;
-        if (st == 'delivered') updatedStatus = TrackingStepStatus.delivered;
-      }
-
-      _lastSyncTimestamp = DateTime.now();
-
-      emit(state.copyWith(
-        trackingResource: Resource.success(
-          currentData.copyWith(
-            currentLocation: updatedLocation,
-            status: updatedStatus,
-            awaitingCustomerConfirmation:
-            updatedStatus == TrackingStepStatus.awaitingConfirmation,
-          ),
-        ),
-        isStale: false,
-        secondsSinceLastSync: 0,
-      ));
-
-      if (updatedStatus == TrackingStepStatus.delivered) {
-        _pollingTimer?.cancel();
-        _stalenessTimer?.cancel();
-        _fetchOrderDetails(_currentOrderId!);
-      } else {
-        _startPolling();
-      }
-    } else {
-      _fetchTracking(isInitial: false);
-    }
-  }
 
   void _startPolling() {
     _pollingTimer?.cancel();
@@ -304,6 +303,7 @@ class OrderTrackingCubit extends Cubit<OrderTrackingState> {
   Future<void> close() {
     _pollingTimer?.cancel();
     _stalenessTimer?.cancel();
+    _trackingSubscription?.cancel();
     return super.close();
   }
 }

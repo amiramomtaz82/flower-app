@@ -6,14 +6,18 @@ import 'package:flower_app/core/network/base_response.dart';
 import 'package:flower_app/core/pagination/paginated_response.dart';
 import 'package:flower_app/core/pagination/pagination_model.dart';
 
+import '../../../../config/notificaions/fcm.dart';
 import '../../domain/entities/order_tracking_entity.dart';
+import '../../domain/entities/order_tracking_update_entity.dart';
 import '../../domain/oredr_details_entity.dart';
+import '../models/order_tracking_update_dto.dart';
 
 @Injectable(as: OrderRepository)
 class OrderRepositoryImpl implements OrderRepository {
-  OrderRepositoryImpl(this.remoteDataSource);
+  OrderRepositoryImpl(this.remoteDataSource,this._fcm);
 
   final OrderRemoteDataSource remoteDataSource;
+  final FcmService _fcm;
 
   @override
   Future<BaseResponse<PaginatedResponse<OrderEntity>>> getOrders({
@@ -77,6 +81,16 @@ class OrderRepositoryImpl implements OrderRepository {
     } catch (e) {
       return ErrorResponse<OrderDetailsEntity>(error: e);
     }
+  }
+  @override
+  Stream<OrderTrackingUpdateEntity> getTrackingUpdatesStream(String orderId) {
+    return _fcm.onMessageStream
+        .where((message) {
+      final payloadOrderId = message.data['orderId']?.toString();
+      return payloadOrderId != null && payloadOrderId == orderId;
+    })
+        .map((message) =>
+        OrderTrackingUpdateDto.fromPayload(message.data).toEntity());
   }
 
 }
