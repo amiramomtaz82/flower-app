@@ -159,5 +159,31 @@
   "orderNumber": "رقم الطلب",
   "deliveredOn": "تم التوصيل في",
   "trackOrder": "تتبع الطلب",
-  "reorder": "إعادة الطلب"
+  "reorder": "إعادة الطلب",
+
+  "estimatedArrival": "الوقت المتوقع للوصول",
+  "showMap": "عرض الخريطة",
+  "orderDelivered": "تم استلام الطلب",
+  "orderDetails": "تفاصيل الطلب",
+  "waitingForDriver": "في انتظار تعيين السائق...",
+  "deliveryHeroSubtitle": "هو مندوب التوصيل الخاص بك اليوم",
+  "orderReceived": "تم استلام طلبك",
+  "orderPreparing": "جاري تجهيز طلبك",
+  "outForDelivery": "خرج للتوصيل",
+  "delivered": "تم التوصيل",
+  "liveLocationPaused": "تم إيقاف الموقع المباشر مؤقتاً (منذ {} ث). جاري إعادة الاتصال...",
+  "failedToLoadTracking": "فشل تحميل بيانات التتبع",
+  "enjoyYourOrder": "استمتع بطلبك",
+
+  "payWithCash": "الدفع عند الاستلام",
+  "itemsCount": "{} عناصر",
+  "subTotal": "المجموع الفرعي",
+  "deliveryFee": "رسوم التوصيل",
+
+  "rate": "تقييم",
+  "complete_payment": "إتمام الدفع",
+  "cancel_payment_title": "إلغاء الدفع؟",
+  "cancel_payment_warning": "إذا عدت الآن، فلن يتم إتمام عملية الدفع.",
+  "continue_payment": "متابعة الدفع",
+  "payment_failed_or_cancelled": "تم إلغاء الدفع أو فشلت العملية. يرجى المحاولة مرة أخرى."
 }

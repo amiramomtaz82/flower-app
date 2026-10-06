@@ -1,14 +1,14 @@
 class UpdateFcmTokenRequest {
-  final String token;
-  final String platform; // "Android" or "iOS"
+  final String deviceId;
+  final String fcmToken;
 
   const UpdateFcmTokenRequest({
-    required this.token,
-    required this.platform,
+    required this.deviceId,
+    required this.fcmToken,
   });
 
   Map<String, dynamic> toJson() => {
-    'token': token,
-    'platform': platform,
+    'deviceId': deviceId,
+    'fcmToken': fcmToken,
   };
 }

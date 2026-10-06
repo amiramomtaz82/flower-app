@@ -9,10 +9,10 @@ sealed class CheckoutEvent extends Equatable {
 }
 
 class GetCheckoutDetailsEvent extends CheckoutEvent {
-  final String cartId;
+  final String? cartId;
   final String? defaultAddressId;
 
-  const GetCheckoutDetailsEvent({required this.cartId, this.defaultAddressId});
+  const GetCheckoutDetailsEvent({this.cartId, this.defaultAddressId});
 
   @override
   List<Object?> get props => [cartId, defaultAddressId];
@@ -20,9 +20,9 @@ class GetCheckoutDetailsEvent extends CheckoutEvent {
 
 class EstimateDeliveryEvent extends CheckoutEvent {
   final String addressId;
-  final String cartId;
+  final String? cartId;
 
-  const EstimateDeliveryEvent({required this.addressId, required this.cartId});
+  const EstimateDeliveryEvent({required this.addressId, this.cartId});
 
   @override
   List<Object?> get props => [addressId, cartId];

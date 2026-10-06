@@ -14,6 +14,7 @@ class Endpoints {
   static const String getAddresses = "/address/users/me/addresses";
   static const String getAreas = '/address/api/areas';
   static const String setDefaultAddress = "/address/api/addresses/{id}/default";
+  static const String refreshToken = '/auth/refresh';
 
   static const String homeSections = '/catalog/home/sections';
   static const String categories = '/catalog/categories';
@@ -25,7 +26,12 @@ class Endpoints {
   static const String checkoutDetails = '/checkout/details';
   static const String estimateDelivery = '/checkout/estimate-delivery';
   static const String placeOrder = '/orders/place';
-  static const String registerDevice = '/devices/register';
+  static const String registerDevice = '/api/v1/devices/fcm-token';
+
+  static const String orders = '/orders';
+  static const String orderById = '/orders/{orderId}';
+  static const String orderTracking = '/orders/{orderId}/tracking';
+  static const String confirmOrderDelivery = '/orders/{orderId}/confirm-delivery';
 
   static const String bestSellersOccasionId =
       '55555555-5555-5555-5555-555555555555';
@@ -41,6 +47,13 @@ class Endpoints {
   // TODO: replace with actual endpoints (not implemented yet)
   static const String profile = '/profile';
   static const String updateProfile = '/profile/update';
+
+  static const String deviceNotifications = '/api/v1/devices/notifications';
+  static const String openStreetMapTileUrl =
+      'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+  static const String mapUserAgent = 'com.flowery.flower_app';
+  static const String osrmRouteBaseUrl =
+      'https://router.project-osrm.org/route/v1/driving';
 }
 
 class QueryParams {
@@ -55,4 +68,6 @@ class QueryParams {
   static const String addAddress = '/address/users/me/addresses';
   static const String getAddresses = "/address/users/me/addresses";
   static const String getAreas = '/address/api/areas';
+  static const String orderId = 'orderId';
+
 }

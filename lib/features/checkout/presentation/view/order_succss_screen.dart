@@ -59,7 +59,7 @@ class OrderSuccessScreen extends StatelessWidget {
                   ),
                 ),
                 onPressed: () {
-                  // Navigate to order tracking screen
+                  context.go(AppRoutes.orderTracking, extra: orderId);
 
                 },
                 child: const Text(

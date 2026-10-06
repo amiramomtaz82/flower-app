@@ -6,7 +6,8 @@ import '../models/place_order_request.dart';
 import '../models/place_order_response.dart';
 
 abstract interface class CheckoutRemoteDataSource {
-  Future<BaseResponse<CheckoutDetailsResponse>> getCheckoutDetails(String cartId);
-  Future<BaseResponse<EstimateDeliveryResponse>> estimateDelivery(String addressId, String cartId);
+  Future<BaseResponse<CheckoutDetailsResponse>> getCheckoutDetails(String? cartId);
+  Future<BaseResponse<EstimateDeliveryResponse>> estimateDelivery(String addressId, String? cartId);
   Future<BaseResponse<PlaceOrderResponse>> placeOrder(PlaceOrderRequest request);
+
 }

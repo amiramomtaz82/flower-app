@@ -17,12 +17,12 @@ class CheckoutRemoteDataSourceImpl implements CheckoutRemoteDataSource {
   final CheckoutApiClient _apiClient;
 
   // Toggle this boolean to switch between local mock data and the live API
-  final bool _isMockMode = true;
+  final bool _isMockMode =false;
 
   CheckoutRemoteDataSourceImpl(this._apiClient);
 
   @override
-  Future<BaseResponse<CheckoutDetailsResponse>> getCheckoutDetails(String cartId) async {
+  Future<BaseResponse<CheckoutDetailsResponse>> getCheckoutDetails(String? cartId) async  {
     if (_isMockMode) {
       await Future.delayed(const Duration(milliseconds: 500));
 
@@ -64,7 +64,7 @@ class CheckoutRemoteDataSourceImpl implements CheckoutRemoteDataSource {
   @override
   Future<BaseResponse<EstimateDeliveryResponse>> estimateDelivery(
       String addressId,
-      String cartId,
+      String? cartId,
       ) async {
     if (_isMockMode) {
       await Future.delayed(const Duration(milliseconds: 350));
@@ -83,13 +83,11 @@ class CheckoutRemoteDataSourceImpl implements CheckoutRemoteDataSource {
 
       return SuccessResponse<EstimateDeliveryResponse>(mockData);
     }
-
     try {
       final response = await _apiClient.estimateDelivery(addressId, cartId);
       return SuccessResponse<EstimateDeliveryResponse>(response);
     } catch (e) {
-      return ErrorResponse<EstimateDeliveryResponse>(
-          error: e);
+      return ErrorResponse<EstimateDeliveryResponse>(error: e);
     }
   }
   @override

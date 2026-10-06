@@ -18,6 +18,7 @@ class AppStrings {
   static const String ar = 'ar';
   static const String deviceId = 'device_id';
   static const String accessToken = 'accessToken';
+  static const String refreshToken = 'refreshToken';
   static const String pleaseFill = 'Please fill in all fields correctly';
   static const String enterEmailAssociatedToAccount =
       'Please enter your email associated to your account';
@@ -246,4 +247,30 @@ class AppStrings {
   static const String deliveredOn = 'deliveredOn';
   static const String trackOrder = 'trackOrder';
   static const String reorder = 'reorder';
+  // Order Tracking Strings
+  static const String estimatedArrival = 'estimatedArrival';
+  static const String showMap = 'showMap';
+  static const String orderDelivered = 'orderDelivered';
+  static const String orderDetails = 'orderDetails';
+  static const String waitingForDriver = 'waitingForDriver';
+  static const String deliveryHeroSubtitle = 'deliveryHeroSubtitle';
+  static const String orderReceived = 'orderReceived';
+  static const String orderPreparing = 'orderPreparing';
+  static const String outForDelivery = 'outForDelivery';
+  static const String delivered = 'delivered';
+  static const String liveLocationPaused = 'liveLocationPaused';
+  static const String failedToLoadTracking = 'failedToLoadTracking';
+  static const String enjoyYourOrder = 'enjoyYourOrder';
+
+  static const String payWithCash = 'payWithCash';
+  static const String itemsCount = 'itemsCount';
+
+
+  static const String rate = 'rate';
+  static const String completePayment = 'complete_payment';
+  static const String cancelPaymentTitle = 'cancel_payment_title';
+  static const String cancelPaymentWarning = 'cancel_payment_warning';
+  static const String continuePayment = 'continue_payment';
+  static const String paymentFailedOrCancelled = 'payment_failed_or_cancelled';
+  static const String notificationsEnabled="notifications enabled";
 }
