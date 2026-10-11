@@ -1,6 +1,3 @@
-import 'dart:io';
-
-import 'package:dio/dio.dart';
 import 'package:flower_app/features/profile/domain/entities/update_profile_entity.dart';
 
 class UpdateProfileRequestDto {
@@ -25,27 +22,4 @@ class UpdateProfileRequestDto {
       phoneNumber = entity.phoneNumber,
       gender = entity.gender,
       photoPath = entity.photoUrl;
-
-  Future<FormData> toFormData() async {
-    final map = <String, dynamic>{
-      'FullName': fullName,
-      'Email': email,
-      'Phone': phoneNumber,
-      'PhoneNumber': phoneNumber,
-      'Gender': gender,
-    };
-
-    if (photoPath != null && photoPath!.isNotEmpty) {
-      final file = File(photoPath!);
-      if (file.existsSync()) {
-        final filename = photoPath!.split(RegExp(r'[/\\]')).last;
-        map['Photo'] = await MultipartFile.fromFile(
-          file.path,
-          filename: filename,
-        );
-      }
-    }
-
-    return FormData.fromMap(map);
-  }
 }

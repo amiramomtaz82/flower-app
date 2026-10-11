@@ -85,7 +85,13 @@ void main() {
       () async {
         // Arrange
         when(
-          mockProfileApiClient.updateProfile(any),
+          mockProfileApiClient.updateProfile(
+            fullName: anyNamed('fullName'),
+            email: anyNamed('email'),
+            phone: anyNamed('phone'),
+            gender: anyNamed('gender'),
+            photo: anyNamed('photo'),
+          ),
         ).thenAnswer((_) async => updatedProfile);
 
         // Act
@@ -93,7 +99,15 @@ void main() {
 
         // Assert
         expect(result, equals(updatedProfile));
-        verify(mockProfileApiClient.updateProfile(any)).called(1);
+        verify(
+          mockProfileApiClient.updateProfile(
+            fullName: 'Ahmed Hassan',
+            email: 'ahmed@example.com',
+            phone: '01012345678',
+            gender: 'male',
+            photo: null,
+          ),
+        ).called(1);
         verifyNoMoreInteractions(mockProfileApiClient);
       },
     );
@@ -101,7 +115,13 @@ void main() {
     test("should throw an exception when updateProfile fails", () async {
       // Arrange
       when(
-        mockProfileApiClient.updateProfile(any),
+        mockProfileApiClient.updateProfile(
+          fullName: anyNamed('fullName'),
+          email: anyNamed('email'),
+          phone: anyNamed('phone'),
+          gender: anyNamed('gender'),
+          photo: anyNamed('photo'),
+        ),
       ).thenAnswer((_) => Future.error(Exception('Update failed')));
 
       // Act & Assert
@@ -109,7 +129,15 @@ void main() {
         remoteDataSource.updateProfile(updateDto),
         throwsA(isA<Exception>()),
       );
-      verify(mockProfileApiClient.updateProfile(any)).called(1);
+      verify(
+        mockProfileApiClient.updateProfile(
+          fullName: 'Ahmed Hassan',
+          email: 'ahmed@example.com',
+          phone: '01012345678',
+          gender: 'male',
+          photo: null,
+        ),
+      ).called(1);
       verifyNoMoreInteractions(mockProfileApiClient);
     });
   });

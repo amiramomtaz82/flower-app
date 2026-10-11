@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flower_app/features/profile/api/client/profile_api_client.dart';
 import 'package:flower_app/features/profile/data/data_source/remote/profile_remote_data_source.dart';
 import 'package:flower_app/features/profile/data/models/change_password_dto.dart';
@@ -20,8 +22,18 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
   Future<ProfileResponseModel> updateProfile(
     UpdateProfileRequestDto updateProfileDto,
   ) async {
-    final formData = await updateProfileDto.toFormData();
-    final response = await _profileApiClient.updateProfile(formData);
+    final photo = updateProfileDto.photoPath != null &&
+            updateProfileDto.photoPath!.isNotEmpty
+        ? File(updateProfileDto.photoPath!)
+        : null;
+
+    final response = await _profileApiClient.updateProfile(
+      fullName: updateProfileDto.fullName,
+      email: updateProfileDto.email,
+      phone: updateProfileDto.phoneNumber,
+      gender: updateProfileDto.gender,
+      photo: photo,
+    );
     return response;
   }
 
