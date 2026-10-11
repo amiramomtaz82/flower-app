@@ -360,7 +360,7 @@ void main() {
               (state) =>
           state.placeOrderResource.isError &&
               state.placeOrderResource.errorMessage ==
-                  'Cart identifier is missing.',
+                  'Cart is empty. Please add items to cart first.',
         ),
       ],
       verify: (_) => verifyZeroInteractions(mockPlaceOrderUseCase),

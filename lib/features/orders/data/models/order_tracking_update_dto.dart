@@ -30,11 +30,13 @@ class OrderTrackingUpdateDto {
       final st = status!.toLowerCase().replaceAll('_', '').replaceAll(' ', '');
       if (st == 'preparing') {
         parsedStatus = TrackingStepStatus.preparing;
-      } else if (st == 'pickup' || st == 'pickedup' || st == 'outfordelivery') {
+      } else if (st == 'pickup' || st == 'pickedup') {
+        parsedStatus = TrackingStepStatus.pickedUp; // Separate picked up status
+      } else if (st == 'outfordelivery') {
         parsedStatus = TrackingStepStatus.outForDelivery;
       } else if (st == 'awaitingdeliveryconfirmation' ||
           st == 'awaitingconfirmation') {
-        parsedStatus = TrackingStepStatus.awaitingConfirmation;
+        parsedStatus = TrackingStepStatus.awaitingDeliveryConfirmation; // Matches enum
       } else if (st == 'delivered') {
         parsedStatus = TrackingStepStatus.delivered;
       } else if (st == 'cancelled') {

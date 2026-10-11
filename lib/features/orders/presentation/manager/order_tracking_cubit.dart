@@ -97,7 +97,7 @@ class OrderTrackingCubit extends Cubit<OrderTrackingState> {
             currentLocation: updatedLocation,
             status: updatedStatus,
             awaitingCustomerConfirmation:
-            updatedStatus == TrackingStepStatus.awaitingConfirmation,
+            updatedStatus == TrackingStepStatus.awaitingDeliveryConfirmation,
           ),
         ),
         isStale: false,
@@ -212,7 +212,17 @@ class OrderTrackingCubit extends Cubit<OrderTrackingState> {
         isCompleted: false,
       ),
       const TimelineMilestoneEntity(
+        title: AppStrings.orderPickedUp,
+        timestamp: '--:--',
+        isCompleted: false,
+      ),
+      const TimelineMilestoneEntity(
         title: AppStrings.outForDelivery,
+        timestamp: '--:--',
+        isCompleted: false,
+      ),
+      const TimelineMilestoneEntity(
+        title: AppStrings.awaitingConfirmation,
         timestamp: '--:--',
         isCompleted: false,
       ),
@@ -222,7 +232,6 @@ class OrderTrackingCubit extends Cubit<OrderTrackingState> {
         isCompleted: false,
       ),
     ];
-
     return OrderTrackingEntity(
       orderId: orderId,
       status: TrackingStepStatus.received,

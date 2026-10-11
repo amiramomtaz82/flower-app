@@ -18,12 +18,25 @@ import 'package:flower_app/features/orders/presentation/widgets/tracking/trackin
 import 'package:flower_app/features/orders/presentation/widgets/tracking/tracking_timeline_widget.dart';
 import 'package:flower_app/core/go_routes/routes_name.dart';
 import 'package:flower_app/features/orders/domain/use_cases/get_order_by_id_ue_case.dart';
+import 'package:flower_app/features/orders/domain/use_cases/order_tracking_use_case.dart';
+import 'package:flower_app/features/orders/domain/entities/order_tracking_update_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mockito/mockito.dart';
 
 import '../manager/order_tracking_cubit_test.mocks.dart';
+
+class MockGetOrderTrackingUpdatesUseCase extends Mock
+    implements GetOrderTrackingUpdatesUseCase {
+  @override
+  Stream<OrderTrackingUpdateEntity> call(String? orderId) =>
+      super.noSuchMethod(
+        Invocation.method(#call, [orderId]),
+        returnValue: const Stream<OrderTrackingUpdateEntity>.empty(),
+        returnValueForMissingStub: const Stream<OrderTrackingUpdateEntity>.empty(),
+      ) as Stream<OrderTrackingUpdateEntity>;
+}
 
 Widget _wrap(Widget child, {List<RouteBase>? extraRoutes}) {
   final router = GoRouter(
@@ -49,6 +62,7 @@ void main() {
   late MockGetOrderLiveTrackingUseCase mockGetOrderLiveTrackingUseCase;
   late MockConfirmOrderDeliveryUseCase mockConfirmOrderDeliveryUseCase;
   late MockGetOrderByIdUseCase mockGetOrderByIdUseCase;
+  late MockGetOrderTrackingUpdatesUseCase mockGetOrderTrackingUpdatesUseCase;
   late OrderTrackingCubit cubit;
 
   const tOrderId = 'test-order-123';
@@ -119,6 +133,10 @@ void main() {
     mockGetOrderLiveTrackingUseCase = MockGetOrderLiveTrackingUseCase();
     mockConfirmOrderDeliveryUseCase = MockConfirmOrderDeliveryUseCase();
     mockGetOrderByIdUseCase = MockGetOrderByIdUseCase();
+    mockGetOrderTrackingUpdatesUseCase = MockGetOrderTrackingUpdatesUseCase();
+
+    when(mockGetOrderTrackingUpdatesUseCase.call(any))
+        .thenAnswer((_) => const Stream<OrderTrackingUpdateEntity>.empty());
 
     provideDummy<BaseResponse<OrderTrackingEntity>>(
       SuccessResponse(tTrackingEntity),
@@ -134,6 +152,7 @@ void main() {
       mockGetOrderLiveTrackingUseCase,
       mockConfirmOrderDeliveryUseCase,
       mockGetOrderByIdUseCase,
+      mockGetOrderTrackingUpdatesUseCase,
     );
 
     if (getIt.isRegistered<OrderTrackingCubit>()) {
@@ -286,7 +305,7 @@ void main() {
     testWidgets('renders both showMap and orderDelivered buttons when status is awaitingConfirmation',
         (WidgetTester tester) async {
       final tAwaitingConfirmationEntity = tTrackingEntity.copyWith(
-        status: TrackingStepStatus.awaitingConfirmation,
+        status: TrackingStepStatus.awaitingDeliveryConfirmation,
         awaitingCustomerConfirmation: true,
       );
 
@@ -335,7 +354,7 @@ void main() {
     testWidgets('renders both orderDetails and orderDelivered buttons on map when awaitingConfirmation',
         (WidgetTester tester) async {
       final tAwaitingConfirmationEntity = tTrackingEntity.copyWith(
-        status: TrackingStepStatus.awaitingConfirmation,
+        status: TrackingStepStatus.awaitingDeliveryConfirmation,
         awaitingCustomerConfirmation: true,
       );
 

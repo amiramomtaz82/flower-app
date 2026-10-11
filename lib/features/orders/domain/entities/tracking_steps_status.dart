@@ -1,21 +1,26 @@
 enum TrackingStepStatus {
   received,
   preparing,
+  pickedUp,
   outForDelivery,
-  awaitingConfirmation,
+  awaitingDeliveryConfirmation,
   delivered,
   cancelled;
+
   int get timelineIndex {
     switch (this) {
       case TrackingStepStatus.received:
         return 0;
       case TrackingStepStatus.preparing:
         return 1;
-      case TrackingStepStatus.outForDelivery:
-      case TrackingStepStatus.awaitingConfirmation:
+      case TrackingStepStatus.pickedUp:
         return 2;
-      case TrackingStepStatus.delivered:
+      case TrackingStepStatus.outForDelivery:
         return 3;
+      case TrackingStepStatus.awaitingDeliveryConfirmation:
+        return 4;
+      case TrackingStepStatus.delivered:
+        return 5;
       case TrackingStepStatus.cancelled:
         return 0;
     }

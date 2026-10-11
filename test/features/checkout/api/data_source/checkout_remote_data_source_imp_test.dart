@@ -20,7 +20,7 @@ void main() {
 
   setUp(() {
     mockApiClient = MockCheckoutApiClient();
-    remoteDataSource = CheckoutRemoteDataSourceImpl(mockApiClient);
+    remoteDataSource = CheckoutRemoteDataSourceImpl(mockApiClient, isMockMode: true);
   });
 
   // ============================================================

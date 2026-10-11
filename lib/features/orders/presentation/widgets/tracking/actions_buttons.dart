@@ -39,7 +39,7 @@ class ActionButtonsSection extends StatelessWidget {
         final data = state.trackingResource.data;
         // Show confirm delivery button when status is awaiting delivery confirmation or awaiting customer confirmation
         final showConfirmDelivery =
-            data?.status == TrackingStepStatus.awaitingConfirmation ||
+            data?.status == TrackingStepStatus.awaitingDeliveryConfirmation ||
             (data?.awaitingCustomerConfirmation ?? false) ||
             data?.status == TrackingStepStatus.delivered;
 

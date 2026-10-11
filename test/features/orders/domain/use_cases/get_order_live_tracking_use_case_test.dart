@@ -20,7 +20,7 @@ void main() {
       const SuccessResponse(
         OrderTrackingEntity(
           orderId: '123',
-          status: TrackingStepStatus.outForDelivery,
+          status: TrackingStepStatus.awaitingDeliveryConfirmation,
           isLive: true,
           awaitingCustomerConfirmation: false,
           userAddress: UserAddressEntity(lat: 30.0, lng: 31.0, addressLine: 'Test'),
@@ -33,7 +33,7 @@ void main() {
   const tOrderId = 'test-order-123';
   const tTrackingEntity = OrderTrackingEntity(
     orderId: tOrderId,
-    status: TrackingStepStatus.outForDelivery,
+    status: TrackingStepStatus.awaitingDeliveryConfirmation,
     isLive: true,
     awaitingCustomerConfirmation: false,
     userAddress: UserAddressEntity(lat: 30.0444, lng: 31.2357, addressLine: '123 Test St'),

@@ -28,9 +28,9 @@ class _CartViewState extends State<CartView> {
 
     
     final cubit = context.read<CartCubit>();
-    if (cubit.state.cartResource.status == ApiStatus.initial) {
+
       cubit.doEvents(CartLoaded());
-    }
+
   }
 
   @override

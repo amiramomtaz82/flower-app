@@ -1,3 +1,4 @@
+import 'package:flower_app/config/notificaions/fcm.dart';
 import 'package:flower_app/core/network/base_response.dart';
 import 'package:flower_app/core/pagination/paginated_response.dart';
 import 'package:flower_app/features/orders/data/data_sources/order_remote_data_source.dart';
@@ -11,14 +12,18 @@ import 'package:mockito/mockito.dart';
 
 import 'order_repository_impl_test.mocks.dart';
 
+class MockFcmService extends Mock implements FcmService {}
+
 @GenerateMocks([OrderRemoteDataSource])
 void main() {
   late OrderRepositoryImpl repository;
   late MockOrderRemoteDataSource mockDataSource;
+  late MockFcmService mockFcmService;
 
   setUp(() {
     mockDataSource = MockOrderRemoteDataSource();
-    repository = OrderRepositoryImpl(mockDataSource);
+    mockFcmService = MockFcmService();
+    repository = OrderRepositoryImpl(mockDataSource, mockFcmService);
   });
 
   const pageNumber = 1;

@@ -63,9 +63,16 @@ class _TrackingMapWidgetState extends State<TrackingMapWidget> {
     );
     final storePoint = _storePoint;
     final driverLoc = widget.data.currentLocation;
-    final driverPoint = driverLoc != null
-        ? LatLng(driverLoc.lat, driverLoc.lng)
-        : null;
+    // Temporary test: if currentLocation is null, place driver halfway between store & home
+    final driverPoint = widget.data.currentLocation != null
+        ? LatLng(
+      widget.data.currentLocation!.lat,
+      widget.data.currentLocation!.lng,
+    )
+        : LatLng(
+      (storePoint.latitude + destPoint.latitude) / 2,
+      (storePoint.longitude + destPoint.longitude) / 2,
+    );
 
     final waypoints = [
       storePoint,

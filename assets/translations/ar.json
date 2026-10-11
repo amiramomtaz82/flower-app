@@ -289,5 +289,8 @@
   "cancel_payment_title": "إلغاء الدفع؟",
   "cancel_payment_warning": "إذا عدت الآن، فلن يتم إتمام عملية الدفع.",
   "continue_payment": "متابعة الدفع",
-  "payment_failed_or_cancelled": "تم إلغاء الدفع أو فشلت العملية. يرجى المحاولة مرة أخرى."
+  "payment_failed_or_cancelled": "تم إلغاء الدفع أو فشلت العملية. يرجى المحاولة مرة أخرى.",
+  "orderPickedUp": "تم استلام الطلب من قِبل المندوب",
+
+  "awaitingConfirmation": "في انتظار تأكيد الاستلام"
 }

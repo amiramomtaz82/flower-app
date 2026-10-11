@@ -30,10 +30,11 @@ class CartRepoImpl implements CartRepo {
     required int quantity,
   }) async {
     try {
-      final response = await _cartRemoteDataSource.addToCart(
+      await _cartRemoteDataSource.addToCart(
         AddToCartItemRequest(productId: productId, quantity: quantity),
       );
-      return SuccessResponse(_toEntity(response));
+      // Re-read full cart so we have cart.id, items, and totals
+      return getCart();
     } catch (e) {
       return ErrorResponse(error: e);
     }

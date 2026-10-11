@@ -294,4 +294,9 @@ class AppStrings {
   static const String gender = 'gender';
   static const String female = 'female';
   static const String male = 'male';
+
+  static const String orderPickedUp = 'orderPickedUp';
+
+  static const String awaitingConfirmation = 'awaitingConfirmation';
+
 }

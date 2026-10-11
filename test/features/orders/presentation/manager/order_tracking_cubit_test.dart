@@ -14,11 +14,24 @@ import 'package:flower_app/features/orders/presentation/manager/order_tracking_s
 import 'package:flower_app/features/orders/domain/use_cases/confirm_order_delivery_use_case.dart';
 import 'package:flower_app/features/orders/domain/use_cases/get_order_by_id_ue_case.dart';
 import 'package:flower_app/features/orders/domain/use_cases/get_order_tracking_use_case.dart';
+import 'package:flower_app/features/orders/domain/use_cases/order_tracking_use_case.dart';
+import 'package:flower_app/features/orders/domain/entities/order_tracking_update_entity.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
 import 'order_tracking_cubit_test.mocks.dart';
+
+class MockGetOrderTrackingUpdatesUseCase extends Mock
+    implements GetOrderTrackingUpdatesUseCase {
+  @override
+  Stream<OrderTrackingUpdateEntity> call(String? orderId) =>
+      super.noSuchMethod(
+        Invocation.method(#call, [orderId]),
+        returnValue: const Stream<OrderTrackingUpdateEntity>.empty(),
+        returnValueForMissingStub: const Stream<OrderTrackingUpdateEntity>.empty(),
+      ) as Stream<OrderTrackingUpdateEntity>;
+}
 
 @GenerateMocks([
   GetOrderLiveTrackingUseCase,
@@ -30,6 +43,7 @@ void main() {
   late MockGetOrderLiveTrackingUseCase mockGetOrderLiveTrackingUseCase;
   late MockConfirmOrderDeliveryUseCase mockConfirmOrderDeliveryUseCase;
   late MockGetOrderByIdUseCase mockGetOrderByIdUseCase;
+  late MockGetOrderTrackingUpdatesUseCase mockGetOrderTrackingUpdatesUseCase;
 
   const tOrderId = 'test-order-123';
 
@@ -54,7 +68,7 @@ void main() {
 
   final tTrackingEntity = OrderTrackingEntity(
     orderId: tOrderId,
-    status: TrackingStepStatus.outForDelivery,
+    status: TrackingStepStatus.awaitingDeliveryConfirmation,
     isLive: true,
     awaitingCustomerConfirmation: false,
     driver: tDriver,
@@ -99,6 +113,10 @@ void main() {
     mockGetOrderLiveTrackingUseCase = MockGetOrderLiveTrackingUseCase();
     mockConfirmOrderDeliveryUseCase = MockConfirmOrderDeliveryUseCase();
     mockGetOrderByIdUseCase = MockGetOrderByIdUseCase();
+    mockGetOrderTrackingUpdatesUseCase = MockGetOrderTrackingUpdatesUseCase();
+
+    when(mockGetOrderTrackingUpdatesUseCase.call(any))
+        .thenAnswer((_) => const Stream<OrderTrackingUpdateEntity>.empty());
 
     provideDummy<BaseResponse<OrderTrackingEntity>>(
       SuccessResponse(tTrackingEntity),
@@ -114,6 +132,7 @@ void main() {
       mockGetOrderLiveTrackingUseCase,
       mockConfirmOrderDeliveryUseCase,
       mockGetOrderByIdUseCase,
+      mockGetOrderTrackingUpdatesUseCase,
     );
   });
 

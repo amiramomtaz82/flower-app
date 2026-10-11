@@ -4,6 +4,8 @@ import 'package:injectable/injectable.dart';
 import '../../../../config/base_response/base_response.dart';
 
 import '../../data/data_source/checkout_remote_data_source.dart';
+import '../../data/models/checkout_details_dto.dart';
+import '../../data/models/payment_methould_dto.dart';
 import '../api_client/checkout_api_client.dart';
 
 import '../../data/models/checkout_details_response.dart';
@@ -17,9 +19,10 @@ class CheckoutRemoteDataSourceImpl implements CheckoutRemoteDataSource {
   final CheckoutApiClient _apiClient;
 
   // Toggle this boolean to switch between local mock data and the live API
-  final bool _isMockMode =false;
+  final bool _isMockMode;
 
-  CheckoutRemoteDataSourceImpl(this._apiClient);
+  CheckoutRemoteDataSourceImpl(this._apiClient, {bool isMockMode = false})
+      : _isMockMode = isMockMode;
 
   @override
   Future<BaseResponse<CheckoutDetailsResponse>> getCheckoutDetails(String? cartId) async  {

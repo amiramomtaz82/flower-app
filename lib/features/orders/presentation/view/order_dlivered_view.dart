@@ -1,7 +1,9 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:flower_app/config/di/di.dart';
+import 'package:flower_app/core/go_routes/routes_name.dart';
 
 import 'package:flower_app/core/app_constants/app_strings.dart';
 import 'package:flower_app/core/app_theme/app_colors.dart';
@@ -58,6 +60,17 @@ class _OrderDeliveredViewState extends State<OrderDeliveredView> {
     });
   }
 
+  AppBar _buildAppBar(BuildContext context) {
+    return AppBar(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      elevation: 0,
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back_ios_new_rounded),
+        onPressed: () => context.go(AppRoutes.home),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).extension<LightColors>();
@@ -71,6 +84,7 @@ class _OrderDeliveredViewState extends State<OrderDeliveredView> {
     if (_orderDetailsFuture == null) {
       return Scaffold(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        appBar: _buildAppBar(context),
         body: Center(
           child: CircularProgressIndicator(color: primary),
         ),
@@ -78,28 +92,33 @@ class _OrderDeliveredViewState extends State<OrderDeliveredView> {
     }
 
     // 2. Fetch using FutureBuilder
-    return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: FutureBuilder<BaseResponse<OrderDetailsEntity>>(
-        future: _orderDetailsFuture,
-        builder: (context, snapshot) {
-          // ⏳ A. While loading, show progress indicator
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(
+    return FutureBuilder<BaseResponse<OrderDetailsEntity>>(
+      future: _orderDetailsFuture,
+      builder: (context, snapshot) {
+        // ⏳ A. While loading, show progress indicator
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Scaffold(
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+            appBar: _buildAppBar(context),
+            body: Center(
               child: CircularProgressIndicator(color: primary),
-            );
-          }
+            ),
+          );
+        }
 
-          // ❌ B. If error occurred or returned null data, show proper error UI with Retry
-          final response = snapshot.data;
-          if (snapshot.hasError ||
-              response == null ||
-              response is! SuccessResponse<OrderDetailsEntity>) {
-            final errorMessage = response is ErrorResponse<OrderDetailsEntity>
-                ? response.errMessage
-                : AppStrings.dataNotFound.tr();
+        // ❌ B. If error occurred or returned null data, show proper error UI with Retry
+        final response = snapshot.data;
+        if (snapshot.hasError ||
+            response == null ||
+            response is! SuccessResponse<OrderDetailsEntity>) {
+          final errorMessage = response is ErrorResponse<OrderDetailsEntity>
+              ? response.errMessage
+              : AppStrings.dataNotFound.tr();
 
-            return Center(
+          return Scaffold(
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+            appBar: _buildAppBar(context),
+            body: Center(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24.0),
                 child: Column(
@@ -134,14 +153,14 @@ class _OrderDeliveredViewState extends State<OrderDeliveredView> {
                   ],
                 ),
               ),
-            );
-          }
+            ),
+          );
+        }
 
-          //  C. Order details successfully retrieved
-          final details = response.data;
-          return _buildContent(context, details);
-        },
-      ),
+        //  C. Order details successfully retrieved
+        final details = response.data;
+        return _buildContent(context, details);
+      },
     );
   }
 
@@ -162,6 +181,7 @@ class _OrderDeliveredViewState extends State<OrderDeliveredView> {
         : AppStrings.notDetermined.tr());
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      appBar: _buildAppBar(context),
       body: SafeArea(
         child: Column(
           children: [

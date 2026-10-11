@@ -102,12 +102,14 @@ class OrderTrackingDto {
         break;
       case 'pickup':
       case 'pickedup':
+        parsedStatus = TrackingStepStatus.pickedUp;
+        break;
       case 'outfordelivery':
         parsedStatus = TrackingStepStatus.outForDelivery;
         break;
       case 'awaitingdeliveryconfirmation':
       case 'awaitingconfirmation':
-        parsedStatus = TrackingStepStatus.awaitingConfirmation;
+        parsedStatus = TrackingStepStatus.awaitingDeliveryConfirmation;
         break;
       case 'delivered':
         parsedStatus = TrackingStepStatus.delivered;
@@ -124,32 +126,30 @@ class OrderTrackingDto {
     final parsedAssigned = DateTime.tryParse(assignedAt ?? '');
     final parsedDelivered = DateTime.tryParse(deliveredAt ?? '');
 
+
     String formatDateTime(DateTime? dt) {
       if (dt == null) return '--:--';
       return DateFormat('dd MMM, hh:mm a').format(dt.toLocal());
     }
 
     final isReceivedDone = true;
-    final isPreparingDone = parsedStatus.timelineIndex >= 1;
-    final isDeliveryDone = parsedStatus.timelineIndex >= 2;
-    final isDeliveredDone = parsedStatus.timelineIndex >= 3;
-
+    final isPreparingDone = true;
+    final isPickedUpDone = parsedStatus.timelineIndex >= 2;
+    final isDeliveryDone = parsedStatus.timelineIndex >= 3;
+    final isAwaitingConfirmationDone = parsedStatus.timelineIndex >= 4;
+    final isDeliveredDone = parsedStatus.timelineIndex >= 5;
     final receivedTime = parsedCreated != null
         ? formatDateTime(parsedCreated)
         : '--:--';
-
     final preparingTime = parsedAssigned != null && isPreparingDone
         ? formatDateTime(parsedAssigned)
         : '--:--';
-
     final outForDeliveryTime = parsedAssigned != null && isDeliveryDone
         ? formatDateTime(parsedAssigned)
         : '--:--';
-
     final deliveredTime = isDeliveredDone
         ? (parsedDelivered != null ? formatDateTime(parsedDelivered) : '--:--')
         : (parsedEstimated != null ? formatDateTime(parsedEstimated) : '--:--');
-
     final milestones = backendMilestones ??
         [
           TimelineMilestoneEntity(
@@ -163,9 +163,19 @@ class OrderTrackingDto {
             isCompleted: isPreparingDone,
           ),
           TimelineMilestoneEntity(
+            title: AppStrings.orderPickedUp,
+            timestamp: '--:--',
+            isCompleted: isPickedUpDone,
+          ),
+          TimelineMilestoneEntity(
             title: AppStrings.outForDelivery,
             timestamp: outForDeliveryTime,
             isCompleted: isDeliveryDone,
+          ),
+          TimelineMilestoneEntity(
+            title: AppStrings.awaitingConfirmation,
+            timestamp: '--:--',
+            isCompleted: isAwaitingConfirmationDone,
           ),
           TimelineMilestoneEntity(
             title: AppStrings.delivered,
