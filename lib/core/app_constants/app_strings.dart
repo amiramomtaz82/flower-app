@@ -41,9 +41,7 @@ class AppStrings {
   static const String resetSessionExpired =
       'your reset code expired, please request a new one';
 
-  // Error messages produced by `config/error` when the backend sends no
-  // message of its own. The UI calls `.tr()` on whatever reaches it, so these
-  // localize like any other key.
+  // messages
   static const String somethingWentWrong =
       'something went wrong, please try again';
   static const String checkYourConnection =
@@ -67,6 +65,7 @@ class AppStrings {
       'some fields are invalid, please check your input';
   static const String internalServerError =
       'internal server error, please try again later';
+  static const String retry = 'Retry';
 
   // Empty states on the categories and occasions pages.
   static const String noCategoriesYet = 'no categories yet';
@@ -87,10 +86,11 @@ class AppStrings {
   static const String navCategories = 'Categories';
   static const String navCart = 'Cart';
   static const String navProfile = 'Profile';
-  static const String pleaseLoginOrRegisterToContinue="PleaseLoginOrRegisterToContinue";
-  static const String loginRequired='Login required';
-  static const String register="Register";
-  static const String rememberMe="Remember me";
+  static const String pleaseLoginOrRegisterToContinue =
+      "PleaseLoginOrRegisterToContinue";
+  static const String loginRequired = 'Login required';
+  static const String register = "Register";
+  static const String rememberMe = "Remember me";
 
   static const String filter = 'filter';
   static const String sortBy = 'sort_by';
@@ -100,17 +100,42 @@ class AppStrings {
   static const String oldest = 'oldest';
   static const String discount = 'discount';
   static const String searchForAnyProduct = 'search_for_any_product';
-  static const String areasIsEmpty='Areas response is empty';
-  static const String address='Address';
-  static const String label='label';
-  static const String addAddress='Add Address';
-  static const String pleaseEnterALabel='Please enter a label';
-  static const String recipientName='Recipient Name';
-  static const String pleaseEnterRecipientName='Please enter recipient name';
-  static const String recipientPhone='Recipient phone';
-  static const String pleaseEnterPhoneNumber='Please enter phone number';
-  static const String addressDetailsStreet='Address Details / Street';
-  static const String pleaseEnterAddressDetails='Please enter address details';
+
+  // Profile screen strings
+  static const String profileScreenTitle = 'profile';
+  static const String myOrders = 'my_orders';
+  static const String savedAddresses = 'saved_addresses';
+  static const String notification = 'notification';
+  static const String language = 'language';
+  static const String aboutUs = 'about_us';
+  static const String termsAndConditions = 'terms_and_conditions';
+  static const String appVersion = 'v 6.3.0 - (446)';
+  static const String changePassword = 'change_password';
+  static const String logout = 'logout';
+
+  // languages
+  static const String changeLanguage = 'change_language';
+  static const String arabic = 'arabic';
+  static const String english = 'english';
+  static const String apply = 'apply';
+
+  // Edit profile & Change Password
+  static const String editProfile = 'edit_profile';
+  static const String profileUpdatedSuccessfully =
+      'profile_updated_successfully';
+  static const String failedToUpdateProfile = 'failed_to_update_profile';
+  static const String areasIsEmpty = 'Areas response is empty';
+  static const String address = 'Address';
+  static const String label = 'label';
+  static const String addAddress = 'Add Address';
+  static const String pleaseEnterALabel = 'Please enter a label';
+  static const String recipientName = 'Recipient Name';
+  static const String pleaseEnterRecipientName = 'Please enter recipient name';
+  static const String recipientPhone = 'Recipient phone';
+  static const String pleaseEnterPhoneNumber = 'Please enter phone number';
+  static const String addressDetailsStreet = 'Address Details / Street';
+  static const String pleaseEnterAddressDetails =
+      'Please enter address details';
   static const String area = 'area';
   static const String loadingAreas = 'loading_areas';
   static const String selectArea = 'select_area';
@@ -121,15 +146,17 @@ class AppStrings {
   static const String selectCity = 'select_city';
   static const String pleaseSelectCity = 'please_select_city';
   static const String saveAddress = 'save_address';
-  static const String pleaseSelectLocationOnMap = 'please_select_location_on_map';
+  static const String pleaseSelectLocationOnMap =
+      'please_select_location_on_map';
   static const String defaultLabelHome = 'home';
-static const String addressAddedSuccessfully='Address added successfully!';
+  static const String addressAddedSuccessfully = 'Address added successfully!';
   static const String failedToAddAddress = 'failed_to_add_address';
   static const String pleaseEnterLabel = 'please_enter_label';
   static const String phoneNumber = 'phone_number';
 
   static const String setAsDefault = 'sed as default';
-  static const String urlTemplate =  'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+  static const String urlTemplate =
+      'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
   static const String userAgentPackageName = 'com.example.flower_app';
   static const String signInToAddAddress = 'sign_in_to_add_address';
   static const String noAddressFound = 'no_address_found';
@@ -143,7 +170,24 @@ static const String addressAddedSuccessfully='Address added successfully!';
   static const String setAsDefaultAddress = 'set_as_default_address';
   static const String coordinatesFormat = 'coordinates_format';
   static const String tapMapToSelectLocation = 'tap_map_to_select_location';
-
-
+  static const String change = 'change';
+  static const String update = 'update';
+  static const String currentPassword = 'current_password';
+  static const String passwordUpdatedSuccessfully =
+      'password_updated_successfully';
+  static const String failedToUpdatePassword = 'failed_to_update_password';
+  static const String cancel = 'cancel';
+  static const String confirmLogout = 'confirm_logout';
+  static const String uppercaseLogout = 'uppercase_logout';
+  static const String firstName = 'first_name';
+  static const String lastName = 'last_name';
+  static const String emailLabel = 'email';
+  static const String phoneNumber = 'phone_number';
+  static const String passwordLabel = 'password';
+  static const String gender = 'gender';
+  static const String female = 'female';
+  static const String male = 'male';
+  static const String couldNotOpenLink = 'could_not_open_link';
+  static const String cannotLaunchUrl = 'cannot_launch_url';
+  static const String errorPickingImage = 'error_picking_image';
 }
-

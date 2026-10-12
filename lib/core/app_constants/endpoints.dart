@@ -26,6 +26,11 @@ class Endpoints {
 
   static const String bestSellersOccasionId =
       '55555555-5555-5555-5555-555555555555';
+
+  static const String profile = '/api/users/GetProfile';
+  static const String updateProfile = '/api/users/UpdateProfile';
+  static const String changePassword = '/auth/change-password';
+  static const String logout = '/auth/logout';
 }
 
 class QueryParams {

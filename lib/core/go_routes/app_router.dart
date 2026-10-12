@@ -23,6 +23,11 @@ import 'package:flower_app/features/commerce/presentation/product_details/view/p
 import 'package:flower_app/features/commerce/presentation/product_details/view_model/product_details_view_model.dart';
 import 'package:flower_app/features/commerce/presentation/search/manager/search_cubit.dart';
 import 'package:flower_app/features/commerce/presentation/search/view/search_view.dart';
+import 'package:flower_app/features/profile/domain/entities/profile_entity.dart';
+import 'package:flower_app/features/profile/presentation/manager/profile_cubit.dart';
+import 'package:flower_app/features/profile/presentation/view/change_password_view.dart';
+import 'package:flower_app/features/profile/presentation/view/edit_profile_view.dart';
+import 'package:flower_app/features/profile/presentation/view/profile_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -44,8 +49,7 @@ class AppRouter {
 
   static final GoRouter router = GoRouter(
     navigatorKey: navigatorKey,
-    initialLocation: AppRoutes.orderSuccess,
-
+    initialLocation: AppRoutes.login,
     routes: [
       GoRoute(
         path: AppRoutes.login,
@@ -61,12 +65,8 @@ class AppRouter {
 
           return MultiBlocProvider(
             providers: [
-              BlocProvider(
-                create: (_) => getIt<CheckoutCubit>(),
-              ),
-              BlocProvider(
-                create: (_) => getIt<AddressCubit>(),
-              ),
+              BlocProvider(create: (_) => getIt<CheckoutCubit>()),
+              BlocProvider(create: (_) => getIt<AddressCubit>()),
             ],
             child: CheckoutScreen(cartId: cartId),
           );
@@ -99,7 +99,7 @@ class AppRouter {
                   providers: [
                     BlocProvider<HomeCubit>(
                       create: (_) =>
-                      getIt<HomeCubit>()..doEvents(HomeStarted()),
+                          getIt<HomeCubit>()..doEvents(HomeStarted()),
                     ),
                     BlocProvider.value(
                       value: getIt<AddressCubit>()
@@ -145,8 +145,10 @@ class AppRouter {
             routes: [
               GoRoute(
                 path: AppRoutes.profile,
-                builder: (context, state) =>
-                    const ComingSoonView(title: 'Profile'),
+                builder: (context, state) => BlocProvider(
+                  create: (_) => getIt<ProfileCubit>(),
+                  child: const ProfileView(),
+                ),
               ),
             ],
           ),
@@ -171,7 +173,8 @@ class AppRouter {
       GoRoute(
         path: AppRoutes.addAddress,
         builder: (context, state) => BlocProvider.value(
-          value: getIt<AddressCubit>()..doEvents(const GetAreasWithCitiesEvent()),
+          value: getIt<AddressCubit>()
+            ..doEvents(const GetAreasWithCitiesEvent()),
           child: const AddAddressView(),
         ),
       ),
@@ -204,6 +207,23 @@ class AppRouter {
         builder: (context, state) => BlocProvider(
           create: (_) => getIt<SearchCubit>(),
           child: const SearchView(),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.editProfile,
+        builder: (context, state) {
+          final profile = state.extra as ProfileEntity?;
+          return BlocProvider(
+            create: (_) => getIt<ProfileCubit>(),
+            child: EditProfileView(initialProfile: profile),
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.changePassword,
+        builder: (context, state) => BlocProvider(
+          create: (_) => getIt<ProfileCubit>(),
+          child: const ChangePasswordView(),
         ),
       ),
     ],

@@ -15,6 +15,20 @@ class BackendMessageExtractor {
           data['error'] ??
           data['msg'];
       if (message is String && message.trim().isNotEmpty) return message;
+
+      final errors = data['errors'];
+      if (errors is Map && errors.isNotEmpty) {
+        final firstError = errors.values.first;
+        if (firstError is List && firstError.isNotEmpty) {
+          return firstError.first.toString();
+        }
+        return firstError.toString();
+      } else if (errors is List && errors.isNotEmpty) {
+        return errors.first.toString();
+      }
+
+      final detail = data['detail'] ?? data['title'];
+      if (detail is String && detail.trim().isNotEmpty) return detail;
       // if the error is a plain string, we can return it directly
     } else if (data is String && data.trim().isNotEmpty) {
       return data;
