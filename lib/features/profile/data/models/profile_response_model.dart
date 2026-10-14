@@ -1,34 +1,46 @@
-import '../../domain/entities/profile_entity.dart';
-
+import 'package:flower_app/features/profile/domain/entities/profile_entity.dart';
 import 'package:json_annotation/json_annotation.dart';
-
-
 part 'profile_response_model.g.dart';
+
 @JsonSerializable()
 class ProfileResponseModel {
-  final String? id;
-
-  @JsonKey(name: 'fullName')
-  final String name;
-
+  @JsonKey(name: "id")
+  final String id;
+  @JsonKey(name: "fullName")
+  final String fullName;
+  @JsonKey(name: "email")
   final String email;
-
-  @JsonKey(name: 'photoUrl')
-  final String profileImageUrl;
-
+  @JsonKey(name: "phone")
+  final String phone;
+  @JsonKey(name: "gender")
   final String gender;
-
-  @JsonKey(name: 'phone')
-  final String phoneNumber;
+  @JsonKey(name: "photoUrl")
+  final String photoUrl;
 
   ProfileResponseModel({
-    this.id,
-    required this.name,
+    required this.id,
+    required this.fullName,
     required this.email,
-    required this.profileImageUrl,
+    required this.phone,
     required this.gender,
-    required this.phoneNumber,
+    required this.photoUrl,
   });
+
+  ProfileResponseModel copyWith({
+    String? id,
+    String? fullName,
+    String? email,
+    String? phone,
+    String? gender,
+    String? photoUrl,
+  }) => ProfileResponseModel(
+    id: id ?? this.id,
+    fullName: fullName ?? this.fullName,
+    email: email ?? this.email,
+    phone: phone ?? this.phone,
+    gender: gender ?? this.gender,
+    photoUrl: photoUrl ?? this.photoUrl,
+  );
 
   factory ProfileResponseModel.fromJson(Map<String, dynamic> json) =>
       _$ProfileResponseModelFromJson(json);
@@ -36,10 +48,10 @@ class ProfileResponseModel {
   Map<String, dynamic> toJson() => _$ProfileResponseModelToJson(this);
 
   ProfileEntity toEntity() => ProfileEntity(
-    name: name,
+    name: fullName,
     email: email,
-    profileImageUrl: profileImageUrl,
+    phoneNumber: phone,
     gender: gender,
-    phoneNumber: phoneNumber,
+    profileImageUrl: photoUrl,
   );
 }

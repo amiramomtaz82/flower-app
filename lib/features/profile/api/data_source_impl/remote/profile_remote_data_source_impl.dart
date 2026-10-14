@@ -1,15 +1,14 @@
+import 'dart:io';
+
 import 'package:flower_app/features/profile/api/client/profile_api_client.dart';
 import 'package:flower_app/features/profile/data/data_source/remote/profile_remote_data_source.dart';
 import 'package:flower_app/features/profile/data/models/change_password_dto.dart';
 import 'package:flower_app/features/profile/data/models/profile_response_model.dart';
 import 'package:flower_app/features/profile/data/models/update_profile_dto.dart';
-
 import 'package:injectable/injectable.dart';
 
-
- @Injectable(as: ProfileRemoteDataSource)
+@Injectable(as: ProfileRemoteDataSource)
 class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
-  // dependency injection for the ProfileApiClient
   final ProfileApiClient _profileApiClient;
   ProfileRemoteDataSourceImpl(this._profileApiClient);
   @override
@@ -20,14 +19,32 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
 
   @override
   Future<ProfileResponseModel> updateProfile(
-    UpdateProfileDto updateProfileDto,
+    UpdateProfileRequestDto updateProfileDto,
   ) async {
-    final response = await _profileApiClient.updateProfile(updateProfileDto);
+    final photo = updateProfileDto.photoPath != null &&
+            updateProfileDto.photoPath!.isNotEmpty
+        ? File(updateProfileDto.photoPath!)
+        : null;
+
+    final response = await _profileApiClient.updateProfile(
+      fullName: updateProfileDto.fullName,
+      email: updateProfileDto.email,
+      phone: updateProfileDto.phoneNumber,
+      gender: updateProfileDto.gender,
+      photo: photo,
+    );
     return response;
   }
 
   @override
-  Future<void> changePassword(ChangePasswordDto changePasswordDto) async {
+  Future<void> changePassword(
+    ChangePasswordRequestDto changePasswordDto,
+  ) async {
     await _profileApiClient.changePassword(changePasswordDto);
+  }
+
+  @override
+  Future<void> logout() {
+    return _profileApiClient.logout();
   }
 }

@@ -30,6 +30,11 @@ import 'package:flower_app/features/profile/presentation/view/edit_profile_view.
 import 'package:flower_app/features/profile/presentation/view/profile_view.dart';
 import 'package:flower_app/features/orders/presentation/view/my_orders_view.dart'
     as flower_orders;
+import 'package:flower_app/features/profile/domain/entities/profile_entity.dart';
+import 'package:flower_app/features/profile/presentation/manager/profile_cubit.dart';
+import 'package:flower_app/features/profile/presentation/view/change_password_view.dart';
+import 'package:flower_app/features/profile/presentation/view/edit_profile_view.dart';
+import 'package:flower_app/features/profile/presentation/view/profile_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -85,8 +90,6 @@ class AppRouter {
           child: const LoginView(),
         ),
       ),
-
-      // lib/core/go_routes/app_router.dart
       GoRoute(
         path: AppRoutes.checkout,
         builder: (context, state) {
@@ -332,6 +335,23 @@ class AppRouter {
             orderId: session.orderId,
           );
         },
+      ),
+      GoRoute(
+        path: AppRoutes.editProfile,
+        builder: (context, state) {
+          final profile = state.extra as ProfileEntity?;
+          return BlocProvider(
+            create: (_) => getIt<ProfileCubit>(),
+            child: EditProfileView(initialProfile: profile),
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.changePassword,
+        builder: (context, state) => BlocProvider(
+          create: (_) => getIt<ProfileCubit>(),
+          child: const ChangePasswordView(),
+        ),
       ),
     ],
   );

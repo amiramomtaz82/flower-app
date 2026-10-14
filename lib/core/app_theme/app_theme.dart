@@ -10,11 +10,13 @@ class AppTheme {
     Brightness.light,
   );
 
-  static ThemeData _buildTheme(LightColors colors, Brightness brightness) {
+  static ThemeData _buildTheme<T extends ThemeExtension<T>>(
+      T extension, Brightness brightness) {
+    final colors = extension as AppColors;
     return ThemeData(
       useMaterial3: true,
       scaffoldBackgroundColor: colors.background,
-      extensions: [colors],
+      extensions: [extension],
 
       colorScheme: ColorScheme(
         brightness: brightness,
