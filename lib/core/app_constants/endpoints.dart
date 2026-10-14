@@ -61,10 +61,7 @@ class Endpoints {
   static const String paymentStatusByOrderId = '/payments/orders/{orderId}/status';
   static const String retryPayment = '/payments/orders/{orderId}/retry';
 
-  static const String profile = '/api/users/GetProfile';
-  static const String updateProfile = '/api/users/UpdateProfile';
-  static const String changePassword = '/auth/change-password';
-  static const String logout = '/auth/logout';
+
 }
 
 class QueryParams {

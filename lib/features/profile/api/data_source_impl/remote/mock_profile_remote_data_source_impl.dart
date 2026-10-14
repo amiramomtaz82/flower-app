@@ -2,18 +2,18 @@ import 'package:flower_app/features/profile/data/data_source/remote/profile_remo
 import 'package:flower_app/features/profile/data/models/change_password_dto.dart';
 import 'package:flower_app/features/profile/data/models/profile_response_model.dart';
 import 'package:flower_app/features/profile/data/models/update_profile_dto.dart';
-import 'package:injectable/injectable.dart';
 
 //@Injectable(as: ProfileRemoteDataSource)
 class MockProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
   // 1. In-memory state holding the current profile
   static ProfileResponseModel _mockProfile = ProfileResponseModel(
-    name: 'Hadi Heikal',
+    id: 'mock_id',
+    fullName: 'Hadi Heikal',
     email: 'HadiiRabea@gmail.com',
-    profileImageUrl:
+    photoUrl:
         'https://images.unsplash.com/photo-1500648767791-00dcc994a43e',
     gender: 'male',
-    phoneNumber: '+201012345678',
+    phone: '+201012345678',
   );
 
   @override
@@ -24,25 +24,31 @@ class MockProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
 
   @override
   Future<ProfileResponseModel> updateProfile(
-    UpdateProfileDto updateProfileDto,
+    UpdateProfileRequestDto updateProfileDto,
   ) async {
     await Future.delayed(const Duration(milliseconds: 800));
 
     // 2. Persist the update in memory!
     _mockProfile = ProfileResponseModel(
-      name: updateProfileDto.fullName,
+      id: _mockProfile.id,
+      fullName: updateProfileDto.fullName,
       email: updateProfileDto.email,
-      profileImageUrl: updateProfileDto.photoUrl,
+      photoUrl: updateProfileDto.photoPath ?? '',
       gender: updateProfileDto.gender,
-      phoneNumber: updateProfileDto.phoneNumber,
+      phone: updateProfileDto.phoneNumber,
     );
 
     return _mockProfile;
   }
 
   @override
-  Future<void> changePassword(ChangePasswordDto changePasswordDto) async {
+  Future<void> changePassword(ChangePasswordRequestDto changePasswordDto) async {
     await Future.delayed(const Duration(milliseconds: 800));
     // Simulated successful password update
+  }
+
+  @override
+  Future<void> logout() async {
+    await Future.delayed(const Duration(milliseconds: 800));
   }
 }

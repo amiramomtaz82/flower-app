@@ -1,5 +1,7 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flower_app/config/base_response/base_response.dart';
+import 'package:flower_app/features/auth/domain/repo/auth_repo.dart';
+import 'package:flower_app/features/notifications/domain/usecase/set_device_notifications_use_case.dart';
 import 'package:flower_app/features/profile/domain/entities/change_password_entity.dart';
 import 'package:flower_app/features/profile/domain/entities/profile_entity.dart';
 import 'package:flower_app/features/profile/domain/entities/update_profile_entity.dart';
@@ -21,6 +23,8 @@ import 'profile_cubit_test.mocks.dart';
   UpdateProfileUseCase,
   LogoutUseCase,
   ChangePasswordUseCase,
+  SetDeviceNotificationsUseCase,
+  AuthRepo,
 ])
 void main() {
   setUpAll(() {
@@ -36,6 +40,8 @@ void main() {
   late MockUpdateProfileUseCase mockUpdateProfileUseCase;
   late MockLogoutUseCase mockLogoutUseCase;
   late MockChangePasswordUseCase mockChangePasswordUseCase;
+  late MockSetDeviceNotificationsUseCase mockSetDeviceNotificationsUseCase;
+  late MockAuthRepo mockAuthRepo;
   late ProfileCubit cubit;
 
   setUp(() {
@@ -43,12 +49,18 @@ void main() {
     mockUpdateProfileUseCase = MockUpdateProfileUseCase();
     mockLogoutUseCase = MockLogoutUseCase();
     mockChangePasswordUseCase = MockChangePasswordUseCase();
+    mockSetDeviceNotificationsUseCase = MockSetDeviceNotificationsUseCase();
+    mockAuthRepo = MockAuthRepo();
+
+    when(mockAuthRepo.getNotificationsEnabled()).thenAnswer((_) async => true);
 
     cubit = ProfileCubit(
       mockGetProfileUseCase,
       mockUpdateProfileUseCase,
       mockLogoutUseCase,
       mockChangePasswordUseCase,
+      mockSetDeviceNotificationsUseCase,
+      mockAuthRepo,
     );
   });
 

@@ -336,23 +336,6 @@ class AppRouter {
           );
         },
       ),
-      GoRoute(
-        path: AppRoutes.editProfile,
-        builder: (context, state) {
-          final profile = state.extra as ProfileEntity?;
-          return BlocProvider(
-            create: (_) => getIt<ProfileCubit>(),
-            child: EditProfileView(initialProfile: profile),
-          );
-        },
-      ),
-      GoRoute(
-        path: AppRoutes.changePassword,
-        builder: (context, state) => BlocProvider(
-          create: (_) => getIt<ProfileCubit>(),
-          child: const ChangePasswordView(),
-        ),
-      ),
     ],
   );
 

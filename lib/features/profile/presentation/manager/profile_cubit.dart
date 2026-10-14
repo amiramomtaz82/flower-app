@@ -13,7 +13,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 
 import '../../../auth/domain/repo/auth_repo.dart';
-import '../../../auth/domain/use_cases/logout_use_case.dart';
 import '../../../notifications/domain/usecase/set_device_notifications_use_case.dart';
 
 @injectable
@@ -22,16 +21,16 @@ class ProfileCubit extends Cubit<ProfileState> {
   final UpdateProfileUseCase _updateProfileUseCase;
   final LogoutUseCase _logoutUseCase;
   final ChangePasswordUseCase _changePasswordUseCase;
-  //-----------
   final SetDeviceNotificationsUseCase _setDeviceNotificationsUseCase;
   final AuthRepo _authRepo;
+
   ProfileCubit(
     this._getProfileUseCase,
     this._updateProfileUseCase,
     this._logoutUseCase,
     this._changePasswordUseCase,
-      this._setDeviceNotificationsUseCase,
-      this._authRepo,
+    this._setDeviceNotificationsUseCase,
+    this._authRepo,
   ) : super(ProfileState.initial());
 
   void doEvent(ProfileEvent event) {
@@ -53,13 +52,20 @@ class ProfileCubit extends Cubit<ProfileState> {
     emit(state.copyWith(resource: Resource.loading()));
 
     try {
+      final isNotificationEnabled = await _authRepo.getNotificationsEnabled();
       final result = await _getProfileUseCase();
 
       switch (result) {
         case SuccessResponse<ProfileEntity>():
-          emit(state.copyWith(resource: Resource.success(result.data)));
+          emit(state.copyWith(
+            resource: Resource.success(result.data),
+            notificationsEnabled: isNotificationEnabled,
+          ));
         case ErrorResponse<ProfileEntity>():
-          emit(state.copyWith(resource: Resource.error(result.errMessage)));
+          emit(state.copyWith(
+            resource: Resource.error(result.errMessage),
+            notificationsEnabled: isNotificationEnabled,
+          ));
       }
     } catch (e) {
       emit(state.copyWith(resource: Resource.error(e.toString())));
@@ -78,14 +84,12 @@ class ProfileCubit extends Cubit<ProfileState> {
             state.copyWith(
               updateProfileResource: Resource.success(result.data),
               resource: Resource.success(result.data),
-              notificationsEnabled: isEnabled,
             ),
           );
         case ErrorResponse<ProfileEntity>():
           emit(
             state.copyWith(
               updateProfileResource: Resource.error(result.errMessage),
-              notificationsEnabled: isEnabled,
             ),
           );
       }
@@ -128,7 +132,7 @@ class ProfileCubit extends Cubit<ProfileState> {
       );
     }
   }
-  //-------------------------
+
   Future<void> _toggleNotification(bool enabled) async {
     emit(state.copyWith(
       notificationsEnabled: enabled,
@@ -144,21 +148,6 @@ class ProfileCubit extends Cubit<ProfileState> {
         notificationsEnabled: !enabled,
         toggleNotificationResource: Resource.error(e.toString()),
       ));
-    }
-  }
-
-  Future<void> _logout() async {
-    emit(state.copyWith(logoutResource: Resource.loading()));
-    try {
-      final result = await _logoutUseCase();
-      switch (result) {
-        case SuccessResponse<void>():
-          emit(state.copyWith(logoutResource: Resource.success(null)));
-        case ErrorResponse<void>():
-          emit(state.copyWith(logoutResource: Resource.error(result.errMessage)));
-      }
-    } catch (e) {
-      emit(state.copyWith(logoutResource: Resource.error(e.toString())));
     }
   }
 }

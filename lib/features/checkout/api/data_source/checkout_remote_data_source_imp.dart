@@ -21,8 +21,10 @@ class CheckoutRemoteDataSourceImpl implements CheckoutRemoteDataSource {
   // Toggle this boolean to switch between local mock data and the live API
   final bool _isMockMode;
 
-  CheckoutRemoteDataSourceImpl(this._apiClient, {bool isMockMode = false})
-      : _isMockMode = isMockMode;
+  CheckoutRemoteDataSourceImpl(
+    this._apiClient, {
+    @ignoreParam bool isMockMode = false,
+  }) : _isMockMode = isMockMode;
 
   @override
   Future<BaseResponse<CheckoutDetailsResponse>> getCheckoutDetails(String? cartId) async  {

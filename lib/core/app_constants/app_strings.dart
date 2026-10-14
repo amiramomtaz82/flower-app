@@ -106,11 +106,7 @@ class AppStrings {
   static const String addressDetailsStreet = 'Address Details / Street';
   static const String pleaseEnterAddressDetails =
       'Please enter address details';
-  static const String pleaseLoginOrRegisterToContinue =
-      "PleaseLoginOrRegisterToContinue";
-  static const String loginRequired = 'Login required';
-  static const String register = "Register";
-  static const String rememberMe = "Remember me";
+
 
   static const String filter = 'filter';
   static const String sortBy = 'sort_by';
@@ -144,18 +140,8 @@ class AppStrings {
   static const String profileUpdatedSuccessfully =
       'profile_updated_successfully';
   static const String failedToUpdateProfile = 'failed_to_update_profile';
-  static const String areasIsEmpty = 'Areas response is empty';
-  static const String address = 'Address';
-  static const String label = 'label';
-  static const String addAddress = 'Add Address';
-  static const String pleaseEnterALabel = 'Please enter a label';
-  static const String recipientName = 'Recipient Name';
-  static const String pleaseEnterRecipientName = 'Please enter recipient name';
-  static const String recipientPhone = 'Recipient phone';
-  static const String pleaseEnterPhoneNumber = 'Please enter phone number';
-  static const String addressDetailsStreet = 'Address Details / Street';
-  static const String pleaseEnterAddressDetails =
-      'Please enter address details';
+
+
   static const String area = 'area';
   static const String loadingAreas = 'loading_areas';
   static const String selectArea = 'select_area';
@@ -204,8 +190,7 @@ class AppStrings {
 
   static const String urlTemplate =
       'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
-  static const String urlTemplate =
-      'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+
   static const String userAgentPackageName = 'com.example.flower_app';
   static const String signInToAddAddress = 'sign_in_to_add_address';
   static const String noAddressFound = 'no_address_found';
@@ -221,7 +206,7 @@ class AppStrings {
   static const String egyptCurrency = 'Egy';
   static const String isGift = 'It is a gift';
   static const String tapMapToSelectLocation = 'tap_map_to_select_location';
-  static const String savedAddresses = 'saved_addresses';
+
   static const String addNewAddress = 'add_new_address';
   static const String deleteAddress = 'delete_address';
   static const String deleteDefaultAddressWarning =
@@ -243,39 +228,6 @@ class AppStrings {
       'location_permanently_denied_message';
   static const String locationPermissionDenied = 'location_permission_denied';
   static const String defaultError = 'default_error';
-
-  static const String filter = 'filter';
-  static const String sortBy = 'sort_by';
-  static const String lowestPrice = 'lowest_price';
-  static const String highestPrice = 'highest_price';
-  static const String newest = 'newest';
-  static const String oldest = 'oldest';
-  static const String discount = 'discount';
-  static const String searchForAnyProduct = 'search_for_any_product';
-
-  // Profile screen strings
-  static const String profileScreenTitle = 'profile';
-  static const String notification = 'Notification';
-  static const String language = 'Language';
-  static const String aboutUs = 'About Us';
-  static const String termsAndConditions = 'Terms and Conditions';
-  static const String myOrders = 'my_orders';
-
-  static const String appVersion = 'v 6.3.0 - (446)';
-  static const String changePassword = 'change_password';
-  static const String logout = 'logout';
-
-  // languages
-  static const String changeLanguage = 'change_language';
-  static const String arabic = 'arabic';
-  static const String english = 'english';
-  static const String apply = 'apply';
-
-  // Edit profile & Change Password
-  static const String editProfile = 'edit_profile';
-  static const String profileUpdatedSuccessfully =
-      'profile_updated_successfully';
-  static const String failedToUpdateProfile = 'failed_to_update_profile';
 
   // Cart
   static const String cart = 'cart';
@@ -344,7 +296,8 @@ class AppStrings {
   static const String uppercaseLogout = 'uppercase_logout';
   static const String firstName = 'first_name';
   static const String lastName = 'last_name';
-  static const String emailLabel = 'email';  static const String passwordLabel = 'password';
+  static const String emailLabel = 'email';
+  static const String passwordLabel = 'password';
   static const String gender = 'gender';
   static const String female = 'female';
   static const String male = 'male';
@@ -352,26 +305,10 @@ class AppStrings {
   static const String orderPickedUp = 'orderPickedUp';
 
   static const String awaitingConfirmation = 'awaitingConfirmation';
-  static const String change = 'change';
-  static const String update = 'update';
-  static const String currentPassword = 'current_password';
-  static const String passwordUpdatedSuccessfully =
-      'password_updated_successfully';
-  static const String failedToUpdatePassword = 'failed_to_update_password';
-  static const String cancel = 'cancel';
-  static const String confirmLogout = 'confirm_logout';
-  static const String uppercaseLogout = 'uppercase_logout';
-  static const String firstName = 'first_name';
-  static const String lastName = 'last_name';
-  static const String emailLabel = 'email';
-  static const String phoneNumber = 'phone_number';
-  static const String passwordLabel = 'password';
-  static const String gender = 'gender';
-  static const String female = 'female';
-  static const String male = 'male';
+
   static const String couldNotOpenLink = 'could_not_open_link';
   static const String cannotLaunchUrl = 'cannot_launch_url';
   static const String errorPickingImage = 'error_picking_image';
 }
 
-}
+

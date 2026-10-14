@@ -26,7 +26,7 @@ class ChangeLanguageBottomSheet extends StatefulWidget {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      builder: (_) => const ChangeLanguageBottomSheet(),
+
       builder: (_) => ChangeLanguageBottomSheet(localeService: localeService),
     );
   }
