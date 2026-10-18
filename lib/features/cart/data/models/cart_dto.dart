@@ -25,8 +25,13 @@ class CartDto {
     this.hasChanges,
   });
 
-  factory CartDto.fromJson(Map<String, dynamic> json) =>
-      _$CartDtoFromJson(json);
+  factory CartDto.fromJson(Map<String, dynamic> json) {
+    final normalized = Map<String, dynamic>.from(json);
+    if (!normalized.containsKey('id') && normalized.containsKey('_id')) {
+      normalized['id'] = normalized['_id']?.toString();
+    }
+    return _$CartDtoFromJson(normalized);
+  }
 
   Map<String, dynamic> toJson() => _$CartDtoToJson(this);
 

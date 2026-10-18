@@ -97,6 +97,9 @@ void main() {
       when(
         mockRemoteDataSource.addToCart(any),
       ).thenAnswer((_) async => cartResponse);
+      when(
+        mockRemoteDataSource.getCart(),
+      ).thenAnswer((_) async => cartResponse);
 
       // Act
       final result = await repo.addToCart(productId: 'product-1', quantity: 3);
@@ -107,6 +110,7 @@ void main() {
               as AddToCartItemRequest;
       expect(request.productId, 'product-1');
       expect(request.quantity, 3);
+      verify(mockRemoteDataSource.getCart()).called(1);
       expect(result, isA<SuccessResponse<CartEntity>>());
     });
 
@@ -189,10 +193,13 @@ void main() {
   });
 
   group('removeCartItem', () {
-    test('removes by cart item id and maps the returned cart', () async {
+    test('removes by cart item id and re-reads the cart', () async {
       // Arrange
       when(
         mockRemoteDataSource.removeCartItem(any),
+      ).thenAnswer((_) async => cartResponse);
+      when(
+        mockRemoteDataSource.getCart(),
       ).thenAnswer((_) async => cartResponse);
 
       // Act
@@ -200,6 +207,7 @@ void main() {
 
       // Assert
       verify(mockRemoteDataSource.removeCartItem('item-1')).called(1);
+      verify(mockRemoteDataSource.getCart()).called(1);
       expect(result, isA<SuccessResponse<CartEntity>>());
     });
 
@@ -209,6 +217,7 @@ void main() {
       final result = await repo.removeCartItem(cartItemId: 'item-1');
 
       expect(result, isA<ErrorResponse<CartEntity>>());
+      verifyNever(mockRemoteDataSource.getCart());
     });
   });
 }

@@ -63,8 +63,9 @@ class CartRepoImpl implements CartRepo {
     required String cartItemId,
   }) async {
     try {
-      final response = await _cartRemoteDataSource.removeCartItem(cartItemId);
-      return SuccessResponse(_toEntity(response));
+      await _cartRemoteDataSource.removeCartItem(cartItemId);
+      // Re-read full cart so we have cart.id, items, and totals
+      return getCart();
     } catch (e) {
       return ErrorResponse(error: e);
     }
