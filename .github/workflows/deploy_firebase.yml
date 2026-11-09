@@ -78,14 +78,17 @@ jobs:
       - name: Build Android Release APK with Flutter
         run: flutter build apk --release
 
+      - name: Verify APK was generated
+        run: ls -la ${{ github.workspace }}/build/app/outputs/flutter-apk/
+
       - name: Run Fastlane to Deploy to Firebase
         working-directory: android
         env:
           FIREBASE_ANDROID_APP_ID: ${{ secrets.FIREBASE_ANDROID_APP_ID }}
-          FIREBASE_CREDENTIALS_PATH: firebase_credentials.json
+          FIREBASE_CREDENTIALS_PATH: ${{ github.workspace }}/android/firebase_credentials.json
           FIREBASE_TESTER_GROUPS: ${{ github.event.inputs.tester_groups || 'testers' }}
           RELEASE_NOTES: ${{ github.event.inputs.release_notes || github.event.head_commit.message || 'Automated release build from GitHub Actions' }}
-          APK_PATH: ../build/app/outputs/flutter-apk/app-release.apk
+          APK_PATH: ${{ github.workspace }}/build/app/outputs/flutter-apk/app-release.apk
         run: bundle exec fastlane android distribute_firebase
 
       - name: Upload APK to GitHub Artifacts

@@ -3,16 +3,29 @@ default_platform(:android)
 platform :android do
   desc "Upload Release APK to Firebase App Distribution"
   lane :distribute_firebase do
-    apk_path = ENV["APK_PATH"] || "../build/app/outputs/flutter-apk/app-release.apk"
+    apk_path = ENV["APK_PATH"]
 
-    UI.user_error!("Could not find APK at #{apk_path}") unless File.exist?(apk_path)
+    # Search dynamically if not directly found
+    if apk_path.nil? || !File.exist?(apk_path)
+      apk_path = Dir["../build/app/outputs/flutter-apk/*.apk"].first ||
+                 Dir["../build/app/outputs/apk/release/*.apk"].first ||
+                 Dir["app/build/outputs/apk/release/*.apk"].first
+    end
+
+    UI.message("Deploying APK: #{apk_path}")
+    UI.user_error!("Could not find APK file for distribution") unless apk_path && File.exist?(apk_path)
+
+    credentials_file = ENV["FIREBASE_CREDENTIALS_PATH"] || "firebase_credentials.json"
+    unless File.exist?(credentials_file)
+      credentials_file = File.join(Dir.pwd, credentials_file)
+    end
 
     firebase_app_distribution(
       app: ENV["FIREBASE_ANDROID_APP_ID"],
-      service_credentials_file: ENV["FIREBASE_CREDENTIALS_PATH"] || "firebase_credentials.json",
+      service_credentials_file: credentials_file,
       groups: ENV["FIREBASE_TESTER_GROUPS"] || "testers",
       release_notes: ENV["RELEASE_NOTES"] || "Automated deployment from GitHub Actions",
-      apk_path: apk_path
+      apk_path: File.expand_path(apk_path)
     )
   end
 end
