@@ -49,3 +49,13 @@ app.*.map.json
 .env
 secrets
 **/*.mocks.dart
+
+# Android Signing & Firebase Deployment Credentials
+key.properties
+android/key.properties
+*.jks
+*.keystore
+**/*.jks
+**/*.keystore
+*firebase_credentials*.json
+android/*firebase_credentials*.json

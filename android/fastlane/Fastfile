@@ -1,0 +1,36 @@
+default_platform(:android)
+
+platform :android do
+  desc "Build Android release APK"
+  lane :build_release do
+    gradle(
+      task: "assemble",
+      build_type: "Release"
+    )
+  end
+
+  desc "Build and distribute release APK to Firebase App Distribution"
+  lane :distribute_firebase do
+    # Build release APK
+    gradle(
+      task: "assemble",
+      build_type: "Release"
+    )
+
+    # Locate APK from gradle context or filesystem
+    apk_path = lane_context[SharedValues::GRADLE_APK_OUTPUT_PATH] ||
+               Dir["app/build/outputs/apk/release/*.apk"].first ||
+               Dir["../build/app/outputs/flutter-apk/*.apk"].first
+
+    UI.user_error!("Could not find generated APK for upload") unless apk_path && File.exist?(apk_path)
+
+    # Deploy to Firebase App Distribution
+    firebase_app_distribution(
+      app: ENV["FIREBASE_ANDROID_APP_ID"],
+      service_credentials_file: ENV["FIREBASE_CREDENTIALS_PATH"] || "firebase_credentials.json",
+      groups: ENV["FIREBASE_TESTER_GROUPS"] || "testers",
+      release_notes: ENV["RELEASE_NOTES"] || "Automated deployment from GitHub Actions",
+      apk_path: apk_path
+    )
+  end
+end
