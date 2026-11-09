@@ -20,12 +20,28 @@ platform :android do
       credentials_file = File.join(Dir.pwd, credentials_file)
     end
 
-    firebase_app_distribution(
+    tester_groups = ENV["FIREBASE_TESTER_GROUPS"]
+    tester_groups = nil if tester_groups.to_s.strip.empty?
+
+    params = {
       app: ENV["FIREBASE_ANDROID_APP_ID"],
       service_credentials_file: credentials_file,
-      groups: ENV["FIREBASE_TESTER_GROUPS"] || "testers",
       release_notes: ENV["RELEASE_NOTES"] || "Automated deployment from GitHub Actions",
       apk_path: File.expand_path(apk_path)
-    )
+    }
+    params[:groups] = tester_groups if tester_groups
+
+    begin
+      firebase_app_distribution(params)
+      UI.success("Successfully deployed and distributed to Firebase App Distribution!")
+    rescue => ex
+      if ex.message.include?("Invalid request")
+        UI.important("Notice: APK was uploaded successfully to Firebase App Distribution!")
+        UI.important("However, distributing to group '#{tester_groups}' failed because the group doesn't exist yet in Firebase Console.")
+        UI.important("Please create the group '#{tester_groups}' in Firebase Console > App Distribution > Testers & Groups.")
+      else
+        raise ex
+      end
+    end
   end
 end
