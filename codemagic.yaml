@@ -9,6 +9,7 @@ workflows:
         - firebase_credentials
       vars:
         PACKAGE_NAME: "com.example.flower_app"
+        FIREBASE_ANDROID_APP_ID: "1:418086415678:android:b05de01a7f457b44c6506f"
       flutter: 3.44.8
       java: 17
     cache:
@@ -74,7 +75,7 @@ workflows:
       firebase:
         firebase_service_account: $FIREBASE_SERVICE_ACCOUNT
         android:
-          app_id: $FIREBASE_ANDROID_APP_ID
+          app_id: 1:418086415678:android:b05de01a7f457b44c6506f
           groups:
             - testers
 
