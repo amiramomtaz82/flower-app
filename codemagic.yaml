@@ -35,12 +35,22 @@ workflows:
       - name: Set up Android keystore and signing config
         script: |
           if [ -n "$ANDROID_KEYSTORE_BASE64" ]; then
-            echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > android/app/upload-keystore.jks
-            echo "storePassword=$ANDROID_KEYSTORE_PASSWORD" > android/key.properties
-            echo "keyPassword=$ANDROID_KEY_PASSWORD" >> android/key.properties
-            echo "keyAlias=$ANDROID_KEY_ALIAS" >> android/key.properties
-            echo "storeFile=upload-keystore.jks" >> android/key.properties
-            echo "Keystore and key.properties created successfully."
+            # Clean newlines and decode keystore cleanly on both macOS and Linux
+            CLEAN_BASE64=$(echo "$ANDROID_KEYSTORE_BASE64" | tr -d '\r\n ')
+            echo "$CLEAN_BASE64" | base64 -D > android/app/upload-keystore.jks 2>/dev/null || \
+            echo "$CLEAN_BASE64" | base64 -d > android/app/upload-keystore.jks 2>/dev/null || \
+            echo "$CLEAN_BASE64" | base64 --decode > android/app/upload-keystore.jks
+
+            cp android/app/upload-keystore.jks android/upload-keystore.jks
+
+            KEYSTORE_PASS="${ANDROID_KEYSTORE_PASSWORD:-flowerApp123}"
+            KEY_PASS="${ANDROID_KEY_PASSWORD:-$KEYSTORE_PASS}"
+            KEY_ALIAS="${ANDROID_KEY_ALIAS:-upload}"
+
+            printf 'storePassword=%s\nkeyPassword=%s\nkeyAlias=%s\nstoreFile=upload-keystore.jks\n' \
+              "$KEYSTORE_PASS" "$KEY_PASS" "$KEY_ALIAS" > android/key.properties
+
+            echo "Keystore and key.properties configured successfully."
           else
             echo "ANDROID_KEYSTORE_BASE64 not set, falling back to debug signing."
           fi
