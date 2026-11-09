@@ -1,0 +1,118 @@
+workflows:
+  android-release:
+    name: Android Release (Firebase App Distribution)
+    max_build_duration: 30
+    instance_type: mac_mini_m2
+    environment:
+      groups:
+        - android_keystore
+        - firebase_credentials
+      vars:
+        PACKAGE_NAME: "com.example.flower_app"
+      flutter: 3.44.8
+      java: 17
+    cache:
+      cache_paths:
+        - $FLUTTER_ROOT/.pub-cache
+        - $HOME/.gradle/caches
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: 'master'
+          include: true
+          source: true
+        - pattern: 'dev'
+          include: true
+          source: true
+        - pattern: 'feature/ci-cd'
+          include: true
+          source: true
+    scripts:
+      - name: Create .env placeholder
+        script: |
+          echo "BASE_URL=http://localhost:8080" > .env
+      - name: Set up Android keystore and signing config
+        script: |
+          if [ -n "$ANDROID_KEYSTORE_BASE64" ]; then
+            echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > android/app/upload-keystore.jks
+            echo "storePassword=$ANDROID_KEYSTORE_PASSWORD" > android/key.properties
+            echo "keyPassword=$ANDROID_KEY_PASSWORD" >> android/key.properties
+            echo "keyAlias=$ANDROID_KEY_ALIAS" >> android/key.properties
+            echo "storeFile=upload-keystore.jks" >> android/key.properties
+            echo "Keystore and key.properties created successfully."
+          else
+            echo "ANDROID_KEYSTORE_BASE64 not set, falling back to debug signing."
+          fi
+      - name: Get Flutter dependencies
+        script: |
+          flutter packages pub get
+      - name: Run code generation (build_runner)
+        script: |
+          dart run build_runner build --delete-conflicting-outputs
+      - name: Run Flutter analyzer and tests
+        script: |
+          dart analyze --no-fatal-warnings
+          flutter test
+      - name: Build Android Release APK
+        script: |
+          flutter build apk --release
+    artifacts:
+      - build/**/outputs/**/*.apk
+      - build/**/outputs/**/mapping.txt
+    publishing:
+      firebase:
+        firebase_service_account: $FIREBASE_SERVICE_ACCOUNT
+        android:
+          app_id: $FIREBASE_ANDROID_APP_ID
+          groups:
+            - testers
+
+  ios-release:
+    name: iOS Release Workflow
+    max_build_duration: 30
+    instance_type: mac_mini_m2
+    environment:
+      groups:
+        - ios_credentials
+      vars:
+        BUNDLE_ID: "com.example.flowerApp"
+      flutter: 3.44.8
+      xcode: latest
+      cocoapods: default
+    cache:
+      cache_paths:
+        - $FLUTTER_ROOT/.pub-cache
+        - $HOME/Library/Caches/CocoaPods
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: 'master'
+          include: true
+          source: true
+        - pattern: 'dev'
+          include: true
+          source: true
+        - pattern: 'feature/ci-cd'
+          include: true
+          source: true
+    scripts:
+      - name: Create .env placeholder
+        script: |
+          echo "BASE_URL=http://localhost:8080" > .env
+      - name: Get Flutter dependencies
+        script: |
+          flutter packages pub get
+      - name: Run code generation (build_runner)
+        script: |
+          dart run build_runner build --delete-conflicting-outputs
+      - name: Install CocoaPods dependencies
+        script: |
+          find . -name "Podfile" -execdir pod install \;
+      - name: Build iOS IPA
+        script: |
+          flutter build ipa --release --no-codesign
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
