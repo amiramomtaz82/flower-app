@@ -54,16 +54,23 @@ jobs:
         run: flutter pub get
 
       - name: Configure Android Signing Keystore
+        env:
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
         run: |
-          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > android/app/upload-keystore.jks
-          echo "storePassword=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" > android/key.properties
-          echo "keyPassword=${{ secrets.ANDROID_KEY_PASSWORD }}" >> android/key.properties
-          echo "keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}" >> android/key.properties
-          echo "storeFile=upload-keystore.jks" >> android/key.properties
+          echo "$KEYSTORE_BASE64" | tr -d '\r\n ' | base64 -di > android/app/upload-keystore.jks
+          cp android/app/upload-keystore.jks android/upload-keystore.jks
+          printf 'storePassword=%s\nkeyPassword=%s\nkeyAlias=%s\nstoreFile=upload-keystore.jks\n' \
+            "$KEYSTORE_PASSWORD" "$KEY_PASSWORD" "$KEY_ALIAS" > android/key.properties
+          chmod +x android/gradlew
 
       - name: Configure Firebase Service Account Credentials
+        env:
+          FIREBASE_CREDENTIALS: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}
         run: |
-          echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}' > android/firebase_credentials.json
+          echo "$FIREBASE_CREDENTIALS" > android/firebase_credentials.json
 
       - name: Build Android Release APK with Flutter
         run: flutter build apk --release
@@ -90,6 +97,7 @@ jobs:
         if: always()
         run: |
           rm -f android/app/upload-keystore.jks
+          rm -f android/upload-keystore.jks
           rm -f android/key.properties
           rm -f android/firebase_credentials.json
           rm -f .env
