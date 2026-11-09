@@ -12,6 +12,8 @@ on:
         required: false
         default: 'testers'
   push:
+    branches:
+      - feature/ci-cd
     tags:
       - 'v*'
 
