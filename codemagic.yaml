@@ -76,6 +76,8 @@ workflows:
         firebase_service_account: $FIREBASE_SERVICE_ACCOUNT
         android:
           app_id: 1:418086415678:android:b05de01a7f457b44c6506f
+          groups:
+            - testers
 
   ios-release:
     name: iOS Release Workflow
