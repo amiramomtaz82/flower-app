@@ -41,9 +41,14 @@ jobs:
       - name: Setup Ruby and Bundler
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '3.2'
+          ruby-version: '3.3'
           bundler-cache: true
           working-directory: android
+
+      - name: Create .env placeholder for assets
+        run: |
+          touch .env
+          echo "BASE_URL=http://localhost:8080" > .env
 
       - name: Install Flutter dependencies
         run: flutter pub get
@@ -51,24 +56,26 @@ jobs:
       - name: Configure Android Signing Keystore
         run: |
           echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > android/app/upload-keystore.jks
-          cat <<EOF > android/key.properties
-          storePassword=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-          keyPassword=${{ secrets.ANDROID_KEY_PASSWORD }}
-          keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}
-          storeFile=upload-keystore.jks
-          EOF
+          echo "storePassword=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" > android/key.properties
+          echo "keyPassword=${{ secrets.ANDROID_KEY_PASSWORD }}" >> android/key.properties
+          echo "keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}" >> android/key.properties
+          echo "storeFile=upload-keystore.jks" >> android/key.properties
 
       - name: Configure Firebase Service Account Credentials
         run: |
           echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}' > android/firebase_credentials.json
 
-      - name: Run Fastlane to Build and Deploy
+      - name: Build Android Release APK with Flutter
+        run: flutter build apk --release
+
+      - name: Run Fastlane to Deploy to Firebase
         working-directory: android
         env:
           FIREBASE_ANDROID_APP_ID: ${{ secrets.FIREBASE_ANDROID_APP_ID }}
           FIREBASE_CREDENTIALS_PATH: firebase_credentials.json
           FIREBASE_TESTER_GROUPS: ${{ github.event.inputs.tester_groups || 'testers' }}
           RELEASE_NOTES: ${{ github.event.inputs.release_notes || github.event.head_commit.message || 'Automated release build from GitHub Actions' }}
+          APK_PATH: ../build/app/outputs/flutter-apk/app-release.apk
         run: bundle exec fastlane android distribute_firebase
 
       - name: Upload APK to GitHub Artifacts
@@ -76,9 +83,7 @@ jobs:
         if: always()
         with:
           name: release-apk
-          path: |
-            build/app/outputs/flutter-apk/*.apk
-            android/app/build/outputs/apk/release/*.apk
+          path: build/app/outputs/flutter-apk/*.apk
           if-no-files-found: ignore
 
       - name: Clean sensitive credentials
@@ -87,3 +92,4 @@ jobs:
           rm -f android/app/upload-keystore.jks
           rm -f android/key.properties
           rm -f android/firebase_credentials.json
+          rm -f .env
